@@ -1,6 +1,4 @@
-#labels HowTo,howtocompilepeter-bochsinlinux
-#Peter-Bochs introduction
-
+#labels HowTo,Peter-Bochsintroduction
 =What is Peter-Bochs?=
 - It is an enhanced bochs emulator with some more debugging commands.
 
