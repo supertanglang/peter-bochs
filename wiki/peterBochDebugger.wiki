@@ -21,4 +21,9 @@
    
    explain : compare to the original "info gdt" command, it print out the GDT in more details
 
-<font color=red>peteR</font>
+*Super breakpoint*
+
+||sbreak list||list out all the super breakpoint||
+||sbreak add <starting physical address> <ending physical address>||If the cpu jump into the memory region, bochs will stop||
+||sbreak d <number>||delete the super break point||
+
