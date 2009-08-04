@@ -1,12 +1,12 @@
-#labels Howtoconfigureyourbrowsertoruntestsonyourmachine.,HowTo
-What is Peter-Bochs?
+#labels HowTo
+=What is Peter-Bochs?=
 - It is an enhanced bochs emulator with some more debugging commands.
 
-What debugging commands are added?
+*What debugging commands are added?*
 - sm, sbreak
 
 
-Command tutorial
+*Command tutorial*
 1) sm - stand for memory search
    syntax : sm <start address> <length> <value>
    explain : it will search for the <value> start from the <start address> to <start address+lenght>, <value> can be a 8/16/32 bits hex/dec value.
