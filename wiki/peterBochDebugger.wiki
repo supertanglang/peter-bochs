@@ -1,4 +1,4 @@
-#labels Phase-Deploy
+#labels Phase-Deploy,dfsdf,sdfsdf
 What is Peter-Bochs?
 - It is an enhanced bochs emulator with some more debugging commands.
 
