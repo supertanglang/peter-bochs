@@ -1,5 +1,5 @@
-#summary One-sentence summary of this page.
 #labels HowTo
+#Peter-Bochs introduction
 
 =What is Peter-Bochs?=
 - It is an enhanced bochs emulator with some more debugging commands.
