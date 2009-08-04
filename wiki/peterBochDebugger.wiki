@@ -11,10 +11,14 @@
 
 *Command tutorial*
 
-||1||2||3||
-||4||5||6||
-
 1) sm - stand for memory search
    syntax : sm `<start address>` `<length>` `<value>`
 
    explain : it will search for the `<value>` start from the `<start address>` to `<start address+lenght>`, `<value>` can be a 8/16/32 bits hex/dec value.
+
+2) gdt - dump the GDT in more detail
+   syntax : gdt `<starting number>` `<ending number`
+   
+   explain : compare to the original "info gdt" command, it print out the GDT in more details
+
+<font color=red>peteR</font>
