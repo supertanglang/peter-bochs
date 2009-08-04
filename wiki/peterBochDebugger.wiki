@@ -1,4 +1,6 @@
 #labels HowTo,Quickexplanationofthecode
+:Quick explanation of the code: :
+
 =What is Peter-Bochs?=
 - It is an enhanced bochs emulator with some more debugging commands.
 
