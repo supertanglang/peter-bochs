@@ -11,6 +11,9 @@
 
 *Command tutorial*
 
+||1||2||3||
+||4||5||6||
+
 1) sm - stand for memory search
    syntax : sm `<start address>` `<length>` `<value>`
 
