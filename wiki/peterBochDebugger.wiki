@@ -1,5 +1,6 @@
-#labels HowTo,Whatisthisdocument
-#Peter-Bochs introduction#
+#labels HowTo,12345
+#Peter-Bochs introduction
+
 =What is Peter-Bochs?=
 - It is an enhanced bochs emulator with some more debugging commands.
 
