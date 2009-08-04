@@ -1,5 +1,5 @@
+#summary Peter-Bochs introduction
 #labels HowTo
-#Peter-Bochs introduction
 
 =What is Peter-Bochs?=
 - It is an enhanced bochs emulator with some more debugging commands.
@@ -15,5 +15,3 @@
    syntax : sm `<start address>` `<length>` `<value>`
 
    explain : it will search for the `<value>` start from the `<start address>` to `<start address+lenght>`, `<value>` can be a 8/16/32 bits hex/dec value.
-
-#summary One-sentence summary of this page.
