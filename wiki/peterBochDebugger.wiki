@@ -11,7 +11,7 @@
 
 *Command tutorial*
 
-1) sm - stand for memory search
+1) sm - memory search
    syntax : sm `<start address>` `<length>` `<value>`
 
    explain : it will search for the `<value>` start from the `<start address>` to `<start address+lenght>`, `<value>` can be a 8/16/32 bits hex/dec value.
