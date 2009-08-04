@@ -1,4 +1,4 @@
-#labels Howtoconfigureyourbrowsertoruntestsonyourmachine.
+#labels How,Howtoconfigureyourbrowsertoruntestsonyourmachine.
 What is Peter-Bochs?
 - It is an enhanced bochs emulator with some more debugging commands.
 
