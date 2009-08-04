@@ -24,6 +24,5 @@
 *Super breakpoint*
 
 ||sbreak list||list out all the super breakpoint||
-||sbreak add <starting physical address> <ending physical address>||If the cpu jump into the memory region, bochs will stop||
-||sbreak d <number>||delete the super break point||
-
+||sbreak add `<starting physical address>` `<ending physical address>`||If the cpu jump into the memory region, bochs will stop||
+||sbreak d `<number>`||delete the super break point||
