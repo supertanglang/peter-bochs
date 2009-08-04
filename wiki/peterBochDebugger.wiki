@@ -15,3 +15,5 @@
    syntax : sm `<start address>` `<length>` `<value>`
 
    explain : it will search for the `<value>` start from the `<start address>` to `<start address+lenght>`, `<value>` can be a 8/16/32 bits hex/dec value.
+
+#summary One-sentence summary of this page.
