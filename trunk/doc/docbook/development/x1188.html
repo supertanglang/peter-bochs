@@ -1,0 +1,187 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Updating the CVS snapshot</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="Bochs Developers Guide"
+HREF="book1.html"><LINK
+REL="UP"
+TITLE="Webmastering"
+HREF="c1182.html"><LINK
+REL="PREVIOUS"
+TITLE="Webmastering"
+HREF="c1182.html"><LINK
+REL="NEXT"
+TITLE="Updating the online documentation"
+HREF="x1193.html"></HEAD
+><BODY
+CLASS="SECTION"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Bochs Developers Guide</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="c1182.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Webmastering</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="x1193.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECTION"
+><H1
+CLASS="SECTION"
+><A
+NAME="UPDATE-CVS-SNAPSHOT"
+>Updating the CVS snapshot</A
+></H1
+><P
+>The CVS snapshot can be updated with SF shell access using SSH. There is a script
+called <B
+CLASS="COMMAND"
+>update-snapshots.sh</B
+> that can do all the required steps
+(checking out CVS, packing the source tree into one archive, updating the website
+link).
+<TABLE
+BORDER="0"
+BGCOLOR="#E0E0E0"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>ssh -t vruppert,bochs@shell.sourceforge.net create
+vruppert,bochs@shell.sourceforge.net's password:
+
+Requesting a new shell for "vruppert" and waiting for it to start.
+queued... starting...
+
+This is an interactive shell created for user vruppert,bochs.
+Use the "timeleft" command to see how much time remains before shutdown.
+Use the "shutdown" command to destroy the shell before the time limit.
+For path information and login help, type "sf-help".
+
+[vruppert@shell-24002 ~]$ cd /home/groups/b/bo/bochs/sitebin/
+[vruppert@shell-24002 sitebin]$ ./update-snapshots.sh
+[vruppert@shell-24002 sitebin]$ shutdown
+Requesting that your shell be shut down.
+This request will be processed soon.
+[vruppert@shell-24002 sitebin]$
+Broadcast message from root (Sat Nov 15 08:36:01 2008):
+
+The system is going down for system halt NOW!
+Connection to shell-24002 closed by remote host.
+Connection to shell-24002 closed.
+Connection to shell.sourceforge.net closed.</PRE
+></TD
+></TR
+></TABLE
+></P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="c1182.html"
+ACCESSKEY="P"
+>&#60;&#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="book1.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="x1193.html"
+ACCESSKEY="N"
+>Next &#62;&#62;&#62;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Webmastering</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="c1182.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Updating the online documentation</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>
