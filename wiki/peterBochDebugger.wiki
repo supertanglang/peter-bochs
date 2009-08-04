@@ -1,4 +1,4 @@
-#labels HowTo,123456789dsfdsfsdfaskldjaklsjdklasjqwioeuioqwueoqwueasopdiasopidqwopeiqwopie
+#labels HowTo,howtocompilepeter-bochsinlinux.
 #Peter-Bochs introduction
 
 =What is Peter-Bochs?=
