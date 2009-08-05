@@ -11,19 +11,12 @@
 
 *Command tutorial*
 
-1) sm - memory search
-   syntax : sm `<start address>` `<length>` `<value>`
-
-   explain : it will search for the `<value>` start from the `<start address>` to `<start address+lenght>`, `<value>` can be a 8/16/32 bits hex/dec value.
-
-2) gdt - dump the GDT in more detail
-   syntax : gdt `<starting number>` `<ending number`
-   
-   explain : compare to the original "info gdt" command, it print out the GDT in more details
+||sm `<start address>` `<length>` `<value>`||it will search for the `<value>` start from the `<start address>` to `<start address+lenght>`, `<value>` can be a 8/16/32 bits hex/dec value||
+||gdt `<starting number>` `<ending number>`|dump the GDT in more detail||
 
 *Super breakpoint*
 
 ||sbreak list||list out all the super breakpoint||
 ||sbreak add `<starting physical address>` `<ending physical address>`||If the cpu jump into the memory region, bochs will stop||
-||sbreak add ax||If the ax register is change among the current value, bochs will stop||
+||sbreak add ax||If the ax register is changed, bochs will stop||
 ||sbreak d `<number>`||delete the super break point||
