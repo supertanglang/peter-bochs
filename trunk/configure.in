@@ -2996,11 +2996,12 @@ AC_SUBST(IODEV_PLUGIN_OBJS)
 AC_SUBST(PLUGIN_VAR)
 AC_SUBST(PLUGIN_TARGET)
 AC_SUBST(INSTALL_PLUGINS_VAR)
+AC_SUBST(PETER_BOCHS)
 
 AC_PATH_PROG(GZIP, gzip)
 AC_PATH_PROG(TAR, tar)
 
-AC_OUTPUT(Makefile iodev/Makefile bx_debug/Makefile bios/Makefile \
+AC_OUTPUT(Makefile peter-bochs/Makefile iodev/Makefile bx_debug/Makefile bios/Makefile \
 	 cpu/Makefile memory/Makefile gui/Makefile \
 	 disasm/Makefile ${INSTRUMENT_DIR}/Makefile misc/Makefile \
 	 fpu/Makefile doc/docbook/Makefile \

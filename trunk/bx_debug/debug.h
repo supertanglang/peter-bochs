@@ -229,6 +229,7 @@ int bx_dbg_pbreakpoint_command(BreakpointKind bk, bx_phy_address paddress);
 
 
 int bx_dbg_super_breakpoint_add_command(bx_phy_address paddress1, bx_phy_address paddress2);
+int bx_dbg_super_breakpoint_add_reg_command(unsigned reg, unsigned type);
 void bx_dbg_super_breakpoint_list_command(void);
 bx_bool bx_dbg_super_breakpoint_delete_command(unsigned handle);
 
@@ -392,6 +393,9 @@ struct {
 #if BX_DBG_MAX_SUPER_BREAKPOINT
 	unsigned num_super_breakpoint;
 	struct {
+		unsigned type;
+		unsigned reg;
+		unsigned reg_val;
 		bx_phy_address fromAddr; // physical address is 32 bits only
 		bx_phy_address toAddr; // physical address is 32 bits only
 		unsigned bpoint_id;

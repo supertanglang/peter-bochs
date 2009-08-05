@@ -87,7 +87,7 @@ void BX_CPU_C::cpu_loop(Bit32u max_instr_count) {
 
 	if (setjmp(BX_CPU_THIS_PTR jmp_buf_env)) {
 		// only from exception function we can get here ...
-		BX_INSTR_NEW_INSTRUCTION(BX_CPU_ID);
+		BX_INSTR_NEW_INSTRUCTION( BX_CPU_ID);
 		BX_TICK1_IF_SINGLE_PROCESSOR();
 #if BX_DEBUGGER || BX_GDBSTUB
 		if (dbg_instruction_epilog()) return;
@@ -480,15 +480,14 @@ unsigned BX_CPU_C::handleAsyncEvent(void) {
 	// Priority 2: Trap on Task Switch
 	//   T flag in TSS is set
 	if (BX_CPU_THIS_PTR debug_trap & BX_DEBUG_TRAP_TASK_SWITCH_BIT)
-	exception(BX_DB_EXCEPTION, 0, 0); // no error, not interrupt
+		exception(BX_DB_EXCEPTION, 0, 0); // no error, not interrupt
 
 	// Priority 3: External Hardware Interventions
 	//   FLUSH
 	//   STOPCLK
 	//   SMI
 	//   INIT
-	if (BX_CPU_THIS_PTR pending_SMI && ! BX_CPU_THIS_PTR smm_mode())
-	{
+	if (BX_CPU_THIS_PTR pending_SMI && ! BX_CPU_THIS_PTR smm_mode()) {
 		// clear SMI pending flag and disable NMI when SMM was accepted
 		BX_CPU_THIS_PTR pending_SMI = 0;
 		enter_system_management_mode();
@@ -509,8 +508,7 @@ unsigned BX_CPU_C::handleAsyncEvent(void) {
 	//   Breakpoints
 	//   Debug Trap Exceptions (TF flag set or data/IO breakpoint)
 	if (BX_CPU_THIS_PTR debug_trap &&
-			!(BX_CPU_THIS_PTR inhibit_mask & BX_INHIBIT_DEBUG_SHADOW))
-	{
+			!(BX_CPU_THIS_PTR inhibit_mask & BX_INHIBIT_DEBUG_SHADOW)) {
 		// A trap may be inhibited on this boundary due to an instruction
 		// which loaded SS.  If so we clear the inhibit_mask below
 		// and don't execute this code until the next boundary.
@@ -554,8 +552,7 @@ unsigned BX_CPU_C::handleAsyncEvent(void) {
 		VMexit(0, VMX_VMEXIT_INTERRUPT_WINDOW, 0);
 	}
 #endif
-	else if (BX_CPU_INTR && BX_CPU_THIS_PTR get_IF() && BX_DBG_ASYNC_INTR)
-	{
+	else if (BX_CPU_INTR && BX_CPU_THIS_PTR get_IF() && BX_DBG_ASYNC_INTR) {
 		Bit8u vector;
 #if BX_SUPPORT_VMX
 		VMexit_ExtInterrupt();
@@ -585,8 +582,7 @@ unsigned BX_CPU_C::handleAsyncEvent(void) {
 		BX_CPU_THIS_PTR speculative_rsp = 0;
 		BX_CPU_THIS_PTR EXT = 0;
 		BX_CPU_THIS_PTR errorno = 0;
-	}
-	else if (BX_HRQ && BX_DBG_ASYNC_DMA) {
+	} else if (BX_HRQ && BX_DBG_ASYNC_DMA) {
 		// NOTE: similar code in ::take_dma()
 		// assert Hold Acknowledge (HLDA) and go into a bus hold state
 		DEV_dma_raise_hlda();
@@ -700,7 +696,7 @@ void BX_CPU_C::prefetch(void) {
 	else
 #endif
 	{
-		BX_CLEAR_64BIT_HIGH(BX_64BIT_REG_RIP); /* avoid 32-bit EIP wrap */
+		BX_CLEAR_64BIT_HIGH( BX_64BIT_REG_RIP); /* avoid 32-bit EIP wrap */
 		laddr = BX_CPU_THIS_PTR get_laddr32(BX_SEG_REG_CS, EIP);
 		pageOffset = PAGE_OFFSET(laddr);
 
@@ -787,30 +783,30 @@ void BX_CPU_C::boundaryFetch(const Bit8u *fetchPtr, unsigned remainingInPage, bx
 
 	unsigned fetchBufferLimit = 15;
 	if (BX_CPU_THIS_PTR eipPageWindowSize < 15) {
-		BX_DEBUG(("boundaryFetch: small window size after prefetch - %d bytes", BX_CPU_THIS_PTR eipPageWindowSize));
-		fetchBufferLimit = BX_CPU_THIS_PTR eipPageWindowSize;
-	}
+BX_DEBUG	(("boundaryFetch: small window size after prefetch - %d bytes", BX_CPU_THIS_PTR eipPageWindowSize));
+	fetchBufferLimit = BX_CPU_THIS_PTR eipPageWindowSize;
+}
 
-	// We can fetch straight from the 0th byte, which is eipFetchPtr;
-	fetchPtr = BX_CPU_THIS_PTR eipFetchPtr;
+// We can fetch straight from the 0th byte, which is eipFetchPtr;
+fetchPtr = BX_CPU_THIS_PTR eipFetchPtr;
 
-	// read leftover bytes in next page
-	for (; j < fetchBufferLimit; j++) {
-		fetchBuffer[j] = *fetchPtr++;
-	}
+// read leftover bytes in next page
+for (; j < fetchBufferLimit; j++) {
+	fetchBuffer[j] = *fetchPtr++;
+}
 #if BX_SUPPORT_X86_64
-	if (BX_CPU_THIS_PTR cpu_mode == BX_MODE_LONG_64)
-	ret = fetchDecode64(fetchBuffer, i, remainingInPage+fetchBufferLimit);
-	else
+if (BX_CPU_THIS_PTR cpu_mode == BX_MODE_LONG_64)
+ret = fetchDecode64(fetchBuffer, i, remainingInPage+fetchBufferLimit);
+else
 #endif
-	ret = fetchDecode32(fetchBuffer, i, remainingInPage + fetchBufferLimit);
+ret = fetchDecode32(fetchBuffer, i, remainingInPage + fetchBufferLimit);
 
-	if (ret == 0) {
-		BX_INFO(("boundaryFetch #GP(0): failed to complete instruction decoding"));
-		exception(BX_GP_EXCEPTION, 0, 0);
-	}
+if (ret == 0) {
+	BX_INFO(("boundaryFetch #GP(0): failed to complete instruction decoding"));
+	exception(BX_GP_EXCEPTION, 0, 0);
+}
 
-	// Restore EIP since we fudged it to start at the 2nd page boundary.
+// Restore EIP since we fudged it to start at the 2nd page boundary.
 RIP= BX_CPU_THIS_PTR prev_rip;
 
 // Since we cross an instruction boundary, note that we need a prefetch()
@@ -824,12 +820,12 @@ BX_INSTR_OPCODE(BX_CPU_ID, fetchBuffer, i->ilen(),
 }
 
 void BX_CPU_C::deliver_SIPI(unsigned vector) {
-if(BX_CPU_THIS_PTR activity_state == BX_ACTIVITY_STATE_WAIT_FOR_SIPI) {
-	BX_CPU_THIS_PTR activity_state = BX_ACTIVITY_STATE_ACTIVE;
-	RIP = 0;
-	load_seg_reg(&BX_CPU_THIS_PTR sregs[BX_SEG_REG_CS], vector*0x100);
-	BX_CPU_THIS_PTR disable_INIT = 0; // enable INIT pin back
-	BX_INFO(("CPU %d started up at %04X:%08X by APIC",
+	if (BX_CPU_THIS_PTR activity_state == BX_ACTIVITY_STATE_WAIT_FOR_SIPI) {
+		BX_CPU_THIS_PTR activity_state = BX_ACTIVITY_STATE_ACTIVE;
+		RIP = 0;
+		load_seg_reg(&BX_CPU_THIS_PTR sregs[BX_SEG_REG_CS], vector*0x100);
+		BX_CPU_THIS_PTR disable_INIT = 0; // enable INIT pin back
+BX_INFO	(("CPU %d started up at %04X:%08X by APIC",
 					BX_CPU_THIS_PTR bx_cpuid, vector*0x100, EIP));
 } else {
 	BX_INFO(("CPU %d started up by APIC, but was not halted at the time", BX_CPU_THIS_PTR bx_cpuid));
@@ -971,12 +967,53 @@ bx_bool BX_CPU_C::dbg_instruction_epilog(void)
 		bx_phy_address phy;
 		bx_bool valid = dbg_xlate_linear2phy(BX_CPU_THIS_PTR guard_found.laddr, &phy);
 		for (unsigned n=0; n<bx_guard.iaddr.num_super_breakpoint; n++) {
-			if (bx_guard.iaddr.super_breakpoints[n].enabled && bx_guard.iaddr.super_breakpoints[n].fromAddr <= phy && phy<=bx_guard.iaddr.super_breakpoints[n].toAddr)
-			{
-				BX_CPU_THIS_PTR guard_found.guard_found = BX_DBG_GUARD_SUPER_BREAKPOINT;
-				BX_CPU_THIS_PTR guard_found.iaddr_index = n;
-				BX_CPU_THIS_PTR guard_found.time_tick = tt;
-				return(1); // on a breakpoint
+			if (bx_guard.iaddr.super_breakpoints[n].enabled==1) {
+				if ( bx_guard.iaddr.super_breakpoints[n].type==0 && bx_guard.iaddr.super_breakpoints[n].fromAddr <= phy && phy<=bx_guard.iaddr.super_breakpoints[n].toAddr)
+				{
+					BX_CPU_THIS_PTR guard_found.guard_found = BX_DBG_GUARD_SUPER_BREAKPOINT;
+					BX_CPU_THIS_PTR guard_found.iaddr_index = n;
+					BX_CPU_THIS_PTR guard_found.time_tick = tt;
+					return(1); // on a breakpoint
+				} else if (bx_guard.iaddr.super_breakpoints[n].type>=1 && bx_guard.iaddr.super_breakpoints[n].type<=4) {
+					unsigned current_reg_val;
+					unsigned reg=bx_guard.iaddr.super_breakpoints[n].reg;
+					if (reg==0) {
+						current_reg_val = BX_CPU(dbg_cpu)->get_reg32(BX_32BIT_REG_EAX);
+					} else if (reg==1) {
+						current_reg_val = BX_CPU(dbg_cpu)->get_reg32(BX_32BIT_REG_ECX);
+					} else if (reg==2) {
+						current_reg_val = BX_CPU(dbg_cpu)->get_reg32(BX_32BIT_REG_EDX);
+					} else if (reg==3) {
+						current_reg_val = BX_CPU(dbg_cpu)->get_reg32(BX_32BIT_REG_EBX);
+					} else if (reg==4) {
+						current_reg_val = BX_CPU(dbg_cpu)->get_reg32(BX_32BIT_REG_ESP);
+					} else if (reg==5) {
+						current_reg_val = BX_CPU(dbg_cpu)->get_reg32(BX_32BIT_REG_EBP);
+					} else if (reg==6) {
+						current_reg_val = BX_CPU(dbg_cpu)->get_reg32(BX_32BIT_REG_ESI);
+					} else if (reg==7) {
+						current_reg_val = BX_CPU(dbg_cpu)->get_reg32(BX_32BIT_REG_EDI);
+					}
+
+					unsigned type=bx_guard.iaddr.super_breakpoints[n].type;
+					if (type==1) {
+						current_reg_val=current_reg_val>>8 & 0xff;
+					} else if (type==2) {
+						current_reg_val=current_reg_val & 0xff;
+					} else if (type==3) {
+						current_reg_val=current_reg_val & 0xffff;
+					} else if (type==4) {
+						current_reg_val=current_reg_val;
+					}
+
+					if (current_reg_val!=bx_guard.iaddr.super_breakpoints[n].reg_val) {
+						dbg_printf("current_reg_val=%x, reg_val=%x\n",current_reg_val, bx_guard.iaddr.super_breakpoints[n].reg_val);
+						BX_CPU_THIS_PTR guard_found.guard_found = BX_DBG_GUARD_SUPER_BREAKPOINT;
+						BX_CPU_THIS_PTR guard_found.iaddr_index = n;
+						BX_CPU_THIS_PTR guard_found.time_tick = tt;
+						return (1);
+					}
+				}
 			}
 		}
 	}

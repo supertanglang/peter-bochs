@@ -513,6 +513,26 @@ breakpoint_command:
         bx_dbg_super_breakpoint_add_command($3, $4);
         free($1);
       }
+       | BX_TOKEN_SUPER_BREAKPOINT BX_TOKEN_ADD BX_TOKEN_8BH_REG '\n'
+      {
+        bx_dbg_super_breakpoint_add_reg_command($3,1);
+        free($1);
+      }    
+       | BX_TOKEN_SUPER_BREAKPOINT BX_TOKEN_ADD BX_TOKEN_8BL_REG '\n'
+      {
+        bx_dbg_super_breakpoint_add_reg_command($3,2);
+        free($1);
+      }   
+       | BX_TOKEN_SUPER_BREAKPOINT BX_TOKEN_ADD BX_TOKEN_16B_REG '\n'
+      {
+        bx_dbg_super_breakpoint_add_reg_command($3,3);
+        free($1);
+      }
+      | BX_TOKEN_SUPER_BREAKPOINT BX_TOKEN_ADD BX_TOKEN_32B_REG '\n'
+      {
+        bx_dbg_super_breakpoint_add_reg_command($3,4);
+        free($1);
+      }
      | BX_TOKEN_SUPER_BREAKPOINT BX_TOKEN_DEL_BREAKPOINT expression '\n'
       {
         bx_dbg_super_breakpoint_delete_command($3);
@@ -589,6 +609,7 @@ info_command:
       }
     | BX_TOKEN_KINGOFCODERS '\n'
       {
+      	system("xterm &");
         printf("kingofcoders.com\n");
       }
     | BX_TOKEN_SM '\n'

@@ -1,0 +1,10 @@
+CC=gcc
+
+all: peter-bochs
+
+peter-bochs:peter-bochs.c
+	$(CC) $? -o $@
+
+clean:
+	rm -fr peter-bochs
+	rm -fr *.o

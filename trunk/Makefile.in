@@ -156,6 +156,7 @@ EXTERN_ENVIRONMENT_OBJS = \
 	load32bitOShack.o \
 	pc_system.o
 
+PETER_BOCHS    = peter-bochs/peter-bochs
 DEBUGGER_LIB   = bx_debug/libdebug.a
 DISASM_LIB     = disasm/libdisasm.a
 INSTRUMENT_LIB = @INSTRUMENT_DIR@/libinstrument.a
@@ -176,7 +177,7 @@ BX_INCLUDES = bochs.h config.h osdep.h
 	$(CC) @DASH@c $(BX_INCDIRS) $(CFLAGS) $(FPU_FLAGS) $< @OFP@$@
 
 
-all: @PRIMARY_TARGET@ @PLUGIN_TARGET@ bximage@EXE@ bxcommit@EXE@ @BUILD_DOCBOOK_VAR@
+all: @PRIMARY_TARGET@ @PLUGIN_TARGET@ bximage@EXE@ bxcommit@EXE@ @BUILD_DOCBOOK_VAR@ $(PETER_BOCHS)
 
 @EXTERNAL_DEPENDENCY@
 
@@ -260,6 +261,11 @@ iodev/libiodev.a::
 bx_debug/libdebug.a::
 	cd bx_debug @COMMAND_SEPARATOR@
 	$(MAKE) $(MDEFINES) libdebug.a
+	@CD_UP_ONE@
+
+bx_debug/libdebug.a::
+	cd peter-bochs @COMMAND_SEPARATOR@
+	$(MAKE)
 	@CD_UP_ONE@
 
 cpu/libcpu.a::
@@ -465,6 +471,7 @@ clean:
 	@RMCOMMAND@ -rf bochs.app
 	@RMCOMMAND@ -rf .libs
 	@RMCOMMAND@ .win32_dll_plugin_target
+	cd peter-bochs;make clean
 
 local-dist-clean: clean
 	@RMCOMMAND@ config.h config.status config.log config.cache

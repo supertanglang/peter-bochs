@@ -81,6 +81,7 @@ sregs		{ bxlval.sval = strdup(bxtext); return(BX_TOKEN_SEGMENT_REGS); }
 r               { bxlval.sval = strdup(bxtext); return(BX_TOKEN_R); }
 reg|regs        |
 registers       { bxlval.sval = strdup(bxtext); return(BX_TOKEN_REGS); }
+
 fp|fpu          { bxlval.sval = strdup(bxtext); return(BX_TOKEN_FPU); }
 sse             |
 xmm             { bxlval.sval = strdup(bxtext); return(BX_TOKEN_SSE); }
