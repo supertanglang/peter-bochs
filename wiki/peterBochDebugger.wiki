@@ -12,7 +12,7 @@
 *Command tutorial*
 
 ||sm `<start address>` `<length>` `<value>`||it will search for the `<value>` start from the `<start address>` to `<start address+lenght>`, `<value>` can be a 8/16/32 bits hex/dec value||
-||gdt `<starting number>` `<ending number>`|dump the GDT in more detail||
+||gdt `<starting number>` `<ending number>`||dump the GDT in more detail||
 
 *Super breakpoint*
 
