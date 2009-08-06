@@ -1007,11 +1007,64 @@ bx_bool BX_CPU_C::dbg_instruction_epilog(void)
 					}
 
 					if (current_reg_val!=bx_guard.iaddr.super_breakpoints[n].reg_val) {
-						dbg_printf("current_reg_val=%x, reg_val=%x\n",current_reg_val, bx_guard.iaddr.super_breakpoints[n].reg_val);
+						bx_guard.iaddr.super_breakpoints[n].reg_val=current_reg_val;
 						BX_CPU_THIS_PTR guard_found.guard_found = BX_DBG_GUARD_SUPER_BREAKPOINT;
 						BX_CPU_THIS_PTR guard_found.iaddr_index = n;
 						BX_CPU_THIS_PTR guard_found.time_tick = tt;
 						return (1);
+					}
+				} else if (bx_guard.iaddr.super_breakpoints[n].type>=5 && bx_guard.iaddr.super_breakpoints[n].type<=8) {
+					unsigned current_reg_val;
+					unsigned reg=bx_guard.iaddr.super_breakpoints[n].reg;
+					if (reg==0) {
+						current_reg_val = BX_CPU(dbg_cpu)->get_reg32(BX_32BIT_REG_EAX);
+					} else if (reg==1) {
+						current_reg_val = BX_CPU(dbg_cpu)->get_reg32(BX_32BIT_REG_ECX);
+					} else if (reg==2) {
+						current_reg_val = BX_CPU(dbg_cpu)->get_reg32(BX_32BIT_REG_EDX);
+					} else if (reg==3) {
+						current_reg_val = BX_CPU(dbg_cpu)->get_reg32(BX_32BIT_REG_EBX);
+					} else if (reg==4) {
+						current_reg_val = BX_CPU(dbg_cpu)->get_reg32(BX_32BIT_REG_ESP);
+					} else if (reg==5) {
+						current_reg_val = BX_CPU(dbg_cpu)->get_reg32(BX_32BIT_REG_EBP);
+					} else if (reg==6) {
+						current_reg_val = BX_CPU(dbg_cpu)->get_reg32(BX_32BIT_REG_ESI);
+					} else if (reg==7) {
+						current_reg_val = BX_CPU(dbg_cpu)->get_reg32(BX_32BIT_REG_EDI);
+					}
+
+					unsigned type=bx_guard.iaddr.super_breakpoints[n].type;
+					if (type==1) {
+						current_reg_val=current_reg_val>>8 & 0xff;
+					} else if (type==2) {
+						current_reg_val=current_reg_val & 0xff;
+					} else if (type==3) {
+						current_reg_val=current_reg_val & 0xffff;
+					} else if (type==4) {
+						current_reg_val=current_reg_val;
+					}
+
+					//dbg_printf("===%x\n",bx_guard.iaddr.super_breakpoints[n].reg_val);
+					if (current_reg_val==bx_guard.iaddr.super_breakpoints[n].reg_val) {
+						BX_CPU_THIS_PTR guard_found.guard_found = BX_DBG_GUARD_SUPER_BREAKPOINT;
+						BX_CPU_THIS_PTR guard_found.iaddr_index = n;
+						BX_CPU_THIS_PTR guard_found.time_tick = tt;
+						return (1);
+					}
+				} else if (bx_guard.iaddr.super_breakpoints[n].type==9) {
+					int x;
+					int length=bx_guard.iaddr.super_breakpoints[n].toAddr-bx_guard.iaddr.super_breakpoints[n].fromAddr;
+					Bit8u tempBuffer[length];
+					access_read_physical(bx_guard.iaddr.super_breakpoints[n].fromAddr, length, tempBuffer);
+					for (x=0;x<length;x++) {
+						if (tempBuffer[x]!=bx_guard.iaddr.super_breakpoints[n].memoryArea[x]) {
+							BX_CPU_THIS_PTR guard_found.guard_found = BX_DBG_GUARD_SUPER_BREAKPOINT;
+							BX_CPU_THIS_PTR guard_found.iaddr_index = n;
+							BX_CPU_THIS_PTR guard_found.time_tick = tt;
+							dbg_printf("memory 0x%0.8x changed\n",bx_guard.iaddr.super_breakpoints[n].fromAddr+x);
+							return (1);
+						}
 					}
 				}
 			}

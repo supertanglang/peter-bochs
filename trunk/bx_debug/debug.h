@@ -226,13 +226,6 @@ bx_bool bx_dbg_del_vbreak(unsigned handle);
 int bx_dbg_vbreakpoint_command(BreakpointKind bk, Bit32u cs, bx_address eip);
 int bx_dbg_lbreakpoint_command(BreakpointKind bk, bx_address laddress);
 int bx_dbg_pbreakpoint_command(BreakpointKind bk, bx_phy_address paddress);
-
-
-int bx_dbg_super_breakpoint_add_command(bx_phy_address paddress1, bx_phy_address paddress2);
-int bx_dbg_super_breakpoint_add_reg_command(unsigned reg, unsigned type);
-void bx_dbg_super_breakpoint_list_command(void);
-bx_bool bx_dbg_super_breakpoint_delete_command(unsigned handle);
-
 void bx_dbg_info_bpoints_command(void);
 void bx_dbg_quit_command(void);
 #define BX_INFO_GENERAL_PURPOSE_REGS 1 /* bitmasks - choices for bx_dbg_info_registers_command */
@@ -244,8 +237,6 @@ void bx_dbg_info_dirty_command(void);
 void bx_dbg_info_ivt_command(unsigned from, unsigned to);
 void bx_dbg_info_idt_command(unsigned from, unsigned to);
 void bx_dbg_info_gdt_command(unsigned from, unsigned to);
-void bx_dbg_gdt_command(unsigned from, unsigned to);
-void bx_dbg_search_memory_command(bx_address from, bx_address length, bx_address value);
 void bx_dbg_info_ldt_command(unsigned from, unsigned to);
 void bx_dbg_info_tss_command(void);
 void bx_dbg_info_control_regs_command(void);
@@ -295,6 +286,18 @@ void bx_dbg_info_symbols_command(const char *Symbol);
 int bx_dbg_lbreakpoint_symbol_command(const char *Symbol);
 Bit32u bx_dbg_get_symbol_value(const char *Symbol);
 const char* bx_dbg_disasm_symbolic_address(Bit32u eip, Bit32u base);
+
+/* peter-bochs */
+int bx_dbg_super_breakpoint_add_command(bx_phy_address paddress1, bx_phy_address paddress2);
+int bx_dbg_super_breakpoint_add_reg_command(unsigned reg, unsigned type);
+int bx_dbg_super_breakpoint_add_reg_equal_command(unsigned reg, unsigned value, unsigned type);
+int bx_dbg_super_breakpoint_add_memory_command(bx_phy_address paddress1, Bit32u length);
+void bx_dbg_super_breakpoint_list_command(void);
+bx_bool bx_dbg_super_breakpoint_delete_command(unsigned handle);
+
+void bx_dbg_gdt_command(unsigned from, unsigned to);
+void bx_dbg_search_memory_command(bx_address from, bx_address length, bx_address value);
+/* end peter-bochs */
 
 #ifdef __cplusplus
 }
@@ -399,6 +402,7 @@ struct {
 		bx_phy_address fromAddr; // physical address is 32 bits only
 		bx_phy_address toAddr; // physical address is 32 bits only
 		unsigned bpoint_id;
+		char *memoryArea;
 		bx_bool enabled;
 	}super_breakpoints[BX_DBG_MAX_SUPER_BREAKPOINT];
 #endif

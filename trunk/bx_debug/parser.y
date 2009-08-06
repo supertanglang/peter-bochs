@@ -50,6 +50,8 @@
 %token <sval> BX_TOKEN_ENABLE_BREAKPOINT
 %token <sval> BX_TOKEN_DISABLE_BREAKPOINT
 %token <sval> BX_TOKEN_SUPER_BREAKPOINT
+%token <sval> BX_TOKEN_ADD
+%token <sval> BX_TOKEN_ADDM
 %token <sval> BX_TOKEN_INFO
 %token <sval> BX_TOKEN_QUIT
 %token <sval> BX_TOKEN_R
@@ -503,49 +505,87 @@ breakpoint_command:
         bx_dbg_pbreakpoint_command(bkRegular, $2);
         free($1);
       }
-     | BX_TOKEN_SUPER_BREAKPOINT BX_TOKEN_ADD expression '\n'
+    | BX_TOKEN_PBREAKPOINT '*' expression '\n'
+      {
+        bx_dbg_pbreakpoint_command(bkRegular, $3);
+        free($1);
+      }
+      
+      
+      
+       | BX_TOKEN_GDT optional_numeric optional_numeric '\n'
+      {
+        bx_dbg_gdt_command($2, $3);
+        free($1); 
+      }
+      | BX_TOKEN_SM '\n'
+      {
+      	dbg_printf("error: parameter missing\n");
+		dbg_printf("e.g. : sm <address> <length> <value>\n");
+	  }
+      | BX_TOKEN_SUPER_BREAKPOINT BX_TOKEN_ADD expression '\n'
       {
         bx_dbg_super_breakpoint_add_command($3, 0xffffffff);
-        free($1);
+        free($1); free($2);
       }
      | BX_TOKEN_SUPER_BREAKPOINT BX_TOKEN_ADD expression expression'\n'
       {
         bx_dbg_super_breakpoint_add_command($3, $4);
-        free($1);
+        free($1); free($2);
       }
        | BX_TOKEN_SUPER_BREAKPOINT BX_TOKEN_ADD BX_TOKEN_8BH_REG '\n'
       {
         bx_dbg_super_breakpoint_add_reg_command($3,1);
-        free($1);
+        free($1); free($2);
+      }    
+      | BX_TOKEN_SUPER_BREAKPOINT BX_TOKEN_ADD BX_TOKEN_8BH_REG '=' expression '\n'
+      {
+        bx_dbg_super_breakpoint_add_reg_equal_command($3, $5, 5);
+        free($1); free($2);
       }    
        | BX_TOKEN_SUPER_BREAKPOINT BX_TOKEN_ADD BX_TOKEN_8BL_REG '\n'
       {
         bx_dbg_super_breakpoint_add_reg_command($3,2);
-        free($1);
-      }   
+        free($1); free($2);
+      }
+      | BX_TOKEN_SUPER_BREAKPOINT BX_TOKEN_ADD BX_TOKEN_8BL_REG '=' expression '\n'
+      {
+        bx_dbg_super_breakpoint_add_reg_equal_command($3, $5, 6);
+        free($1); free($2);
+      }     
        | BX_TOKEN_SUPER_BREAKPOINT BX_TOKEN_ADD BX_TOKEN_16B_REG '\n'
       {
         bx_dbg_super_breakpoint_add_reg_command($3,3);
-        free($1);
+        free($1); free($2);
       }
+      | BX_TOKEN_SUPER_BREAKPOINT BX_TOKEN_ADD BX_TOKEN_16B_REG '=' expression '\n'
+      {
+        bx_dbg_super_breakpoint_add_reg_equal_command($3, $5, 7);
+        free($1); free($2);
+      }  
       | BX_TOKEN_SUPER_BREAKPOINT BX_TOKEN_ADD BX_TOKEN_32B_REG '\n'
       {
         bx_dbg_super_breakpoint_add_reg_command($3,4);
-        free($1);
+        free($1); free($2);
       }
+      | BX_TOKEN_SUPER_BREAKPOINT BX_TOKEN_ADD BX_TOKEN_32B_REG '=' expression '\n'
+      {
+        bx_dbg_super_breakpoint_add_reg_equal_command($3, $5, 8);
+        free($1); free($2);
+      }  
+      | BX_TOKEN_SUPER_BREAKPOINT BX_TOKEN_ADDM expression optional_numeric '\n'
+      {
+        bx_dbg_super_breakpoint_add_memory_command($3, $4);
+        free($1);
+      }  
      | BX_TOKEN_SUPER_BREAKPOINT BX_TOKEN_DEL_BREAKPOINT expression '\n'
       {
         bx_dbg_super_breakpoint_delete_command($3);
-        free($1);
+        free($1); free($2);
       }
     | BX_TOKEN_SUPER_BREAKPOINT BX_TOKEN_LIST '\n'
       {
         bx_dbg_super_breakpoint_list_command();
-        free($1);
-      }
-    | BX_TOKEN_PBREAKPOINT '*' expression '\n'
-      {
-        bx_dbg_pbreakpoint_command(bkRegular, $3);
         free($1);
       }
     ;
@@ -602,21 +642,6 @@ info_command:
         bx_dbg_info_gdt_command($3, $4);
         free($1); free($2);
       }
-    | BX_TOKEN_GDT optional_numeric optional_numeric '\n'
-      {
-        bx_dbg_gdt_command($2, $3);
-        free($1); 
-      }
-    | BX_TOKEN_KINGOFCODERS '\n'
-      {
-      	system("xterm &");
-        printf("kingofcoders.com\n");
-      }
-    | BX_TOKEN_SM '\n'
-      {
-      	dbg_printf("error: parameter missing\n");
-		dbg_printf("e.g. : sm <address> <length> <value>\n");
-	  }
     | BX_TOKEN_SM expression expression expression '\n'
       {
           bx_dbg_search_memory_command($2, $3, $4);

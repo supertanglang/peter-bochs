@@ -1792,9 +1792,133 @@ void bx_dbg_disassemble_current(int which_cpu, int print_time)
 	}
 }
 
+const char * getRegisterName(unsigned reg, unsigned type) {
+	if (reg==0) {
+		switch (type) {
+			case 1:
+			case 5:
+			return "ah";
+			case 2:
+			case 6:
+			return "al";
+			case 3:
+			case 7:
+			return "ax";
+			case 4:
+			case 8:
+			return "eax";
+		}
+	} else if (reg==1) {
+		switch (type) {
+			case 1:
+			case 5:
+			return "ch";
+			case 2:
+			case 6:
+			return "cl";
+			case 3:
+			case 7:
+			return "cx";
+			case 4:
+			case 8:
+			return "ecx";
+		}
+	} else if (reg==2) {
+		switch (type) {
+			case 1:
+			case 5:
+			return "dh";
+			case 2:
+			case 6:
+			return "dl";
+			case 3:
+			case 7:
+			return "dx";
+			case 4:
+			case 8:
+			return "edx";
+		}
+	} else if (reg==3) {
+		switch (type) {
+			case 1:
+			case 5:
+			return "bh";
+			case 2:
+			case 6:
+			return "bl";
+			case 3:
+			case 7:
+			return "bx";
+			case 4:
+			case 8:
+			return "ebx";
+		}
+	} else if (reg==4) {
+		switch (type) {
+			case 1:
+			case 5:
+			return "sp";
+			case 2:
+			case 6:
+			return "sp";
+			case 3:
+			case 7:
+			return "sp";
+			case 4:
+			case 8:
+			return "esp";
+		}
+	} else if (reg==5) {
+		switch (type) {
+			case 1:
+			case 5:
+			return "bp";
+			case 2:
+			case 6:
+			return "bp";
+			case 3:
+			case 7:
+			return "bp";
+			case 4:
+			case 8:
+			return "ebp";
+		}
+	} else if (reg==6) {
+		switch (type) {
+			case 1:
+			case 5:
+			return "si";
+			case 2:
+			case 6:
+			return "si";
+			case 3:
+			case 7:
+			return "si";
+			case 4:
+			case 8:
+			return "esi";
+		}
+	} else if (reg==7) {
+		switch (type) {
+			case 1:
+			case 5:
+			return "di";
+			case 2:
+			case 6:
+			return "di";
+			case 3:
+			case 7:
+			return "di";
+			case 4:
+			case 8:
+			return "edi";
+		}
+	}
+	return "register not exist, bochs error !!!";
+}
+
 void bx_dbg_print_guard_results(void)
 {
-	dbg_printf("bx_dbg_print_guard_results\n");
 	unsigned cpu, i;
 
 	for (cpu=0; cpu<BX_SMP_PROCESSORS; cpu++) {
@@ -1832,11 +1956,20 @@ void bx_dbg_print_guard_results(void)
 #if (BX_DBG_MAX_SUPER_BREAKPOINT > 0)
 		else if (found & BX_DBG_GUARD_SUPER_BREAKPOINT) {
 			i = BX_CPU(cpu)->guard_found.iaddr_index;
-			dbg_printf("(%u) sBreakpoint %u, 0x" FMT_ADDRX ",0x" FMT_ADDRX "\n",
-					cpu,
-					bx_guard.iaddr.super_breakpoints[i].bpoint_id,
-					bx_guard.iaddr.super_breakpoints[i].fromAddr,
-					bx_guard.iaddr.super_breakpoints[i].toAddr);
+			int type=bx_guard.iaddr.super_breakpoints[i].type;
+			if (type==0) {
+				dbg_printf("(%u) sBreakpoint %u, 0x" FMT_ADDRX ",0x" FMT_ADDRX "\n",
+						cpu,
+						bx_guard.iaddr.super_breakpoints[i].bpoint_id,
+						bx_guard.iaddr.super_breakpoints[i].fromAddr,
+						bx_guard.iaddr.super_breakpoints[i].toAddr);
+			} else if (type>=1 && type<=4) {
+				dbg_printf("(%u) sBreakpoint %u, %s changed\n", cpu, bx_guard.iaddr.super_breakpoints[i].bpoint_id,getRegisterName(bx_guard.iaddr.super_breakpoints[i].reg, bx_guard.iaddr.super_breakpoints[i].type));
+			} else if (type>=5 && type<=8) {
+				dbg_printf("(%u) sBreakpoint %u, %s changed to %x\n", cpu, bx_guard.iaddr.super_breakpoints[i].bpoint_id,getRegisterName(bx_guard.iaddr.super_breakpoints[i].reg, bx_guard.iaddr.super_breakpoints[i].type), bx_guard.iaddr.super_breakpoints[i].reg_val);
+			} else if (type==9) {
+				dbg_printf("(%u) sBreakpoint %u\n", cpu, bx_guard.iaddr.super_breakpoints[i].bpoint_id);
+			}
 		}
 #endif
 		switch(BX_CPU(cpu)->stop_reason) {
@@ -1994,23 +2127,6 @@ void bx_dbg_del_breakpoint_command(unsigned handle)
 	bx_dbg_breakpoint_changed();
 }
 
-bx_bool bx_dbg_super_breakpoint_delete_command(unsigned handle)
-{
-#if (BX_DBG_MAX_SUPER_BREAKPOINT > 0)
-	for (unsigned i=0; i<bx_guard.iaddr.num_super_breakpoint; i++) {
-		if (bx_guard.iaddr.super_breakpoints[i].bpoint_id == handle) {
-			// found breakpoint, delete it by shifting remaining entries left
-			for (unsigned j=i; j<(bx_guard.iaddr.num_super_breakpoint-1); j++) {
-				bx_guard.iaddr.super_breakpoints[j] = bx_guard.iaddr.super_breakpoints[j+1];
-			}
-			bx_guard.iaddr.num_super_breakpoint--;
-			return 1;
-		}
-	}
-#endif
-	return 0;
-}
-
 bx_bool bx_dbg_del_pbreak(unsigned handle)
 {
 #if (BX_DBG_MAX_PHY_BPOINTS > 0)
@@ -2161,7 +2277,7 @@ int bx_dbg_super_breakpoint_add_command(bx_phy_address paddress1, bx_phy_address
 	//	}
 
 	if (bx_guard.iaddr.num_super_breakpoint >= BX_DBG_MAX_SUPER_BREAKPOINT) {
-		dbg_printf("Error: no more physical breakpoint slots left.\n");
+		dbg_printf("Error: no more super breakpoint slots left.\n");
 		dbg_printf("Error: see BX_DBG_MAX_SUPER_BREAKPOINT.\n");
 		return -1;
 	}
@@ -2184,7 +2300,6 @@ int bx_dbg_super_breakpoint_add_command(bx_phy_address paddress1, bx_phy_address
 
 int bx_dbg_super_breakpoint_add_reg_command(unsigned reg, unsigned type)
 {
-
 #if (BX_DBG_MAX_SUPER_BREAKPOINT > 0)
 	//	if (bk != bkRegular) {
 	//		dbg_printf("Error: pbreak of this kind not implemented yet.\n");
@@ -2192,7 +2307,7 @@ int bx_dbg_super_breakpoint_add_reg_command(unsigned reg, unsigned type)
 	//	}
 
 	if (bx_guard.iaddr.num_super_breakpoint >= BX_DBG_MAX_SUPER_BREAKPOINT) {
-		dbg_printf("Error: no more physical breakpoint slots left.\n");
+		dbg_printf("Error: no more super breakpoint slots left.\n");
 		dbg_printf("Error: see BX_DBG_MAX_SUPER_BREAKPOINT.\n");
 		return -1;
 	}
@@ -2257,6 +2372,111 @@ int bx_dbg_super_breakpoint_add_reg_command(unsigned reg, unsigned type)
 #endif
 }
 
+int bx_dbg_super_breakpoint_add_reg_equal_command(unsigned reg, unsigned value, unsigned type)
+{
+#if (BX_DBG_MAX_SUPER_BREAKPOINT > 0)
+	//	if (bk != bkRegular) {
+	//		dbg_printf("Error: pbreak of this kind not implemented yet.\n");
+	//		return -1;
+	//	}
+
+	if (bx_guard.iaddr.num_super_breakpoint >= BX_DBG_MAX_SUPER_BREAKPOINT) {
+		dbg_printf("Error: no more super breakpoint slots left.\n");
+		dbg_printf("Error: see BX_DBG_MAX_SUPER_BREAKPOINT.\n");
+		return -1;
+	}
+
+	if (reg >= BX_GENERAL_REGISTERS) {
+		dbg_printf("Unknown 32B register [%d] !!!\n", reg);
+	}
+
+	if (type==1) {
+		value=value>>8 & 0xff;
+	} else if (type==2) {
+		value=value & 0xff;
+	} else if (type==3) {
+		value=value & 0xffff;
+	} else if (type==4) {
+		value=value;
+	}
+
+	bx_guard.iaddr.super_breakpoints[bx_guard.iaddr.num_super_breakpoint].type=type;
+	bx_guard.iaddr.super_breakpoints[bx_guard.iaddr.num_super_breakpoint].reg=reg;
+	bx_guard.iaddr.super_breakpoints[bx_guard.iaddr.num_super_breakpoint].reg_val=value;
+	bx_guard.iaddr.super_breakpoints[bx_guard.iaddr.num_super_breakpoint].fromAddr = 0;
+	bx_guard.iaddr.super_breakpoints[bx_guard.iaddr.num_super_breakpoint].toAddr = 0;
+	int BpId= bx_debugger.next_super_breakpoint_id++;
+	bx_guard.iaddr.super_breakpoints[bx_guard.iaddr.num_super_breakpoint].bpoint_id = BpId;
+	bx_guard.iaddr.super_breakpoints[bx_guard.iaddr.num_super_breakpoint].enabled=1;
+	//	bx_guard.guard_for |= BX_DBG_GUARD_IADDR_PHY;
+	bx_guard.iaddr.num_super_breakpoint++;
+	return BpId;
+#else
+	dbg_printf("Error: super breakpoint support not compiled in.\n");
+	dbg_printf("Error: make sure BX_DBG_MAX_SUPER_BREAKPOINT > 0\n");
+	return -1;
+#endif
+}
+
+int bx_dbg_super_breakpoint_add_memory_command(bx_phy_address paddress, Bit32u length) {
+#if (BX_DBG_MAX_SUPER_BREAKPOINT > 0)
+	if (bx_guard.iaddr.num_super_breakpoint >= BX_DBG_MAX_SUPER_BREAKPOINT) {
+		dbg_printf("Error: no more super breakpoint slots left.\n");
+		dbg_printf("Error: see BX_DBG_MAX_SUPER_BREAKPOINT.\n");
+		return -1;
+	}
+
+	if (length == (unsigned) EMPTY_ARG) {
+		length=1;
+	}
+
+	if (length>1024) {
+		dbg_printf("cannot monitor memory > 1KB\n");
+		return -1;
+	}
+
+	bx_guard.iaddr.super_breakpoints[bx_guard.iaddr.num_super_breakpoint].type=9;
+	//	bx_guard.iaddr.super_breakpoints[bx_guard.iaddr.num_super_breakpoint].reg=reg;
+	//	bx_guard.iaddr.super_breakpoints[bx_guard.iaddr.num_super_breakpoint].reg_val=value;
+	bx_guard.iaddr.super_breakpoints[bx_guard.iaddr.num_super_breakpoint].fromAddr = paddress;
+	bx_guard.iaddr.super_breakpoints[bx_guard.iaddr.num_super_breakpoint].toAddr = paddress+length;
+	bx_guard.iaddr.super_breakpoints[bx_guard.iaddr.num_super_breakpoint].memoryArea=(char *)malloc(length);
+
+	Bit8u tempBuffer[length];
+	bx_dbg_read_linear(dbg_cpu, paddress, length, tempBuffer);
+	memcpy(bx_guard.iaddr.super_breakpoints[bx_guard.iaddr.num_super_breakpoint].memoryArea, tempBuffer, length);
+
+	int BpId= bx_debugger.next_super_breakpoint_id++;
+	bx_guard.iaddr.super_breakpoints[bx_guard.iaddr.num_super_breakpoint].bpoint_id = BpId;
+	bx_guard.iaddr.super_breakpoints[bx_guard.iaddr.num_super_breakpoint].enabled=1;
+	//	bx_guard.guard_for |= BX_DBG_GUARD_IADDR_PHY;
+	bx_guard.iaddr.num_super_breakpoint++;
+	return BpId;
+#else
+	dbg_printf("Error: super breakpoint support not compiled in.\n");
+	dbg_printf("Error: make sure BX_DBG_MAX_SUPER_BREAKPOINT > 0\n");
+	return -1;
+#endif
+}
+
+bx_bool bx_dbg_super_breakpoint_delete_command(unsigned handle)
+{
+#if (BX_DBG_MAX_SUPER_BREAKPOINT > 0)
+	for (unsigned i=0; i<bx_guard.iaddr.num_super_breakpoint; i++) {
+		if (bx_guard.iaddr.super_breakpoints[i].bpoint_id == handle) {
+			// found breakpoint, delete it by shifting remaining entries left
+			free(bx_guard.iaddr.super_breakpoints[i].memoryArea);
+			for (unsigned j=i; j<(bx_guard.iaddr.num_super_breakpoint-1); j++) {
+				bx_guard.iaddr.super_breakpoints[j] = bx_guard.iaddr.super_breakpoints[j+1];
+			}
+			bx_guard.iaddr.num_super_breakpoint--;
+			return 1;
+		}
+	}
+#endif
+	return 0;
+}
+
 void bx_dbg_super_breakpoint_list_command(void)
 {
 	unsigned i;
@@ -2276,54 +2496,21 @@ void bx_dbg_super_breakpoint_list_command(void)
 			case 1:
 			case 2:
 			case 3:
-			/*
-			 #define AX (BX_CPU_THIS_PTR gen_reg[0].word.rx)
-			 #define CX (BX_CPU_THIS_PTR gen_reg[1].word.rx)
-			 #define DX (BX_CPU_THIS_PTR gen_reg[2].word.rx)
-			 #define BX (BX_CPU_THIS_PTR gen_reg[3].word.rx)
-			 #define SP (BX_CPU_THIS_PTR gen_reg[4].word.rx)
-			 #define BP (BX_CPU_THIS_PTR gen_reg[5].word.rx)
-			 #define SI (BX_CPU_THIS_PTR gen_reg[6].word.rx)
-			 #define DI (BX_CPU_THIS_PTR gen_reg[7].word.rx)
-			 */
-			switch(bx_guard.iaddr.super_breakpoints[i].reg) {
-				case 0:
-				dbg_printf("ax");
-				break;
-				case 1:
-				dbg_printf("cx");
-				break;
-				case 2:
-				dbg_printf("dx");
-				break;
-				case 3:
-				dbg_printf("bx");
-				break;
-				case 4:
-				dbg_printf("sp");
-				break;
-				case 5:
-				dbg_printf("bp");
-				break;
-				case 6:
-				dbg_printf("si");
-				break;
-				case 7:
-				dbg_printf("di");
-				break;
-			}
-
-			switch (bx_guard.iaddr.super_breakpoints[i].type) {
-				case 1:
-				dbg_printf("!=0x%02x",bx_guard.iaddr.super_breakpoints[i].reg_val);
-				break;
-				case 2:
-				dbg_printf("!=0x%04x",bx_guard.iaddr.super_breakpoints[i].reg_val);
-				break;
-				case 3:
-				dbg_printf("!=0x%08x",bx_guard.iaddr.super_breakpoints[i].reg_val);
-				break;
-			}
+			case 4:
+			dbg_printf("%s",getRegisterName(bx_guard.iaddr.super_breakpoints[i].reg, bx_guard.iaddr.super_breakpoints[i].type));
+			break;
+			case 5:
+			case 6:
+			dbg_printf("%s=0x%0.2x",getRegisterName(bx_guard.iaddr.super_breakpoints[i].reg, bx_guard.iaddr.super_breakpoints[i].type), bx_guard.iaddr.super_breakpoints[i].reg_val&0xff);
+			break;
+			case 7:
+			dbg_printf("%s=0x%0.4x",getRegisterName(bx_guard.iaddr.super_breakpoints[i].reg, bx_guard.iaddr.super_breakpoints[i].type), bx_guard.iaddr.super_breakpoints[i].reg_val&0xffff);
+			break;
+			case 8:
+			dbg_printf("%s=0x%0.8x",getRegisterName(bx_guard.iaddr.super_breakpoints[i].reg, bx_guard.iaddr.super_breakpoints[i].type), bx_guard.iaddr.super_breakpoints[i].reg_val& 0xffffffff);
+			break;
+			case 9:
+			dbg_printf("memory 0x%0.8x,0x%x",bx_guard.iaddr.super_breakpoints[i].fromAddr, bx_guard.iaddr.super_breakpoints[i].toAddr-bx_guard.iaddr.super_breakpoints[i].fromAddr);
 			break;
 		}
 		dbg_printf("\n");

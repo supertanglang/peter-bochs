@@ -61,7 +61,10 @@ stepi           |
 step            |
 s               { bxlval.sval = strdup(bxtext); return(BX_TOKEN_STEPN); }
 sbreak				{ bxlval.sval = strdup(bxtext); return(BX_TOKEN_SUPER_BREAKPOINT); }
+gdt		{ bxlval.sval = strdup(bxtext); return(BX_TOKEN_GDT); }
+sm	{ bxlval.sval = strdup(bxtext); return(BX_TOKEN_SM); }
 add				{ bxlval.sval = strdup(bxtext); return(BX_TOKEN_ADD); }
+addm				{ bxlval.sval = strdup(bxtext); return(BX_TOKEN_ADDM); }
 list				{ bxlval.sval = strdup(bxtext); return(BX_TOKEN_LIST); }
 next            |
 n               |
@@ -81,7 +84,6 @@ sregs		{ bxlval.sval = strdup(bxtext); return(BX_TOKEN_SEGMENT_REGS); }
 r               { bxlval.sval = strdup(bxtext); return(BX_TOKEN_R); }
 reg|regs        |
 registers       { bxlval.sval = strdup(bxtext); return(BX_TOKEN_REGS); }
-
 fp|fpu          { bxlval.sval = strdup(bxtext); return(BX_TOKEN_FPU); }
 sse             |
 xmm             { bxlval.sval = strdup(bxtext); return(BX_TOKEN_SSE); }
@@ -89,9 +91,6 @@ mmx             { bxlval.sval = strdup(bxtext); return(BX_TOKEN_MMX); }
 cpu             { bxlval.sval = strdup(bxtext); return(BX_TOKEN_CPU); }
 idt		{ bxlval.sval = strdup(bxtext); return(BX_TOKEN_IDT); }
 ivt		{ bxlval.sval = strdup(bxtext); return(BX_TOKEN_IVT); }
-gdt		{ bxlval.sval = strdup(bxtext); return(BX_TOKEN_GDT); }
-kingofcoders	{ bxlval.sval = strdup(bxtext); return(BX_TOKEN_KINGOFCODERS); }
-sm	{ bxlval.sval = strdup(bxtext); return(BX_TOKEN_SM); }
 ldt		{ bxlval.sval = strdup(bxtext); return(BX_TOKEN_LDT); }
 tss		{ bxlval.sval = strdup(bxtext); return(BX_TOKEN_TSS); }
 tab		{ bxlval.sval = strdup(bxtext); return(BX_TOKEN_TAB); }
