@@ -17,7 +17,7 @@
 *超级断点* 
 
 || sbreak list||列出所有超级断点|| 
-|| sbreak add `<开始物理地址>``<结束物理地址>`||如果CPU进入这个内存区域， bochs将停止|| 
+|| sbreak add `<开始物理地址>` `<结束物理地址>`||如果CPU进入这个内存区域， bochs将停止|| 
 || sbreak add `<寄存器>`||如果寄存器的值变更， bochs将停止. `<寄存器>`可以是eax, ax, ah, cx, ds, si, esp, di|| 
-|| sbreak add `<寄存器>>` = `<值>`||如果寄存器的值变成你所指定的值, bochs将停止. `<寄存器>`可以是eax, ax, ah, cx, ds , si, esp, di|| 
+|| sbreak add `<寄存器>` = `<值>`||如果寄存器的值变成你所指定的值, bochs将停止. `<寄存器>`可以是eax, ax, ah, cx, ds , si, esp, di|| 
 || sbreak delete `<号码>`||删除超级中断点||
