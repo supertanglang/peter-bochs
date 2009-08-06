@@ -1,6 +1,8 @@
 #summary Peter-Bochs introduction中文
 #labels HowTo
 
+=一个专为操作系统开发者兴及汇编高手而设的x86-ia32调试器=
+
 =什么是Peter-Bochs? = 
 -它是一个增强型的bochs模拟器,它加入了一些更强大的调试命令,包括超级中断点, 
 
