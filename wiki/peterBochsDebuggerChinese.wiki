@@ -1,4 +1,6 @@
+#summary Peter-Bochs introduction中文
 #labels HowTo
+
 =什么是Peter-Bochs? = 
 -它是一个增强型的bochs模拟器,它加入了一些更强大的调试命令,包括超级中断点, 
 
@@ -10,12 +12,12 @@
 *命令教程* 
 
 ||sm `<start地址>` `<length>` `<值>`||从内存`<start地址>`到`<start address+lenght>`搜索`<值>`,<值>可以是8/16/32位的16进制/8进制值|| 
-||gdt `<starting号码` `<ending号码>`||更详细的打印GDT|| 
+||gdt `<starting号码>` `<ending号码>`||更详细的打印GDT|| 
 
 *超级断点* 
 
-|| sbreak名单||列出所有超级断点|| 
-|| sbreak加上`<starting身体地址>``<ending身体地址>`||如果CPU进入内存区域， bochs将停止|| 
-|| sbreak加上`<register>`||如果登记变更， bochs将停止。 `<register>`可人啊，斧，的EAX ， ebx ，国泰航空，喷雾，电子数据交换系统，电除尘器|| 
-|| sbreak加上`<register>`=`<值>`||如果注册值改为`<值>`指定， bochs将停止。 `<register>`可人啊，斧，的EAX ， ebx ，国泰航空，喷雾，电子数据交换系统，电除尘器|| 
-|| sbreak德的<number>`||删除超级破发点||
+|| sbreak list||列出所有超级断点|| 
+|| sbreak add `<开始物理地址>``<结束物理地址>`||如果CPU进入这个内存区域， bochs将停止|| 
+|| sbreak add `<寄存器>`||如果寄存器的值变更， bochs将停止. `<寄存器>`可以是eax, ax, ah, cx, ds, si, esp, di|| 
+|| sbreak add `<寄存器>>` = `<值>`||如果寄存器的值变成你所指定的值, bochs将停止. `<寄存器>`可以是eax, ax, ah, cx, ds , si, esp, di|| 
+|| sbreak delete `<号码>`||删除超级中断点||
