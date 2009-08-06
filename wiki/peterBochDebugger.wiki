@@ -6,7 +6,7 @@
 
 *What debugging commands are added?*
 
-- sm, sbreak
+- sm, sbreak, gdt, ldt
 
 
 *Command tutorial*
