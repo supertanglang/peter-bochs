@@ -21,4 +21,4 @@
 ||sbreak add `<register>`||If the register is changed, bochs will stop. `<register>` can be al, ah, ax, eax, ebx, cx, esi, edi, esp||
 ||sbreak add `<register>` = `<value>`||If the register value changed to the `<value>` you specified, bochs will stop. `<register>` can be al, ah, ax, eax, ebx, cx, esi, edi, esp||
 ||sbreak addm `<starting physical address>` `<length>`||If this memory area is modified, bochs will stop||
-||sbreak d `<number>`||delete the super break point||
+||sbreak d `<number>`||delete the super breakpoint||
