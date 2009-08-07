@@ -23,3 +23,6 @@
 || sbreak add `<寄存器>`||如果寄存器的值变更， bochs将停止. `<寄存器>`可以是eax, ax, ah, cx, ds, si, esp, di|| 
 || sbreak add `<寄存器>` = `<值>`||如果寄存器的值变成你所指定的值, bochs将停止. `<寄存器>`可以是eax, ax, ah, cx, ds , si, esp, di|| 
 || sbreak delete `<号码>`||删除超级中断点||
+
+
+[http://www.kingofcoders.com http://www.kingofcoders.com/images/KOC_logo2.jpg]
