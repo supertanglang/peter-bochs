@@ -1,0 +1,11 @@
+#summary One-sentence summary of this page.
+
+= Steps =
+
+1) download the latest jar here http://code.google.com/p/peter-bochs/downloads/list
+
+2) check the version by : java -jar peter-bochs-debugger.jar -v
+
+3) run it : java -jar peter-bochs-debugger.jar bochs -f bochxrc.bxrc
+
+remarks: please put all the bochs original running parameters at the end of the command
