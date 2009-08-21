@@ -11,3 +11,5 @@
 备注：请把所有bochs的运行参数放置命令末端
 
 [http://www.kingofcoders.com http://www.kingofcoders.com/images/KOC_logo2.jpg]
+
+[http://hk.kingofcoders.com http://hk.kingofcoders.com/images/logo/logo.png]
