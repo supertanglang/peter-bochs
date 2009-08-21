@@ -1,0 +1,11 @@
+#summary peter-bochs-debugger 安装
+
+= Steps =
+
+1 ）下载最新的jar http://code.google.com/p/peter-bochs/downloads/list
+
+2 ）检查版本的： java -jar peter-bochs-debugger.jar -v
+
+3 ）运行： java -jar peter-bochs-debugger.jar bochs -f bochxrc.bxrc
+
+备注：请把所有bochs的运行参数放置命令末端
