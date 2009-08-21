@@ -1,6 +1,6 @@
 #summary peter-bochs-debugger setup
 
-= Steps =
+= Steps to run peter-bochs-debugger =
 
 1) download the latest jar here http://code.google.com/p/peter-bochs/downloads/list
 
