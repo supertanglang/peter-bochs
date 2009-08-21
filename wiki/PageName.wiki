@@ -1,4 +1,5 @@
 #summary peter-bochs-debugger setup
+#labels peter-bochs-debuggersetup
 
 = Introduction =
 
