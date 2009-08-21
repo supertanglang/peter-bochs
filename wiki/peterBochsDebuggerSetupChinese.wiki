@@ -9,3 +9,5 @@
 3 ）运行： java -jar peter-bochs-debugger.jar bochs -f bochxrc.bxrc
 
 备注：请把所有bochs的运行参数放置命令末端
+
+[http://www.kingofcoders.com http://www.kingofcoders.com/images/KOC_logo2.jpg]
