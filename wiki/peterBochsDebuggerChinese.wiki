@@ -26,3 +26,5 @@
 
 
 [http://www.kingofcoders.com http://www.kingofcoders.com/images/KOC_logo2.jpg]
+
+[http://hk.kingofcoders.com http://hk.kingofcoders.com/images/logo/logo.png]
