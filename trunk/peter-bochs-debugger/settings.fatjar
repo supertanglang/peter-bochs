@@ -1,0 +1,14 @@
+#Fat Jar Configuration File
+#Thu Aug 20 02:48:17 GMT+08:00 2009
+onejar.license.required=true
+manifest.classpath=
+manifest.removesigners=true
+onejar.checkbox=false
+jarname=peter-bochs-debugger.jar
+manifest.mergeall=true
+manifest.mainclass=peter.Application
+manifest.file=<createnew>
+jarname.isextern=false
+onejar.expand=
+excludes=
+includes=
