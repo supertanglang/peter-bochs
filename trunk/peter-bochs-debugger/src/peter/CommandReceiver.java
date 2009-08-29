@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import javax.swing.ImageIcon;
 import javax.swing.JEditorPane;
 import javax.swing.JScrollBar;
 import javax.swing.SwingUtilities;
@@ -17,6 +18,15 @@ public class CommandReceiver implements Runnable {
 	private int commandNoOfLine;
 	private int threadID = 0;
 	public boolean shouldShow;
+	private boolean isRunning;
+
+	public boolean isRunning() {
+		return isRunning;
+	}
+
+	public void setRunning(boolean isRunning) {
+		this.isRunning = isRunning;
+	}
 
 	public int getCommandNoOfLine() {
 		return commandNoOfLine;
@@ -80,7 +90,6 @@ public class CommandReceiver implements Runnable {
 			String line;
 			final JEditorPane bochsEditorPane = application.getjBochsEditorPane();
 			while ((line = br.readLine()) != null) {
-
 				if (shouldShow) {
 					bochsEditorPane.setText(bochsEditorPane.getText() + "\n" + line);
 					SwingUtilities.invokeLater(new Runnable() {
@@ -93,6 +102,13 @@ public class CommandReceiver implements Runnable {
 				commandResult += line + "\n";
 				commandNoOfLine--;
 				// System.out.println(line);
+
+				if (isRunning) {
+					isRunning = false;
+					application.updateBochsStatus();
+					application.jRunBochsButton.setText("Run Bochs");
+					application.jRunBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/resultset_next.png")));
+				}
 			}
 		} catch (IOException e) {
 			throw new IllegalArgumentException("IOException receiving data from child process.");

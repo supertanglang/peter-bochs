@@ -95,7 +95,7 @@ public class Application extends javax.swing.JFrame {
 	private JMenu jMenu4;
 	private JMenuItem exitMenuItem;
 	private JSeparator jSeparator2;
-	private JButton jRunBochsButton;
+	public JButton jRunBochsButton;
 	private JButton jStopBochsButton;
 	private JButton jStartBochButton;
 	private JToolBar jToolBar1;
@@ -163,6 +163,8 @@ public class Application extends javax.swing.JFrame {
 	private JTable jLDTTable;
 	private JScrollPane jScrollPane11;
 	private JTable jIDTTable;
+	private JTable jAddressTranslateTable;
+	private JScrollPane jTableTranslateScrollPane;
 	Vector<HashMap> bochsCommandLength = XMLHelper.xmltoVector(getClass().getClassLoader().getResourceAsStream("peter/bochsCommandLength.xml"), "/bochsCommandLength");
 	Wini ini;
 	// private static String bochsPath = "bochs";
@@ -271,6 +273,7 @@ public class Application extends javax.swing.JFrame {
 		try {
 			jRunBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/tag.png")));
 			sendCommand("c");
+			commandReceiver.setRunning(true);
 			jRunBochsButton.setText("Pause Bochs");
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -691,6 +694,7 @@ public class Application extends javax.swing.JFrame {
 						{
 							jPanel11 = new JPanel();
 							jTabbedPane2.addTab("Paging", null, jPanel11, null);
+							jTabbedPane2.addTab("Table translate", null, getJTableTranslateScrollPane(), null);
 							TableLayout jPanel11Layout = new TableLayout(new double[][] { { 475.0, TableLayout.FILL }, { 22.0, TableLayout.FILL } });
 							jPanel11Layout.setHGap(5);
 							jPanel11Layout.setVGap(5);
@@ -1082,7 +1086,7 @@ public class Application extends javax.swing.JFrame {
 		updateBochsStatus();
 	}
 
-	private void updateBochsStatus() {
+	public void updateBochsStatus() {
 		Thread updateThread = new Thread() {
 			public void run() {
 				enableAllButtons(false);
@@ -1110,6 +1114,8 @@ public class Application extends javax.swing.JFrame {
 
 				updateStack();
 
+				updateAddressTranslate();
+
 				((DefaultComboBoxModel) jPauseHistoryList.getModel()).addElement(jRegisterPanel1.jCSTextField.getText() + ":" + jRegisterPanel1.jEIPTextField.getText());
 
 				jStatusLabel.setText("");
@@ -1122,6 +1128,29 @@ public class Application extends javax.swing.JFrame {
 		// } catch (InterruptedException e) {
 		// e.printStackTrace();
 		// }
+	}
+
+	protected void updateAddressTranslate() {
+		try {
+			jStatusLabel.setText("Updating Address translate");
+			commandReceiver.setCommandResult("");
+			commandReceiver.setCommandNoOfLine(-1);
+			sendCommand("info tab");
+			String result = commandReceiver.getCommandResult();
+			String[] lines = result.split(System.getProperty("line.separator"));
+			DefaultTableModel model = (DefaultTableModel) jAddressTranslateTable.getModel();
+			while (model.getRowCount() > 0) {
+				model.removeRow(0);
+			}
+			for (int x = 1; x < lines.length; x++) {
+				Vector<String> strs = new Vector<String>(Arrays.asList(lines[x].trim().split("->")));
+				strs.remove(1);
+				model.addRow(strs);
+			}
+			jAddressTranslateTable.updateUI();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 	}
 
 	private void enableAllButtons(boolean b) {
@@ -1250,72 +1279,84 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void updateGDT() {
-		jStatusLabel.setText("Updating GDT");
-		commandReceiver.setCommandResult("");
-		commandReceiver.setCommandNoOfLine(20);
-		sendCommand("info gdt 0 20");
-		String result = commandReceiver.getCommandResult(500);
-		String lines[] = result.split(System.getProperty("line.separator"));
-		JGDTTableModel model = (JGDTTableModel) jGDTTable.getModel();
-		model.clear();
-		jStatusProgressBar.setMaximum(lines.length - 1);
-		for (int x = 1; x < lines.length; x++) {
-			jStatusProgressBar.setValue(x);
-			try {
-				Vector<String> v = new Vector<String>();
-				v.add(lines[x].replaceFirst("^.*\\[", "").replaceFirst("].*$", ""));
-				v.add(lines[x].replaceFirst("^.*]=", ""));
-				model.addValue(v);
-			} catch (Exception ex) {
+		try {
+			jStatusLabel.setText("Updating GDT");
+			commandReceiver.setCommandResult("");
+			commandReceiver.setCommandNoOfLine(20);
+			sendCommand("info gdt 0 20");
+			String result = commandReceiver.getCommandResult(500);
+			String lines[] = result.split(System.getProperty("line.separator"));
+			JGDTTableModel model = (JGDTTableModel) jGDTTable.getModel();
+			model.clear();
+			jStatusProgressBar.setMaximum(lines.length - 1);
+			for (int x = 1; x < lines.length; x++) {
+				jStatusProgressBar.setValue(x);
+				try {
+					Vector<String> v = new Vector<String>();
+					v.add(lines[x].replaceFirst("^.*\\[", "").replaceFirst("].*$", ""));
+					v.add(lines[x].replaceFirst("^.*]=", ""));
+					model.addValue(v);
+				} catch (Exception ex) {
+				}
 			}
+			jGDTTable.updateUI();
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
-		jGDTTable.updateUI();
 	}
 
 	private void updateIDT() {
-		jStatusLabel.setText("Updating IDT");
-		commandReceiver.setCommandResult("");
-		commandReceiver.setCommandNoOfLine(20);
-		sendCommand("info idt 0 20");
-		String result = commandReceiver.getCommandResult(500);
-		String lines[] = result.split(System.getProperty("line.separator"));
-		JIDTTableModel model = (JIDTTableModel) jIDTTable.getModel();
-		model.clear();
-		jStatusProgressBar.setMaximum(lines.length - 1);
-		for (int x = 1; x < lines.length; x++) {
-			jStatusProgressBar.setValue(x);
-			try {
-				Vector<String> v = new Vector<String>();
-				v.add(lines[x].replaceFirst("^.*\\[", "").replaceFirst("].*$", ""));
-				v.add(lines[x].replaceFirst("^.*]=", ""));
-				model.addValue(v);
-			} catch (Exception ex) {
+		try {
+			jStatusLabel.setText("Updating IDT");
+			commandReceiver.setCommandResult("");
+			commandReceiver.setCommandNoOfLine(20);
+			sendCommand("info idt 0 20");
+			String result = commandReceiver.getCommandResult(500);
+			String lines[] = result.split(System.getProperty("line.separator"));
+			JIDTTableModel model = (JIDTTableModel) jIDTTable.getModel();
+			model.clear();
+			jStatusProgressBar.setMaximum(lines.length - 1);
+			for (int x = 1; x < lines.length; x++) {
+				jStatusProgressBar.setValue(x);
+				try {
+					Vector<String> v = new Vector<String>();
+					v.add(lines[x].replaceFirst("^.*\\[", "").replaceFirst("].*$", ""));
+					v.add(lines[x].replaceFirst("^.*]=", ""));
+					model.addValue(v);
+				} catch (Exception ex) {
+				}
 			}
+			jIDTTable.updateUI();
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
-		jIDTTable.updateUI();
 	}
 
 	private void updateLDT() {
-		jStatusLabel.setText("Updating LDT");
-		commandReceiver.setCommandResult("");
-		commandReceiver.setCommandNoOfLine(20);
-		sendCommand("info ldt 0 20");
-		String result = commandReceiver.getCommandResult(500);
-		String lines[] = result.split(System.getProperty("line.separator"));
-		JLDTTableModel model = (JLDTTableModel) jLDTTable.getModel();
-		model.clear();
-		jStatusProgressBar.setMaximum(lines.length - 1);
-		for (int x = 1; x < lines.length; x++) {
-			jStatusProgressBar.setValue(x);
-			try {
-				Vector<String> v = new Vector<String>();
-				v.add(lines[x].replaceFirst("^.*\\[", "").replaceFirst("].*$", ""));
-				v.add(lines[x].replaceFirst("^.*]=", ""));
-				model.addValue(v);
-			} catch (Exception ex) {
+		try {
+			jStatusLabel.setText("Updating LDT");
+			commandReceiver.setCommandResult("");
+			commandReceiver.setCommandNoOfLine(20);
+			sendCommand("info ldt 0 20");
+			String result = commandReceiver.getCommandResult(500);
+			String lines[] = result.split(System.getProperty("line.separator"));
+			JLDTTableModel model = (JLDTTableModel) jLDTTable.getModel();
+			model.clear();
+			jStatusProgressBar.setMaximum(lines.length - 1);
+			for (int x = 1; x < lines.length; x++) {
+				jStatusProgressBar.setValue(x);
+				try {
+					Vector<String> v = new Vector<String>();
+					v.add(lines[x].replaceFirst("^.*\\[", "").replaceFirst("].*$", ""));
+					v.add(lines[x].replaceFirst("^.*]=", ""));
+					model.addValue(v);
+				} catch (Exception ex) {
+				}
 			}
+			jLDTTable.updateUI();
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
-		jLDTTable.updateUI();
 	}
 
 	private void updateRegister() {
@@ -1361,7 +1402,7 @@ public class Application extends javax.swing.JFrame {
 			jStatusLabel.setText("Updating segment registers");
 			commandReceiver.setCommandResult("");
 			commandReceiver.setCommandNoOfLine(Integer.parseInt(bochsCommandLength.get(0).get("sregs").toString()));
-			sendCommand("sregs");
+			sendCommand("sreg");
 			String result = commandReceiver.getCommandResult();
 			String[] lines = result.split(System.getProperty("line.separator"));
 
@@ -1402,7 +1443,7 @@ public class Application extends javax.swing.JFrame {
 			jStatusLabel.setText("Updating control registers");
 			commandReceiver.setCommandResult("");
 			commandReceiver.setCommandNoOfLine(Integer.parseInt(bochsCommandLength.get(0).get("cregs").toString()));
-			sendCommand("cregs");
+			sendCommand("creg");
 			String result = commandReceiver.getCommandResult();
 			String[] lines = result.split(System.getProperty("line.separator"));
 
@@ -1507,32 +1548,36 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void updateMemory() {
-		jStatusLabel.setText("Updating memory");
-		commandReceiver.setCommandResult("");
-		int totalByte = 200;
-		commandReceiver.setCommandNoOfLine(totalByte / 8 + 1);
-		sendCommand("xp /" + totalByte + "bx " + this.jMemoryAddressComboBox.getSelectedItem().toString());
-		String result = commandReceiver.getCommandResult();
-		String[] lines = result.split(System.getProperty("line.separator"));
-		String bytes[] = new String[totalByte];
-		int offset = 0;
-		jStatusProgressBar.setMaximum(lines.length - 1);
-		for (int y = 1; y < lines.length; y++) {
-			jStatusProgressBar.setValue(y);
-			String[] b = lines[y].replaceFirst("^.*:", "").split("\t");
-			// System.out.println(lines[y]);
-			for (int x = 1; x < b.length; x++) {
-				// System.out.print(offset + " ");
-				bytes[offset] = b[x].substring(2).trim();
-				offset++;
+		try {
+			jStatusLabel.setText("Updating memory");
+			commandReceiver.setCommandResult("");
+			int totalByte = 200;
+			commandReceiver.setCommandNoOfLine(totalByte / 8 + 1);
+			sendCommand("xp /" + totalByte + "bx " + this.jMemoryAddressComboBox.getSelectedItem().toString());
+			String result = commandReceiver.getCommandResult();
+			String[] lines = result.split(System.getProperty("line.separator"));
+			String bytes[] = new String[totalByte];
+			int offset = 0;
+			jStatusProgressBar.setMaximum(lines.length - 1);
+			for (int y = 1; y < lines.length; y++) {
+				jStatusProgressBar.setValue(y);
+				String[] b = lines[y].replaceFirst("^.*:", "").split("\t");
+				// System.out.println(lines[y]);
+				for (int x = 1; x < b.length; x++) {
+					// System.out.print(offset + " ");
+					bytes[offset] = b[x].substring(2).trim();
+					offset++;
+				}
+				// System.out.println();
+				jStatusLabel.setText("Updating memory " + y + "/" + (lines.length - 1));
 			}
-			// System.out.println();
-			jStatusLabel.setText("Updating memory " + y + "/" + (lines.length - 1));
+			jStatusLabel.setText("");
+			// System.out.println(lines.length);
+			jHexTable1.getModel().set(bytes);
+			jHexTable1.updateUI();
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
-		jStatusLabel.setText("");
-		// System.out.println(lines.length);
-		jHexTable1.getModel().set(bytes);
-		jHexTable1.updateUI();
 	}
 
 	private void exitMenuItemActionPerformed(ActionEvent evt) {
@@ -1652,19 +1697,23 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void updateBreakpoint() {
-		commandReceiver.setCommandResult("");
-		commandReceiver.setCommandNoOfLine(-1);
-		sendCommand("info break");
-		String result = commandReceiver.getCommandResult();
-		String[] lines = result.split(System.getProperty("line.separator"));
-		DefaultTableModel model = (DefaultTableModel) jBreakpointTable.getModel();
-		while (model.getRowCount() > 0) {
-			model.removeRow(0);
-		}
-		for (int x = 1; x < lines.length; x++) {
-			Vector<String> strs = new Vector<String>(Arrays.asList(lines[x].trim().split(" \\s")));
-			strs.remove(1);
-			model.addRow(strs);
+		try {
+			commandReceiver.setCommandResult("");
+			commandReceiver.setCommandNoOfLine(-1);
+			sendCommand("info break");
+			String result = commandReceiver.getCommandResult();
+			String[] lines = result.split(System.getProperty("line.separator"));
+			DefaultTableModel model = (DefaultTableModel) jBreakpointTable.getModel();
+			while (model.getRowCount() > 0) {
+				model.removeRow(0);
+			}
+			for (int x = 1; x < lines.length; x++) {
+				Vector<String> strs = new Vector<String>(Arrays.asList(lines[x].trim().split(" \\s")));
+				strs.remove(1);
+				model.addRow(strs);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 	}
 
@@ -1819,6 +1868,23 @@ public class Application extends javax.swing.JFrame {
 	private void jHexRadioButtonItemStateChanged(ItemEvent evt) {
 		jHexTable1.getModel().setRadix(16);
 		jHexTable1.updateUI();
+	}
+
+	private JScrollPane getJTableTranslateScrollPane() {
+		if (jTableTranslateScrollPane == null) {
+			jTableTranslateScrollPane = new JScrollPane();
+			jTableTranslateScrollPane.setViewportView(getJAddressTranslateTable());
+		}
+		return jTableTranslateScrollPane;
+	}
+
+	private JTable getJAddressTranslateTable() {
+		if (jAddressTranslateTable == null) {
+			TableModel jAddressTranslateTableModel = new DefaultTableModel(new String[][] {}, new String[] { "From", "To" });
+			jAddressTranslateTable = new JTable();
+			jAddressTranslateTable.setModel(jAddressTranslateTableModel);
+		}
+		return jAddressTranslateTable;
 	}
 
 }
