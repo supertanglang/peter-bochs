@@ -1144,7 +1144,6 @@ public class Application extends javax.swing.JFrame {
 			}
 			for (int x = 1; x < lines.length; x++) {
 				Vector<String> strs = new Vector<String>(Arrays.asList(lines[x].trim().split("->")));
-				strs.remove(1);
 				model.addRow(strs);
 			}
 			jAddressTranslateTable.updateUI();
