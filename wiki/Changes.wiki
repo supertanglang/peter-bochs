@@ -1,11 +1,11 @@
 #summary Changes
 
+= version 20090912 =
+
+1) add text highlight, but not for all registers yet
+
 = version 20090901 =
 
 1) Added global font size
 
 2) Faster update registers speed
-
-= version 20090912 =
-
-1) add text highlight, but not for all registers yet
