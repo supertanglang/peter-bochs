@@ -23,3 +23,9 @@
 在调试过程中，我通常使用上一次运行断点。
 
 [http://peter-bochs.googlecode.com/files/breakpoint.png]
+
+=历史面板=
+
+看到断点之间所有变更
+
+[http://peter-bochs.googlecode.com/files/history.png]
