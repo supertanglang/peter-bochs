@@ -4,4 +4,6 @@
 
 Now, you can export all the registers, GDT table, IDT table, etc... into a png or in excel format.
 
+Have a look the excel dump [http://peter-bochs.googlecode.com/files/excel_dump_sample.xls]
+
 [http://peter-bochs.googlecode.com/files/exportToExcel.png]
