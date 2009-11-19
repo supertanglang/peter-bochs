@@ -23,3 +23,9 @@ Double click on the page directory entry on the left hand side, it will dump the
 During the debug process, I usually use the breakpoints that same as last run.
 
 [http://peter-bochs.googlecode.com/files/breakpoint.png]
+
+= History panel =
+
+See all the changes in the register between each break
+
+[http://peter-bochs.googlecode.com/files/history.png]
