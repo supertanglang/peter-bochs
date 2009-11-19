@@ -12,6 +12,6 @@ Have a look the excel dump [http://peter-bochs.googlecode.com/files/excel_dump_s
 
 [http://peter-bochs.googlecode.com/files/betterGDT.png]
 
-= Better Page directory / Page table display
+= Better Page directory / Page table display =
 
 [http://peter-bochs.googlecode.com/files/pagetable.png]
