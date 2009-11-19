@@ -1,5 +1,0 @@
-#summary Export register, memory dump, GDT , etc ...
-
-= Introduction =
-
-Now, you can export all the registers, GDT table, IDT table, etc... into a png or in excel format.
