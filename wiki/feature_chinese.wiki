@@ -2,7 +2,7 @@
 
 = 导出到Excel/png =
 
-现在，您可以导出所有的寄存器，GDT中表，IDT的表等等..到巴新或Excel格式。
+现在，您可以导出所有的寄存器，GDT中表，IDT的表等等..到png或Excel格式。
 
 看看在Excel转储[http://peter-bochs.googlecode.com/files/excel_dump_sample.xls]
 
