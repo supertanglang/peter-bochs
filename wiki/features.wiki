@@ -14,6 +14,8 @@ Have a look the excel dump [http://peter-bochs.googlecode.com/files/excel_dump_s
 
 = Better Page directory / Page table display =
 
+Double click on the page directory entry on the left hand side, it will dump the corresponding page table.
+
 [http://peter-bochs.googlecode.com/files/pagetable.png]
 
 = We save save and load the breakpoint now =
