@@ -14,4 +14,4 @@ Have a look the excel dump [http://peter-bochs.googlecode.com/files/excel_dump_s
 
 = Better Page directory / Page table display
 
-[]
+[http://peter-bochs.googlecode.com/files/pagetable.png]
