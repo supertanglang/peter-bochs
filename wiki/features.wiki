@@ -3,3 +3,5 @@
 = Export to excel /png =
 
 Now, you can export all the registers, GDT table, IDT table, etc... into a png or in excel format.
+
+[http://peter-bochs.googlecode.com/files/exportToExcel.png]
