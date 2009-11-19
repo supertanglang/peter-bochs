@@ -18,6 +18,8 @@ Double click on the page directory entry on the left hand side, it will dump the
 
 [http://peter-bochs.googlecode.com/files/pagetable.png]
 
-= We save save and load the breakpoint now =
+= We can save and load the breakpoint now =
+
+During the debug process, I usually use the breakpoints that same as last run.
 
 [http://peter-bochs.googlecode.com/files/breakpoint.png]
