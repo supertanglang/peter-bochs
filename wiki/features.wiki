@@ -29,3 +29,9 @@ During the debug process, I usually use the breakpoints that same as last run.
 See all the changes in the register between each break
 
 [http://peter-bochs.googlecode.com/files/history.png]
+
+= Search memory =
+
+very useful when the page table is corrupted by some reasons, things are lost by wrong memory mapping
+
+[http://peter-bochs.googlecode.com/files/searchMemory.png]
