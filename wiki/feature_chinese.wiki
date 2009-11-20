@@ -29,3 +29,9 @@
 看到断点之间所有变更
 
 [http://peter-bochs.googlecode.com/files/history.png]
+
+=内存搜索=
+
+非常有用, 当页表是由某种原因而损坏，内存搜索可以找到丢失的东西丢到内存哪里
+
+[http://peter-bochs.googlecode.com/files/searchMemory.png]
