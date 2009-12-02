@@ -6,7 +6,11 @@
 
 2 ）检查版本的： java -jar peter-bochs-debugger.jar -v
 
-3 ）运行： java -jar peter-bochs-debugger.jar bochs -f bochxrc.bxrc
+3 ）运行： 
+
+    在 Linux : java -jar peter-bochs-debugger.jar bochs -f bochxrc.bxrc
+
+    在 windows : java -jar peter-bochs-debugger.jar c:\program files\bochs2.4.3\bochsdbg.exe -q bochxrc.bxrc !!! 如果在 windows使用peter-bochs，你需要传递Bochs的exe文件的完整路径和-q的参数
 
 备注：请把所有bochs的运行参数放置命令末端
 
