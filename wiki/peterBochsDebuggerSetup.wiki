@@ -10,6 +10,6 @@
    
    In Linux : java -jar peter-bochs-debugger.jar bochs -f bochxrc.bxrc
    
-   In windows : java -jar peter-bochs-debugger.jar c:\program files\bochs2.4.3\bochsdbg.exe -q bochxrc.bxrc      !!! if using peter-bochs in windows, you need to pass the *full path of bochs exe* and *-q* to the parameter
+   In windows : java -jar peter-bochs-debugger.jar c:\program files\bochs2.4.3\bochsdbg.exe -q -f bochxrc.bxrc      !!! if using peter-bochs in windows, you need to pass the *full path of bochs exe* and *-q* to the parameter
 
 remarks: please put all the bochs original running parameters at the end of the command
