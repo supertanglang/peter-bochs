@@ -39,3 +39,7 @@ very useful when the page table is corrupted by some reasons, things are lost by
 = Dump the memory address by clicking the label =
 
 [http://peter-bochs.googlecode.com/files/dumpRegisterInMemory.png]
+
+= Easier to dump the GDT/IDT/PDE/PTR at any memory location =
+
+[http://peter-bochs.googlecode.com/files/dumpDescriptor.png]
