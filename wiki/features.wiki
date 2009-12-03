@@ -42,4 +42,6 @@ very useful when the page table is corrupted by some reasons, things are lost by
 
 = Easier to dump the GDT/IDT/PDE/PTR at any memory location =
 
+Just right click on the memory window, you can dump GDT/IDT/PDE/PTR at any memory location
+
 [http://peter-bochs.googlecode.com/files/dumpDescriptor.png]
