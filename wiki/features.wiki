@@ -35,3 +35,7 @@ See all the changes in the register between each break
 very useful when the page table is corrupted by some reasons, things are lost by wrong memory mapping
 
 [http://peter-bochs.googlecode.com/files/searchMemory.png]
+
+= Dump the memory address by clicking the label =
+
+[http://peter-bochs.googlecode.com/files/dumpRegisterInMemory.png]
