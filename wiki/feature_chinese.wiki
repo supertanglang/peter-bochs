@@ -14,7 +14,7 @@
 
 = 更好的页目录/页表显示 =
 
-双击左侧页面，这将转储相应页表。
+双击左侧页面，转储相应页表。
 
 [http://peter-bochs.googlecode.com/files/pagetable.png]
 
@@ -35,3 +35,13 @@
 非常有用, 当页表是由某种原因而损坏，内存搜索可以找到丢失的东西丢到内存哪里
 
 [http://peter-bochs.googlecode.com/files/searchMemory.png]
+
+= 通过点击标签转储内存地址 =
+
+[http://peter-bochs.googlecode.com/files/dumpRegisterInMemory.png]
+
+= 更容易倾倒内存中的任何内存位置的GDT/IDT/PDE/PTE  =
+
+只需右键点击内存窗口, 你可以在任何内存位置转储 GDT/IDT/PDE/PTE
+
+[http://peter-bochs.googlecode.com/files/dumpDescriptor.png]
