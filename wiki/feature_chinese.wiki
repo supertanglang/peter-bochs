@@ -46,7 +46,7 @@
 
 [http://peter-bochs.googlecode.com/files/dumpDescriptor.png]
 
-= Breakpoint hit count =
+= 断点击中次数 =
 
 看看断点有多少次被击中
 
