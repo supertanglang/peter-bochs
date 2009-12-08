@@ -45,3 +45,9 @@
 只需右键点击内存窗口, 你可以在任何内存位置转储 GDT/IDT/PDE/PTE
 
 [http://peter-bochs.googlecode.com/files/dumpDescriptor.png]
+
+= Breakpoint hit count =
+
+看看断点有多少次被击中
+
+[http://peter-bochs.googlecode.com/files/hit_count.png]
