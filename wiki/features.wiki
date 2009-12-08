@@ -45,3 +45,9 @@ very useful when the page table is corrupted by some reasons, things are lost by
 Just right click on the memory window, you can dump GDT/IDT/PDE/PTE at any memory location
 
 [http://peter-bochs.googlecode.com/files/dumpDescriptor.png]
+
+= Breakpoint hit count =
+
+To see how many time the breakpoint is hit
+
+[http://peter-bochs.googlecode.com/files/hit_count.png]
