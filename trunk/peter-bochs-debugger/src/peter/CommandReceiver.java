@@ -29,6 +29,10 @@ public class CommandReceiver implements Runnable {
 		}
 	}
 
+	public int getLinesLength() {
+		return lines.size();
+	}
+
 	public void waitUntilHaveInput() {
 		while (true) {
 			synchronized (lines) {
@@ -92,7 +96,8 @@ public class CommandReceiver implements Runnable {
 		while (true) {
 			synchronized (lines) {
 				if (lines.size() > 0) {
-//					System.out.println("line size=" + lines.size() + ">" + lines.get(0));
+					// System.out.println("line size=" + lines.size() + ">" +
+					// lines.get(0));
 					if (startCapture) {
 						if (lines.get(0).contains((endPattern))) {
 							str += lines.get(0) + "\n";

@@ -5,6 +5,7 @@ import info.clearthought.layout.TableLayout;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -204,6 +205,7 @@ public class Application extends javax.swing.JFrame {
 	private JTable jAddressTranslateTable;
 	private JTable jAddressTranslateTable2;
 	private JPanel jPanel22;
+	private JMenu jBochVersionMenu;
 	private JMenuItem jPTEMenuItem;
 	private JMenuItem jPDEMenuItem;
 	private JMenuItem jIDTDescriptorMenuItem;
@@ -295,7 +297,7 @@ public class Application extends javax.swing.JFrame {
 	private long currentMemoryWindowsAddress;
 	public static boolean isLinux;
 	private Runtime runtime = Runtime.getRuntime();
-	boolean haveDregCommand;
+	public static String version = "";
 
 	/**
 	 * Auto-generated main method to display this JFrame
@@ -361,6 +363,7 @@ public class Application extends javax.swing.JFrame {
 			e.printStackTrace();
 		}
 		initGUI();
+		startBochs();
 		updateBochsStatus();
 	}
 
@@ -390,16 +393,21 @@ public class Application extends javax.swing.JFrame {
 			if (isLinux) {
 				sendCommand("6");
 			}
-			Thread.currentThread().sleep(1000);
-			commandReceiver.clearBuffer();
-			sendCommand("dreg");
-			String lines = commandReceiver.getCommandResultUntilEnd();
 
-			if (lines.toLowerCase().contains("dr")) {
-				haveDregCommand = true;
+			while (commandReceiver.getLinesLength() < 9) {
 			}
 
-			// jRefreshBreakpointButtonActionPerformed(null);
+			String versionLines[] = commandReceiver.getCommandResultUntilEnd().split("\n");
+			for (String line : versionLines) {
+				if (line.contains("Bochs x86 Emulator")) {
+					version = line.trim();
+					jBochVersionMenu.setText(version);
+					System.out.println(jBochVersionMenu.getText());
+					break;
+				}
+			}
+
+			jRefreshBreakpointButtonActionPerformed(null);
 		} catch (Exception ex) {
 			JOptionPane.showMessageDialog(this, language.getString("Unable_to_start_bochs"));
 			ex.printStackTrace();
@@ -424,26 +432,26 @@ public class Application extends javax.swing.JFrame {
 		}
 	}
 
-	private void pauseBochs() {
+	private synchronized void pauseBochs() {
 		try {
-			if (isLinux) {
+			if (jRunBochsButton.getText().equals(language.getString("Pause_bochs"))) {
+				if (isLinux) {
+					ProcessBuilder pb = new ProcessBuilder("killall", "-2", "bochs");
+					pb.start();
+				} else {
+					ProcessBuilder pb = new ProcessBuilder("PauseBochs.exe");
+					pb.start();
+				}
+
+				updateBochsStatus();
+
+				CardLayout cl = (CardLayout) (jMainPanel.getLayout());
+				cl.show(jMainPanel, "jSplitPane2");
+
+				jRunBochsButton.setText(language.getString("Run_bochs"));
 				jRunBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/resultset_next.png")));
-				ProcessBuilder pb = new ProcessBuilder("killall", "-2", "bochs");
-				pb.start();
-			} else {
-				ProcessBuilder pb = new ProcessBuilder("PauseBochs.exe");
-				pb.start();
+				// jStepBochsButton.setEnabled(true);
 			}
-
-			updateBochsStatus();
-
-			CardLayout cl = (CardLayout) (jMainPanel.getLayout());
-			cl.show(jMainPanel, "jSplitPane2");
-
-			jRunBochsButton.setText(language.getString("Run_bochs"));
-			jRunBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/resultset_next.png")));
-
-			// jStepBochsButton.setEnabled(true);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -451,11 +459,21 @@ public class Application extends javax.swing.JFrame {
 
 	private void runBochs() {
 		try {
-			jRunBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/tag.png")));
 			sendCommand("c");
 			CardLayout cl = (CardLayout) (jMainPanel.getLayout());
 			cl.show(jMainPanel, "Running Label");
 			jRunBochsButton.setText(language.getString("Pause_bochs"));
+			jRunBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/pause.png")));
+
+			new Thread() {
+				public void run() {
+					commandReceiver.clearBuffer();
+					while (commandReceiver.getLinesLength() == 0) {
+					}
+
+					pauseBochs();
+				}
+			}.start();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -465,7 +483,7 @@ public class Application extends javax.swing.JFrame {
 		try {
 			{
 				this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-				this.setTitle("Peter-Bochs Debugger");
+				this.setTitle(language.getString("Title"));
 				this.addWindowListener(new WindowAdapter() {
 					public void windowClosing(WindowEvent evt) {
 						thisWindowClosing(evt);
@@ -635,6 +653,7 @@ public class Application extends javax.swing.JFrame {
 				{
 					jMenu5 = new JMenu();
 					jMenuBar1.add(jMenu5);
+					jMenuBar1.add(getJBochVersionMenu());
 					jMenu5.setText(language.getString("Help"));
 					{
 						aboutUsMenuItem = new JMenuItem();
@@ -672,7 +691,6 @@ public class Application extends javax.swing.JFrame {
 			// pack();
 
 			initChineseFont();
-			startBochs();
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(ERROR);
@@ -763,10 +781,8 @@ public class Application extends javax.swing.JFrame {
 	private void jButton1ActionPerformed(ActionEvent evt) {
 		commandReceiver.shouldShow = false;
 		if (jRunBochsButton.getText().equals(language.getString("Run_bochs"))) {
-			jRunBochsButton.setText(language.getString("Pause_bochs"));
 			runBochsMenuItemActionPerformed(null);
 		} else {
-			jRunBochsButton.setText(language.getString("Run_bochs"));
 			pauseBochsMenuItemActionPerformed(null);
 		}
 	}
@@ -877,12 +893,31 @@ public class Application extends javax.swing.JFrame {
 
 				updateHistoryTable();
 
+				updateBreakpointTableColor();
+
 				jStatusLabel.setText("");
 
 				enableAllButtons(true);
 			}
 		};
 		updateThread.start();
+	}
+
+	private void updateBreakpointTableColor() {
+		long eip = CommonLib.string2decimal(jRegisterPanel1.jEIPTextField.getText());
+		String eipStr = Long.toHexString(eip);
+		for (int x = 0; x < jBreakpointTable.getRowCount(); x++) {
+			String value = jBreakpointTable.getValueAt(x, 0).toString();
+			if (jBreakpointTable.getValueAt(x, 2).toString().contains(eipStr)) {
+				int hit = Integer.parseInt(jBreakpointTable.getValueAt(x, 3).toString());
+				jBreakpointTable.setValueAt("-" + value, x, 0);
+				jBreakpointTable.setValueAt(hit + 1, x, 3);
+			} else {
+				if (value.startsWith("-")) {
+					jBreakpointTable.setValueAt(value.substring(1), x, 0);
+				}
+			}
+		}
 	}
 
 	private void updateHistoryTable() {
@@ -1012,7 +1047,7 @@ public class Application extends javax.swing.JFrame {
 			}
 			jStatusProgressBar.setMaximum(lines.length - 1);
 
-			for (int y = 1; y < lines.length; y++) {
+			for (int y = 0; y < lines.length; y++) {
 				jStatusProgressBar.setValue(y);
 				String[] b = lines[y].replaceFirst("^.*:", "").trim().split("\t");
 
@@ -1042,7 +1077,7 @@ public class Application extends javax.swing.JFrame {
 
 							ia32_pageDirectories.add(new IA32PageDirectory(base, avl, g, d, a, pcd, pwt, us, wr, p));
 
-							model.addRow(new String[] { String.valueOf((y - 1) * 2 + z), base, avl, g, d, a, pcd, pwt, us, wr, p });
+							model.addRow(new String[] { String.valueOf(y * 2 + z), base, avl, g, d, a, pcd, pwt, us, wr, p });
 						}
 					} catch (Exception ex) {
 					}
@@ -1247,7 +1282,7 @@ public class Application extends javax.swing.JFrame {
 				Long cs = CommonLib.hex2decimal(this.jRegisterPanel1.jCSTextField.getText());
 				Long eip = CommonLib.hex2decimal(this.jRegisterPanel1.jEIPTextField.getText()) + 75;
 				command = "disassemble cs:eip 0x" + Long.toHexString(cs) + ":0x" + Long.toHexString(eip + 100);
-				System.out.println(command);
+				// System.out.println(command);
 			} else {
 				command = "disassemble " + address;
 			}
@@ -1448,59 +1483,117 @@ public class Application extends javax.swing.JFrame {
 			ex.printStackTrace();
 		}
 
-		try {
-			// sregs
-			jStatusLabel.setText("Updating segment registers");
-			// System.out.println("want sreg");
-			commandReceiver.clearBuffer();
-			sendCommand("sreg");
-			String result = commandReceiver.getCommandResult("s:", "idtr:");
-			// System.out.println(result);
-			String[] lines = result.split("\n");
+		if (version.contains("2.4.1")) {
+			try {
+				// sregs
+				jStatusLabel.setText("Updating segment registers");
+				// System.out.println("want sreg");
+				commandReceiver.clearBuffer();
+				sendCommand("sreg");
+				String result = commandReceiver.getCommandResult("s:", "idtr:");
+				// System.out.println(result);
+				String[] lines = result.split("\n");
 
-			int x = 0;
-			jStatusProgressBar.setMaximum(lines.length - 1);
+				int x = 0;
+				jStatusProgressBar.setMaximum(lines.length - 1);
 
-			for (String line : lines) {
-				line = line.replaceFirst("<.*>", "");
-				jStatusProgressBar.setValue(x++);
-				String str[] = line.split(" ");
+				for (String line : lines) {
+					line = line.replaceFirst("<.*>", "");
+					jStatusProgressBar.setValue(x++);
+					String str[] = line.split(" ");
 
-				if (line.matches(".*cs:.*")) {
-					changeText(this.jRegisterPanel1.jCSTextField, line.split(":")[1].split(",")[0]);
+					if (line.matches(".*cs:.*")) {
+						System.out.println("===" + line.split("=")[1].split(",")[0]);
+						changeText(this.jRegisterPanel1.jCSTextField, line.split("=")[1].split(",")[0]);
+					}
+					if (line.matches(".*ds:.*")) {
+						changeText(this.jRegisterPanel1.jDSTextField, line.split("=")[1].split(",")[0]);
+					}
+					if (line.matches(".*es:.*")) {
+						changeText(this.jRegisterPanel1.jESTextField, line.split("=")[1].split(",")[0]);
+					}
+					if (line.matches(".*fs:.*")) {
+						changeText(this.jRegisterPanel1.jFSTextField, line.split("=")[1].split(",")[0]);
+					}
+					if (line.matches(".*gs:.*")) {
+						changeText(this.jRegisterPanel1.jGSTextField, line.split("=")[1].split(",")[0]);
+					}
+					if (line.matches(".*ss:.*")) {
+						changeText(this.jRegisterPanel1.jSSTextField, line.split("=")[1].split(",")[0]);
+					}
+					if (line.matches(".*gdtr:.*")) {
+						changeText(this.jRegisterPanel1.jGDTRTextField, line.split("=")[1].split(",")[0]);
+						changeText(this.jRegisterPanel1.jGDTRLimitTextField, str[1].split("=")[1]);
+					}
+					if (line.matches(".*ldtr.*")) {
+						changeText(this.jRegisterPanel1.jLDTRTextField, line.split("=")[1].split(",")[0]);
+					}
+					if (line.matches(".*idtr:.*")) {
+						changeText(this.jRegisterPanel1.jIDTRTextField, line.split("=")[1].split(",")[0]);
+						changeText(this.jRegisterPanel1.jIDTRLimitTextField, str[1].split("=")[1]);
+					}
+					if (line.matches(".*tr:.*")) {
+						changeText(this.jRegisterPanel1.jTRTextField, line.split("=")[1].split(",")[0]);
+					}
 				}
-				if (line.matches(".*ds:.*")) {
-					changeText(this.jRegisterPanel1.jDSTextField, line.split(":")[1].split(",")[0]);
-				}
-				if (line.matches(".*es:.*")) {
-					changeText(this.jRegisterPanel1.jESTextField, line.split(":")[1].split(",")[0]);
-				}
-				if (line.matches(".*fs:.*")) {
-					changeText(this.jRegisterPanel1.jFSTextField, line.split(":")[1].split(",")[0]);
-				}
-				if (line.matches(".*gs:.*")) {
-					changeText(this.jRegisterPanel1.jGSTextField, line.split(":")[1].split(",")[0]);
-				}
-				if (line.matches(".*ss:.*")) {
-					changeText(this.jRegisterPanel1.jSSTextField, line.split(":")[1].split(",")[0]);
-				}
-				if (line.matches(".*gdtr:.*")) {
-					changeText(this.jRegisterPanel1.jGDTRTextField, line.split("=")[1].split(",")[0]);
-					changeText(this.jRegisterPanel1.jGDTRLimitTextField, str[1].split("=")[1]);
-				}
-				if (line.matches(".*ldtr.*")) {
-					changeText(this.jRegisterPanel1.jLDTRTextField, line.split("=")[1].split(",")[0]);
-				}
-				if (line.matches(".*idtr:.*")) {
-					changeText(this.jRegisterPanel1.jIDTRTextField, line.split("=")[1].split(",")[0]);
-					changeText(this.jRegisterPanel1.jIDTRLimitTextField, str[1].split("=")[1]);
-				}
-				if (line.matches(".*tr:.*")) {
-					changeText(this.jRegisterPanel1.jTRTextField, line.split("=")[1].split(",")[0]);
-				}
+			} catch (Exception ex) {
+				ex.printStackTrace();
 			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
+		} else {
+			try {
+				// sregs
+				jStatusLabel.setText("Updating segment registers");
+				// System.out.println("want sreg");
+				commandReceiver.clearBuffer();
+				sendCommand("sreg");
+				String result = commandReceiver.getCommandResult("s:", "idtr:");
+				// System.out.println(result);
+				String[] lines = result.split("\n");
+
+				int x = 0;
+				jStatusProgressBar.setMaximum(lines.length - 1);
+
+				for (String line : lines) {
+					line = line.replaceFirst("<.*>", "");
+					jStatusProgressBar.setValue(x++);
+					String str[] = line.split(" ");
+
+					if (line.matches(".*cs:.*")) {
+						changeText(this.jRegisterPanel1.jCSTextField, line.split(":")[1].split(",")[0]);
+					}
+					if (line.matches(".*ds:.*")) {
+						changeText(this.jRegisterPanel1.jDSTextField, line.split(":")[1].split(",")[0]);
+					}
+					if (line.matches(".*es:.*")) {
+						changeText(this.jRegisterPanel1.jESTextField, line.split(":")[1].split(",")[0]);
+					}
+					if (line.matches(".*fs:.*")) {
+						changeText(this.jRegisterPanel1.jFSTextField, line.split(":")[1].split(",")[0]);
+					}
+					if (line.matches(".*gs:.*")) {
+						changeText(this.jRegisterPanel1.jGSTextField, line.split(":")[1].split(",")[0]);
+					}
+					if (line.matches(".*ss:.*")) {
+						changeText(this.jRegisterPanel1.jSSTextField, line.split(":")[1].split(",")[0]);
+					}
+					if (line.matches(".*gdtr:.*")) {
+						changeText(this.jRegisterPanel1.jGDTRTextField, line.split("=")[1].split(",")[0]);
+						changeText(this.jRegisterPanel1.jGDTRLimitTextField, str[1].split("=")[1]);
+					}
+					if (line.matches(".*ldtr.*")) {
+						changeText(this.jRegisterPanel1.jLDTRTextField, line.split("=")[1].split(",")[0]);
+					}
+					if (line.matches(".*idtr:.*")) {
+						changeText(this.jRegisterPanel1.jIDTRTextField, line.split("=")[1].split(",")[0]);
+						changeText(this.jRegisterPanel1.jIDTRLimitTextField, str[1].split("=")[1]);
+					}
+					if (line.matches(".*tr:.*")) {
+						changeText(this.jRegisterPanel1.jTRTextField, line.split("=")[1].split(",")[0]);
+					}
+				}
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
 		}
 
 		try {
@@ -1544,42 +1637,40 @@ public class Application extends javax.swing.JFrame {
 			ex.printStackTrace();
 		}
 
-		if (haveDregCommand) {
-			try {
-				// dregs
-				jStatusLabel.setText("Updating debug registers");
-				// commandReceiver.setCommandNoOfLine(Integer.parseInt(bochsCommandLength.get(0).get("cregs").toString()));
-				sendCommand("dreg");
-				String result = commandReceiver.getCommandResult("DR0", "DR7");
-				String[] lines = result.split("\n");
+		try {
+			// dregs
+			jStatusLabel.setText("Updating debug registers");
+			// commandReceiver.setCommandNoOfLine(Integer.parseInt(bochsCommandLength.get(0).get("cregs").toString()));
+			sendCommand("dreg");
+			String result = commandReceiver.getCommandResult("DR0", "DR7");
+			String[] lines = result.split("\n");
 
-				int x = 0;
-				jStatusProgressBar.setMaximum(lines.length - 1);
+			int x = 0;
+			jStatusProgressBar.setMaximum(lines.length - 1);
 
-				for (String line : lines) {
-					jStatusProgressBar.setValue(x++);
-					if (line.matches(".*DR0=.*")) {
-						changeText(this.jRegisterPanel1.jDR0TextField, line.split("=")[1].split(":")[0]);
-					}
-					if (line.matches(".*DR1=.*")) {
-						changeText(this.jRegisterPanel1.jDR1TextField, line.split("=")[1].split(":")[0]);
-					}
-					if (line.matches(".*DR2=.*")) {
-						changeText(this.jRegisterPanel1.jDR2TextField, line.split("=")[1].split(":")[0]);
-					}
-					if (line.matches(".*DR3=.*")) {
-						changeText(this.jRegisterPanel1.jDR3TextField, line.split("=")[1].split(":")[0]);
-					}
-					if (line.matches(".*DR6=.*")) {
-						changeText(this.jRegisterPanel1.jDR6TextField, line.split("=")[1].split(":")[0]);
-					}
-					if (line.matches(".*DR7=.*")) {
-						changeText(this.jRegisterPanel1.jDR7TextField, line.split("=")[1].split(":")[0]);
-					}
+			for (String line : lines) {
+				jStatusProgressBar.setValue(x++);
+				if (line.matches(".*DR0=.*")) {
+					changeText(this.jRegisterPanel1.jDR0TextField, line.split("=")[1].split(":")[0]);
 				}
-			} catch (Exception ex) {
-				ex.printStackTrace();
+				if (line.matches(".*DR1=.*")) {
+					changeText(this.jRegisterPanel1.jDR1TextField, line.split("=")[1].split(":")[0]);
+				}
+				if (line.matches(".*DR2=.*")) {
+					changeText(this.jRegisterPanel1.jDR2TextField, line.split("=")[1].split(":")[0]);
+				}
+				if (line.matches(".*DR3=.*")) {
+					changeText(this.jRegisterPanel1.jDR3TextField, line.split("=")[1].split(":")[0]);
+				}
+				if (line.matches(".*DR6=.*")) {
+					changeText(this.jRegisterPanel1.jDR6TextField, line.split("=")[1].split(":")[0]);
+				}
+				if (line.matches(".*DR7=.*")) {
+					changeText(this.jRegisterPanel1.jDR7TextField, line.split("=")[1].split(":")[0]);
+				}
 			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 	}
 
@@ -1705,7 +1796,7 @@ public class Application extends javax.swing.JFrame {
 		if (evt.getClickCount() == 2) {
 			jStatusProgressBar.setValue(0);
 			String pageTableAddress = jPageDirectoryTable.getValueAt(jPageDirectoryTable.getSelectedRow(), 1).toString();
-			System.out.println(pageTableAddress);
+
 			// commandReceiver.setCommandNoOfLine(512);
 			sendCommand("xp /4096bx " + pageTableAddress);
 
@@ -1727,7 +1818,7 @@ public class Application extends javax.swing.JFrame {
 			while (model.getRowCount() > 0) {
 				model.removeRow(0);
 			}
-			for (int y = 1; y < lines.length; y++) {
+			for (int y = 0; y < lines.length; y++) {
 				jStatusProgressBar.setValue(y * 100 / lines.length);
 				String[] b = lines[y].replaceFirst("^.*:", "").trim().split("\t");
 
@@ -1742,7 +1833,7 @@ public class Application extends javax.swing.JFrame {
 						// "D", "A", "PCD", "PWT",
 						// "U/S", "W/R", "P"
 
-						String base = "0x" + Integer.toHexString(value & 0xfffff000);
+						String base = "0x" + Long.toHexString(CommonLib.getValue(value, 12, 31) << 12);
 						String avl = String.valueOf((value >> 9) & 3);
 						String g = String.valueOf((value >> 8) & 1);
 						String d = String.valueOf((value >> 6) & 1);
@@ -1752,7 +1843,7 @@ public class Application extends javax.swing.JFrame {
 						String us = String.valueOf((value >> 2) & 1);
 						String wr = String.valueOf((value >> 1) & 1);
 						String p = String.valueOf((value >> 0) & 1);
-						model.addRow(new String[] { String.valueOf((y - 1) * 2 + z), base, avl, g, d, a, pcd, pwt, us, wr, p });
+						model.addRow(new String[] { String.valueOf(y * 2 + z), base, avl, g, d, a, pcd, pwt, us, wr, p });
 					} catch (Exception ex) {
 					}
 				}
@@ -1792,6 +1883,7 @@ public class Application extends javax.swing.JFrame {
 			for (int x = 1; x < lines.length; x++) {
 				if (lines[x].contains("breakpoint")) {
 					Vector<String> strs = new Vector<String>(Arrays.asList(lines[x].trim().split(" \\s")));
+					strs.add("0"); // hit count
 					if (strs.size() > 1) {
 						strs.remove(1);
 						model.addRow(strs);
@@ -1836,6 +1928,7 @@ public class Application extends javax.swing.JFrame {
 			h.put("no", String.valueOf(x));
 			h.put("type", this.jBreakpointTable.getValueAt(x, 1).toString());
 			h.put("address", this.jBreakpointTable.getValueAt(x, 2).toString());
+			h.put("hit", this.jBreakpointTable.getValueAt(x, 3).toString());
 			v.add(h);
 		}
 		XMLHelper.vectorToXML("breakpoint.xml", "breakpoints", "record", v);
@@ -2292,7 +2385,8 @@ public class Application extends javax.swing.JFrame {
 				jScrollPane7 = new JScrollPane();
 				jSplitPane3.add(jScrollPane7, JSplitPane.RIGHT);
 				{
-					TableModel jTable1Model = new DefaultTableModel(new String[][] {}, new String[] { "No.", "PT base", "AVL", "G", "PAT", "D", "A", "PCD", "PWT", "U/S", "W/R", "P" }) {
+					TableModel jTable1Model = new DefaultTableModel(new String[][] {}, new String[] { "No.", language.getString("Physical_address"), "AVL", "G", "PAT", "D", "A", "PCD", "PWT", "U/S",
+							"W/R", "P" }) {
 						public boolean isCellEditable(int row, int column) {
 							return false;
 						}
@@ -2823,18 +2917,6 @@ public class Application extends javax.swing.JFrame {
 							jTabbedPane1.addTab(language.getString("Instruction"), null, jPanel10, null);
 							jPanel10.setPreferredSize(new java.awt.Dimension(604, 452));
 							{
-								jScrollPane5 = new JScrollPane();
-								jPanel10.add(jScrollPane5, BorderLayout.CENTER);
-								{
-									TableModel jInstructionTableModel = new DefaultTableModel(new String[][] {}, new String[] { "Address", "Instruction" });
-									jInstructionTable = new JTable();
-									jScrollPane5.setViewportView(jInstructionTable);
-									jInstructionTable.setModel(jInstructionTableModel);
-									jInstructionTable.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
-									jInstructionTable.getColumnModel().getColumn(0).setPreferredWidth(40);
-								}
-							}
-							{
 								jInstructionControlPanel = new JPanel();
 								jPanel10.add(jInstructionControlPanel, BorderLayout.NORTH);
 								{
@@ -2858,6 +2940,22 @@ public class Application extends javax.swing.JFrame {
 									});
 								}
 							}
+							{
+								jScrollPane5 = new JScrollPane();
+								jPanel10.add(jScrollPane5, BorderLayout.CENTER);
+								{
+									TableModel jInstructionTableModel = new DefaultTableModel(new String[][] {}, new String[] { "Address", "Instruction" }) {
+										public boolean isCellEditable(int row, int col) {
+											return false;
+										}
+									};
+									jInstructionTable = new JTable();
+									jScrollPane5.setViewportView(jInstructionTable);
+									jInstructionTable.setModel(jInstructionTableModel);
+									jInstructionTable.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+									jInstructionTable.getColumnModel().getColumn(0).setPreferredWidth(40);
+								}
+							}
 						}
 						{
 							jPanel4 = new JPanel();
@@ -2868,10 +2966,16 @@ public class Application extends javax.swing.JFrame {
 								jScrollPane9 = new JScrollPane();
 								jPanel4.add(jScrollPane9, BorderLayout.CENTER);
 								{
-									TableModel jTable1Model = new DefaultTableModel(new String[][] {}, new String[] { "Num", "Type", "Disp Enb Address" });
+									TableModel jTable1Model = new DefaultTableModel(new String[][] {}, new String[] { language.getString("No"), language.getString("Address_type"), "Disp Enb Address",
+											language.getString("Hit") }) {
+										public boolean isCellEditable(int row, int col) {
+											return false;
+										}
+									};
 									jBreakpointTable = new JTable();
 									jScrollPane9.setViewportView(jBreakpointTable);
 									jBreakpointTable.setModel(jTable1Model);
+									jBreakpointTable.getColumnModel().getColumn(0).setCellRenderer(new JBreakpointTableCellRenderer());
 								}
 							}
 							{
@@ -3721,18 +3825,23 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jPDEMenuItemActionPerformed(ActionEvent evt) {
-		System.out.println("jPDEMenuItem.actionPerformed, event=" + evt);
-		// TODO add your code for jPDEMenuItem.actionPerformed
+		new HelperDialog(this, currentMemoryWindowsAddress + jHexTable1.getSelectedRow() * 8 + jHexTable1.getSelectedColumn() - 1, "PDE").setVisible(true);
 	}
 
 	private void jPTEMenuItemActionPerformed(ActionEvent evt) {
-		System.out.println("jPTEMenuItem.actionPerformed, event=" + evt);
-		// TODO add your code for jPTEMenuItem.actionPerformed
+		new HelperDialog(this, currentMemoryWindowsAddress + jHexTable1.getSelectedRow() * 8 + jHexTable1.getSelectedColumn() - 1, "PTE").setVisible(true);
 	}
 
 	private void jMemoryAddressComboBoxActionPerformed(ActionEvent evt) {
 		if (this.isVisible()) {
 			jGOMemoryButtonActionPerformed(evt);
 		}
+	}
+
+	private JMenu getJBochVersionMenu() {
+		if (jBochVersionMenu == null) {
+			jBochVersionMenu = new JMenu();
+		}
+		return jBochVersionMenu;
 	}
 }
