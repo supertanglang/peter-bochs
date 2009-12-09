@@ -247,8 +247,8 @@ public class HelperDialog extends javax.swing.JDialog {
 			if (bit[44] == 0 && bit[42] == 1 && bit[41] == 1 && bit[40] == 0) {
 				// interrupt date
 				model.addRow(new String[] { "type", "interrupt gate, value=0x" + Long.toHexString(value) });
-				model.addRow(new String[] { "cs", String.valueOf(CommonLib.getLong(b[2], b[3], 0, 0, 0, 0, 0, 0)) });
-				model.addRow(new String[] { "offset", String.valueOf(CommonLib.getLong(b[0], b[1], b[6], b[7], 0, 0, 0, 0)) });
+				model.addRow(new String[] { "cs", "0x"+Long.toHexString(CommonLib.getLong(b[2], b[3], 0, 0, 0, 0, 0, 0)) });
+				model.addRow(new String[] { "offset", "0x"+Long.toHexString(CommonLib.getLong(b[0], b[1], b[6], b[7], 0, 0, 0, 0)) });
 				model.addRow(new String[] { "g", String.valueOf(bit[42]) });
 				model.addRow(new String[] { "d", String.valueOf(bit[43]) });
 				model.addRow(new String[] { "s", String.valueOf(bit[44]) });
@@ -263,6 +263,51 @@ public class HelperDialog extends javax.swing.JDialog {
 			} else {
 				model.addRow(new String[] { "type", "wrong descriptor, value=0x" + Long.toHexString(value) });
 			}
+		} else if (type.equals("PDE")) {
+			byte b[] = CommonLib.getMemoryFromBochs(address, 8);
+			long value = CommonLib.getLong(b, 0);
+			long bit[] = new long[64];
+
+			for (int x2 = 0; x2 < 64; x2++) {
+				bit[x2] = CommonLib.getBit(value, x2);
+			}
+
+			long pageTableAddress = CommonLib.getValue(value, 12, 31) << 12;
+			long avl = CommonLib.getValue(value, 9, 11);
+			model.addRow(new String[] { "type", "PDE, value=0x" + Long.toHexString(value) });
+			model.addRow(new String[] { "p", String.valueOf(bit[0]) });
+			model.addRow(new String[] { "w/r", String.valueOf(bit[1]) });
+			model.addRow(new String[] { "u/s", String.valueOf(bit[2]) });
+			model.addRow(new String[] { "pwt", String.valueOf(bit[3]) });
+			model.addRow(new String[] { "pcd", String.valueOf(bit[4]) });
+			model.addRow(new String[] { "a", String.valueOf(bit[5]) });
+			model.addRow(new String[] { "d", String.valueOf(bit[6]) });
+			model.addRow(new String[] { "g", String.valueOf(bit[8]) });
+			model.addRow(new String[] { "avl", String.valueOf(avl) });
+			model.addRow(new String[] { "page table address", "0x" + Long.toHexString(pageTableAddress) });
+		} else if (type.equals("PTE")) {
+			byte b[] = CommonLib.getMemoryFromBochs(address, 8);
+			long value = CommonLib.getLong(b, 0);
+			long bit[] = new long[64];
+
+			for (int x2 = 0; x2 < 64; x2++) {
+				bit[x2] = CommonLib.getBit(value, x2);
+			}
+
+			long pageTableAddress = CommonLib.getValue(value, 12, 31) << 12;
+			long avl = CommonLib.getValue(value, 9, 11);
+			model.addRow(new String[] { "type", "PTE, value=0x" + Long.toHexString(value) });
+			model.addRow(new String[] { "p", String.valueOf(bit[0]) });
+			model.addRow(new String[] { "w/r", String.valueOf(bit[1]) });
+			model.addRow(new String[] { "u/s", String.valueOf(bit[2]) });
+			model.addRow(new String[] { "pwt", String.valueOf(bit[3]) });
+			model.addRow(new String[] { "pcd", String.valueOf(bit[4]) });
+			model.addRow(new String[] { "a", String.valueOf(bit[5]) });
+			model.addRow(new String[] { "d", String.valueOf(bit[6]) });
+			model.addRow(new String[] { "pat", String.valueOf(bit[7]) });
+			model.addRow(new String[] { "g", String.valueOf(bit[8]) });
+			model.addRow(new String[] { "avl", String.valueOf(avl) });
+			model.addRow(new String[] { "page table address", "0x" + Long.toHexString(pageTableAddress) });
 		}
 
 		jTable1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
