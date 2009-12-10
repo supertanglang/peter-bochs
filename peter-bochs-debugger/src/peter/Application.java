@@ -220,7 +220,7 @@ public class Application extends javax.swing.JFrame {
 	private JButton jButton17;
 	private JToolBar jToolBar3;
 	private JScrollPane jScrollPane13;
-	private JButton jButton16;
+	private JButton jRefreshAddressTranslateButton;
 	private JPanel jPanel20;
 	private JRadioButton jSearchAddressRadioButton3;
 	private JRadioButton jSearchAddressRadioButton2;
@@ -402,7 +402,6 @@ public class Application extends javax.swing.JFrame {
 				if (line.contains("Bochs x86 Emulator")) {
 					version = line.trim();
 					jBochVersionMenu.setText(version);
-					System.out.println(jBochVersionMenu.getText());
 					break;
 				}
 			}
@@ -469,6 +468,11 @@ public class Application extends javax.swing.JFrame {
 				public void run() {
 					commandReceiver.clearBuffer();
 					while (commandReceiver.getLinesLength() == 0) {
+						try {
+							Thread.currentThread().sleep(200);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 					}
 
 					pauseBochs();
@@ -1428,21 +1432,20 @@ public class Application extends javax.swing.JFrame {
 
 	private void changeText(JTextField jTextField, String value) {
 		Long l = CommonLib.string2decimal(value);
-		if (jTextField.getText().equals(value)) {
+		String newValue = "0x" + Long.toHexString(l);
+		if (jTextField.getText().equals(newValue)) {
 			jTextField.setForeground(Color.black);
 		} else {
 			jTextField.setForeground(Color.red);
 		}
-		jTextField.setText("0x" + Long.toHexString(l));
+		jTextField.setText(newValue);
 	}
 
 	private void updateRegister() {
 		try {
 			jStatusLabel.setText("Updating general registers");
-			// System.out.println("want r");
 			sendCommand("r");
 			String result = commandReceiver.getCommandResult("ax:", "eflags");
-			// System.out.println(result);
 			String lines[] = result.split("\n");
 			jStatusProgressBar.setMaximum(lines.length - 1);
 			int x = 0;
@@ -1503,7 +1506,6 @@ public class Application extends javax.swing.JFrame {
 					String str[] = line.split(" ");
 
 					if (line.matches(".*cs:.*")) {
-						System.out.println("===" + line.split("=")[1].split(",")[0]);
 						changeText(this.jRegisterPanel1.jCSTextField, line.split("=")[1].split(",")[0]);
 					}
 					if (line.matches(".*ds:.*")) {
@@ -1576,18 +1578,16 @@ public class Application extends javax.swing.JFrame {
 					if (line.matches(".*ss:.*")) {
 						changeText(this.jRegisterPanel1.jSSTextField, line.split(":")[1].split(",")[0]);
 					}
+
 					if (line.matches(".*gdtr:.*")) {
 						changeText(this.jRegisterPanel1.jGDTRTextField, line.split("=")[1].split(",")[0]);
 						changeText(this.jRegisterPanel1.jGDTRLimitTextField, str[1].split("=")[1]);
-					}
-					if (line.matches(".*ldtr.*")) {
+					} else if (line.matches(".*ldtr.*")) {
 						changeText(this.jRegisterPanel1.jLDTRTextField, line.split("=")[1].split(",")[0]);
-					}
-					if (line.matches(".*idtr:.*")) {
+					} else if (line.matches(".*idtr:.*")) {
 						changeText(this.jRegisterPanel1.jIDTRTextField, line.split("=")[1].split(",")[0]);
 						changeText(this.jRegisterPanel1.jIDTRLimitTextField, str[1].split("=")[1]);
-					}
-					if (line.matches(".*tr:.*")) {
+					} else if (line.matches(".*tr:.*")) {
 						changeText(this.jRegisterPanel1.jTRTextField, line.split("=")[1].split(",")[0]);
 					}
 				}
@@ -1638,35 +1638,33 @@ public class Application extends javax.swing.JFrame {
 		}
 
 		try {
-			// dregs
-			jStatusLabel.setText("Updating debug registers");
-			// commandReceiver.setCommandNoOfLine(Integer.parseInt(bochsCommandLength.get(0).get("cregs").toString()));
-			sendCommand("dreg");
-			String result = commandReceiver.getCommandResult("DR0", "DR7");
-			String[] lines = result.split("\n");
+			if (version.contains("2.4.1")) {
+			} else {
+				// dregs
+				jStatusLabel.setText("Updating debug registers");
+				// commandReceiver.setCommandNoOfLine(Integer.parseInt(bochsCommandLength.get(0).get("cregs").toString()));
+				sendCommand("dreg");
+				String result = commandReceiver.getCommandResult("DR0", "DR7");
+				String[] lines = result.split("\n");
 
-			int x = 0;
-			jStatusProgressBar.setMaximum(lines.length - 1);
+				int x = 0;
+				jStatusProgressBar.setMaximum(lines.length - 1);
 
-			for (String line : lines) {
-				jStatusProgressBar.setValue(x++);
-				if (line.matches(".*DR0=.*")) {
-					changeText(this.jRegisterPanel1.jDR0TextField, line.split("=")[1].split(":")[0]);
-				}
-				if (line.matches(".*DR1=.*")) {
-					changeText(this.jRegisterPanel1.jDR1TextField, line.split("=")[1].split(":")[0]);
-				}
-				if (line.matches(".*DR2=.*")) {
-					changeText(this.jRegisterPanel1.jDR2TextField, line.split("=")[1].split(":")[0]);
-				}
-				if (line.matches(".*DR3=.*")) {
-					changeText(this.jRegisterPanel1.jDR3TextField, line.split("=")[1].split(":")[0]);
-				}
-				if (line.matches(".*DR6=.*")) {
-					changeText(this.jRegisterPanel1.jDR6TextField, line.split("=")[1].split(":")[0]);
-				}
-				if (line.matches(".*DR7=.*")) {
-					changeText(this.jRegisterPanel1.jDR7TextField, line.split("=")[1].split(":")[0]);
+				for (String line : lines) {
+					jStatusProgressBar.setValue(x++);
+					if (line.matches(".*DR0=0x.*")) {
+						changeText(this.jRegisterPanel1.jDR0TextField, line.split("=")[1].split(":")[0]);
+					} else if (line.matches(".*DR1=0x.*")) {
+						changeText(this.jRegisterPanel1.jDR1TextField, line.split("=")[1].split(":")[0]);
+					} else if (line.matches(".*DR2=0x.*")) {
+						changeText(this.jRegisterPanel1.jDR2TextField, line.split("=")[1].split(":")[0]);
+					} else if (line.matches(".*DR3=0x.*")) {
+						changeText(this.jRegisterPanel1.jDR3TextField, line.split("=")[1].split(":")[0]);
+					} else if (line.matches(".*DR6=0x.*")) {
+						changeText(this.jRegisterPanel1.jDR6TextField, line.split("=")[1].split(":")[0]);
+					} else if (line.matches(".*DR7=0x.*")) {
+						changeText(this.jRegisterPanel1.jDR7TextField, line.split("=")[1].split(":")[0]);
+					}
 				}
 			}
 		} catch (Exception ex) {
@@ -3493,16 +3491,16 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private JButton getJButton16() {
-		if (jButton16 == null) {
-			jButton16 = new JButton();
-			jButton16.setText(language.getString("Convert"));
-			jButton16.addActionListener(new ActionListener() {
+		if (jRefreshAddressTranslateButton == null) {
+			jRefreshAddressTranslateButton = new JButton();
+			jRefreshAddressTranslateButton.setText(language.getString("Convert"));
+			jRefreshAddressTranslateButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
-					jButton16ActionPerformed(evt);
+					jRefreshAddressTranslateButtonActionPerformed(evt);
 				}
 			});
 		}
-		return jButton16;
+		return jRefreshAddressTranslateButton;
 	}
 
 	private JPanel getJPanel22() {
@@ -3581,7 +3579,7 @@ public class Application extends javax.swing.JFrame {
 		return jAddressTextField;
 	}
 
-	private void jButton16ActionPerformed(ActionEvent evt) {
+	private void jRefreshAddressTranslateButtonActionPerformed(ActionEvent evt) {
 		AddressTranslateTableModel model = (AddressTranslateTableModel) this.jAddressTranslateTable2.getModel();
 
 		if (jSearchAddressRadioButton1.isSelected()) {
@@ -3602,8 +3600,13 @@ public class Application extends javax.swing.JFrame {
 			model.searchSegSelector.add(segSelector);
 			model.searchAddress.add(address);
 
-			model.virtualAddress.add(0L);
-			model.segNo.add(0L);
+			model.virtualAddress.add(address);
+			long segNo = segSelector >> 3;
+			model.segNo.add(segNo);
+
+			// read GDT descriptor
+			byte descriptor[] = CommonLib.getMemoryFromBochs(CommonLib.string2decimal(this.jRegisterPanel1.jGDTRTextField.getText()) + (segNo * 8), 8);
+			long base = CommonLib.getLong(descriptor[2], descriptor[3], descriptor[4], descriptor[7], 0, 0, 0, 0);
 			model.linearAddress.add(0L);
 			model.pdNo.add(0L);
 			model.ptNo.add(0L);
