@@ -8,6 +8,8 @@ import peter.CommonLib;
 public class ElfUtil {
 
 	public static void main(String args[]) {
+		int bytesbb[] = { 0x80, 0x70, 0x60, 0x50 };
+
 		int DW_TAG_padding = 0x00;
 		int DW_TAG_array_type = 0x01;
 		int DW_TAG_class_type = 0x02;
@@ -127,9 +129,9 @@ public class ElfUtil {
 		long e_shnum = CommonLib.getInt(bytes, 48) & 0xffff;
 		long e_shstrndx = CommonLib.getInt(bytes, 50) & 0xffff;
 
-		System.out.println(e_shoff);
-		System.out.println(e_shnum);
-		System.out.println(e_shstrndx);
+		// System.out.println(e_shoff);
+		// System.out.println(e_shnum);
+		// System.out.println(e_shstrndx);
 
 		/*
 		 * typedef struct { Elf32_Word sh_name; // Section name (string tbl
@@ -163,7 +165,6 @@ public class ElfUtil {
 			pointer += 4;
 			int sh_size = CommonLib.getInt(bytes, (int) pointer);
 			pointer += 4;
-			debugSectionSize = sh_size;
 			int sh_link = CommonLib.getInt(bytes, (int) pointer);
 			pointer += 4;
 			int sh_info = CommonLib.getInt(bytes, (int) pointer);
@@ -175,21 +176,26 @@ public class ElfUtil {
 
 			if (sectionName.equals(".debug_line")) {
 				debugSectionOffset = sh_offset;
+				debugSectionSize = sh_size;
 			}
 		}
 
 		if (debugSectionOffset != 0 && debugSectionSize != 0) {
 			long data = debugSectionOffset;
+			long originalData = data;
+			// System.out.println("start data=" + data);
+			// System.out.println("debugSectionSize=" + debugSectionSize);
 			long end = debugSectionOffset + debugSectionSize;
+			// System.out.println("end=" + end);
 			// byte debugSection[]=Arrays.copyOfRange(bytes, data, end);
 
 			while (data < end) {
 				int prev_line = 0;
 
-				System.out.println("---------------------");
+				// System.out.println("---------------------");
 				long hdrptr = data;
 				long li_length = CommonLib.getInt(bytes, (int) hdrptr);
-				System.out.println("li_length=" + li_length);
+				// System.out.println("li_length=" + li_length);
 				hdrptr += 4;
 				int offset_size;
 				int initial_length_size;
@@ -202,7 +208,8 @@ public class ElfUtil {
 					offset_size = 4;
 					initial_length_size = 4;
 				}
-				System.out.println("init_length_size=" + initial_length_size);
+				// System.out.println("init_length_size=" +
+				// initial_length_size);
 
 				if (li_length + initial_length_size > debugSectionSize) {
 					System.out.println("The line info appears to be corrupt - the section is too small\n");
@@ -211,13 +218,13 @@ public class ElfUtil {
 
 				/* Get this CU's Line Number Block version number. */
 				short li_version = CommonLib.getShort(bytes, (int) hdrptr);
-				System.out.println("li_version=" + li_version);
+				// System.out.println("li_version=" + li_version);
 				hdrptr += 2;
 				if (li_version != 2 && li_version != 3) {
 					System.out.println("Only DWARF version 2 and 3 line info is currently supported.\n");
 					return;
 				}
-				System.out.println("display_debug_lines_decoded while 1\n");
+				// System.out.println("display_debug_lines_decoded while 1\n");
 
 				long li_prologue_length;
 
@@ -226,27 +233,30 @@ public class ElfUtil {
 				} else {
 					li_prologue_length = CommonLib.getLong(bytes, (int) hdrptr);
 				}
-				System.out.println("li_prologue_length=" + li_prologue_length);
+				// System.out.println("li_prologue_length=" +
+				// li_prologue_length);
 
 				hdrptr += offset_size;
 				int li_min_insn_length = bytes[(int) hdrptr];
-				System.out.println("li_min_insn_length=" + li_min_insn_length);
+				// System.out.println("li_min_insn_length=" +
+				// li_min_insn_length);
 
 				hdrptr++;
 				int li_default_is_stmt = bytes[(int) hdrptr];
-				System.out.println("li_default_is_stmt=" + li_default_is_stmt);
+				// System.out.println("li_default_is_stmt=" +
+				// li_default_is_stmt);
 
 				hdrptr++;
 				int li_line_base = bytes[(int) hdrptr];
-				System.out.println("li_line_base=" + li_line_base);
+				// System.out.println("li_line_base=" + li_line_base);
 
 				hdrptr++;
 				int li_line_range = bytes[(int) hdrptr];
-				System.out.println("li_line_range=" + li_line_range);
+				// System.out.println("li_line_range=" + li_line_range);
 
 				hdrptr++;
 				int li_opcode_base = bytes[(int) hdrptr];
-				System.out.println("li_opcode_base=" + li_opcode_base);
+				// System.out.println("li_opcode_base=" + li_opcode_base);
 
 				hdrptr++;
 
@@ -257,7 +267,8 @@ public class ElfUtil {
 				/* Find the end of this CU's Line Number Information Block. */
 				long end_of_sequence = data + li_length + initial_length_size;
 
-				System.out.println("data=" + data + ", end_of_sequence=" + end_of_sequence);
+				// System.out.println("data=" + data + ", end_of_sequence=" +
+				// end_of_sequence);
 
 				reset_state_machine(li_default_is_stmt);
 
@@ -265,9 +276,11 @@ public class ElfUtil {
 				long standard_opcodes = hdrptr;
 
 				/* Traverse the Directory table just to count entries. */
-				System.out.println("data=" + data + ", hdrptr=" + hdrptr + ", standard_opcodes=" + standard_opcodes + ", li_opcode_base=" + li_opcode_base);
+				// System.out.println("data=" + data + ", hdrptr=" + hdrptr +
+				// ", standard_opcodes=" + standard_opcodes +
+				// ", li_opcode_base=" + li_opcode_base);
 				data = standard_opcodes + li_opcode_base - 1;
-				System.out.println("new data=" + data);
+				// System.out.println("new data=" + data);
 				if (bytes[(int) data] != 0) {
 					int n_directories = 0;
 					long ptr_directory_table = data;
@@ -278,7 +291,7 @@ public class ElfUtil {
 						tempS = tempS.substring(0, tempS.indexOf(0));
 						data += tempS.length() + 1;
 						n_directories++;
-						System.out.println("n_directories=" + n_directories);
+						// System.out.println("n_directories=" + n_directories);
 					}
 
 					/*
@@ -306,14 +319,18 @@ public class ElfUtil {
 						i++;
 					}
 				} else {
-					System.out.println("*data==0\n");
+					// System.out.println("*data==0\n");
 				}
 				/* Skip the NUL at the end of the table. */
 				data++;
 
 				/* Traverse the File Name table just to count the entries. */
 				if (bytes[(int) data] != 0) {
-					System.out.println("data!=0, data=" + bytes[(int) data] + ", data=" + (int) data);
+					// System.out.println("===0, data=" + (data -
+					// originalData));
+
+					// System.out.println("data!=0, data=" + bytes[(int) data] +
+					// ", data=" + (int) data);
 					int n_files = 0;
 
 					String tempS = new String(bytes, (int) data, 100);
@@ -323,7 +340,7 @@ public class ElfUtil {
 					int i;
 
 					while (bytes[(int) data] != 0) {
-						Integer bytes_read = 0;
+						int bytes_read[] = new int[1];
 
 						/*
 						 * Skip Name, directory index, last modification time
@@ -332,18 +349,29 @@ public class ElfUtil {
 						tempS = new String(bytes, (int) data, 100);
 						tempS = tempS.substring(0, tempS.indexOf(0));
 						data += tempS.length() + 1;
+
+						// System.out.println(">>>>>> data=" + (data -
+						// originalData));
+
 						int data2[] = Arrays.copyOfRange(bytes, (int) data, bytes.length);
 						read_leb128(data2, bytes_read, 0);
-						data += bytes_read;
+						// System.out.println("bytes_read=" + bytes_read[0]);
+						data += bytes_read[0];
+						data2 = Arrays.copyOfRange(bytes, (int) data, bytes.length);
 						read_leb128(data2, bytes_read, 0);
-						data += bytes_read;
+						data += bytes_read[0];
+						data2 = Arrays.copyOfRange(bytes, (int) data, bytes.length);
 						read_leb128(data2, bytes_read, 0);
-						data += bytes_read;
+						data += bytes_read[0];
 
 						n_files++;
+
+						// System.out.println("--->>>>>> data=" + (data -
+						// originalData));
 					}
 
-					System.out.println("after skip name+directory index, data=" + (int) data);
+					// System.out.println("after skip name+directory index, data="
+					// + (data - originalData));
 
 					/* Go through the file table again to save the strings. */
 					File_Entry file_table[] = new File_Entry[n_files];// =
@@ -354,31 +382,33 @@ public class ElfUtil {
 					// *
 					// sizeof
 					// (File_Entry));
-					System.out.println("ptr_file_name_table=" + (int) ptr_file_name_table_pointer);
+					// System.out.println("ptr_file_name_table=" + (int)
+					// ptr_file_name_table_pointer);
 					i = 0;
 					while (bytes[(int) ptr_file_name_table_pointer] != 0) {
-						file_table[i]=new File_Entry();
-						Integer bytes_read = 0;
+						file_table[i] = new File_Entry();
+						int bytes_read[] = new int[1];
 
 						tempS = new String(bytes, (int) ptr_file_name_table_pointer, 100);
 						tempS = tempS.substring(0, tempS.indexOf(0));
 						ptr_file_name_table = tempS;
-						System.out.println("ptr_file_name_table="+ptr_file_name_table);
-						file_table[i].name =ptr_file_name_table;
+						// System.out.println("ptr_file_name_table=" +
+						// ptr_file_name_table);
+						file_table[i].name = ptr_file_name_table;
 						ptr_file_name_table_pointer += ptr_file_name_table.length() + 1;
 
 						/* We are not interested in directory, time or size. */
 						int data2[] = Arrays.copyOfRange(bytes, (int) ptr_file_name_table_pointer, bytes.length);
 						file_table[i].directory_index = (int) read_leb128(data2, bytes_read, 0);
-						ptr_file_name_table_pointer += bytes_read;
+						ptr_file_name_table_pointer += bytes_read[0];
 
 						data2 = Arrays.copyOfRange(bytes, (int) ptr_file_name_table_pointer, bytes.length);
 						file_table[i].modification_date = (int) read_leb128(data2, bytes_read, 0);
-						ptr_file_name_table_pointer += bytes_read;
+						ptr_file_name_table_pointer += bytes_read[0];
 
 						data2 = Arrays.copyOfRange(bytes, (int) ptr_file_name_table_pointer, bytes.length);
 						file_table[i].length = (int) read_leb128(data2, bytes_read, 0);
-						ptr_file_name_table += bytes_read;
+						ptr_file_name_table += bytes_read[0];
 						i++;
 					}
 					i = 0;
@@ -386,23 +416,26 @@ public class ElfUtil {
 
 					/* Skip the NUL at the end of the table. */
 					data++;
-					System.out.println("start to loop the Line Number Program, data=" + data);
+					// System.out.println("start to loop the Line Number Program, data="
+					// + (data - originalData));
 
 					/* This loop iterates through the Dwarf Line Number Program. */
 					while (data < end_of_sequence) {
-						System.out.println("\ndata=" + data);
+						// System.out.println("\ndata=" + data);
 						int op_code;
 						int adv;
 						long uladv;
-						Integer bytes_read = 0;
+						int bytes_read[] = new int[1];
 						int is_special_opcode = 0;
 
 						op_code = bytes[(int) data++];
-						System.out.println("op_code=" + op_code);
+						// System.out.println("op_code=" + op_code);
 						prev_line = state_machine_regs.line;
 
 						if (op_code >= li_opcode_base) {
-							System.out.println("one");
+							// System.out.println("one");
+							// System.out.println("!!!!!!!!! data=" + (data -
+							// originalData));
 							op_code -= li_opcode_base;
 							uladv = (op_code / li_line_range) * li_min_insn_length;
 							state_machine_regs.address += uladv;
@@ -411,33 +444,39 @@ public class ElfUtil {
 							state_machine_regs.line += adv;
 							is_special_opcode = 1;
 						} else {
-							System.out.println("two");
+							// System.out.println("two");
+							// System.out.println("!!!!!!!!! data=" + (data -
+							// originalData));
 							if (op_code == DW_LNS_extended_op) {
 								int ext_op_code_len;
 								// int bytes_read;
 								char ext_op_code;
 								long op_code_data = data;
+								// System.out.println("dataaaaaaaaaa=" + data);
 								int data2[] = Arrays.copyOfRange(bytes, (int) op_code_data, bytes.length);
 								ext_op_code_len = (int) read_leb128(data2, bytes_read, 0);
-								op_code_data += bytes_read;
+								op_code_data += bytes_read[0];
 								data2 = Arrays.copyOfRange(bytes, (int) op_code_data, bytes.length);
 
 								if (ext_op_code_len == 0) {
-									System.out.println("badly formed extended line op encountered!\n");
+									// System.out.println("badly formed extended line op encountered!\n");
 									break;
 								}
-								ext_op_code_len += bytes_read;
+								ext_op_code_len += bytes_read[0];
 								ext_op_code = (char) bytes[(int) op_code_data++];
 
 								if (ext_op_code == DW_LNE_end_sequence) {
 									reset_state_machine(li_default_is_stmt);
 
 								} else if (ext_op_code == DW_LNE_set_address) {
-									// state_machine_regs.address =op_code_data[
-									// ext_op_code_len - bytes_read -
-									// 1];//byte_get (op_code_data,
-									// ext_op_code_len - bytes_read - 1);
-
+									// System.out.println("op_code_data=" +
+									// (op_code_data - originalData) + ".." +
+									// bytes[(int) (op_code_data)]);
+									state_machine_regs.address = bytes[(int) (op_code_data)] + (bytes[(int) (op_code_data + 1)] << 8) + (bytes[(int) (op_code_data + 2)] << 16)
+											+ (bytes[(int) (op_code_data + 3)] << 24);
+									// byte_get (op_code_data, ext_op_code_len -
+									// bytes_read - 1);
+									// System.out.println(Long.toHexString(state_machine_regs.address));
 								} else if (ext_op_code == DW_LNE_define_file) {
 									int dir_index = 0;
 
@@ -449,17 +488,17 @@ public class ElfUtil {
 									op_code_data += sectionName.length() + 1;
 									data2 = Arrays.copyOfRange(bytes, (int) op_code_data, bytes.length);
 									dir_index = (int) read_leb128(data2, bytes_read, 0);
-									op_code_data += bytes_read;
+									op_code_data += bytes_read[0];
 									data2 = Arrays.copyOfRange(bytes, (int) op_code_data, bytes.length);
 									read_leb128(data2, bytes_read, 0);
-									op_code_data += bytes_read;
+									op_code_data += bytes_read[0];
 									data2 = Arrays.copyOfRange(bytes, (int) op_code_data, bytes.length);
 									read_leb128(data2, bytes_read, 0);
 									// System.out.println("hello0 %s:"+
 									// directory_table[dir_index]);
 
 								} else {
-									System.out.println("UNKNOWN: length " + (ext_op_code_len - bytes_read));
+									System.out.println("UNKNOWN: length " + (ext_op_code_len - bytes_read[0]));
 
 								}
 								data += ext_op_code_len;
@@ -472,19 +511,19 @@ public class ElfUtil {
 								int data2[] = Arrays.copyOfRange(bytes, (int) data, bytes.length);
 								uladv = read_leb128(data2, bytes_read, 0);
 								uladv *= li_min_insn_length;
-								data += bytes_read;
+								data += bytes_read[0];
 								state_machine_regs.address += uladv;
 
 							} else if (op_code == DW_LNS_advance_line) {
 								int data2[] = Arrays.copyOfRange(bytes, (int) data, bytes.length);
 								adv = (int) read_leb128(data2, bytes_read, 1);
-								data += bytes_read;
+								data += bytes_read[0];
 								state_machine_regs.line += adv;
 
 							} else if (op_code == DW_LNS_set_file) {
 								int data2[] = Arrays.copyOfRange(bytes, (int) data, bytes.length);
 								adv = (int) read_leb128(data2, bytes_read, 0);
-								data += bytes_read;
+								data += bytes_read[0];
 								state_machine_regs.file = adv;
 								if (file_table[state_machine_regs.file - 1].directory_index == 0) {
 									/*
@@ -506,7 +545,7 @@ public class ElfUtil {
 							} else if (op_code == DW_LNS_set_column) {
 								int data2[] = Arrays.copyOfRange(bytes, (int) data, bytes.length);
 								uladv = read_leb128(data2, bytes_read, 0);
-								data += bytes_read;
+								data += bytes_read[0];
 								state_machine_regs.column = (int) uladv;
 
 							} else if (op_code == DW_LNS_negate_stmt) {
@@ -537,30 +576,78 @@ public class ElfUtil {
 							} else if (op_code == DW_LNS_set_isa) {
 								int data2[] = Arrays.copyOfRange(bytes, (int) data, bytes.length);
 								uladv = read_leb128(data2, bytes_read, 0);
-								data += bytes_read;
+								data += bytes_read[0];
 								// printf (_("  Set ISA to %lu\n"), uladv);
 
 							} else {
 								System.out.println("  Unknown opcode %d with operands: " + op_code);
-
-								// for (i = standard_opcodes[op_code - 1]; i > 0
-								// ; --i)
-								// {
-								// data2=Arrays.copyOfRange(bytes, (int)data,
-								// bytes.length);
-								// System.out.println ("hello1 0x%lx%s",
-								// read_leb128 (data2, bytes_read, 0),
-								// i == 1 ? "" : ", ");
-								// data += bytes_read;
-								// }
-								// System.out.println ("");
+								for (i = bytes[(int) (standard_opcodes + op_code - 1)]; i > 0; --i) {
+									int data2[] = Arrays.copyOfRange(bytes, (int) data, bytes.length);
+									System.out.println(read_leb128(data2, bytes_read, 0));
+									data += bytes_read[0];
+								}
 
 							}
+							// System.out.println("END !!!!!!!!! data=" + (data
+							// - originalData));
+						}
+						/*
+						 * Only Special opcodes, DW_LNS_copy and
+						 * DW_LNE_end_sequence adds a row to the DWARF
+						 * address/line matrix.
+						 */
+						// System.out.println("is_special_opcode=" +
+						// is_special_opcode);
+						if ((is_special_opcode != 0) || (op_code == DW_LNE_end_sequence) || (op_code == DW_LNS_copy)) {
+							int MAX_FILENAME_LENGTH = 35;
+							// char *fileName = (char
+							// *)file_table[state_machine_regs.file -
+							// 1].name;
+							String fileName = file_table[state_machine_regs.file - 1].name;
+							// char *newFileName = NULL;
+							String newFileName;
+							int fileNameLength = fileName.length();
 
+							if ((fileNameLength > MAX_FILENAME_LENGTH)) {
+								// newFileName = (char *) xmalloc
+								// (MAX_FILENAME_LENGTH + 1);
+								/* Truncate file name */
+								// strncpy (newFileName,
+								// fileName + fileNameLength -
+								// MAX_FILENAME_LENGTH,
+								// MAX_FILENAME_LENGTH + 1);
+
+								newFileName = fileName.substring(fileNameLength - MAX_FILENAME_LENGTH, MAX_FILENAME_LENGTH + 1);
+							} else {
+								// newFileName = (char *) xmalloc
+								// (fileNameLength + 1);
+								// strncpy (newFileName, fileName,
+								// fileNameLength + 1);
+
+								newFileName = fileName;
+							}
+
+							if ((fileNameLength <= MAX_FILENAME_LENGTH)) {
+								System.out.println("=================================== " + newFileName + " = " + state_machine_regs.line + " = " + Long.toHexString(state_machine_regs.address));
+							} else {
+								System.out.println("=================================== " + newFileName + " = " + state_machine_regs.line + " = " + Long.toHexString(state_machine_regs.address));
+							}
+
+							if (op_code == DW_LNE_end_sequence) {
+								System.out.println("\n");
+							}
+							// free (newFileName);
 						}
 					}
+
 				}
 			}
+
+			// free (file_table);
+			// file_table = NULL;
+			// free (directory_table);
+			// directory_table = NULL;
+			// putchar ('\n');
 		}
 	}
 
@@ -581,11 +668,15 @@ public class ElfUtil {
 
 	}
 
-	static long read_leb128(int data[], Integer length_return, int sign) {
+	static long read_leb128(int data[], int length_return[], int sign) {
 		long result = 0;
 		int num_read = 0;
 		int shift = 0;
 		int b;
+
+		// System.out.print(data[0] + "," + data[1] + "," + data[2] + "," +
+		// data[3]);
+		// System.out.println();
 
 		int x = 0;
 		do {
@@ -598,7 +689,8 @@ public class ElfUtil {
 
 		} while ((b & 0x80) != 0);
 
-		length_return = num_read;
+		length_return[0] = num_read;
+		// System.out.println("length_return=" + length_return);
 
 		if (sign != 0 && shift < 8 * 4 && (b & 0x40) != 0) {
 			result |= -1L << shift;
@@ -606,11 +698,10 @@ public class ElfUtil {
 
 		return result;
 	}
-
 }
 
 class File_Entry {
-	String name="";
+	String name = "";
 	int directory_index;
 	int modification_date;
 	int length;

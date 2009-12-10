@@ -22,7 +22,7 @@ public class AddressTranslateTableModel extends DefaultTableModel {
 	public Vector<Long> physicalAddress = new Vector<Long>();
 	public Vector<String> bytes = new Vector<String>();
 
-	public Vector data[] = new Vector[] { virtualAddress, segNo, linearAddress, linearAddress, pdNo, ptNo, physicalAddress, bytes };
+	public Vector data[] = new Vector[] { virtualAddress, segNo, linearAddress, pdNo, ptNo, physicalAddress, bytes };
 
 	public String getColumnName(int column) {
 		return columnNames[column];
