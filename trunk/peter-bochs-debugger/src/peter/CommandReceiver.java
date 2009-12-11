@@ -60,6 +60,27 @@ public class CommandReceiver implements Runnable {
 		}
 	}
 
+	public String getCommandResultUntilHaveLines(int noOfLine) {
+		commandResult = "";
+
+		String str = "";
+
+		while (true) {
+			synchronized (lines) {
+				if (lines.size() > 0) {
+					str += lines.get(0) + "\n";
+					lines.remove(0);
+				} else {
+					if (str.split("\n").length >= noOfLine) {
+						// System.out.println(">>>" + str);
+						// System.out.println(str.split("\n").length);
+						return str;
+					}
+				}
+			}
+		}
+	}
+
 	public String getCommandResult(String pattern) {
 		long startTime = new Date().getTime();
 		commandResult = "";
@@ -96,7 +117,8 @@ public class CommandReceiver implements Runnable {
 		while (true) {
 			synchronized (lines) {
 				if (lines.size() > 0) {
-//					System.out.println("line size=" + lines.size() + ">" + lines.get(0));
+					// System.out.println("line size=" + lines.size() + ">" +
+					// lines.get(0));
 					if (startCapture) {
 						if (lines.get(0).contains((endPattern))) {
 							str += lines.get(0) + "\n";

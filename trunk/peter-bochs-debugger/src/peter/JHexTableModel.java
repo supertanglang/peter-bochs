@@ -37,11 +37,13 @@ public class JHexTableModel extends AbstractTableModel {
 				char c5 = (char) Integer.parseInt(qw[5 + row * (getColumnCount() - 2)], 16);
 				char c6 = (char) Integer.parseInt(qw[6 + row * (getColumnCount() - 2)], 16);
 				char c7 = (char) Integer.parseInt(qw[7 + row * (getColumnCount() - 2)], 16);
-				return String.valueOf(c0) + String.valueOf(c1) + String.valueOf(c2) + String.valueOf(c3) + String.valueOf(c4) + String.valueOf(c5) + String.valueOf(c6) + String.valueOf(c7);
+				return String.valueOf(c0) + String.valueOf(c1) + String.valueOf(c2) + String.valueOf(c3) + String.valueOf(c4) + String.valueOf(c5) + String.valueOf(c6)
+						+ String.valueOf(c7);
 			} else {
 				long l = Long.parseLong(qw[(column - 1) + row * (getColumnCount() - 2)], 16);
 				if (radix == 16) {
-					return Long.toHexString(l);
+					return String.format("%02x", l);
+					// return Long.toHexString(l);
 				} else if (radix == 10) {
 					return l;
 				} else if (radix == 8) {
