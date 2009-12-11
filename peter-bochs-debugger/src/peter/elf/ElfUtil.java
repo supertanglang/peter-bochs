@@ -8,6 +8,12 @@ import peter.CommonLib;
 public class ElfUtil {
 
 	public static void main(String args[]) {
+		System.out.println(getDebugLine(new File(args[0])));
+	}
+
+	public static String getDebugLine(File file) {
+		String filenameReturnStr = "";
+		String returnStr = "";
 		int bytesbb[] = { 0x80, 0x70, 0x60, 0x50 };
 
 		int DW_TAG_padding = 0x00;
@@ -122,9 +128,7 @@ public class ElfUtil {
 		char DW_LNE_HP_negate_front_end_logical = 0x19;
 		char DW_LNE_HP_define_proc = 0x20;
 
-		File file = new File(args[0]);
 		int bytes[] = CommonLib.readFileUnsigned(file, 0, (int) file.length());
-		readDebugLine(bytes);
 		long e_shoff = CommonLib.getInt(bytes, 32);
 		long e_shnum = CommonLib.getInt(bytes, 48) & 0xffff;
 		long e_shstrndx = CommonLib.getInt(bytes, 50) & 0xffff;
@@ -213,7 +217,7 @@ public class ElfUtil {
 
 				if (li_length + initial_length_size > debugSectionSize) {
 					System.out.println("The line info appears to be corrupt - the section is too small\n");
-					return;
+					return "error";
 				}
 
 				/* Get this CU's Line Number Block version number. */
@@ -222,7 +226,7 @@ public class ElfUtil {
 				hdrptr += 2;
 				if (li_version != 2 && li_version != 3) {
 					System.out.println("Only DWARF version 2 and 3 line info is currently supported.\n");
-					return;
+					return "error";
 				}
 				// System.out.println("display_debug_lines_decoded while 1\n");
 
@@ -413,6 +417,7 @@ public class ElfUtil {
 					}
 					i = 0;
 					/* Print the Compilation Unit's name and a header. */
+					filenameReturnStr += file_table[0].name + ",";
 
 					/* Skip the NUL at the end of the table. */
 					data++;
@@ -628,13 +633,13 @@ public class ElfUtil {
 							}
 
 							if ((fileNameLength <= MAX_FILENAME_LENGTH)) {
-								System.out.println("=================================== " + newFileName + " = " + state_machine_regs.line + " = " + Long.toHexString(state_machine_regs.address));
+								returnStr += newFileName + " = " + state_machine_regs.line + " = " + Long.toHexString(state_machine_regs.address) + "\n";
 							} else {
-								System.out.println("=================================== " + newFileName + " = " + state_machine_regs.line + " = " + Long.toHexString(state_machine_regs.address));
+								returnStr += newFileName + " = " + state_machine_regs.line + " = " + Long.toHexString(state_machine_regs.address) + "\n";
 							}
 
 							if (op_code == DW_LNE_end_sequence) {
-								System.out.println("\n");
+								// System.out.println("\n");
 							}
 							// free (newFileName);
 						}
@@ -648,7 +653,9 @@ public class ElfUtil {
 			// free (directory_table);
 			// directory_table = NULL;
 			// putchar ('\n');
+
 		}
+		return filenameReturnStr + "\n" + returnStr;
 	}
 
 	static State_Machine_Registers state_machine_regs = new State_Machine_Registers();
@@ -662,10 +669,6 @@ public class ElfUtil {
 		state_machine_regs.basic_block = 0;
 		state_machine_regs.end_sequence = 0;
 		state_machine_regs.last_file_entry = 0;
-	}
-
-	public static void readDebugLine(int bytes[]) {
-
 	}
 
 	static long read_leb128(int data[], int length_return[], int sign) {
