@@ -1,10 +1,15 @@
 #summary Changes
 
-= version 20090912 =
+=== version 20090914 ===
+
+1) auto update (50%)
+2) ELF breakpoint
+
+=== version 20090912 ===
 
 1) add text highlight, but not for all registers yet
 
-= version 20090901 =
+=== version 20090901 ===
 
 1) Added global font size
 
