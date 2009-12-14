@@ -9,6 +9,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
+import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -28,8 +29,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -76,6 +80,9 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.ini4j.Wini;
@@ -207,6 +214,17 @@ public class Application extends javax.swing.JFrame {
 	private JTable jAddressTranslateTable;
 	private JTable jAddressTranslateTable2;
 	private JPanel jPanel22;
+	private JPanel jPanel24;
+	private JLabel jLatestVersionLabel;
+	private JLabel jBochsVersionLabel;
+	private JCheckBox jShowELFByteCheckBox;
+	private JLabel jCPUModeLabel;
+	private JPanel jPanel25;
+	private JButton jLoadELFBreakpointButton;
+	private JButton jSaveELFBreakpointButton;
+	private JButton jDisableELFBreakpointButton;
+	private JButton jEnableELFBreakpointButton;
+	private JButton jRefreshELFBreakpointButton;
 	private JTable jELFTable;
 	private JScrollPane jScrollPane14;
 	private JComboBox jELFFileComboBox;
@@ -215,7 +233,6 @@ public class Application extends javax.swing.JFrame {
 	private JPanel jELFBreakpointPanel;
 	private JMenuItem jDisassemble32MenuItem;
 	private JMenuItem jDisassemble16MenuItem;
-	private JMenu jBochVersionMenu;
 	private JMenuItem jPTEMenuItem;
 	private JMenuItem jPDEMenuItem;
 	private JMenuItem jIDTDescriptorMenuItem;
@@ -326,6 +343,13 @@ public class Application extends javax.swing.JFrame {
 			isLinux = true;
 		}
 
+		if (ArrayUtils.contains(args, "-debug")) {
+			Global.debug = true;
+			args = (String[]) ArrayUtils.removeElement(args, "-debug");
+		} else {
+			Global.debug = false;
+		}
+
 		arguments = args;
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -337,6 +361,10 @@ public class Application extends javax.swing.JFrame {
 
 	public Application() {
 		super();
+		if (Global.debug) {
+			System.out.println(new Date());
+		}
+
 		try {
 			try {
 				UIManager.setLookAndFeel("com.petersoft.white.PetersoftWhiteLookAndFeel");
@@ -376,8 +404,27 @@ public class Application extends javax.swing.JFrame {
 			e.printStackTrace();
 		}
 		initGUI();
+
 		startBochs();
-		updateBochsStatus();
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				HashMap<String, String> map = CommonLib.checkLatestVersion();
+				if (map != null) {
+					if (map.get("latestVersion").compareTo(Global.version) > 0) {
+						jLatestVersionLabel.setText(language.getString("Latest_version_available") + " : " + map.get("latestVersion") + "     " + language.getString("Download_url") + " : "
+								+ map.get("downloadURL"));
+					} else {
+						jLatestVersionLabel.setText("");
+					}
+				} else {
+					jLatestVersionLabel.setText("");
+				}
+			}
+		});
+
+		if (Global.debug) {
+			System.out.println(new Date());
+		}
 	}
 
 	private void startBochs() {
@@ -408,18 +455,19 @@ public class Application extends javax.swing.JFrame {
 			}
 
 			while (commandReceiver.getLinesLength() < 9) {
+				Thread.currentThread().sleep(100);
 			}
 
 			String versionLines[] = commandReceiver.getCommandResultUntilEnd().split("\n");
 			for (String line : versionLines) {
 				if (line.contains("Bochs x86 Emulator")) {
 					version = line.trim();
-					jBochVersionMenu.setText(version);
+					jBochsVersionLabel.setText(version + "     ");
 					break;
 				}
 			}
 
-			jRefreshBreakpointButtonActionPerformed(null);
+			this.updateBreakpoint();
 		} catch (Exception ex) {
 			JOptionPane.showMessageDialog(this, language.getString("Unable_to_start_bochs"));
 			ex.printStackTrace();
@@ -500,8 +548,12 @@ public class Application extends javax.swing.JFrame {
 		try {
 			{
 				this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-				this.setTitle(language.getString("Title"));
+				this.setTitle(language.getString("Title") + " " + Global.version);
 				this.addWindowListener(new WindowAdapter() {
+					public void windowActivated(WindowEvent evt) {
+						thisWindowActivated(evt);
+					}
+
 					public void windowClosing(WindowEvent evt) {
 						thisWindowClosing(evt);
 					}
@@ -576,11 +628,12 @@ public class Application extends javax.swing.JFrame {
 				getContentPane().add(getJMainPanel(), BorderLayout.CENTER);
 				{
 					jStatusProgressBar = new JProgressBar();
-					jStatusPanel.add(jStatusProgressBar, BorderLayout.CENTER);
+					jStatusPanel.add(jStatusProgressBar, BorderLayout.WEST);
 				}
 				{
 					jStatusLabel = new JLabel();
 					jStatusPanel.add(jStatusLabel, BorderLayout.EAST);
+					jStatusPanel.add(getJPanel25(), BorderLayout.CENTER);
 				}
 			}
 			{
@@ -670,7 +723,6 @@ public class Application extends javax.swing.JFrame {
 				{
 					jMenu5 = new JMenu();
 					jMenuBar1.add(jMenu5);
-					jMenuBar1.add(getJBochVersionMenu());
 					jMenu5.setText(language.getString("Help"));
 					{
 						aboutUsMenuItem = new JMenuItem();
@@ -715,23 +767,27 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void initChineseFont() {
-		Font[] allfonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
-		int fontcount = 0;
-		String chinesesample = "\u4e00";
-		for (int j = 0; j < allfonts.length; j++) {
-			if (allfonts[j].canDisplayUpTo(chinesesample) == -1) {
-				// System.out.println(allfonts[j].getFontName());
-				JMenuItem jMenuItem = new JMenuItem(allfonts[j].getFontName());
-				jMenuItem.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
-						fontFamily = ((JMenuItem) evt.getSource()).getText();
-						setFont();
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				Font[] allfonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
+				int fontcount = 0;
+				String chinesesample = "\u4e00";
+				for (int j = 0; j < allfonts.length; j++) {
+					if (allfonts[j].canDisplayUpTo(chinesesample) == -1) {
+						// System.out.println(allfonts[j].getFontName());
+						JMenuItem jMenuItem = new JMenuItem(allfonts[j].getFontName());
+						jMenuItem.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent evt) {
+								fontFamily = ((JMenuItem) evt.getSource()).getText();
+								setFont();
+							}
+						});
+						jMenu2.add(jMenuItem);
 					}
-				});
-				jMenu2.add(jMenuItem);
+					fontcount++;
+				}
 			}
-			fontcount++;
-		}
+		});
 	}
 
 	private void jBochsCommandButtonActionPerformed(ActionEvent evt) {
@@ -862,12 +918,10 @@ public class Application extends javax.swing.JFrame {
 				return;
 			}
 		}
-
 		jMemoryAddressComboBox.addItem(str.trim());
 	}
 
 	private void addInstructionComboBox(String str) {
-		System.out.println("str=" + str);
 		for (int x = 0; x < jInstructionComboBox.getItemCount(); x++) {
 			if (this.jInstructionComboBox.getItemAt(x).toString().trim().equals(str.trim())) {
 				return;
@@ -886,30 +940,63 @@ public class Application extends javax.swing.JFrame {
 			public void run() {
 				enableAllButtons(false);
 
+				if (Global.debug) {
+					System.out.println("updateRegister");
+				}
 				updateRegister();
 
+				if (Global.debug) {
+					System.out.println("updateEFlag");
+				}
 				updateEFlag();
 
+				if (Global.debug) {
+					System.out.println("updateMemory");
+				}
 				updateMemory();
 
+				if (Global.debug) {
+					System.out.println("updateInstruction");
+				}
 				updateInstruction(null);
 
+				if (Global.debug) {
+					System.out.println("updateGDT");
+				}
 				updateGDT();
 
+				if (Global.debug) {
+					System.out.println("updateIDT");
+				}
 				updateIDT();
 
+				if (Global.debug) {
+					System.out.println("updatePageTable");
+				}
 				updatePageTable();
 
+				if (Global.debug) {
+					System.out.println("updateStack");
+				}
 				updateStack();
 
+				if (Global.debug) {
+					System.out.println("updateAddressTranslate");
+				}
 				updateAddressTranslate();
 
 				// ((DefaultComboBoxModel)
 				// jPauseHistoryList.getModel()).addElement(jRegisterPanel1.jCSTextField.getText()
 				// + ":" + jRegisterPanel1.jEIPTextField.getText());
 
+				if (Global.debug) {
+					System.out.println("updateHistoryTable");
+				}
 				updateHistoryTable();
 
+				if (Global.debug) {
+					System.out.println("updateBreakpointTableColor");
+				}
 				updateBreakpointTableColor();
 
 				jStatusLabel.setText("");
@@ -1044,7 +1131,6 @@ public class Application extends javax.swing.JFrame {
 			jStatusLabel.setText("Updating page table");
 			// commandReceiver.setCommandNoOfLine(512);
 			sendCommand("xp /4096bx " + this.jRegisterPanel1.jCR3TextField.getText());
-
 			float totalByte2 = 4096 - 1;
 			totalByte2 = totalByte2 / 8;
 			int totalByte3 = (int) Math.floor(totalByte2);
@@ -1058,56 +1144,58 @@ public class Application extends javax.swing.JFrame {
 			realEndAddressStr = String.format("%08x", realEndAddress);
 
 			String result = commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr);
-			String[] lines = result.split("\n");
-			DefaultTableModel model = (DefaultTableModel) jPageDirectoryTable.getModel();
-			while (model.getRowCount() > 0) {
-				model.removeRow(0);
-			}
-			jStatusProgressBar.setMaximum(lines.length - 1);
-
-			for (int y = 0; y < lines.length; y++) {
-				jStatusProgressBar.setValue(y);
-				String[] b = lines[y].replaceFirst("^.*:", "").trim().split("\t");
-
-				for (int z = 0; z < 2; z++) {
-					try {
-						byte bytes[] = new byte[4];
-						for (int x = 0; x < 4; x++) {
-							bytes[x] = (byte) (long) CommonLib.hex2decimal(b[x + z * 4].substring(2).trim());
-						}
-						int value = CommonLib.getInt(bytes, 0);
-						// "No.", "PT base", "AVL", "G",
-						// "D", "A", "PCD", "PWT",
-						// "U/S", "W/R", "P"
-
-						long baseL = value & 0xfffff000;
-						if (baseL != 0) {
-							String base = "0x" + Long.toHexString(baseL);
-							String avl = String.valueOf((value >> 9) & 3);
-							String g = String.valueOf((value >> 8) & 1);
-							String d = String.valueOf((value >> 6) & 1);
-							String a = String.valueOf((value >> 5) & 1);
-							String pcd = String.valueOf((value >> 4) & 1);
-							String pwt = String.valueOf((value >> 3) & 1);
-							String us = String.valueOf((value >> 2) & 1);
-							String wr = String.valueOf((value >> 1) & 1);
-							String p = String.valueOf((value >> 0) & 1);
-
-							ia32_pageDirectories.add(new IA32PageDirectory(base, avl, g, d, a, pcd, pwt, us, wr, p));
-
-							model.addRow(new String[] { String.valueOf(y * 2 + z), base, avl, g, d, a, pcd, pwt, us, wr, p });
-						}
-					} catch (Exception ex) {
-					}
+			if (result != null) {
+				String[] lines = result.split("\n");
+				DefaultTableModel model = (DefaultTableModel) jPageDirectoryTable.getModel();
+				while (model.getRowCount() > 0) {
+					model.removeRow(0);
 				}
-				jStatusLabel.setText("Updating memory " + y + "/" + lines.length);
+				jStatusProgressBar.setMaximum(lines.length - 1);
+
+				for (int y = 0; y < lines.length; y++) {
+					jStatusProgressBar.setValue(y);
+					String[] b = lines[y].replaceFirst("^.*:", "").trim().split("\t");
+
+					for (int z = 0; z < 2; z++) {
+						try {
+							byte bytes[] = new byte[4];
+							for (int x = 0; x < 4; x++) {
+								bytes[x] = (byte) (long) CommonLib.hex2decimal(b[x + z * 4].substring(2).trim());
+							}
+							int value = CommonLib.getInt(bytes, 0);
+							// "No.", "PT base", "AVL", "G",
+							// "D", "A", "PCD", "PWT",
+							// "U/S", "W/R", "P"
+
+							long baseL = value & 0xfffff000;
+							if (baseL != 0) {
+								String base = "0x" + Long.toHexString(baseL);
+								String avl = String.valueOf((value >> 9) & 3);
+								String g = String.valueOf((value >> 8) & 1);
+								String d = String.valueOf((value >> 6) & 1);
+								String a = String.valueOf((value >> 5) & 1);
+								String pcd = String.valueOf((value >> 4) & 1);
+								String pwt = String.valueOf((value >> 3) & 1);
+								String us = String.valueOf((value >> 2) & 1);
+								String wr = String.valueOf((value >> 1) & 1);
+								String p = String.valueOf((value >> 0) & 1);
+
+								ia32_pageDirectories.add(new IA32PageDirectory(base, avl, g, d, a, pcd, pwt, us, wr, p));
+
+								model.addRow(new String[] { String.valueOf(y * 2 + z), base, avl, g, d, a, pcd, pwt, us, wr, p });
+							}
+						} catch (Exception ex) {
+						}
+					}
+					jStatusLabel.setText("Updating memory " + y + "/" + lines.length);
+				}
+				jPageDirectoryTable.setModel(model);
 			}
-			jPageDirectoryTable.setModel(model);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 
-		if (jAutoRefreshPageTableGraphCheckBox.isSelected()) {
+		if (Global.debug && jAutoRefreshPageTableGraphCheckBox.isSelected()) {
 			GraphModel model = new DefaultGraphModel();
 			GraphLayoutCache view = new GraphLayoutCache(model, new DefaultCellViewFactory() {
 				public CellView createView(GraphModel model, Object cell) {
@@ -1333,7 +1421,7 @@ public class Application extends javax.swing.JFrame {
 				command = "disassemble cs:eip 0x" + Long.toHexString(cs) + ":0x" + Long.toHexString(eip + 100);
 				// System.out.println(command);
 			} else {
-				command = "disassemble " + address;
+				command = "disassemble " + address + " " + (address + 100);
 			}
 			commandReceiver.clearBuffer();
 			sendCommand(command);
@@ -1363,13 +1451,15 @@ public class Application extends javax.swing.JFrame {
 						// System.out.println(lines[x]);
 						String strs[] = lines[x].split(":");
 						int secondColon = lines[x].indexOf(":", lines[x].indexOf(":") + 1);
-						model.addRow(new String[] { strs[0].trim() + " " + strs[1].trim().replaceAll("\\( *\\)", ""),
-								lines[x].substring(secondColon + 1).trim().split(";")[0].trim(), lines[x].split(";")[1] });
+						model.addRow(new String[] { strs[0].trim() + " " + strs[1].trim().replaceAll("\\( *\\)", ""), lines[x].substring(secondColon + 1).trim().split(";")[0].trim(),
+								lines[x].split(";")[1] });
 					} catch (Exception ex) {
 						// System.out.println("error 1 : cannot parse"
 						// + lines[x]);
 					}
 				}
+			} else {
+				System.out.println("FUCK");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1391,25 +1481,27 @@ public class Application extends javax.swing.JFrame {
 			String limitStr = String.format("0x%02x", limit);
 
 			String result = commandReceiver.getCommandResult("GDT[0x00]", "GDT[" + limitStr + "]");
-			String lines[] = result.split("\n");
-			JGDTTableModel model = (JGDTTableModel) jGDTTable.getModel();
-			model.clear();
-			// jStatusProgressBar.setMaximum(lines.length - 1);
-			boolean start = false;
-			for (int x = 1; x < lines.length; x++) {
-				jStatusLabel.setText("Updating GDT " + x);
-				// System.out.println(">++>>" + lines[x]);
-				jStatusProgressBar.setValue(x);
-				try {
-					Vector<String> v = new Vector<String>();
-					v.add(lines[x].replaceFirst("^.*\\[", "").replaceFirst("].*$", ""));
-					v.add(lines[x].replaceFirst("^.*]=", ""));
-					model.addValue(v);
-				} catch (Exception ex) {
+			if (result != null) {
+				String lines[] = result.split("\n");
+				JGDTTableModel model = (JGDTTableModel) jGDTTable.getModel();
+				model.clear();
+				// jStatusProgressBar.setMaximum(lines.length - 1);
+				boolean start = false;
+				for (int x = 1; x < lines.length; x++) {
+					jStatusLabel.setText("Updating GDT " + x);
+					// System.out.println(">++>>" + lines[x]);
+					jStatusProgressBar.setValue(x);
+					try {
+						Vector<String> v = new Vector<String>();
+						v.add(lines[x].replaceFirst("^.*\\[", "").replaceFirst("].*$", ""));
+						v.add(lines[x].replaceFirst("^.*]=", ""));
+						model.addValue(v);
+					} catch (Exception ex) {
+					}
 				}
-			}
 
-			jGDTTable.updateUI();
+				jGDTTable.updateUI();
+			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -1660,6 +1752,12 @@ public class Application extends javax.swing.JFrame {
 				jStatusProgressBar.setValue(x++);
 				if (line.matches(".*CR0=.*")) {
 					changeText(this.jRegisterPanel1.jCR0TextField, line.split(" ")[1].split("=")[1].replace(":", ""));
+
+					if (CommonLib.getBit(CommonLib.string2decimal(jRegisterPanel1.jCR0TextField.getText()), 0) == 1) {
+						jCPUModeLabel.setText(language.getString("Protected_mode") + "     ");
+					} else {
+						jCPUModeLabel.setText(language.getString("Real_mode") + "     ");
+					}
 					String arr[] = line.split(":")[2].split(" ");
 
 					jRegisterPanel1.jCR0DetailLabel.setText("");
@@ -1722,48 +1820,55 @@ public class Application extends javax.swing.JFrame {
 
 	private void updateMemory() {
 		try {
-			jStatusLabel.setText("Updating memory");
-			int totalByte = 200;
-			sendCommand("xp /" + totalByte + "bx " + this.jMemoryAddressComboBox.getSelectedItem().toString());
-			currentMemoryWindowsAddress = CommonLib.string2decimal(this.jMemoryAddressComboBox.getSelectedItem().toString());
+			if (this.jMemoryAddressComboBox.getSelectedItem() != null) {
+				jStatusLabel.setText("Updating memory");
+				int totalByte = 200;
+				commandReceiver.clearBuffer();
+				sendCommand("xp /" + totalByte + "bx " + this.jMemoryAddressComboBox.getSelectedItem().toString());
+				currentMemoryWindowsAddress = CommonLib.string2decimal(this.jMemoryAddressComboBox.getSelectedItem().toString());
 
-			if (totalByte > 0) {
-				float totalByte2 = totalByte - 1;
-				totalByte2 = totalByte2 / 8;
-				int totalByte3 = (int) Math.floor(totalByte2);
-				String realEndAddressStr;
-				String realStartAddressStr;
-				String base = this.jMemoryAddressComboBox.getSelectedItem().toString();
-				long realStartAddress = CommonLib.string2decimal(base);
-				realStartAddressStr = String.format("%08x", realStartAddress);
-				long realEndAddress = realStartAddress + totalByte3 * 8;
-				realEndAddressStr = String.format("%08x", realEndAddress);
-				// System.out.println(realStartAddressStr);
-				// System.out.println(realEndAddressStr);
-				String result = commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr);
-				// System.out.println(result);
-				String[] lines = result.split("\n");
-				String bytes[] = new String[totalByte];
-				int offset = 0;
-				// System.out.println(result);
-				jStatusProgressBar.setMaximum(lines.length - 1);
-				for (int y = 0; y < lines.length; y++) {
-					jStatusProgressBar.setValue(y);
-					String[] b = lines[y].replaceFirst("^.*:", "").split("\t");
-					// System.out.println(lines[y]);
-					for (int x = 1; x < b.length && x < 200; x++) {
-						// System.out.print(offset + " ");
-						bytes[offset] = b[x].substring(2).trim();
-						offset++;
+				if (totalByte > 0) {
+					float totalByte2 = totalByte - 1;
+					totalByte2 = totalByte2 / 8;
+					int totalByte3 = (int) Math.floor(totalByte2);
+					String realEndAddressStr;
+					String realStartAddressStr;
+					String base = this.jMemoryAddressComboBox.getSelectedItem().toString();
+					long realStartAddress = CommonLib.string2decimal(base);
+					realStartAddressStr = String.format("%08x", realStartAddress);
+					long realEndAddress = realStartAddress + totalByte3 * 8;
+					realEndAddressStr = String.format("%08x", realEndAddress);
+					// System.out.println(realStartAddressStr);
+					// System.out.println(realEndAddressStr);
+					String result = commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr);
+					// System.out.println(result);
+					if (result != null) {
+						String[] lines = result.split("\n");
+						String bytes[] = new String[totalByte];
+						int offset = 0;
+						// System.out.println(result);
+						jStatusProgressBar.setMaximum(lines.length - 1);
+						for (int y = 0; y < lines.length; y++) {
+							jStatusProgressBar.setValue(y);
+							String[] b = lines[y].replaceFirst("^.*:", "").split("\t");
+							// System.out.println(lines[y]);
+
+							for (int x = 1; x < b.length && offset < totalByte; x++) {
+								// System.out.println(offset + "==" + x);
+								bytes[offset] = b[x].substring(2).trim();
+								offset++;
+							}
+							// System.out.println();
+							jStatusLabel.setText("Updating memory " + y + "/" + (lines.length - 1));
+						}
+						jHexTable1.getModel().set(bytes);
 					}
-					// System.out.println();
-					jStatusLabel.setText("Updating memory " + y + "/" + (lines.length - 1));
+					jStatusLabel.setText("");
+					// System.out.println(lines.length);
+
+					jHexTable1.getModel().setCurrentAddress(CommonLib.string2decimal(this.jMemoryAddressComboBox.getSelectedItem().toString()));
+					jHexTable1.updateUI();
 				}
-				jStatusLabel.setText("");
-				// System.out.println(lines.length);
-				jHexTable1.getModel().set(bytes);
-				jHexTable1.getModel().setCurrentAddress(CommonLib.string2decimal(this.jMemoryAddressComboBox.getSelectedItem().toString()));
-				jHexTable1.updateUI();
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -1918,7 +2023,7 @@ public class Application extends javax.swing.JFrame {
 			// commandReceiver.setCommandNoOfLine(-1);
 			commandReceiver.clearBuffer();
 			sendCommand("info break");
-			// Thread.currentThread().sleep(200);
+			Thread.currentThread().sleep(100);
 			String result = commandReceiver.getCommandResultUntilEnd();
 			String[] lines = result.split("\n");
 			DefaultTableModel model = (DefaultTableModel) jBreakpointTable.getModel();
@@ -1936,6 +2041,8 @@ public class Application extends javax.swing.JFrame {
 					}
 				}
 			}
+
+			this.jRefreshELFBreakpointButtonActionPerformed(null);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -2029,6 +2136,7 @@ public class Application extends javax.swing.JFrame {
 		int rows[] = jBreakpointTable.getSelectedRows();
 		for (int x = 0; x < rows.length; x++) {
 			sendCommand("bpe " + jBreakpointTable.getValueAt(rows[x], 0).toString().trim().split(" ")[0]);
+			System.out.println("bpe " + jBreakpointTable.getValueAt(rows[x], 0).toString().trim().split(" ")[0]);
 		}
 		updateBreakpoint();
 		jEnableBreakpointButton.setEnabled(true);
@@ -2431,8 +2539,8 @@ public class Application extends javax.swing.JFrame {
 				jScrollPane7 = new JScrollPane();
 				jSplitPane3.add(jScrollPane7, JSplitPane.RIGHT);
 				{
-					TableModel jTable1Model = new DefaultTableModel(new String[][] {}, new String[] { "No.", language.getString("Physical_address"), "AVL", "G", "PAT", "D", "A",
-							"PCD", "PWT", "U/S", "W/R", "P" }) {
+					TableModel jTable1Model = new DefaultTableModel(new String[][] {}, new String[] { "No.", language.getString("Physical_address"), "AVL", "G", "PAT", "D", "A", "PCD", "PWT", "U/S",
+							"W/R", "P" }) {
 						public boolean isCellEditable(int row, int column) {
 							return false;
 						}
@@ -2456,8 +2564,7 @@ public class Application extends javax.swing.JFrame {
 				jScrollPane8 = new JScrollPane();
 				jSplitPane3.add(jScrollPane8, JSplitPane.LEFT);
 				{
-					TableModel jPageDirectoryTableModel = new DefaultTableModel(new String[][] {}, new String[] { "No.", "PT base", "AVL", "G", "D", "A", "PCD", "PWT", "U/S",
-							"W/R", "P" }) {
+					TableModel jPageDirectoryTableModel = new DefaultTableModel(new String[][] {}, new String[] { "No.", "PT base", "AVL", "G", "D", "A", "PCD", "PWT", "U/S", "W/R", "P" }) {
 						public boolean isCellEditable(int row, int column) {
 							return false;
 						}
@@ -2895,8 +3002,8 @@ public class Application extends javax.swing.JFrame {
 
 	private void jSearchMemoryButtonActionPerformed(ActionEvent evt) {
 		try {
-			new SearchMemoryDialog(this, this.jSearchMemoryTable, this.jSearchMemoryTextField.getText(), CommonLib.string2decimal(this.jSearchMemoryFromComboBox.getSelectedItem()
-					.toString()), CommonLib.string2decimal(this.jSearchMemoryToComboBox.getSelectedItem().toString())).setVisible(true);
+			new SearchMemoryDialog(this, this.jSearchMemoryTable, this.jSearchMemoryTextField.getText(), CommonLib.string2decimal(this.jSearchMemoryFromComboBox.getSelectedItem().toString()),
+					CommonLib.string2decimal(this.jSearchMemoryToComboBox.getSelectedItem().toString())).setVisible(true);
 		} catch (Exception ex) {
 
 		}
@@ -2991,8 +3098,8 @@ public class Application extends javax.swing.JFrame {
 								jScrollPane5 = new JScrollPane();
 								jPanel10.add(jScrollPane5, BorderLayout.CENTER);
 								{
-									TableModel jInstructionTableModel = new DefaultTableModel(new String[][] {}, new String[] { language.getString("Address"),
-											language.getString("Instruction"), language.getString("Bytes") }) {
+									TableModel jInstructionTableModel = new DefaultTableModel(new String[][] {}, new String[] { language.getString("Address"), language.getString("Instruction"),
+											language.getString("Bytes") }) {
 										public boolean isCellEditable(int row, int col) {
 											return false;
 										}
@@ -3016,8 +3123,8 @@ public class Application extends javax.swing.JFrame {
 								jScrollPane9 = new JScrollPane();
 								jPanel4.add(jScrollPane9, BorderLayout.CENTER);
 								{
-									TableModel jTable1Model = new DefaultTableModel(new String[][] {}, new String[] { language.getString("No"), language.getString("Address_type"),
-											"Disp Enb Address", language.getString("Hit") }) {
+									TableModel jTable1Model = new DefaultTableModel(new String[][] {}, new String[] { language.getString("No"), language.getString("Address_type"), "Disp Enb Address",
+											language.getString("Hit") }) {
 										public boolean isCellEditable(int row, int col) {
 											return false;
 										}
@@ -3106,7 +3213,9 @@ public class Application extends javax.swing.JFrame {
 						{
 							jPanel1 = new JPanel();
 							jTabbedPane1.addTab(language.getString("Bochs"), null, jPanel1, null);
-							jTabbedPane1.addTab("ELF", null, getJELFBreakpointPanel(), null);
+							if (Global.debug) {
+								jTabbedPane1.addTab("ELF", null, getJELFBreakpointPanel(), null);
+							}
 							BorderLayout jPanel1Layout = new BorderLayout();
 							jPanel1.setLayout(jPanel1Layout);
 							{
@@ -3182,21 +3291,28 @@ public class Application extends javax.swing.JFrame {
 								jPanel9.setLayout(jPanel9Layout);
 								jPanel8.add(jPanel9, BorderLayout.NORTH);
 								{
-									ComboBoxModel jMemoryAddressComboBoxModel = new DefaultComboBoxModel(new String[] {});
+									// ComboBoxModel jMemoryAddressComboBoxModel
+									// = new DefaultComboBoxModel(new String[] {
+									// "0x00000000" });
 									jMemoryAddressComboBox = new JComboBox();
 									jPanel9.add(jMemoryAddressComboBox);
-									jMemoryAddressComboBox.setModel(jMemoryAddressComboBoxModel);
+									jMemoryAddressComboBox.setSelectedItem("0x00000000");
+									// jMemoryAddressComboBox.setModel(jMemoryAddressComboBoxModel);
 									jMemoryAddressComboBox.setEditable(true);
 									jMemoryAddressComboBox.addActionListener(new ActionListener() {
 										public void actionPerformed(ActionEvent evt) {
 											jMemoryAddressComboBoxActionPerformed(evt);
 										}
 									});
-									addMemoryAddressComboBox("0x00000000");
-									Vector<HashMap> vector = XMLHelper.xmltoVector("memoryCombo.xml", "/address/record");
-									for (int x = 0; x < vector.size(); x++) {
-										addMemoryAddressComboBox(vector.get(x).get("address").toString());
-									}
+									;
+									SwingUtilities.invokeLater(new Runnable() {
+										public void run() {
+											Vector<HashMap> vector = XMLHelper.xmltoVector("memoryCombo.xml", "/address/record");
+											for (int x = 0; x < vector.size(); x++) {
+												addMemoryAddressComboBox(vector.get(x).get("address").toString());
+											}
+										}
+									});
 								}
 								{
 									jGOMemoryButton = new JButton();
@@ -3362,8 +3478,7 @@ public class Application extends javax.swing.JFrame {
 					{
 						jPanel3 = new JPanel();
 						jTabbedPane2.addTab(language.getString("History"), null, jPanel3, null);
-						TableLayout jPanel3Layout = new TableLayout(new double[][] { { TableLayout.FILL, TableLayout.FILL, TableLayout.FILL, TableLayout.FILL },
-								{ 36.0, TableLayout.FILL } });
+						TableLayout jPanel3Layout = new TableLayout(new double[][] { { TableLayout.FILL, TableLayout.FILL, TableLayout.FILL, TableLayout.FILL }, { 36.0, TableLayout.FILL } });
 						jPanel3Layout.setHGap(5);
 						jPanel3Layout.setVGap(5);
 						jPanel3.setLayout(jPanel3Layout);
@@ -3377,8 +3492,12 @@ public class Application extends javax.swing.JFrame {
 					{
 						jPanel11 = new JPanel();
 						jTabbedPane2.addTab(language.getString("Paging"), null, jPanel11, null);
-						jTabbedPane2.addTab(language.getString("Address_translate") + " (experimential)", null, getJAddressTranslatePanel(), null);
-						jTabbedPane2.addTab("Page table graph (experimental)", null, getJPageTableGraphPanel(), null);
+						if (Global.debug) {
+							jTabbedPane2.addTab(language.getString("Address_translate") + " (experimential)", null, getJAddressTranslatePanel(), null);
+						}
+						if (Global.debug) {
+							jTabbedPane2.addTab("Page table graph (experimental)", null, getJPageTableGraphPanel(), null);
+						}
 						jTabbedPane2.addTab(language.getString("Table_translate"), null, getJTableTranslateScrollPane(), null);
 						BorderLayout jPanel11Layout = new BorderLayout();
 						jPanel11.setLayout(jPanel11Layout);
@@ -3394,16 +3513,19 @@ public class Application extends javax.swing.JFrame {
 	private JLabel getJRunningLabel() {
 		if (jRunningLabel == null) {
 			jRunningLabel = new JLabel();
-			URL url = getClass().getClassLoader().getResource("images/ajax-loader.gif");
-			jRunningLabel.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\"" + url + "\" /></center></html>");
+
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					URL url = getClass().getClassLoader().getResource("images/ajax-loader.gif");
+					jRunningLabel.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\"" + url + "\" /></center></html>");
+				}
+			});
 			jRunningLabel.setHorizontalAlignment(SwingConstants.CENTER);
 			jRunningLabel.setHorizontalTextPosition(SwingConstants.CENTER);
 			jRunningLabel.setFont(new java.awt.Font("Arial", 0, 20));
 			jRunningLabel.setForeground(Color.white);
 			jRunningLabel.setBackground(new Color(0, 0, 0, 180));
 			jRunningLabel.setOpaque(true);
-			// jRunningLabel.setIcon(new
-			// ImageIcon(getClass().getClassLoader().getResource("pfsbuilder/images/ajax-loader.gif")));
 		}
 		return jRunningLabel;
 	}
@@ -3733,8 +3855,8 @@ public class Application extends javax.swing.JFrame {
 				model.segNo.set(x, model.searchSegSelector.get(x) >> 3);
 				model.virtualAddress.set(x, model.searchAddress.get(x));
 
-				long gdtBase = CommonLib.getPhysicalAddress(CommonLib.string2decimal(this.jRegisterPanel1.jCR3TextField.getText()), CommonLib
-						.string2decimal(this.jRegisterPanel1.jGDTRTextField.getText()));
+				long gdtBase = CommonLib.getPhysicalAddress(CommonLib.string2decimal(this.jRegisterPanel1.jCR3TextField.getText()), CommonLib.string2decimal(this.jRegisterPanel1.jGDTRTextField
+						.getText()));
 				System.out.println("gdtBase=" + Long.toHexString(gdtBase));
 				commandReceiver.clearBuffer();
 				gdtBase += model.segNo.get(x) * 8;
@@ -3897,13 +4019,6 @@ public class Application extends javax.swing.JFrame {
 		}
 	}
 
-	private JMenu getJBochVersionMenu() {
-		if (jBochVersionMenu == null) {
-			jBochVersionMenu = new JMenu();
-		}
-		return jBochVersionMenu;
-	}
-
 	private JMenuItem getJDisassemble16MenuItem() {
 		if (jDisassemble16MenuItem == null) {
 			jDisassemble16MenuItem = new JMenuItem();
@@ -3947,6 +4062,7 @@ public class Application extends javax.swing.JFrame {
 			jELFBreakpointPanel.setLayout(jELFBreakpointPanelLayout);
 			jELFBreakpointPanel.add(getJPanel23(), BorderLayout.NORTH);
 			jELFBreakpointPanel.add(getJScrollPane14(), BorderLayout.CENTER);
+			jELFBreakpointPanel.add(getJPanel24(), BorderLayout.SOUTH);
 		}
 		return jELFBreakpointPanel;
 	}
@@ -3958,6 +4074,7 @@ public class Application extends javax.swing.JFrame {
 			jPanel23.setLayout(jPanel23Layout);
 			jPanel23.add(getJELFFileComboBox());
 			jPanel23.add(getJOpenELFButton());
+			jPanel23.add(getJShowELFByteCheckBox());
 		}
 		return jPanel23;
 	}
@@ -4002,41 +4119,296 @@ public class Application extends javax.swing.JFrame {
 		if (jELFTable == null) {
 			jELFTable = new JTable();
 			jELFTable.setModel(new JSourceCodeTableModel());
-			jELFTable.getColumnModel().getColumn(1).setCellRenderer(new JSourceCodeCellRenderer());
-			jELFTable.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+			jELFTable.getColumnModel().getColumn(0).setCellRenderer(new JSourceCodeCellRenderer());
+			jELFTable.getColumnModel().getColumn(3).setCellRenderer(new JSourceCodeCellRenderer());
+			jELFTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
 			jELFTable.getColumnModel().getColumn(0).setPreferredWidth(10);
-			jELFTable.getColumnModel().getColumn(1).setPreferredWidth(400);
+			jELFTable.getColumnModel().getColumn(1).setPreferredWidth(15);
+			jELFTable.getColumnModel().getColumn(2).setPreferredWidth(50);
+			jELFTable.getColumnModel().getColumn(3).setPreferredWidth(300);
+			jELFTable.addMouseListener(new MouseAdapter() {
+				public void mouseClicked(MouseEvent evt) {
+					jELFTableMouseClicked(evt);
+				}
+			});
 		}
 		return jELFTable;
 	}
 
 	private void jOpenELFButtonActionPerformed(ActionEvent evt) {
 		final JFileChooser fc = new JFileChooser();
+		// load history
+		Vector<HashMap> vector = XMLHelper.xmltoVector("elf_history.xml", "/history/open_elf");
+		if (vector.size() > 0) {
+			fc.setCurrentDirectory(new File(vector.get(0).get("path").toString()));
+		} else {
+			fc.setCurrentDirectory(new File("."));
+		}
+		// end load history
 		int returnVal = fc.showOpenDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
 
-			String filenames[] = ElfUtil.getDebugLine(file).split("\n")[0].split(",");
+			String lines = ElfUtil.getDebugLine(file);
+			String filenames[] = lines.split("\n")[0].split(",");
 			JSourceCodeTableModel model = (JSourceCodeTableModel) jELFTable.getModel();
+			model.setDebugLine(lines);
+			model.setELFFile(file);
 
 			for (int x = 0; x < filenames.length; x++) {
-				// read source code
-				try {
-					List<String> list = FileUtils.readLines(new File(file.getParentFile().getAbsoluteFile() + File.separator + filenames[x]));
-					model.getSourceCodes().put(file.getName() + " - " + filenames[x], list);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				// end read source code
+				// find source file
+				Collection<File> found = FileUtils.listFiles(file.getParentFile(), FileFilterUtils.nameFileFilter(filenames[x]), TrueFileFilter.INSTANCE);
+				if (found.size() == 0) {
+					this.jELFFileComboBox.addItem(file.getName() + " - " + filenames[x] + " (missing)");
+				} else {
+					File foundFile = (File) found.toArray()[0];
 
-				this.jELFFileComboBox.addItem(file.getName() + " - " + filenames[x]);
+					// read source code
+					try {
+						List<String> list = FileUtils.readLines(foundFile);
+						model.getSourceCodes().put(foundFile.getName(), list);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+
+					this.jELFFileComboBox.addItem(file.getName() + " - " + foundFile.getAbsolutePath().substring(file.getParent().length()));
+					// end read source code
+				}
+				// end find source file
 			}
 			jELFFileComboBoxActionPerformed(null);
+
+			model.updateBreakpoint();
+
+			// save history
+			HashMap<String, String> h = new HashMap<String, String>();
+			h.put("path", file.getParentFile().getAbsolutePath());
+			vector.add(h);
+			XMLHelper.vectorToXML("elf_history.xml", "history", "open_elf", vector);
+			// end save history
 		}
 	}
 
 	private void jELFFileComboBoxActionPerformed(ActionEvent evt) {
 		JSourceCodeTableModel model = (JSourceCodeTableModel) jELFTable.getModel();
-		model.setCurrentFile(jELFFileComboBox.getSelectedItem().toString());
+		model.setCurrentFile(new File(jELFFileComboBox.getSelectedItem().toString().split("-")[1]).getName());
+	}
+
+	private JPanel getJPanel24() {
+		if (jPanel24 == null) {
+			jPanel24 = new JPanel();
+			jPanel24.add(getJRefreshButton());
+			jPanel24.add(getJEnableELFBreakpointButton());
+			jPanel24.add(getJDisableELFBreakpointButton());
+			jPanel24.add(getJSaveELFBreakpointButton());
+			jPanel24.add(getJLoadELFBreakpointButton());
+		}
+		return jPanel24;
+	}
+
+	private JButton getJRefreshButton() {
+		if (jRefreshELFBreakpointButton == null) {
+			jRefreshELFBreakpointButton = new JButton();
+			jRefreshELFBreakpointButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jRefreshELFBreakpointButtonActionPerformed(evt);
+				}
+			});
+			jRefreshELFBreakpointButton.setText(language.getString("Refresh"));
+		}
+		return jRefreshELFBreakpointButton;
+	}
+
+	private JButton getJEnableELFBreakpointButton() {
+		if (jEnableELFBreakpointButton == null) {
+			jEnableELFBreakpointButton = new JButton();
+			jEnableELFBreakpointButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jEnableELFBreakpointButtonActionPerformed(evt);
+				}
+			});
+			jEnableELFBreakpointButton.setText(language.getString("Enable"));
+		}
+		return jEnableELFBreakpointButton;
+	}
+
+	private JButton getJDisableELFBreakpointButton() {
+		if (jDisableELFBreakpointButton == null) {
+			jDisableELFBreakpointButton = new JButton();
+			jDisableELFBreakpointButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jDisableELFBreakpointButtonActionPerformed(evt);
+				}
+			});
+			jDisableELFBreakpointButton.setText(language.getString("Disable"));
+		}
+		return jDisableELFBreakpointButton;
+	}
+
+	private JButton getJSaveELFBreakpointButton() {
+		if (jSaveELFBreakpointButton == null) {
+			jSaveELFBreakpointButton = new JButton();
+			jSaveELFBreakpointButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jSaveELFBreakpointButtonActionPerformed(evt);
+				}
+			});
+			jSaveELFBreakpointButton.setText(language.getString("Save"));
+		}
+		return jSaveELFBreakpointButton;
+	}
+
+	private JButton getJLoadELFBreakpointButton() {
+		if (jLoadELFBreakpointButton == null) {
+			jLoadELFBreakpointButton = new JButton();
+			jLoadELFBreakpointButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jLoadELFBreakpointButtonActionPerformed(evt);
+				}
+			});
+			jLoadELFBreakpointButton.setText(language.getString("Load"));
+		}
+		return jLoadELFBreakpointButton;
+	}
+
+	private void jRefreshELFBreakpointButtonActionPerformed(ActionEvent evt) {
+		if (Global.debug) {
+			JSourceCodeTableModel model = (JSourceCodeTableModel) jELFTable.getModel();
+			model.updateBreakpoint();
+		}
+	}
+
+	private void jEnableELFBreakpointButtonActionPerformed(ActionEvent evt) {
+		JSourceCodeTableModel model = (JSourceCodeTableModel) jELFTable.getModel();
+		long address = model.getDebugLineInfo().get(model.getCurrentFile()).get(this.jELFTable.getSelectedRow());
+
+		for (int x = 0; x < jBreakpointTable.getRowCount(); x++) {
+			long addr = CommonLib.string2decimal(jBreakpointTable.getValueAt(x, 2).toString());
+			System.out.println(addr + "==" + address);
+			if (addr == address) {
+				String breakpointNo = jBreakpointTable.getValueAt(x, 0).toString().trim().split(" ")[0];
+				sendCommand("bpe " + breakpointNo);
+
+				model.updateBreakpoint();
+				this.updateBreakpoint();
+				return;
+			}
+		}
+	}
+
+	private void jDisableELFBreakpointButtonActionPerformed(ActionEvent evt) {
+		JSourceCodeTableModel model = (JSourceCodeTableModel) jELFTable.getModel();
+		long address = model.getDebugLineInfo().get(model.getCurrentFile()).get(this.jELFTable.getSelectedRow());
+
+		for (int x = 0; x < jBreakpointTable.getRowCount(); x++) {
+			long addr = CommonLib.string2decimal(jBreakpointTable.getValueAt(x, 2).toString());
+			if (addr == address) {
+				String breakpointNo = jBreakpointTable.getValueAt(x, 0).toString().trim().split(" ")[0];
+				sendCommand("bpd " + breakpointNo);
+
+				model.updateBreakpoint();
+				this.updateBreakpoint();
+				return;
+			}
+		}
+	}
+
+	private void jSaveELFBreakpointButtonActionPerformed(ActionEvent evt) {
+		this.jSaveBreakpointButtonActionPerformed(null);
+	}
+
+	private void jLoadELFBreakpointButtonActionPerformed(ActionEvent evt) {
+		this.jLoadBreakpointButtonActionPerformed(null);
+	}
+
+	private void jELFTableMouseClicked(MouseEvent evt) {
+		if (evt.getClickCount() == 2) {
+			JSourceCodeTableModel model = (JSourceCodeTableModel) jELFTable.getModel();
+			Long address = model.getDebugLineInfo().get(model.getCurrentFile()).get(this.jELFTable.getSelectedRow());
+			if (address != null) {
+				sendCommand("lb 0x" + Long.toHexString(address));
+				model.updateBreakpoint();
+				this.updateBreakpoint();
+			}
+		}
+	}
+
+	private JPanel getJPanel25() {
+		if (jPanel25 == null) {
+			jPanel25 = new JPanel();
+			FlowLayout jPanel25Layout = new FlowLayout();
+			jPanel25Layout.setHgap(0);
+			jPanel25Layout.setVgap(0);
+			jPanel25Layout.setAlignment(FlowLayout.LEFT);
+			jPanel25.setLayout(jPanel25Layout);
+			jPanel25.add(getJCPUModeLabel());
+			jPanel25.add(getJBochsVersionLabel());
+			jPanel25.add(getJLatestVersionLabel());
+		}
+		return jPanel25;
+	}
+
+	private JLabel getJCPUModeLabel() {
+		if (jCPUModeLabel == null) {
+			jCPUModeLabel = new JLabel();
+		}
+		return jCPUModeLabel;
+	}
+
+	private JCheckBox getJShowELFByteCheckBox() {
+		if (jShowELFByteCheckBox == null) {
+			jShowELFByteCheckBox = new JCheckBox();
+			jShowELFByteCheckBox.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jShowELFByteCheckBoxActionPerformed(evt);
+				}
+			});
+			jShowELFByteCheckBox.setText(language.getString("Bytes"));
+		}
+		return jShowELFByteCheckBox;
+	}
+
+	private void jShowELFByteCheckBoxActionPerformed(ActionEvent evt) {
+		JSourceCodeTableModel model = (JSourceCodeTableModel) jELFTable.getModel();
+		model.showBytes(jShowELFByteCheckBox.isSelected());
+	}
+
+	private JLabel getJBochsVersionLabel() {
+		if (jBochsVersionLabel == null) {
+			jBochsVersionLabel = new JLabel();
+		}
+		return jBochsVersionLabel;
+	}
+
+	private JLabel getJLatestVersionLabel() {
+		if (jLatestVersionLabel == null) {
+			jLatestVersionLabel = new JLabel();
+			jLatestVersionLabel.addMouseListener(new MouseAdapter() {
+				public void mouseClicked(MouseEvent evt) {
+					jLatestVersionLabelMouseClicked(evt);
+				}
+			});
+		}
+		return jLatestVersionLabel;
+	}
+
+	private void jLatestVersionLabelMouseClicked(MouseEvent evt) {
+		if (!jLatestVersionLabel.getText().equals("")) {
+			try {
+				java.awt.Desktop.getDesktop().browse(new URI(jLatestVersionLabel.getText().split(language.getString("Download_url") + " : ")[1]));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private void thisWindowActivated(WindowEvent evt) {
+		if (Global.debug) {
+			System.out.println("updateBochsStatus");
+		}
+		updateBochsStatus();
+		if (Global.debug) {
+			System.out.println("updateBochsStatus end");
+		}
 	}
 }

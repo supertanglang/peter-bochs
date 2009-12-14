@@ -33,6 +33,16 @@ public class CommandReceiver implements Runnable {
 		return lines.size();
 	}
 
+	public void waitUntilNoInput() {
+		while (true) {
+			synchronized (lines) {
+				if (lines.size() == 0) {
+					return;
+				}
+			}
+		}
+	}
+
 	public void waitUntilHaveInput() {
 		while (true) {
 			synchronized (lines) {
@@ -72,8 +82,6 @@ public class CommandReceiver implements Runnable {
 					lines.remove(0);
 				} else {
 					if (str.split("\n").length >= noOfLine) {
-						// System.out.println(">>>" + str);
-						// System.out.println(str.split("\n").length);
 						return str;
 					}
 				}
