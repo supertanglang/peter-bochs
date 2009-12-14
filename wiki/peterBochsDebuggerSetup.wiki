@@ -12,4 +12,14 @@
    
    In windows : java -jar peter-bochs-debugger.jar c:\program files\bochs2.4.3\bochsdbg.exe -q -f bochxrc.bxrc      !!! if using peter-bochs in windows, you need to pass the *full path of bochs exe* and *-q* to the parameter. (!!! relative path of bochs exe as a parameter will not work)
 
+!!! to use "experimental feature", please add "-debug" to the parameter list
+
 remarks: please put all the bochs original running parameters at the end of the command
+
+<table border="0"><tr><td>
+[http://www.kingofcoders.com http://www.kingofcoders.com/images/KOC_logo2.jpg]
+</td><td>
+[http://hk.kingofcoders.com http://hk.kingofcoders.com/images/logo/logo.png]
+</td>
+</tr>
+</table>
