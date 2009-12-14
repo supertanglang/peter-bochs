@@ -144,7 +144,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				FormLayout jPanel2Layout = new FormLayout("max(p;15dlu), 24dlu, 72dlu, 5dlu, max(p;15dlu), 67dlu, 5dlu, max(p;15dlu), 68dlu, 5dlu, 28dlu, 5dlu, max(p;15dlu), 72dlu, 5dlu, 83dlu",
 						"max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu)");
 				jPanel99.setLayout(jPanel2Layout);
-				jPanel99.setPreferredSize(new java.awt.Dimension(1101, 250));
+				jPanel99.setPreferredSize(new java.awt.Dimension(1037, 250));
 				{
 					jCSLabel = new JLabel();
 					jPanel99.add(jCSLabel, new CellConstraints("2, 1, 1, 1, default, default"));
@@ -259,11 +259,11 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jEFlagLabel = new JLabel();
-					jPanel99.add(jEFlagLabel, new CellConstraints("2, 9, 4, 1, default, default"));
+					jPanel99.add(jEFlagLabel, new CellConstraints("2, 9, 5, 1, default, default"));
 				}
 				{
 					jEFlagLabel2 = new JLabel();
-					jPanel99.add(jEFlagLabel2, new CellConstraints("2, 10, 4, 1, default, default"));
+					jPanel99.add(jEFlagLabel2, new CellConstraints("2, 10, 5, 1, default, default"));
 				}
 				{
 					jEAXLabel = new JLabel();

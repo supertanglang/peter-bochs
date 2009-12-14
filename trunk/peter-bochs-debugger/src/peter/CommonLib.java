@@ -1,6 +1,8 @@
 package peter;
 
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import java.util.List;
 import java.util.regex.*;
@@ -804,10 +806,26 @@ public class CommonLib {
 					bytes[offset] = (byte) Long.parseLong(b[x].substring(2).trim(), 16);
 					offset++;
 				}
-
 			}
-
 		}
 		return bytes;
+	}
+
+	public static HashMap<String, String> checkLatestVersion() {
+		String url = "http://peter-bochs.googlecode.com/files/latestVersion.ini";
+		try {
+			Properties properties = new Properties();
+			properties.load(new URL(url).openStream());
+			HashMap<String, String> map = new HashMap<String, String>();
+			map.put("software", properties.getProperty("software"));
+			map.put("latestVersion", properties.getProperty("latestVersion"));
+			map.put("url", properties.getProperty("url"));
+			map.put("downloadURL", properties.getProperty("downloadURL"));
+			return map;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+
+		return null;
 	}
 }

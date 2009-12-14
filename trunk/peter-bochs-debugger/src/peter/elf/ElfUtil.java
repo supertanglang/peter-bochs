@@ -302,6 +302,7 @@ public class ElfUtil {
 					 * Go through the directory table again to save the
 					 * directories.
 					 */
+
 					String directory_table[] = new String[n_directories];// =
 					// (unsigned
 					// char
@@ -314,7 +315,7 @@ public class ElfUtil {
 					// *));
 
 					i = 0;
-					while (ptr_directory_table != 0) {
+					while (bytes[(int) ptr_directory_table] != 0) {
 						String tempS = new String(bytes, (int) ptr_directory_table, 100);
 						tempS = tempS.substring(0, tempS.indexOf(0));
 
@@ -633,9 +634,9 @@ public class ElfUtil {
 							}
 
 							if ((fileNameLength <= MAX_FILENAME_LENGTH)) {
-								returnStr += newFileName + " = " + state_machine_regs.line + " = " + Long.toHexString(state_machine_regs.address) + "\n";
+								returnStr += newFileName + " === " + state_machine_regs.line + " === " + Long.toHexString(state_machine_regs.address) + "\n";
 							} else {
-								returnStr += newFileName + " = " + state_machine_regs.line + " = " + Long.toHexString(state_machine_regs.address) + "\n";
+								returnStr += newFileName + " === " + state_machine_regs.line + " === " + Long.toHexString(state_machine_regs.address) + "\n";
 							}
 
 							if (op_code == DW_LNE_end_sequence) {
