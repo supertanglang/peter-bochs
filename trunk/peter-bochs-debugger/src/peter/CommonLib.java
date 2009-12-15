@@ -717,11 +717,12 @@ public class CommonLib {
 	}
 
 	public static long getValue(long l, int startBit, int endBit) {
-		// System.out.println(l);
+		if (startBit > endBit) {
+			int temp = startBit;
+			startBit = endBit;
+			endBit = temp;
+		}
 		l = l >> startBit;
-		// System.out.println(l);
-		// System.out.println(new Double(Math.pow(2, (endBit - startBit + 1)) -
-		// 1).longValue());
 		return l & new Double(Math.pow(2, (endBit - startBit + 1)) - 1).longValue();
 	}
 
@@ -827,5 +828,13 @@ public class CommonLib {
 		}
 
 		return null;
+	}
+
+	public static String convertToString(byte[] pde) {
+		String str = "";
+		for (int x = 0; x < pde.length; x++) {
+			str += String.format("%02x", pde[x])+" ";
+		}
+		return str;
 	}
 }

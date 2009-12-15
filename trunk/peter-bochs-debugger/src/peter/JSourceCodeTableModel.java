@@ -147,21 +147,5 @@ public class JSourceCodeTableModel extends AbstractTableModel {
 		this.fireTableStructureChanged();
 	}
 
-	public void setELFFile(File elfFile) {
-		// read .text bytes
-		try {
-			byte bytes[] = FileUtils.readFileToByteArray(elfFile);
-
-			byte e_ident[] = Arrays.copyOfRange(bytes, 0, 16);
-			int e_type = CommonLib.getShort(bytes[16], bytes[17]);
-			
-			int e_phoff = CommonLib.getInt(bytes, 28);
-			int e_shoff = CommonLib.getInt(bytes, 32);
-			System.out.println(e_shoff);
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		// end read .text bytes
-	}
+	
 }
