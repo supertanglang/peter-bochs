@@ -9,7 +9,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
-import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -30,16 +29,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.ButtonGroup;
@@ -156,7 +156,7 @@ public class Application extends javax.swing.JFrame {
 	private JTabbedPane jTabbedPane3;
 	private JMenuItem pauseBochsMenuItem;
 	private JPanel jPanel3;
-	private JTabbedPaneWithCloseIcons jTabbedPane2;
+	private JTabbedPane jTabbedPane2;
 	private JButton jBochsCommandButton;
 	private JTextField jBochsCommandTextField;
 	private JPanel jPanel2;
@@ -215,6 +215,18 @@ public class Application extends javax.swing.JFrame {
 	private JTable jAddressTranslateTable2;
 	private JPanel jPanel22;
 	private JPanel jPanel24;
+	private JPanel jPanel26;
+	private JButton jButton19;
+	private JTable jProgramHeaderTable;
+	private JScrollPane jScrollPane16;
+	private JTable jELFSectionTable;
+	private JScrollPane jScrollPane15;
+	private JTable jELFHeaderTable;
+	private JScrollPane jELFHeaderScrollPane;
+	private JTabbedPane jTabbedPane4;
+	private JButton jButton16;
+	private JComboBox jELFComboBox;
+	private JPanel jELFDumpPanel;
 	private JLabel jLatestVersionLabel;
 	private JLabel jBochsVersionLabel;
 	private JCheckBox jShowELFByteCheckBox;
@@ -550,6 +562,10 @@ public class Application extends javax.swing.JFrame {
 				this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 				this.setTitle(language.getString("Title") + " " + Global.version);
 				this.addWindowListener(new WindowAdapter() {
+					public void windowOpened(WindowEvent evt) {
+						thisWindowOpened(evt);
+					}
+
 					public void windowActivated(WindowEvent evt) {
 						thisWindowActivated(evt);
 					}
@@ -1458,8 +1474,6 @@ public class Application extends javax.swing.JFrame {
 						// + lines[x]);
 					}
 				}
-			} else {
-				System.out.println("FUCK");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -3213,8 +3227,9 @@ public class Application extends javax.swing.JFrame {
 						{
 							jPanel1 = new JPanel();
 							jTabbedPane1.addTab(language.getString("Bochs"), null, jPanel1, null);
-							if (Global.debug) {
-								jTabbedPane1.addTab("ELF", null, getJELFBreakpointPanel(), null);
+							jTabbedPane1.addTab("ELF", null, getJELFBreakpointPanel(), null);
+							if (!Global.debug) {
+								jTabbedPane1.removeTabAt(jTabbedPane1.getTabCount() - 1);
 							}
 							BorderLayout jPanel1Layout = new BorderLayout();
 							jPanel1.setLayout(jPanel1Layout);
@@ -3465,7 +3480,22 @@ public class Application extends javax.swing.JFrame {
 					}
 				}
 				{
-					jTabbedPane2 = new JTabbedPaneWithCloseIcons();
+					jTabbedPane2 = new JTabbedPane();
+					// jTabbedPane2.setCloseIcon(true);
+					// jTabbedPane2.setMaxIcon(true);
+					//
+					// jTabbedPane2.addCloseListener(new CloseListener() {
+					// public void closeOperation(MouseEvent e) {
+					// jTabbedPane2.remove(jTabbedPane2.getOverTabIndex());
+					// }
+					// });
+					//
+					// jTabbedPane2.addMaxListener(new MaxListener() {
+					// public void maxOperation(MouseEvent e) {
+					// jTabbedPane2.detachTab(jTabbedPane2.getOverTabIndex());
+					// }
+					// });
+
 					jSplitPane2.add(jTabbedPane2, JSplitPane.BOTTOM);
 					{
 						jScrollPane1 = new JScrollPane();
@@ -3492,13 +3522,16 @@ public class Application extends javax.swing.JFrame {
 					{
 						jPanel11 = new JPanel();
 						jTabbedPane2.addTab(language.getString("Paging"), null, jPanel11, null);
-						if (Global.debug) {
-							jTabbedPane2.addTab(language.getString("Address_translate") + " (experimential)", null, getJAddressTranslatePanel(), null);
+						jTabbedPane2.addTab(language.getString("Address_translate") + " (experimential)", null, getJAddressTranslatePanel(), null);
+						if (!Global.debug) {
+							jTabbedPane2.removeTabAt(jTabbedPane2.getTabCount() - 1);
 						}
-						if (Global.debug) {
-							jTabbedPane2.addTab("Page table graph (experimental)", null, getJPageTableGraphPanel(), null);
+						jTabbedPane2.addTab("Page table graph (experimental)", null, getJPageTableGraphPanel(), null);
+						if (!Global.debug) {
+							jTabbedPane2.removeTabAt(jTabbedPane2.getTabCount() - 1);
 						}
 						jTabbedPane2.addTab(language.getString("Table_translate"), null, getJTableTranslateScrollPane(), null);
+						jTabbedPane2.addTab(language.getString("ELF_dump"), null, getJELFDumpScrollPane(), null);
 						BorderLayout jPanel11Layout = new BorderLayout();
 						jPanel11.setLayout(jPanel11Layout);
 						jPanel11.add(getJSplitPane3(), BorderLayout.CENTER);
@@ -3652,17 +3685,26 @@ public class Application extends javax.swing.JFrame {
 		if (jSearchAddressRadioButton2 == null) {
 			jSearchAddressRadioButton2 = new JRadioButton();
 			jSearchAddressRadioButton2.setText(language.getString("Linear_address"));
+			if (!Global.debug) {
+				jSearchAddressRadioButton2.setVisible(false);
+			}
 			getButtonGroup3().add(jSearchAddressRadioButton2);
 		}
+
 		return jSearchAddressRadioButton2;
 	}
 
 	private JRadioButton getJRadioButton5() {
 		if (jSearchAddressRadioButton3 == null) {
 			jSearchAddressRadioButton3 = new JRadioButton();
+			jSearchAddressRadioButton3.setVisible(false);
 			jSearchAddressRadioButton3.setText(language.getString("Physical_address"));
+			if (!Global.debug) {
+				jSearchAddressRadioButton2.setVisible(false);
+			}
 			getButtonGroup3().add(jSearchAddressRadioButton3);
 		}
+
 		return jSearchAddressRadioButton3;
 	}
 
@@ -3694,6 +3736,10 @@ public class Application extends javax.swing.JFrame {
 			jAddressTranslateTable2 = new JTable();
 			AddressTranslateTableModel addressTranslateTableModel = new AddressTranslateTableModel();
 			jAddressTranslateTable2.setModel(addressTranslateTableModel);
+			jAddressTranslateTable2.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			for (int x = 0; x < jAddressTranslateTable2.getColumnCount(); x++) {
+				jAddressTranslateTable2.getColumnModel().getColumn(x).setPreferredWidth(100);
+			}
 		}
 		return jAddressTranslateTable2;
 	}
@@ -3713,6 +3759,7 @@ public class Application extends javax.swing.JFrame {
 			jToolBar3.add(getJButton17());
 			jToolBar3.add(getJButton18());
 			jToolBar3.add(getJRefreshAddressTranslateTableButton());
+			jToolBar3.add(getJButton19());
 		}
 		return jToolBar3;
 	}
@@ -3729,6 +3776,7 @@ public class Application extends javax.swing.JFrame {
 		if (jButton18 == null) {
 			jButton18 = new JButton();
 			jButton18.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/excel.gif")));
+			jButton18.setText("Excel");
 		}
 		return jButton18;
 	}
@@ -3766,11 +3814,13 @@ public class Application extends javax.swing.JFrame {
 			Long segSelector = CommonLib.string2decimal(this.jAddressTextField.getText().split(":")[0]);
 			Long address = CommonLib.string2decimal(this.jAddressTextField.getText().split(":")[1]);
 
-			for (int x = 0; x < model.getRowCount(); x++) {
-				if (model.searchType.get(x).equals(1) && model.searchSegSelector.get(x).equals(segSelector) && model.searchAddress.get(x).equals(address)) {
-					return;
-				}
-			}
+			// for (int x = 0; x < model.getRowCount(); x++) {
+			// if (model.searchType.get(x).equals(1) &&
+			// model.searchSegSelector.get(x).equals(segSelector) &&
+			// model.searchAddress.get(x).equals(address)) {
+			// return;
+			// }
+			// }
 
 			model.searchType.add(1);
 			model.searchSegSelector.add(segSelector);
@@ -3782,35 +3832,69 @@ public class Application extends javax.swing.JFrame {
 
 			// read GDT descriptor
 			byte descriptor[] = CommonLib.getMemoryFromBochs(CommonLib.string2decimal(this.jRegisterPanel1.jGDTRTextField.getText()) + (segNo * 8), 8);
-			long base = CommonLib.getLong(descriptor[2], descriptor[3], descriptor[4], descriptor[7], 0, 0, 0, 0);
-			model.linearAddress.add(0L);
-			model.pdNo.add(0L);
-			model.ptNo.add(0L);
-			model.physicalAddress.add(0L);
-			model.bytes.add("");
+			long baseAddress = CommonLib.getLong(descriptor[2], descriptor[3], descriptor[4], descriptor[7], 0, 0, 0, 0);
+			long linearAddress = baseAddress + address;
+			model.baseAddress.add(baseAddress);
+			model.linearAddress.add(linearAddress);
+
+			long pdNo = CommonLib.getValue(linearAddress, 31, 22);
+			model.pdNo.add(pdNo);
+			byte pdeBytes[] = CommonLib.getMemoryFromBochs(CommonLib.string2decimal(this.jRegisterPanel1.jCR3TextField.getText()) + (pdNo * 4), 4);
+			int pde = CommonLib.getInt(pdeBytes, 0);
+			model.pde.add(pde);
+
+			long ptNo = CommonLib.getValue(linearAddress, 21, 12);
+			model.ptNo.add(ptNo);
+			long pageTableBaseAddress = pde & 0xfffff000;
+			byte pteBytes[] = CommonLib.getMemoryFromBochs(pageTableBaseAddress + (ptNo * 4), 4);
+			int pte = CommonLib.getInt(pteBytes, 0);
+			long pagePhysicalAddress = pte & 0xfffff000;
+			model.pte.add(pte);
+
+			long physicalAddress = pagePhysicalAddress + CommonLib.getValue(linearAddress, 11, 0);
+			model.physicalAddress.add(physicalAddress);
+			byte bytesAtPhysicalAddress[] = CommonLib.getMemoryFromBochs(physicalAddress, 8);
+			model.bytes.add(CommonLib.convertToString(bytesAtPhysicalAddress));
 
 			model.fireTableDataChanged();
 		} else if (jSearchAddressRadioButton2.isSelected()) {
-			for (int x = 0; x < model.getRowCount(); x++) {
-				if (model.searchType.get(x).equals(2) && model.searchAddress.get(x).equals(CommonLib.string2decimal(this.jAddressTextField.getText()))) {
-					return;
-				}
-			}
-			Long addr = CommonLib.string2decimal(this.jAddressTextField.getText());
+			// for (int x = 0; x < model.getRowCount(); x++) {
+			// if (model.searchType.get(x).equals(2) &&
+			// model.searchAddress.get(x).equals(CommonLib.string2decimal(this.jAddressTextField.getText())))
+			// {
+			// return;
+			// }
+			// }
+			Long address = CommonLib.string2decimal(this.jAddressTextField.getText());
+			
 			model.searchType.add(2);
-			model.searchSegSelector.add(0L);
-			model.searchAddress.add(addr);
+			model.searchAddress.add(address);
+			
+			long baseAddress = 0;
+			long linearAddress = baseAddress + address;
+			model.baseAddress.add(baseAddress);
+			model.linearAddress.add(linearAddress);
 
-			model.virtualAddress.add(0L);
-			model.segNo.add(0L);
-			model.linearAddress.add(0L);
-			model.pdNo.add(0L);
-			model.ptNo.add(0L);
-			model.physicalAddress.add(0L);
-			model.bytes.add("");
+			long pdNo = CommonLib.getValue(linearAddress, 31, 22);
+			model.pdNo.add(pdNo);
+			byte pdeBytes[] = CommonLib.getMemoryFromBochs(CommonLib.string2decimal(this.jRegisterPanel1.jCR3TextField.getText()) + (pdNo * 4), 4);
+			int pde = CommonLib.getInt(pdeBytes, 0);
+			model.pde.add(pde);
+
+			long ptNo = CommonLib.getValue(linearAddress, 21, 12);
+			model.ptNo.add(ptNo);
+			long pageTableBaseAddress = pde & 0xfffff000;
+			byte pteBytes[] = CommonLib.getMemoryFromBochs(pageTableBaseAddress + (ptNo * 4), 4);
+			int pte = CommonLib.getInt(pteBytes, 0);
+			long pagePhysicalAddress = pte & 0xfffff000;
+			model.pte.add(pte);
+
+			long physicalAddress = pagePhysicalAddress + CommonLib.getValue(linearAddress, 11, 0);
+			model.physicalAddress.add(physicalAddress);
+			byte bytesAtPhysicalAddress[] = CommonLib.getMemoryFromBochs(physicalAddress, 8);
+			model.bytes.add(CommonLib.convertToString(bytesAtPhysicalAddress));
 
 			model.fireTableDataChanged();
-
 		} else if (jSearchAddressRadioButton3.isSelected()) {
 			for (int x = 0; x < model.getRowCount(); x++) {
 				if (model.searchType.get(x).equals(3) && model.searchAddress.get(x).equals(CommonLib.string2decimal(this.jAddressTextField.getText()))) {
@@ -3839,6 +3923,7 @@ public class Application extends javax.swing.JFrame {
 			jRefreshAddressTranslateTableButton = new JButton();
 			jRefreshAddressTranslateTableButton.setText(language.getString("Refresh"));
 			jRefreshAddressTranslateTableButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/arrow_refresh.png")));
+			jRefreshAddressTranslateTableButton.setText("Refresh");
 			jRefreshAddressTranslateTableButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jRefreshAddressTranslateTableButtonActionPerformed(evt);
@@ -3966,7 +4051,7 @@ public class Application extends javax.swing.JFrame {
 	private JMenuItem getJMenuItem6() {
 		if (jPDEMenuItem == null) {
 			jPDEMenuItem = new JMenuItem();
-			jPDEMenuItem.setText("PDE");
+			jPDEMenuItem.setText(language.getString("PDE"));
 			jPDEMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jPDEMenuItemActionPerformed(evt);
@@ -3979,7 +4064,7 @@ public class Application extends javax.swing.JFrame {
 	private JMenuItem getJMenuItem7() {
 		if (jPTEMenuItem == null) {
 			jPTEMenuItem = new JMenuItem();
-			jPTEMenuItem.setText("PTE");
+			jPTEMenuItem.setText(language.getString("PTE"));
 			jPTEMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jPTEMenuItemActionPerformed(evt);
@@ -4153,7 +4238,6 @@ public class Application extends javax.swing.JFrame {
 			String filenames[] = lines.split("\n")[0].split(",");
 			JSourceCodeTableModel model = (JSourceCodeTableModel) jELFTable.getModel();
 			model.setDebugLine(lines);
-			model.setELFFile(file);
 
 			for (int x = 0; x < filenames.length; x++) {
 				// find source file
@@ -4403,6 +4487,218 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void thisWindowActivated(WindowEvent evt) {
+
+	}
+
+	private JPanel getJELFDumpScrollPane() {
+		if (jELFDumpPanel == null) {
+			jELFDumpPanel = new JPanel();
+			BorderLayout jELFDumpPanelLayout = new BorderLayout();
+			jELFDumpPanel.setLayout(jELFDumpPanelLayout);
+			jELFDumpPanel.add(getJPanel26(), BorderLayout.NORTH);
+			jELFDumpPanel.add(getJTabbedPane4(), BorderLayout.CENTER);
+		}
+		return jELFDumpPanel;
+	}
+
+	private JPanel getJPanel26() {
+		if (jPanel26 == null) {
+			jPanel26 = new JPanel();
+			FlowLayout jPanel26Layout = new FlowLayout();
+			jPanel26Layout.setAlignment(FlowLayout.LEFT);
+			jPanel26.setLayout(jPanel26Layout);
+			jPanel26.add(getJELFComboBox());
+			jPanel26.add(getJButton16x());
+		}
+		return jPanel26;
+	}
+
+	private JComboBox getJELFComboBox() {
+		if (jELFComboBox == null) {
+			ComboBoxModel jELFComboBoxModel = new DefaultComboBoxModel(new String[] {});
+			jELFComboBox = new JComboBox();
+			jELFComboBox.setModel(jELFComboBoxModel);
+			jELFComboBox.setPreferredSize(new java.awt.Dimension(159, 30));
+			jELFComboBox.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jELFComboBoxActionPerformed(evt);
+				}
+			});
+		}
+		return jELFComboBox;
+	}
+
+	private JButton getJButton16x() {
+		if (jButton16 == null) {
+			jButton16 = new JButton();
+			jButton16.setText("Open ELF");
+			jButton16.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jButton16ActionPerformed(evt);
+				}
+			});
+		}
+		return jButton16;
+	}
+
+	private JTabbedPane getJTabbedPane4() {
+		if (jTabbedPane4 == null) {
+			jTabbedPane4 = new JTabbedPane();
+			jTabbedPane4.addTab("Header", null, getJELFHeaderScrollPane(), null);
+			jTabbedPane4.addTab("Section", null, getJScrollPane15(), null);
+			jTabbedPane4.addTab("Program header", null, getJScrollPane16(), null);
+		}
+		return jTabbedPane4;
+	}
+
+	private JScrollPane getJELFHeaderScrollPane() {
+		if (jELFHeaderScrollPane == null) {
+			jELFHeaderScrollPane = new JScrollPane();
+			jELFHeaderScrollPane.setViewportView(getJELFHeaderTable());
+		}
+		return jELFHeaderScrollPane;
+	}
+
+	private JTable getJELFHeaderTable() {
+		if (jELFHeaderTable == null) {
+			TableModel jELFHeaderTableModel = new DefaultTableModel(null, new String[] { language.getString("Field"), language.getString("Value") });
+			jELFHeaderTable = new JTable();
+			jELFHeaderTable.setModel(jELFHeaderTableModel);
+		}
+		return jELFHeaderTable;
+	}
+
+	private void jButton16ActionPerformed(ActionEvent evt) {
+		final JFileChooser fc = new JFileChooser();
+		// load history
+		Vector<HashMap> vector = XMLHelper.xmltoVector("elf_history2.xml", "/history/open_elf");
+		if (vector.size() > 0) {
+			fc.setCurrentDirectory(new File(vector.get(0).get("path").toString()));
+		} else {
+			fc.setCurrentDirectory(new File("."));
+		}
+		// end load history
+		int returnVal = fc.showOpenDialog(this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File file = fc.getSelectedFile();
+			this.jELFComboBox.addItem(file);
+
+			parseELF();
+
+			// save history
+			HashMap<String, String> h = new HashMap<String, String>();
+			h.put("path", file.getParentFile().getAbsolutePath());
+			vector.add(h);
+			XMLHelper.vectorToXML("elf_history2.xml", "history", "open_elf", vector);
+			// end save history
+		}
+	}
+
+	private void parseELF() {
+		HashMap map = ElfUtil.getELFDetail((File) jELFComboBox.getSelectedItem());
+
+		// header
+		DefaultTableModel model = (DefaultTableModel) jELFHeaderTable.getModel();
+		while (model.getRowCount() > 0) {
+			model.removeRow(0);
+		}
+		Set entries = ((HashMap) map.get("header")).entrySet();
+		Iterator it = entries.iterator();
+		while (it.hasNext()) {
+			Map.Entry entry = (Map.Entry) it.next();
+
+			Vector<String> v = new Vector<String>();
+			v.add(entry.getKey().toString());
+
+			String bytesStr = "";
+
+			if (entry.getValue().getClass() == Short.class) {
+				bytesStr += "0x" + Long.toHexString((Short) entry.getValue());
+			} else if (entry.getValue().getClass() == Integer.class) {
+				bytesStr += "0x" + Long.toHexString((Integer) entry.getValue());
+			} else {
+				byte b[] = (byte[]) entry.getValue();
+				for (int x = 0; x < b.length; x++) {
+					bytesStr += "0x" + Long.toHexString(b[x]) + " ";
+				}
+			}
+
+			v.add(bytesStr);
+			model.addRow(v);
+		}
+		// end header
+
+		// section
+		model = (DefaultTableModel) jELFSectionTable.getModel();
+		while (model.getRowCount() > 0) {
+			model.removeRow(0);
+		}
+		int sectionNo = 0;
+		while (map.get("section" + sectionNo) != null) {
+			entries = ((HashMap) map.get("section" + sectionNo)).entrySet();
+			it = entries.iterator();
+			Vector<String> v = new Vector<String>();
+			while (it.hasNext()) {
+				Map.Entry entry = (Map.Entry) it.next();
+
+				String bytesStr = "";
+				if (entry.getValue().getClass() == Short.class) {
+					bytesStr += "0x" + Long.toHexString((Short) entry.getValue());
+				} else if (entry.getValue().getClass() == Integer.class) {
+					bytesStr += "0x" + Long.toHexString((Integer) entry.getValue());
+				} else {
+					byte b[] = (byte[]) entry.getValue();
+					for (int x = 0; x < b.length; x++) {
+						bytesStr += "0x" + Long.toHexString(b[x]) + " ";
+					}
+				}
+
+				v.add(bytesStr);
+			}
+			model.addRow(v);
+			sectionNo++;
+		}
+		// end section
+
+		// program header
+		model = (DefaultTableModel) jProgramHeaderTable.getModel();
+		while (model.getRowCount() > 0) {
+			model.removeRow(0);
+		}
+		int programHeaderNo = 0;
+		while (map.get("programHeader" + programHeaderNo) != null) {
+			entries = ((HashMap) map.get("programHeader" + programHeaderNo)).entrySet();
+			it = entries.iterator();
+			Vector<String> v = new Vector<String>();
+			while (it.hasNext()) {
+				Map.Entry entry = (Map.Entry) it.next();
+
+				String bytesStr = "";
+				if (entry.getValue().getClass() == Short.class) {
+					bytesStr += "0x" + Long.toHexString((Short) entry.getValue());
+				} else if (entry.getValue().getClass() == Integer.class) {
+					bytesStr += "0x" + Long.toHexString((Integer) entry.getValue());
+				} else {
+					byte b[] = (byte[]) entry.getValue();
+					for (int x = 0; x < b.length; x++) {
+						bytesStr += "0x" + Long.toHexString(b[x]) + " ";
+					}
+				}
+
+				v.add(bytesStr);
+			}
+			model.addRow(v);
+			programHeaderNo++;
+		}
+		// program header
+	}
+
+	private void jELFComboBoxActionPerformed(ActionEvent evt) {
+		System.out.println("jELFComboBox.actionPerformed, event=" + evt);
+		// TODO add your code for jELFComboBox.actionPerformed
+	}
+
+	private void thisWindowOpened(WindowEvent evt) {
 		if (Global.debug) {
 			System.out.println("updateBochsStatus");
 		}
@@ -4411,4 +4707,60 @@ public class Application extends javax.swing.JFrame {
 			System.out.println("updateBochsStatus end");
 		}
 	}
+
+	private JScrollPane getJScrollPane15() {
+		if (jScrollPane15 == null) {
+			jScrollPane15 = new JScrollPane();
+			jScrollPane15.setViewportView(getJSectionTable());
+		}
+		return jScrollPane15;
+	}
+
+	private JTable getJSectionTable() {
+		if (jELFSectionTable == null) {
+			TableModel jSectionTableModel = new DefaultTableModel(null, new String[] { "No.", "sh_name", "sh_type", "sh_flags", "sh_addr", "sh_offset", "sh_size", "sh_link", "sh_info",
+					"sh_addralign", "sh_entsize" });
+			jELFSectionTable = new JTable();
+			jELFSectionTable.setModel(jSectionTableModel);
+		}
+		return jELFSectionTable;
+	}
+
+	private JScrollPane getJScrollPane16() {
+		if (jScrollPane16 == null) {
+			jScrollPane16 = new JScrollPane();
+			jScrollPane16.setViewportView(getJProgramHeaderTable());
+		}
+		return jScrollPane16;
+	}
+
+	private JTable getJProgramHeaderTable() {
+		if (jProgramHeaderTable == null) {
+			TableModel jProgramHeaderTableModel = new DefaultTableModel(null, new String[] { "No.", "p_type", "p_offset", "p_vaddr", "p_filesz", "p_memsz", "p_flags", "p_align" });
+			jProgramHeaderTable = new JTable();
+			jProgramHeaderTable.setModel(jProgramHeaderTableModel);
+		}
+		return jProgramHeaderTable;
+	}
+
+	private JButton getJButton19() {
+		if (jButton19 == null) {
+			jButton19 = new JButton();
+			jButton19.setText("Delete");
+			jButton19.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/cross.png")));
+			jButton19.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jButton19ActionPerformed(evt);
+				}
+			});
+		}
+		return jButton19;
+	}
+
+	private void jButton19ActionPerformed(ActionEvent evt) {
+		int rows[] = jAddressTranslateTable2.getSelectedRows();
+		AddressTranslateTableModel model = (AddressTranslateTableModel) this.jAddressTranslateTable2.getModel();
+		model.removeRow(rows);
+	}
+
 }

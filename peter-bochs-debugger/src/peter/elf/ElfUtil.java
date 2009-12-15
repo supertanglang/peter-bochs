@@ -1,7 +1,12 @@
 package peter.elf;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+
+import org.apache.commons.io.FileUtils;
 
 import peter.CommonLib;
 
@@ -9,6 +14,81 @@ public class ElfUtil {
 
 	public static void main(String args[]) {
 		System.out.println(getDebugLine(new File(args[0])));
+	}
+
+	public static HashMap getELFDetail(File elfFile) {
+		// read .text bytes
+		try {
+			HashMap map = new HashMap();
+			byte bytes[] = FileUtils.readFileToByteArray(elfFile);
+
+			// header
+			LinkedHashMap header = new LinkedHashMap();
+			header.put("e_ident", Arrays.copyOfRange(bytes, 0, 16));
+			header.put("e_type", CommonLib.getShort(bytes[16], bytes[17]));
+			header.put("e_machine", CommonLib.getShort(bytes[18], bytes[19]));
+			header.put("e_version", CommonLib.getInt(bytes, 20));
+			header.put("e_entry", CommonLib.getInt(bytes, 24));
+			header.put("e_phoff", CommonLib.getInt(bytes, 28));
+			header.put("e_shoff", CommonLib.getInt(bytes, 32));
+			header.put("e_flags", CommonLib.getInt(bytes, 36));
+			header.put("e_ehsize", CommonLib.getShort(bytes[40], bytes[41]));
+			header.put("e_phentsize", CommonLib.getShort(bytes[42], bytes[43]));
+			header.put("e_phnum", CommonLib.getShort(bytes[44], bytes[45]));
+			header.put("e_shentsize", CommonLib.getShort(bytes[46], bytes[47]));
+			header.put("e_shnum", CommonLib.getShort(bytes[48], bytes[49]));
+			header.put("e_shstrndx", CommonLib.getShort(bytes[50], bytes[51]));
+			map.put("header", header);
+			// end header
+
+			// sections
+			int e_shoff = (Integer) header.get("e_shoff");
+			short e_shnum = (Short) header.get("e_shnum");
+			int offset = e_shoff;
+			for (int x = 0; x < e_shnum; x++) {
+				LinkedHashMap section = new LinkedHashMap();
+				section.put("No.", x);
+				section.put("sh_name", CommonLib.getInt(bytes, offset + 0));
+				section.put("sh_type", CommonLib.getInt(bytes, offset + 4));
+				section.put("sh_flags", CommonLib.getInt(bytes, offset + 8));
+				section.put("sh_addr", CommonLib.getInt(bytes, offset + 12));
+				section.put("sh_offset", CommonLib.getInt(bytes, offset + 16));
+				section.put("sh_size", CommonLib.getInt(bytes, offset + 20));
+				section.put("sh_link", CommonLib.getInt(bytes, offset + 24));
+				section.put("sh_info", CommonLib.getInt(bytes, offset + 28));
+				section.put("sh_addralign", CommonLib.getInt(bytes, offset + 32));
+				section.put("sh_entsize", CommonLib.getInt(bytes, offset + 36));
+				offset += 40;
+				map.put("section" + x, section);
+			}
+			// end sections
+
+			// program header
+			int e_phoff = (Integer) header.get("e_phoff");
+			short e_phnum = (Short) header.get("e_phnum");
+			offset = e_phoff;
+			for (int x = 0; x < e_shnum; x++) {
+				LinkedHashMap programHeader = new LinkedHashMap();
+				programHeader.put("No.", x);
+				programHeader.put("p_type", CommonLib.getInt(bytes, offset + 0));
+				programHeader.put("p_offset", CommonLib.getInt(bytes, offset + 4));
+				programHeader.put("p_vaddr", CommonLib.getInt(bytes, offset + 8));
+				programHeader.put("p_paddr", CommonLib.getInt(bytes, offset + 12));
+				programHeader.put("p_filesz", CommonLib.getInt(bytes, offset + 16));
+				programHeader.put("p_memsz", CommonLib.getInt(bytes, offset + 20));
+				programHeader.put("p_flags", CommonLib.getInt(bytes, offset + 24));
+				programHeader.put("p_align", CommonLib.getInt(bytes, offset + 28));
+				offset += 32;
+				map.put("programHeader" + x, programHeader);
+			}
+			// end program header
+
+			return map;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+		// end read .text bytes
 	}
 
 	public static String getDebugLine(File file) {
