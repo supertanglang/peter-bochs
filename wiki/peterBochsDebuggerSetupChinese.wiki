@@ -1,4 +1,5 @@
 #summary peter-bochs-debugger 安装
+#labels HowTo
 
 = Steps =
 
