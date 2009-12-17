@@ -3,11 +3,13 @@
 === version 20090917 ===
 
 1) dump the ELF
+
 2) fixed the bug on TSS dump
 
 === version 20090914 ===
 
 1) auto update (50%)
+
 2) ELF breakpoint
 
 === version 20090912 ===
