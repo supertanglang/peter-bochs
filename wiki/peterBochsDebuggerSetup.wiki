@@ -1,5 +1,5 @@
 #summary peter-bochs-debugger setup
-#labels HowTo
+#labels HowTo,Featured
 
 = Steps to run peter-bochs-debugger =
 
