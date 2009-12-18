@@ -36,6 +36,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -109,6 +110,7 @@ import peter.graph.PageDirectoryView;
 import com.jgraph.layout.JGraphFacade;
 import com.jgraph.layout.JGraphLayout;
 import com.jgraph.layout.tree.JGraphTreeLayout;
+import com.petersoft.JClosableTabbedPane;
 
 /**
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
@@ -127,7 +129,7 @@ public class Application extends javax.swing.JFrame {
 	private JMenu jMenu5;
 	private JScrollPane jScrollPane1;
 	private JScrollPane jScrollPane2;
-	private JTabbedPane jTabbedPane1;
+	private JClosableTabbedPane jTabbedPane1;
 	private JHexTable jHexTable1;
 	private JEditorPane jBochsEditorPane;
 
@@ -153,10 +155,10 @@ public class Application extends javax.swing.JFrame {
 	private JPanel jPanel7;
 	private JPanel jPanel6;
 	private JPanel jPanel5;
-	private JTabbedPane jTabbedPane3;
+	private JClosableTabbedPane jTabbedPane3;
 	private JMenuItem pauseBochsMenuItem;
 	private JPanel jPanel3;
-	private JTabbedPane jTabbedPane2;
+	private JClosableTabbedPane jTabbedPane2;
 	private JButton jBochsCommandButton;
 	private JTextField jBochsCommandTextField;
 	private JPanel jPanel2;
@@ -223,7 +225,7 @@ public class Application extends javax.swing.JFrame {
 	private JScrollPane jScrollPane15;
 	private JTable jELFHeaderTable;
 	private JScrollPane jELFHeaderScrollPane;
-	private JTabbedPane jTabbedPane4;
+	private JClosableTabbedPane jTabbedPane4;
 	private JButton jButton16;
 	private JComboBox jELFComboBox;
 	private JPanel jELFDumpPanel;
@@ -418,13 +420,13 @@ public class Application extends javax.swing.JFrame {
 		initGUI();
 
 		startBochs();
-		SwingUtilities.invokeLater(new Runnable() {
+		new Thread() {
 			public void run() {
 				HashMap<String, String> map = CommonLib.checkLatestVersion();
 				if (map != null) {
 					if (map.get("latestVersion").compareTo(Global.version) > 0) {
-						jLatestVersionLabel.setText(language.getString("Latest_version_available") + " : " + map.get("latestVersion") + "     " + language.getString("Download_url") + " : "
-								+ map.get("downloadURL"));
+						jLatestVersionLabel.setText(language.getString("Latest_version_available") + " : " + map.get("latestVersion") + "     "
+								+ language.getString("Download_url") + " : " + map.get("downloadURL"));
 					} else {
 						jLatestVersionLabel.setText("");
 					}
@@ -432,7 +434,7 @@ public class Application extends javax.swing.JFrame {
 					jLatestVersionLabel.setText("");
 				}
 			}
-		});
+		}.start();
 
 		if (Global.debug) {
 			System.out.println(new Date());
@@ -783,7 +785,7 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void initChineseFont() {
-		SwingUtilities.invokeLater(new Runnable() {
+		new Thread() {
 			public void run() {
 				Font[] allfonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
 				int fontcount = 0;
@@ -803,7 +805,7 @@ public class Application extends javax.swing.JFrame {
 					fontcount++;
 				}
 			}
-		});
+		}.start();
 	}
 
 	private void jBochsCommandButtonActionPerformed(ActionEvent evt) {
@@ -1467,8 +1469,8 @@ public class Application extends javax.swing.JFrame {
 						// System.out.println(lines[x]);
 						String strs[] = lines[x].split(":");
 						int secondColon = lines[x].indexOf(":", lines[x].indexOf(":") + 1);
-						model.addRow(new String[] { strs[0].trim() + " " + strs[1].trim().replaceAll("\\( *\\)", ""), lines[x].substring(secondColon + 1).trim().split(";")[0].trim(),
-								lines[x].split(";")[1] });
+						model.addRow(new String[] { strs[0].trim() + " " + strs[1].trim().replaceAll("\\( *\\)", ""),
+								lines[x].substring(secondColon + 1).trim().split(";")[0].trim(), lines[x].split(";")[1] });
 					} catch (Exception ex) {
 						// System.out.println("error 1 : cannot parse"
 						// + lines[x]);
@@ -2553,8 +2555,8 @@ public class Application extends javax.swing.JFrame {
 				jScrollPane7 = new JScrollPane();
 				jSplitPane3.add(jScrollPane7, JSplitPane.RIGHT);
 				{
-					TableModel jTable1Model = new DefaultTableModel(new String[][] {}, new String[] { "No.", language.getString("Physical_address"), "AVL", "G", "PAT", "D", "A", "PCD", "PWT", "U/S",
-							"W/R", "P" }) {
+					TableModel jTable1Model = new DefaultTableModel(new String[][] {}, new String[] { "No.", language.getString("Physical_address"), "AVL", "G", "PAT", "D", "A",
+							"PCD", "PWT", "U/S", "W/R", "P" }) {
 						public boolean isCellEditable(int row, int column) {
 							return false;
 						}
@@ -2578,7 +2580,8 @@ public class Application extends javax.swing.JFrame {
 				jScrollPane8 = new JScrollPane();
 				jSplitPane3.add(jScrollPane8, JSplitPane.LEFT);
 				{
-					TableModel jPageDirectoryTableModel = new DefaultTableModel(new String[][] {}, new String[] { "No.", "PT base", "AVL", "G", "D", "A", "PCD", "PWT", "U/S", "W/R", "P" }) {
+					TableModel jPageDirectoryTableModel = new DefaultTableModel(new String[][] {}, new String[] { "No.", "PT base", "AVL", "G", "D", "A", "PCD", "PWT", "U/S",
+							"W/R", "P" }) {
 						public boolean isCellEditable(int row, int column) {
 							return false;
 						}
@@ -3016,8 +3019,8 @@ public class Application extends javax.swing.JFrame {
 
 	private void jSearchMemoryButtonActionPerformed(ActionEvent evt) {
 		try {
-			new SearchMemoryDialog(this, this.jSearchMemoryTable, this.jSearchMemoryTextField.getText(), CommonLib.string2decimal(this.jSearchMemoryFromComboBox.getSelectedItem().toString()),
-					CommonLib.string2decimal(this.jSearchMemoryToComboBox.getSelectedItem().toString())).setVisible(true);
+			new SearchMemoryDialog(this, this.jSearchMemoryTable, this.jSearchMemoryTextField.getText(), CommonLib.string2decimal(this.jSearchMemoryFromComboBox.getSelectedItem()
+					.toString()), CommonLib.string2decimal(this.jSearchMemoryToComboBox.getSelectedItem().toString())).setVisible(true);
 		} catch (Exception ex) {
 
 		}
@@ -3076,7 +3079,7 @@ public class Application extends javax.swing.JFrame {
 					jSplitPane2.add(jSplitPane1, JSplitPane.TOP);
 					jSplitPane1.setDividerLocation(400);
 					{
-						jTabbedPane1 = new JTabbedPane();
+						jTabbedPane1 = new JClosableTabbedPane();
 						jSplitPane1.add(jTabbedPane1, JSplitPane.RIGHT);
 						{
 							jPanel10 = new JPanel();
@@ -3112,8 +3115,8 @@ public class Application extends javax.swing.JFrame {
 								jScrollPane5 = new JScrollPane();
 								jPanel10.add(jScrollPane5, BorderLayout.CENTER);
 								{
-									TableModel jInstructionTableModel = new DefaultTableModel(new String[][] {}, new String[] { language.getString("Address"), language.getString("Instruction"),
-											language.getString("Bytes") }) {
+									TableModel jInstructionTableModel = new DefaultTableModel(new String[][] {}, new String[] { language.getString("Address"),
+											language.getString("Instruction"), language.getString("Bytes") }) {
 										public boolean isCellEditable(int row, int col) {
 											return false;
 										}
@@ -3137,8 +3140,8 @@ public class Application extends javax.swing.JFrame {
 								jScrollPane9 = new JScrollPane();
 								jPanel4.add(jScrollPane9, BorderLayout.CENTER);
 								{
-									TableModel jTable1Model = new DefaultTableModel(new String[][] {}, new String[] { language.getString("No"), language.getString("Address_type"), "Disp Enb Address",
-											language.getString("Hit") }) {
+									TableModel jTable1Model = new DefaultTableModel(new String[][] {}, new String[] { language.getString("No"), language.getString("Address_type"),
+											"Disp Enb Address", language.getString("Hit") }) {
 										public boolean isCellEditable(int row, int col) {
 											return false;
 										}
@@ -3273,7 +3276,7 @@ public class Application extends javax.swing.JFrame {
 						}
 					}
 					{
-						jTabbedPane3 = new JTabbedPane();
+						jTabbedPane3 = new JClosableTabbedPane();
 						jSplitPane1.add(jTabbedPane3, JSplitPane.LEFT);
 						{
 							jPanel8 = new JPanel();
@@ -3319,15 +3322,14 @@ public class Application extends javax.swing.JFrame {
 											jMemoryAddressComboBoxActionPerformed(evt);
 										}
 									});
-									;
-									SwingUtilities.invokeLater(new Runnable() {
+									new Thread() {
 										public void run() {
 											Vector<HashMap> vector = XMLHelper.xmltoVector("memoryCombo.xml", "/address/record");
 											for (int x = 0; x < vector.size(); x++) {
 												addMemoryAddressComboBox(vector.get(x).get("address").toString());
 											}
 										}
-									});
+									}.start();
 								}
 								{
 									jGOMemoryButton = new JButton();
@@ -3480,7 +3482,7 @@ public class Application extends javax.swing.JFrame {
 					}
 				}
 				{
-					jTabbedPane2 = new JTabbedPane();
+					jTabbedPane2 = new JClosableTabbedPane();
 					// jTabbedPane2.setCloseIcon(true);
 					// jTabbedPane2.setMaxIcon(true);
 					//
@@ -3508,7 +3510,8 @@ public class Application extends javax.swing.JFrame {
 					{
 						jPanel3 = new JPanel();
 						jTabbedPane2.addTab(language.getString("History"), null, jPanel3, null);
-						TableLayout jPanel3Layout = new TableLayout(new double[][] { { TableLayout.FILL, TableLayout.FILL, TableLayout.FILL, TableLayout.FILL }, { 36.0, TableLayout.FILL } });
+						TableLayout jPanel3Layout = new TableLayout(new double[][] { { TableLayout.FILL, TableLayout.FILL, TableLayout.FILL, TableLayout.FILL },
+								{ 36.0, TableLayout.FILL } });
 						jPanel3Layout.setHGap(5);
 						jPanel3Layout.setVGap(5);
 						jPanel3.setLayout(jPanel3Layout);
@@ -3547,12 +3550,12 @@ public class Application extends javax.swing.JFrame {
 		if (jRunningLabel == null) {
 			jRunningLabel = new JLabel();
 
-			SwingUtilities.invokeLater(new Runnable() {
+			new Thread() {
 				public void run() {
 					URL url = getClass().getClassLoader().getResource("images/ajax-loader.gif");
 					jRunningLabel.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\"" + url + "\" /></center></html>");
 				}
-			});
+			}.start();
 			jRunningLabel.setHorizontalAlignment(SwingConstants.CENTER);
 			jRunningLabel.setHorizontalTextPosition(SwingConstants.CENTER);
 			jRunningLabel.setFont(new java.awt.Font("Arial", 0, 20));
@@ -3866,10 +3869,10 @@ public class Application extends javax.swing.JFrame {
 			// }
 			// }
 			Long address = CommonLib.string2decimal(this.jAddressTextField.getText());
-			
+
 			model.searchType.add(2);
 			model.searchAddress.add(address);
-			
+
 			long baseAddress = 0;
 			long linearAddress = baseAddress + address;
 			model.baseAddress.add(baseAddress);
@@ -3940,8 +3943,8 @@ public class Application extends javax.swing.JFrame {
 				model.segNo.set(x, model.searchSegSelector.get(x) >> 3);
 				model.virtualAddress.set(x, model.searchAddress.get(x));
 
-				long gdtBase = CommonLib.getPhysicalAddress(CommonLib.string2decimal(this.jRegisterPanel1.jCR3TextField.getText()), CommonLib.string2decimal(this.jRegisterPanel1.jGDTRTextField
-						.getText()));
+				long gdtBase = CommonLib.getPhysicalAddress(CommonLib.string2decimal(this.jRegisterPanel1.jCR3TextField.getText()), CommonLib
+						.string2decimal(this.jRegisterPanel1.jGDTRTextField.getText()));
 				System.out.println("gdtBase=" + Long.toHexString(gdtBase));
 				commandReceiver.clearBuffer();
 				gdtBase += model.segNo.get(x) * 8;
@@ -4518,7 +4521,7 @@ public class Application extends javax.swing.JFrame {
 			ComboBoxModel jELFComboBoxModel = new DefaultComboBoxModel(new String[] {});
 			jELFComboBox = new JComboBox();
 			jELFComboBox.setModel(jELFComboBoxModel);
-			jELFComboBox.setPreferredSize(new java.awt.Dimension(159, 30));
+			jELFComboBox.setPreferredSize(new java.awt.Dimension(345, 30));
 			jELFComboBox.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jELFComboBoxActionPerformed(evt);
@@ -4543,7 +4546,7 @@ public class Application extends javax.swing.JFrame {
 
 	private JTabbedPane getJTabbedPane4() {
 		if (jTabbedPane4 == null) {
-			jTabbedPane4 = new JTabbedPane();
+			jTabbedPane4 = new JClosableTabbedPane();
 			jTabbedPane4.addTab("Header", null, getJELFHeaderScrollPane(), null);
 			jTabbedPane4.addTab("Section", null, getJScrollPane15(), null);
 			jTabbedPane4.addTab("Program header", null, getJScrollPane16(), null);
@@ -4583,7 +4586,7 @@ public class Application extends javax.swing.JFrame {
 			File file = fc.getSelectedFile();
 			this.jELFComboBox.addItem(file);
 
-			parseELF();
+			parseELF(file);
 
 			// save history
 			HashMap<String, String> h = new HashMap<String, String>();
@@ -4594,54 +4597,28 @@ public class Application extends javax.swing.JFrame {
 		}
 	}
 
-	private void parseELF() {
-		HashMap map = ElfUtil.getELFDetail((File) jELFComboBox.getSelectedItem());
+	private void parseELF(File elfFile) {
+		jELFDumpPanel.remove(jTabbedPane4);
+		jTabbedPane4 = null;
+		jELFDumpPanel.add(getJTabbedPane4(), BorderLayout.CENTER);
 
-		// header
-		DefaultTableModel model = (DefaultTableModel) jELFHeaderTable.getModel();
-		while (model.getRowCount() > 0) {
-			model.removeRow(0);
-		}
-		Set entries = ((HashMap) map.get("header")).entrySet();
-		Iterator it = entries.iterator();
-		while (it.hasNext()) {
-			Map.Entry entry = (Map.Entry) it.next();
-
-			Vector<String> v = new Vector<String>();
-			v.add(entry.getKey().toString());
-
-			String bytesStr = "";
-
-			if (entry.getValue().getClass() == Short.class) {
-				bytesStr += "0x" + Long.toHexString((Short) entry.getValue());
-			} else if (entry.getValue().getClass() == Integer.class) {
-				bytesStr += "0x" + Long.toHexString((Integer) entry.getValue());
-			} else {
-				byte b[] = (byte[]) entry.getValue();
-				for (int x = 0; x < b.length; x++) {
-					bytesStr += "0x" + Long.toHexString(b[x]) + " ";
-				}
+		HashMap map = ElfUtil.getELFDetail(elfFile);
+		if (map != null) {
+			// header
+			DefaultTableModel model = (DefaultTableModel) jELFHeaderTable.getModel();
+			while (model.getRowCount() > 0) {
+				model.removeRow(0);
 			}
-
-			v.add(bytesStr);
-			model.addRow(v);
-		}
-		// end header
-
-		// section
-		model = (DefaultTableModel) jELFSectionTable.getModel();
-		while (model.getRowCount() > 0) {
-			model.removeRow(0);
-		}
-		int sectionNo = 0;
-		while (map.get("section" + sectionNo) != null) {
-			entries = ((HashMap) map.get("section" + sectionNo)).entrySet();
-			it = entries.iterator();
-			Vector<String> v = new Vector<String>();
+			Set entries = ((HashMap) map.get("header")).entrySet();
+			Iterator it = entries.iterator();
 			while (it.hasNext()) {
 				Map.Entry entry = (Map.Entry) it.next();
 
+				Vector<String> v = new Vector<String>();
+				v.add(entry.getKey().toString());
+
 				String bytesStr = "";
+
 				if (entry.getValue().getClass() == Short.class) {
 					bytesStr += "0x" + Long.toHexString((Short) entry.getValue());
 				} else if (entry.getValue().getClass() == Integer.class) {
@@ -4654,48 +4631,138 @@ public class Application extends javax.swing.JFrame {
 				}
 
 				v.add(bytesStr);
+				model.addRow(v);
 			}
-			model.addRow(v);
-			sectionNo++;
-		}
-		// end section
+			// end header
 
-		// program header
-		model = (DefaultTableModel) jProgramHeaderTable.getModel();
-		while (model.getRowCount() > 0) {
-			model.removeRow(0);
-		}
-		int programHeaderNo = 0;
-		while (map.get("programHeader" + programHeaderNo) != null) {
-			entries = ((HashMap) map.get("programHeader" + programHeaderNo)).entrySet();
-			it = entries.iterator();
-			Vector<String> v = new Vector<String>();
-			while (it.hasNext()) {
-				Map.Entry entry = (Map.Entry) it.next();
+			// section
+			model = (DefaultTableModel) jELFSectionTable.getModel();
+			while (model.getRowCount() > 0) {
+				model.removeRow(0);
+			}
+			int sectionNo = 0;
+			while (map.get("section" + sectionNo) != null) {
+				entries = ((HashMap) map.get("section" + sectionNo)).entrySet();
+				it = entries.iterator();
+				Vector<String> v = new Vector<String>();
+				while (it.hasNext()) {
+					Map.Entry entry = (Map.Entry) it.next();
 
-				String bytesStr = "";
-				if (entry.getValue().getClass() == Short.class) {
-					bytesStr += "0x" + Long.toHexString((Short) entry.getValue());
-				} else if (entry.getValue().getClass() == Integer.class) {
-					bytesStr += "0x" + Long.toHexString((Integer) entry.getValue());
-				} else {
-					byte b[] = (byte[]) entry.getValue();
-					for (int x = 0; x < b.length; x++) {
-						bytesStr += "0x" + Long.toHexString(b[x]) + " ";
+					String bytesStr = "";
+					if (entry.getValue().getClass() == Short.class) {
+						bytesStr += "0x" + Long.toHexString((Short) entry.getValue());
+					} else if (entry.getValue().getClass() == Integer.class) {
+						bytesStr += "0x" + Long.toHexString((Integer) entry.getValue());
+					} else if (entry.getValue().getClass() == String.class) {
+						bytesStr = (String) entry.getValue();
+					} else {
+						byte b[] = (byte[]) entry.getValue();
+						for (int x = 0; x < b.length; x++) {
+							bytesStr += "0x" + Long.toHexString(b[x]) + " ";
+						}
 					}
+
+					v.add(bytesStr);
+				}
+				model.addRow(v);
+				sectionNo++;
+			}
+			// end section
+
+			// program header
+			model = (DefaultTableModel) jProgramHeaderTable.getModel();
+			while (model.getRowCount() > 0) {
+				model.removeRow(0);
+			}
+			int programHeaderNo = 0;
+			while (map.get("programHeader" + programHeaderNo) != null) {
+				entries = ((HashMap) map.get("programHeader" + programHeaderNo)).entrySet();
+				it = entries.iterator();
+				Vector<String> v = new Vector<String>();
+				while (it.hasNext()) {
+					Map.Entry entry = (Map.Entry) it.next();
+
+					String bytesStr = "";
+					if (entry.getValue().getClass() == Short.class) {
+						bytesStr += "0x" + Long.toHexString((Short) entry.getValue());
+					} else if (entry.getValue().getClass() == Integer.class) {
+						bytesStr += "0x" + Long.toHexString((Integer) entry.getValue());
+					} else {
+						byte b[] = (byte[]) entry.getValue();
+						for (int x = 0; x < b.length; x++) {
+							bytesStr += "0x" + Long.toHexString(b[x]) + " ";
+						}
+					}
+
+					v.add(bytesStr);
+				}
+				model.addRow(v);
+				programHeaderNo++;
+			}
+			// program header
+
+			// symbol table
+			int symbolTableNo = 0;
+			while (map.get("symbolTable" + symbolTableNo) != null) {
+				DefaultTableModel tempTableModel = new DefaultTableModel(null, new String[] { "No.", "st_name", "st_value", "st_size", "st_info", "st_other", "p_st_shndx" });
+				JTable tempTable = new JTable();
+				HashMap tempMap = (HashMap) map.get("symbolTable" + symbolTableNo);
+				Vector<LinkedHashMap> v = (Vector<LinkedHashMap>) tempMap.get("vector");
+				for (int x = 0; x < v.size(); x++) {
+					Vector tempV = new Vector();
+					tempV.add("0x" + Long.toHexString((Integer) v.get(x).get("No.")));
+					tempV.add(v.get(x).get("st_name"));
+					tempV.add("0x" + Long.toHexString((Integer) v.get(x).get("st_value")));
+					tempV.add("0x" + Long.toHexString((Integer) v.get(x).get("st_size")));
+					tempV.add("0x" + Long.toHexString((Integer) v.get(x).get("st_info")));
+					tempV.add("0x" + Long.toHexString((Integer) v.get(x).get("st_other")));
+					tempV.add("0x" + Long.toHexString((Integer) v.get(x).get("p_st_shndx")));
+
+					tempTableModel.addRow(tempV);
 				}
 
-				v.add(bytesStr);
+				tempTable.setModel(tempTableModel);
+				JScrollPane tempScrollPane = new JScrollPane();
+				tempScrollPane.setViewportView(tempTable);
+				jTabbedPane4.addTab(tempMap.get("name").toString(), null, tempScrollPane, null);
+
+				symbolTableNo++;
 			}
-			model.addRow(v);
-			programHeaderNo++;
+			// end symbol table
+
+			// note
+			int noteSectionNo = 0;
+			while (map.get("note" + noteSectionNo) != null) {
+				DefaultTableModel tempTableModel = new DefaultTableModel(null, new String[] { "No.", "namesz", "descsz", "type", "name", "desc" });
+				JTable tempTable = new JTable();
+				HashMap tempMap = (HashMap) map.get("note" + noteSectionNo);
+				Vector<LinkedHashMap> v = (Vector<LinkedHashMap>) tempMap.get("vector");
+				for (int x = 0; x < v.size(); x++) {
+					Vector tempV = new Vector();
+					tempV.add("0x" + Long.toHexString((Integer) v.get(x).get("No.")));
+					tempV.add("0x" + Long.toHexString((Integer) v.get(x).get("namesz")));
+					tempV.add("0x" + Long.toHexString((Integer) v.get(x).get("descsz")));
+					tempV.add("0x" + Long.toHexString((Integer) v.get(x).get("type")));
+					tempV.add(v.get(x).get("name"));
+					tempV.add(v.get(x).get("desc"));
+
+					tempTableModel.addRow(tempV);
+				}
+
+				tempTable.setModel(tempTableModel);
+				JScrollPane tempScrollPane = new JScrollPane();
+				tempScrollPane.setViewportView(tempTable);
+				jTabbedPane4.addTab(tempMap.get("name").toString(), null, tempScrollPane, null);
+
+				noteSectionNo++;
+			}
+			// end note
 		}
-		// program header
+		// end symbol table
 	}
 
 	private void jELFComboBoxActionPerformed(ActionEvent evt) {
-		System.out.println("jELFComboBox.actionPerformed, event=" + evt);
-		// TODO add your code for jELFComboBox.actionPerformed
+		parseELF((File) jELFComboBox.getSelectedItem());
 	}
 
 	private void thisWindowOpened(WindowEvent evt) {
@@ -4718,8 +4785,8 @@ public class Application extends javax.swing.JFrame {
 
 	private JTable getJSectionTable() {
 		if (jELFSectionTable == null) {
-			TableModel jSectionTableModel = new DefaultTableModel(null, new String[] { "No.", "sh_name", "sh_type", "sh_flags", "sh_addr", "sh_offset", "sh_size", "sh_link", "sh_info",
-					"sh_addralign", "sh_entsize" });
+			TableModel jSectionTableModel = new DefaultTableModel(null, new String[] { "No.", "sh_name", "sh_type", "sh_flags", "sh_addr", "sh_offset", "sh_size", "sh_link",
+					"sh_info", "sh_addralign", "sh_entsize" });
 			jELFSectionTable = new JTable();
 			jELFSectionTable.setModel(jSectionTableModel);
 		}
