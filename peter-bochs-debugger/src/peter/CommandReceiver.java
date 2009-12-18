@@ -154,6 +154,7 @@ public class CommandReceiver implements Runnable {
 					}
 				}
 				long diff = new Date().getTime() - startTime;
+				// System.out.println(diff);
 				if (diff / 1000 >= timeoutSecond) {
 					return null;
 				}

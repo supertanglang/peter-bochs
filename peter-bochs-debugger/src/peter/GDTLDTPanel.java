@@ -1,6 +1,13 @@
 package peter;
 
+import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.forms.layout.FormLayout;
+import info.clearthought.layout.TableLayout;
+
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -24,6 +31,8 @@ public class GDTLDTPanel extends JPanel {
 	private JTable jTable1;
 	private int gdtNo;
 	private JScrollPane jScrollPane2;
+	private JButton jDumpPageDirectoryButton;
+	private JPanel jPanel1;
 	private JTable jTSSTable;
 	private JScrollPane jScrollPane3;
 	private JLabel jTypeLabel;
@@ -98,6 +107,23 @@ public class GDTLDTPanel extends JPanel {
 					jTSSTable.setModel(jTable3Model);
 				}
 			}
+			{
+				jPanel1 = new JPanel();
+				FormLayout jPanel1Layout = new FormLayout("max(p;5dlu), max(p;5dlu), max(p;5dlu), max(p;5dlu)", "max(p;5dlu), max(p;5dlu), max(p;5dlu), max(p;5dlu)");
+				jPanel1.setLayout(jPanel1Layout);
+				this.add(jPanel1);
+				jPanel1.setBounds(691, 38, 287, 232);
+				{
+					jDumpPageDirectoryButton = new JButton();
+					jPanel1.add(jDumpPageDirectoryButton, new CellConstraints("1, 1, 1, 1, default, default"));
+					jDumpPageDirectoryButton.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent evt) {
+							jDumpPageDirectoryButtonActionPerformed(evt);
+						}
+					});
+					jDumpPageDirectoryButton.setText(Application.language.getString("Dump_page_directory"));
+				}
+			}
 			// Application.commandReceiver.setCommandNoOfLine(2);
 			String result;
 			if (type == 0) {
@@ -149,6 +175,7 @@ public class GDTLDTPanel extends JPanel {
 			}
 
 			// parse descriptor
+			this.jDumpPageDirectoryButton.setVisible(false);
 			if (bit[44] == 1 && bit[43] == 1) {
 				jTypeLabel.setText("Type : Code descriptor, value=0x" + Long.toHexString(value));
 				parseCodeDescriptor();
@@ -162,6 +189,7 @@ public class GDTLDTPanel extends JPanel {
 			} else if (bit[44] == 0 && bit[42] == 0 && bit[40] == 1) {
 				jTypeLabel.setText("Type : TSS descriptor, value=0x" + Long.toHexString(value));
 				parseTSSDescriptor();
+				this.jDumpPageDirectoryButton.setVisible(true);
 			}
 			// end parse descriptor
 			this.setPreferredSize(new Dimension(600, 600));
@@ -293,10 +321,10 @@ public class GDTLDTPanel extends JPanel {
 			String[] lines2 = result2.split("\n");
 
 			byte tssByte[] = new byte[(int) limit];
-			for (int y = 1; y < lines2.length; y++) {
+			for (int y = 0; y < lines2.length; y++) {
 				String byteStr[] = lines2[y].replaceFirst("^.*>:\t", "").split("\t");
-				for (int x = 0; x < 8; x++) {
-					tssByte[x + ((y - 1) * 8)] = (byte) Long.parseLong(byteStr[x].substring(2), 16);
+				for (int x = 0; x < 8 && x < byteStr.length; x++) {
+					tssByte[x + (y * 8)] = (byte) Long.parseLong(byteStr[x].substring(2), 16);
 				}
 			}
 
@@ -335,5 +363,10 @@ public class GDTLDTPanel extends JPanel {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
+	}
+
+	private void jDumpPageDirectoryButtonActionPerformed(ActionEvent evt) {
+		System.out.println("jDumpPageDirectoryButton.actionPerformed, event=" + evt);
+		// TODO add your code for jDumpPageDirectoryButton.actionPerformed
 	}
 }

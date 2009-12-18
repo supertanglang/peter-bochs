@@ -5,9 +5,11 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
 
+import peter.Application;
 import peter.CommonLib;
 
 public class ElfUtil {
@@ -37,7 +39,8 @@ public class ElfUtil {
 			header.put("e_phnum", CommonLib.getShort(bytes[44], bytes[45]));
 			header.put("e_shentsize", CommonLib.getShort(bytes[46], bytes[47]));
 			header.put("e_shnum", CommonLib.getShort(bytes[48], bytes[49]));
-			header.put("e_shstrndx", CommonLib.getShort(bytes[50], bytes[51]));
+			int e_shstrndx = CommonLib.getShort(bytes[50], bytes[51]);
+			header.put("e_shstrndx", e_shstrndx);
 			map.put("header", header);
 			// end header
 
@@ -45,10 +48,30 @@ public class ElfUtil {
 			int e_shoff = (Integer) header.get("e_shoff");
 			short e_shnum = (Short) header.get("e_shnum");
 			int offset = e_shoff;
+
+			int sectionNameOffset = CommonLib.getInt(bytes, offset + 16 + e_shstrndx * 40);
+			int sectionNameSize = CommonLib.getInt(bytes, offset + 20 + e_shstrndx * 40);
+
+			int strtabOffset = 0;
+			int strtabSize = 0;
+
+			int dynstrOffset = 0;
+			int dynstrSize = 0;
+
+			Vector<HashMap> noteSection = new Vector<HashMap>();
+
+			Vector<HashMap> symtabTables = new Vector<HashMap>();
+
 			for (int x = 0; x < e_shnum; x++) {
 				LinkedHashMap section = new LinkedHashMap();
 				section.put("No.", x);
-				section.put("sh_name", CommonLib.getInt(bytes, offset + 0));
+				int sh_name = CommonLib.getInt(bytes, offset + 0);
+				try {
+					section.put("sh_name", CommonLib.copyToStringUntilZero(bytes, sectionNameOffset + sh_name));
+				} catch (Exception ex) {
+					section.put("sh_name", sh_name + "= ERROR");
+				}
+
 				section.put("sh_type", CommonLib.getInt(bytes, offset + 4));
 				section.put("sh_flags", CommonLib.getInt(bytes, offset + 8));
 				section.put("sh_addr", CommonLib.getInt(bytes, offset + 12));
@@ -58,6 +81,30 @@ public class ElfUtil {
 				section.put("sh_info", CommonLib.getInt(bytes, offset + 28));
 				section.put("sh_addralign", CommonLib.getInt(bytes, offset + 32));
 				section.put("sh_entsize", CommonLib.getInt(bytes, offset + 36));
+
+				if ((Integer) section.get("sh_type") == 2 || (Integer) section.get("sh_type") == 0xb) {
+					HashMap hm = new HashMap();
+					hm.put("name", section.get("sh_name"));
+					hm.put("offset", (Integer) section.get("sh_offset"));
+					hm.put("size", (Integer) section.get("sh_size") / 16);
+					symtabTables.add(hm);
+				} else if ((Integer) section.get("sh_type") == 7) {
+					HashMap tempMap = new HashMap();
+					tempMap.put("name", section.get("sh_name"));
+					tempMap.put("offset", (Integer) section.get("sh_offset"));
+					tempMap.put("size", (Integer) section.get("sh_size"));
+
+					noteSection.add(tempMap);
+				}
+
+				if (section.get("sh_name").equals(".strtab")) {
+					strtabOffset = (Integer) section.get("sh_offset");
+					strtabSize = (Integer) section.get("sh_size");
+				} else if (section.get("sh_name").equals(".dynstr")) {
+					dynstrOffset = (Integer) section.get("sh_offset");
+					dynstrSize = (Integer) section.get("sh_size");
+				}
+
 				offset += 40;
 				map.put("section" + x, section);
 			}
@@ -67,7 +114,7 @@ public class ElfUtil {
 			int e_phoff = (Integer) header.get("e_phoff");
 			short e_phnum = (Short) header.get("e_phnum");
 			offset = e_phoff;
-			for (int x = 0; x < e_shnum; x++) {
+			for (int x = 0; x < e_phnum; x++) {
 				LinkedHashMap programHeader = new LinkedHashMap();
 				programHeader.put("No.", x);
 				programHeader.put("p_type", CommonLib.getInt(bytes, offset + 0));
@@ -83,8 +130,73 @@ public class ElfUtil {
 			}
 			// end program header
 
+			// all the symbol table
+			for (int x = 0; x < symtabTables.size(); x++) {
+				HashMap tempMap = new HashMap();
+				tempMap.put("name", symtabTables.get(x).get("name"));
+				Vector<LinkedHashMap> v = new Vector<LinkedHashMap>();
+				offset = (Integer) symtabTables.get(x).get("offset");
+				for (int z = 0; z < (Integer) symtabTables.get(x).get("size"); z++) {
+					LinkedHashMap symbolTable = new LinkedHashMap();
+
+					symbolTable.put("No.", z);
+
+					int sh_name = CommonLib.getInt(bytes, offset + 0);
+
+					if (symtabTables.get(x).get("name").equals(".symtab")) {
+						symbolTable.put("st_name", CommonLib.copyToStringUntilZero(bytes, strtabOffset + sh_name));
+					} else {
+						symbolTable.put("st_name", CommonLib.copyToStringUntilZero(bytes, dynstrOffset + sh_name));
+					}
+					symbolTable.put("st_value", CommonLib.getInt(bytes, offset + 4));
+					symbolTable.put("st_size", CommonLib.getInt(bytes, offset + 8));
+					symbolTable.put("st_info", (int) bytes[offset + 12]);
+					symbolTable.put("st_other", (int) bytes[offset + 13]);
+					symbolTable.put("p_st_shndx", (int) CommonLib.getShort(bytes, offset + 14));
+					offset += 16;
+					v.add(symbolTable);
+				}
+				tempMap.put("vector", v);
+				map.put("symbolTable" + x, tempMap);
+			}
+			// end all the symbol table
+
+			// .note* sections
+			for (int x = 0; x < noteSection.size(); x++) {
+				HashMap tempMap = new HashMap();
+				tempMap.put("name", noteSection.get(x).get("name"));
+
+				Vector<LinkedHashMap> v = new Vector<LinkedHashMap>();
+
+				int tempOffset = (Integer) noteSection.get(x).get("offset");
+				int z = 0;
+				while (tempOffset < (Integer) noteSection.get(x).get("offset") + (Integer) noteSection.get(x).get("size")) {
+					LinkedHashMap noteSectionMap = new LinkedHashMap();
+
+					noteSectionMap.put("No.", z);
+
+					int namesz = CommonLib.getInt(bytes, tempOffset);
+					noteSectionMap.put("namesz", namesz);
+					tempOffset += 4;
+					int descsz = CommonLib.getInt(bytes, tempOffset);
+					noteSectionMap.put("descsz", descsz);
+					tempOffset += 4;
+					int type = CommonLib.getInt(bytes, tempOffset);
+					noteSectionMap.put("type", type);
+					tempOffset += 4;
+					noteSectionMap.put("name", CommonLib.convertToString(Arrays.copyOfRange(bytes, tempOffset, tempOffset + namesz)));
+					tempOffset += namesz + 1;
+					noteSectionMap.put("desc", CommonLib.convertToString(Arrays.copyOfRange(bytes, tempOffset, tempOffset + descsz)));
+					tempOffset += descsz * 4;
+					v.add(noteSectionMap);
+					z++;
+				}
+				tempMap.put("vector", v);
+				map.put("note" + x, tempMap);
+			}
+			// end .note* sections
 			return map;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
