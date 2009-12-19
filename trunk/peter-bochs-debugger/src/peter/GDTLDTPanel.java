@@ -1,21 +1,28 @@
 package peter;
 
-import com.jgoodies.forms.layout.CellConstraints;
-import com.jgoodies.forms.layout.FormLayout;
-import info.clearthought.layout.TableLayout;
-
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.JButton;
 
+import javax.swing.DefaultCellEditor;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
+
+import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.forms.layout.FormLayout;
 
 /**
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
@@ -31,8 +38,6 @@ public class GDTLDTPanel extends JPanel {
 	private JTable jTable1;
 	private int gdtNo;
 	private JScrollPane jScrollPane2;
-	private JButton jDumpPageDirectoryButton;
-	private JPanel jPanel1;
 	private JTable jTSSTable;
 	private JScrollPane jScrollPane3;
 	private JLabel jTypeLabel;
@@ -81,7 +86,8 @@ public class GDTLDTPanel extends JPanel {
 					jScrollPane2.setBounds(12, 110, 287, 227);
 					jScrollPane2.setBorder(new LineBorder(new java.awt.Color(0, 0, 0), 1, false));
 					{
-						TableModel jTable2Model = new DefaultTableModel(new String[][] {}, new String[] { "Field", "Value" });
+						TableModel jTable2Model = new DefaultTableModel(new String[][] {}, new String[] { Application.language.getString("Field"),
+								Application.language.getString("Value") });
 						jTable2 = new JTable();
 						jScrollPane2.setViewportView(jTable2);
 						jTable2.setModel(jTable2Model);
@@ -98,30 +104,16 @@ public class GDTLDTPanel extends JPanel {
 				jScrollPane3 = new JScrollPane();
 				this.add(jScrollPane3);
 				jScrollPane3.setBorder(new LineBorder(new java.awt.Color(0, 0, 0), 1, false));
-				jScrollPane3.setBounds(305, 110, 374, 471);
+				jScrollPane3.setBounds(305, 110, 374, 227);
 				jScrollPane3.setVisible(false);
 				{
-					TableModel jTable3Model = new DefaultTableModel(new String[][] {}, new String[] { "Field", "Value" });
+					TableModel jTSSTableModel = new DefaultTableModel(new String[][] {}, new String[] { Application.language.getString("Offset"),
+							Application.language.getString("Field"), Application.language.getString("Value"), "" });
 					jTSSTable = new JTable();
 					jScrollPane3.setViewportView(jTSSTable);
-					jTSSTable.setModel(jTable3Model);
-				}
-			}
-			{
-				jPanel1 = new JPanel();
-				FormLayout jPanel1Layout = new FormLayout("max(p;5dlu), max(p;5dlu), max(p;5dlu), max(p;5dlu)", "max(p;5dlu), max(p;5dlu), max(p;5dlu), max(p;5dlu)");
-				jPanel1.setLayout(jPanel1Layout);
-				this.add(jPanel1);
-				jPanel1.setBounds(691, 38, 287, 232);
-				{
-					jDumpPageDirectoryButton = new JButton();
-					jPanel1.add(jDumpPageDirectoryButton, new CellConstraints("1, 1, 1, 1, default, default"));
-					jDumpPageDirectoryButton.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent evt) {
-							jDumpPageDirectoryButtonActionPerformed(evt);
-						}
-					});
-					jDumpPageDirectoryButton.setText(Application.language.getString("Dump_page_directory"));
+					jTSSTable.setModel(jTSSTableModel);
+					jTSSTable.getColumn("").setCellRenderer(new ButtonRenderer());
+					jTSSTable.getColumn("").setCellEditor(new ButtonEditor(new JCheckBox()));
 				}
 			}
 			// Application.commandReceiver.setCommandNoOfLine(2);
@@ -175,7 +167,6 @@ public class GDTLDTPanel extends JPanel {
 			}
 
 			// parse descriptor
-			this.jDumpPageDirectoryButton.setVisible(false);
 			if (bit[44] == 1 && bit[43] == 1) {
 				jTypeLabel.setText("Type : Code descriptor, value=0x" + Long.toHexString(value));
 				parseCodeDescriptor();
@@ -183,13 +174,12 @@ public class GDTLDTPanel extends JPanel {
 				jTypeLabel.setText("Type : Data descriptor, value=0x" + Long.toHexString(value));
 				parseDataDescriptor();
 			} else if (bit[44] == 0 && bit[43] == 0 && bit[42] == 0 && bit[41] == 1 && bit[40] == 0) {
-				jTypeLabel.setText("Type : LDT descriptor, value=0x" + Long.toHexString(value) + ", base=0x" + Long.toHexString(CommonLib.getInt(b[2], b[3], b[4], b[7])) + ", limit=0x"
-						+ Long.toHexString(CommonLib.getShort(b[0], b[1])));
+				jTypeLabel.setText("Type : LDT descriptor, value=0x" + Long.toHexString(value) + ", base=0x" + Long.toHexString(CommonLib.getInt(b[2], b[3], b[4], b[7]))
+						+ ", limit=0x" + Long.toHexString(CommonLib.getShort(b[0], b[1])));
 				parseLDT();
 			} else if (bit[44] == 0 && bit[42] == 0 && bit[40] == 1) {
 				jTypeLabel.setText("Type : TSS descriptor, value=0x" + Long.toHexString(value));
 				parseTSSDescriptor();
-				this.jDumpPageDirectoryButton.setVisible(true);
 			}
 			// end parse descriptor
 			this.setPreferredSize(new Dimension(600, 600));
@@ -331,34 +321,35 @@ public class GDTLDTPanel extends JPanel {
 			long tssValue = CommonLib.getLong(b, 0);
 
 			DefaultTableModel tssModel = (DefaultTableModel) jTSSTable.getModel();
-			tssModel.addRow(new String[] { "link", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0], tssByte[1], 0, 0, 0, 0, 0, 0)) });
-			tssModel.addRow(new String[] { "esp0", "0x" + Long.toHexString(CommonLib.getLong(tssByte[4], tssByte[5], tssByte[6], tssByte[7], 0, 0, 0, 0)) });
-			tssModel.addRow(new String[] { "ss0", "0x" + Long.toHexString(CommonLib.getLong(tssByte[8], tssByte[9], 0, 0, 0, 0, 0, 0)) });
-			tssModel.addRow(new String[] { "esp1", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0xc], tssByte[0xd], tssByte[0xe], tssByte[0xf], 0, 0, 0, 0)) });
-			tssModel.addRow(new String[] { "ss1", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x10], tssByte[0x11], 0, 0, 0, 0, 0, 0)) });
-			tssModel.addRow(new String[] { "esp2", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x14], tssByte[0x15], tssByte[0x16], tssByte[0x17], 0, 0, 0, 0)) });
-			tssModel.addRow(new String[] { "ss2", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x18], tssByte[0x19], 0, 0, 0, 0, 0, 0)) });
-			tssModel.addRow(new String[] { "cr3", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x1c], tssByte[0x1d], tssByte[0x1e], tssByte[0x1f], 0, 0, 0, 0)) });
-			tssModel.addRow(new String[] { "eip", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x20], tssByte[0x21], tssByte[0x22], tssByte[0x23], 0, 0, 0, 0)) });
-			tssModel.addRow(new String[] { "eflags", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x24], tssByte[0x25], tssByte[0x26], tssByte[0x27], 0, 0, 0, 0)) });
-			tssModel.addRow(new String[] { "eax", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x28], tssByte[0x29], tssByte[0x2a], tssByte[0x2b], 0, 0, 0, 0)) });
-			tssModel.addRow(new String[] { "ecx", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x2c], tssByte[0x2d], tssByte[0x2e], tssByte[0x2f], 0, 0, 0, 0)) });
-			tssModel.addRow(new String[] { "edx", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x30], tssByte[0x31], tssByte[0x32], tssByte[0x33], 0, 0, 0, 0)) });
-			tssModel.addRow(new String[] { "ebx", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x34], tssByte[0x35], tssByte[0x36], tssByte[0x37], 0, 0, 0, 0)) });
-			tssModel.addRow(new String[] { "esp", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x38], tssByte[0x39], tssByte[0x3a], tssByte[0x3b], 0, 0, 0, 0)) });
-			tssModel.addRow(new String[] { "ebp", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x3c], tssByte[0x3d], tssByte[0x3e], tssByte[0x3f], 0, 0, 0, 0)) });
-			tssModel.addRow(new String[] { "esi", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x40], tssByte[0x41], tssByte[0x42], tssByte[0x43], 0, 0, 0, 0)) });
-			tssModel.addRow(new String[] { "edi", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x44], tssByte[0x45], tssByte[0x45], tssByte[0x47], 0, 0, 0, 0)) });
+			tssModel.addRow(new String[] { "0", "link", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0], tssByte[1], 0, 0, 0, 0, 0, 0)) });
+			tssModel.addRow(new String[] { "4", "esp0", "0x" + Long.toHexString(CommonLib.getLong(tssByte[4], tssByte[5], tssByte[6], tssByte[7], 0, 0, 0, 0)) });
+			tssModel.addRow(new String[] { "8", "ss0", "0x" + Long.toHexString(CommonLib.getLong(tssByte[8], tssByte[9], 0, 0, 0, 0, 0, 0)) });
+			tssModel.addRow(new String[] { "0xc", "esp1", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0xc], tssByte[0xd], tssByte[0xe], tssByte[0xf], 0, 0, 0, 0)) });
+			tssModel.addRow(new String[] { "0x10", "ss1", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x10], tssByte[0x11], 0, 0, 0, 0, 0, 0)) });
+			tssModel.addRow(new String[] { "0x14", "esp2", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x14], tssByte[0x15], tssByte[0x16], tssByte[0x17], 0, 0, 0, 0)) });
+			tssModel.addRow(new String[] { "0x18", "ss2", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x18], tssByte[0x19], 0, 0, 0, 0, 0, 0)) });
+			tssModel.addRow(new String[] { "0x1c", "cr3", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x1c], tssByte[0x1d], tssByte[0x1e], tssByte[0x1f], 0, 0, 0, 0)),
+					"dump" });
+			tssModel.addRow(new String[] { "0x20", "eip", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x20], tssByte[0x21], tssByte[0x22], tssByte[0x23], 0, 0, 0, 0)) });
+			tssModel.addRow(new String[] { "0x24", "eflags", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x24], tssByte[0x25], tssByte[0x26], tssByte[0x27], 0, 0, 0, 0)) });
+			tssModel.addRow(new String[] { "0x28", "eax", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x28], tssByte[0x29], tssByte[0x2a], tssByte[0x2b], 0, 0, 0, 0)) });
+			tssModel.addRow(new String[] { "0x2c", "ecx", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x2c], tssByte[0x2d], tssByte[0x2e], tssByte[0x2f], 0, 0, 0, 0)) });
+			tssModel.addRow(new String[] { "0x30", "edx", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x30], tssByte[0x31], tssByte[0x32], tssByte[0x33], 0, 0, 0, 0)) });
+			tssModel.addRow(new String[] { "0x34", "ebx", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x34], tssByte[0x35], tssByte[0x36], tssByte[0x37], 0, 0, 0, 0)) });
+			tssModel.addRow(new String[] { "0x38", "esp", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x38], tssByte[0x39], tssByte[0x3a], tssByte[0x3b], 0, 0, 0, 0)) });
+			tssModel.addRow(new String[] { "0x3c", "ebp", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x3c], tssByte[0x3d], tssByte[0x3e], tssByte[0x3f], 0, 0, 0, 0)) });
+			tssModel.addRow(new String[] { "0x40", "esi", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x40], tssByte[0x41], tssByte[0x42], tssByte[0x43], 0, 0, 0, 0)) });
+			tssModel.addRow(new String[] { "0x44", "edi", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x44], tssByte[0x45], tssByte[0x45], tssByte[0x47], 0, 0, 0, 0)) });
 
-			tssModel.addRow(new String[] { "es", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x48], tssByte[0x49], 0, 0, 0, 0, 0, 0)) });
-			tssModel.addRow(new String[] { "cs", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x4c], tssByte[0x4d], 0, 0, 0, 0, 0, 0)) });
-			tssModel.addRow(new String[] { "ss", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x50], tssByte[0x51], 0, 0, 0, 0, 0, 0)) });
-			tssModel.addRow(new String[] { "ds", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x54], tssByte[0x55], 0, 0, 0, 0, 0, 0)) });
-			tssModel.addRow(new String[] { "fs", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x58], tssByte[0x59], 0, 0, 0, 0, 0, 0)) });
-			tssModel.addRow(new String[] { "gs", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x5c], tssByte[0x5d], 0, 0, 0, 0, 0, 0)) });
-			tssModel.addRow(new String[] { "ldtr", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x60], tssByte[0x61], 0, 0, 0, 0, 0, 0)) });
+			tssModel.addRow(new String[] { "0x48", "es", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x48], tssByte[0x49], 0, 0, 0, 0, 0, 0)) });
+			tssModel.addRow(new String[] { "0x4c", "cs", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x4c], tssByte[0x4d], 0, 0, 0, 0, 0, 0)) });
+			tssModel.addRow(new String[] { "0x50", "ss", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x50], tssByte[0x51], 0, 0, 0, 0, 0, 0)) });
+			tssModel.addRow(new String[] { "0x54", "ds", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x54], tssByte[0x55], 0, 0, 0, 0, 0, 0)) });
+			tssModel.addRow(new String[] { "0x58", "fs", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x58], tssByte[0x59], 0, 0, 0, 0, 0, 0)) });
+			tssModel.addRow(new String[] { "0x5c", "gs", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x5c], tssByte[0x5d], 0, 0, 0, 0, 0, 0)) });
+			tssModel.addRow(new String[] { "0x60", "ldtr", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x60], tssByte[0x61], 0, 0, 0, 0, 0, 0)) });
 
-			tssModel.addRow(new String[] { "iobp", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x66], tssByte[0x67], 0, 0, 0, 0, 0, 0)) });
+			tssModel.addRow(new String[] { "0x66", "iobp", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x66], tssByte[0x67], 0, 0, 0, 0, 0, 0)) });
 			jScrollPane3.setVisible(true);
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -368,5 +359,82 @@ public class GDTLDTPanel extends JPanel {
 	private void jDumpPageDirectoryButtonActionPerformed(ActionEvent evt) {
 		System.out.println("jDumpPageDirectoryButton.actionPerformed, event=" + evt);
 		// TODO add your code for jDumpPageDirectoryButton.actionPerformed
+	}
+
+	class ButtonRenderer extends JButton implements TableCellRenderer {
+		public ButtonRenderer() {
+			setOpaque(true);
+		}
+
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+			if (table.getValueAt(row, 3) == null || table.getValueAt(row, 3).equals("")) {
+				return null;
+			}
+			if (isSelected) {
+				setForeground(table.getSelectionForeground());
+				setBackground(UIManager.getColor("Button.background"));
+			} else {
+				setForeground(table.getForeground());
+				setBackground(UIManager.getColor("Button.background"));
+			}
+
+			setText((value == null) ? "" : value.toString());
+			return this;
+		}
+	}
+
+	class ButtonEditor extends DefaultCellEditor {
+		protected JButton button;
+		private boolean isPushed;
+		long cr3;
+
+		public ButtonEditor(JCheckBox checkBox) {
+			super(checkBox);
+			button = new JButton();
+			button.setOpaque(true);
+			button.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					fireEditingStopped();
+				}
+			});
+		}
+
+		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+			if (table.getValueAt(row, 3) == null || table.getValueAt(row, 3).equals("")) {
+				return null;
+			}
+			if (isSelected) {
+				button.setForeground(table.getSelectionForeground());
+				button.setBackground(table.getSelectionBackground());
+			} else {
+				button.setForeground(table.getForeground());
+				button.setBackground(table.getBackground());
+			}
+
+			cr3 = CommonLib.string2decimal(table.getValueAt(row, 2).toString());
+
+			button.setText((value == null) ? "" : value.toString());
+			isPushed = true;
+			return button;
+		}
+
+		public Object getCellEditorValue() {
+			if (isPushed) {
+				application.jDumpPageDirectoryAddressTextField.setText("0x" + Long.toHexString(cr3));
+				application.updatePageTable(cr3);
+				application.jTabbedPane2.setSelectedIndex(2);
+			}
+			isPushed = false;
+			return button.getText();
+		}
+
+		public boolean stopCellEditing() {
+			isPushed = false;
+			return super.stopCellEditing();
+		}
+
+		protected void fireEditingStopped() {
+			super.fireEditingStopped();
+		}
 	}
 }
