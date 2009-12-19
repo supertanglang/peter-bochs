@@ -127,6 +127,11 @@ public class JRegisterPanel extends javax.swing.JPanel {
 	 * Auto-generated main method to display this JPanel inside a new JFrame.
 	 */
 
+	public JRegisterPanel() {
+		super();
+		initGUI();
+	}
+
 	public JRegisterPanel(Application application) {
 		super();
 		this.application = application;
@@ -141,7 +146,8 @@ public class JRegisterPanel extends javax.swing.JPanel {
 			{
 				jPanel99 = new JPanel();
 				this.add(jPanel99);
-				FormLayout jPanel2Layout = new FormLayout("max(p;15dlu), 24dlu, 72dlu, 5dlu, max(p;15dlu), 67dlu, 5dlu, max(p;15dlu), 68dlu, 5dlu, 28dlu, 5dlu, max(p;15dlu), 72dlu, 5dlu, 83dlu",
+				FormLayout jPanel2Layout = new FormLayout(
+						"max(p;15dlu), 24dlu, 72dlu, 5dlu, max(p;15dlu), 67dlu, 5dlu, max(p;15dlu), 68dlu, 5dlu, 28dlu, 5dlu, max(p;15dlu), 72dlu, 5dlu, 83dlu",
 						"max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu)");
 				jPanel99.setLayout(jPanel2Layout);
 				jPanel99.setPreferredSize(new java.awt.Dimension(1037, 250));

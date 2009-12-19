@@ -158,7 +158,7 @@ public class Application extends javax.swing.JFrame {
 	private JClosableTabbedPane jTabbedPane3;
 	private JMenuItem pauseBochsMenuItem;
 	private JPanel jPanel3;
-	private JClosableTabbedPane jTabbedPane2;
+	public JClosableTabbedPane jTabbedPane2;
 	private JButton jBochsCommandButton;
 	private JTextField jBochsCommandTextField;
 	private JPanel jPanel2;
@@ -218,6 +218,9 @@ public class Application extends javax.swing.JFrame {
 	private JPanel jPanel22;
 	private JPanel jPanel24;
 	private JPanel jPanel26;
+	public JTextField jDumpPageDirectoryAddressTextField;
+	private JButton jDumpPageTableAtAddressButton;
+	private JButton jButton20;
 	private JButton jButton19;
 	private JTable jProgramHeaderTable;
 	private JScrollPane jScrollPane16;
@@ -991,7 +994,7 @@ public class Application extends javax.swing.JFrame {
 				if (Global.debug) {
 					System.out.println("updatePageTable");
 				}
-				updatePageTable();
+				updatePageTable(CommonLib.string2decimal(jRegisterPanel1.jCR3TextField.getText()));
 
 				if (Global.debug) {
 					System.out.println("updateStack");
@@ -1143,24 +1146,21 @@ public class Application extends javax.swing.JFrame {
 		jUpdateBochsStatusMenuItem.setEnabled(b);
 	}
 
-	private void updatePageTable() {
+	public void updatePageTable(long pageDirectoryBaseAddress) {
 		Vector<IA32PageDirectory> ia32_pageDirectories = new Vector<IA32PageDirectory>();
 		try {
 			jStatusLabel.setText("Updating page table");
 			// commandReceiver.setCommandNoOfLine(512);
-			sendCommand("xp /4096bx " + this.jRegisterPanel1.jCR3TextField.getText());
+			sendCommand("xp /4096bx " + pageDirectoryBaseAddress);
 			float totalByte2 = 4096 - 1;
 			totalByte2 = totalByte2 / 8;
 			int totalByte3 = (int) Math.floor(totalByte2);
 			String realEndAddressStr;
 			String realStartAddressStr;
-			String baseAddress = this.jRegisterPanel1.jCR3TextField.getText();
-			long realStartAddress;
-			realStartAddress = CommonLib.hex2decimal(baseAddress.substring(2));
+			long realStartAddress = pageDirectoryBaseAddress;
 			realStartAddressStr = String.format("%08x", realStartAddress);
 			long realEndAddress = realStartAddress + totalByte3 * 8;
 			realEndAddressStr = String.format("%08x", realEndAddress);
-
 			String result = commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr);
 			if (result != null) {
 				String[] lines = result.split("\n");
@@ -1186,26 +1186,26 @@ public class Application extends javax.swing.JFrame {
 							// "U/S", "W/R", "P"
 
 							long baseL = value & 0xfffff000;
-							if (baseL != 0) {
-								String base = "0x" + Long.toHexString(baseL);
-								String avl = String.valueOf((value >> 9) & 3);
-								String g = String.valueOf((value >> 8) & 1);
-								String d = String.valueOf((value >> 6) & 1);
-								String a = String.valueOf((value >> 5) & 1);
-								String pcd = String.valueOf((value >> 4) & 1);
-								String pwt = String.valueOf((value >> 3) & 1);
-								String us = String.valueOf((value >> 2) & 1);
-								String wr = String.valueOf((value >> 1) & 1);
-								String p = String.valueOf((value >> 0) & 1);
+							// if (baseL != 0) {
+							String base = "0x" + Long.toHexString(baseL);
+							String avl = String.valueOf((value >> 9) & 3);
+							String g = String.valueOf((value >> 8) & 1);
+							String d = String.valueOf((value >> 6) & 1);
+							String a = String.valueOf((value >> 5) & 1);
+							String pcd = String.valueOf((value >> 4) & 1);
+							String pwt = String.valueOf((value >> 3) & 1);
+							String us = String.valueOf((value >> 2) & 1);
+							String wr = String.valueOf((value >> 1) & 1);
+							String p = String.valueOf((value >> 0) & 1);
 
-								ia32_pageDirectories.add(new IA32PageDirectory(base, avl, g, d, a, pcd, pwt, us, wr, p));
+							ia32_pageDirectories.add(new IA32PageDirectory(base, avl, g, d, a, pcd, pwt, us, wr, p));
 
-								model.addRow(new String[] { String.valueOf(y * 2 + z), base, avl, g, d, a, pcd, pwt, us, wr, p });
-							}
+							model.addRow(new String[] { String.valueOf(y * 2 + z), base, avl, g, d, a, pcd, pwt, us, wr, p });
+							// }
 						} catch (Exception ex) {
 						}
 					}
-					jStatusLabel.setText("Updating memory " + y + "/" + lines.length);
+					jStatusLabel.setText("Updating page table " + (y + 1) + "/" + lines.length);
 				}
 				jPageDirectoryTable.setModel(model);
 			}
@@ -1875,7 +1875,7 @@ public class Application extends javax.swing.JFrame {
 								offset++;
 							}
 							// System.out.println();
-							jStatusLabel.setText("Updating memory " + y + "/" + (lines.length - 1));
+							jStatusLabel.setText("Updating memory " + (y + 1) + "/" + (lines.length - 1));
 						}
 						jHexTable1.getModel().set(bytes);
 					}
@@ -3590,6 +3590,9 @@ public class Application extends javax.swing.JFrame {
 			jPanel19Layout.setAlignment(FlowLayout.LEFT);
 			jPanel19.setLayout(jPanel19Layout);
 			jPanel19.add(getJPagingGraphButton());
+			jPanel19.add(getJButton20());
+			jPanel19.add(getJDumpPageDirectoryAddressTextField());
+			jPanel19.add(getJButton21());
 		}
 		return jPanel19;
 	}
@@ -4828,6 +4831,48 @@ public class Application extends javax.swing.JFrame {
 		int rows[] = jAddressTranslateTable2.getSelectedRows();
 		AddressTranslateTableModel model = (AddressTranslateTableModel) this.jAddressTranslateTable2.getModel();
 		model.removeRow(rows);
+	}
+
+	private JButton getJButton20() {
+		if (jButton20 == null) {
+			jButton20 = new JButton();
+			jButton20.setText("Dump CR3");
+			jButton20.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jDumpCR3ButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jButton20;
+	}
+
+	private JButton getJButton21() {
+		if (jDumpPageTableAtAddressButton == null) {
+			jDumpPageTableAtAddressButton = new JButton();
+			jDumpPageTableAtAddressButton.setText("Dump at here");
+			jDumpPageTableAtAddressButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jDumpPageTableAtAddressButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jDumpPageTableAtAddressButton;
+	}
+
+	private JTextField getJDumpPageDirectoryAddressTextField() {
+		if (jDumpPageDirectoryAddressTextField == null) {
+			jDumpPageDirectoryAddressTextField = new JTextField();
+			jDumpPageDirectoryAddressTextField.setPreferredSize(new java.awt.Dimension(158, 18));
+		}
+		return jDumpPageDirectoryAddressTextField;
+	}
+
+	private void jDumpCR3ButtonActionPerformed(ActionEvent evt) {
+		updatePageTable(CommonLib.string2decimal(jRegisterPanel1.jCR3TextField.getText()));
+	}
+
+	private void jDumpPageTableAtAddressButtonActionPerformed(ActionEvent evt) {
+		updatePageTable(CommonLib.string2decimal(jDumpPageDirectoryAddressTextField.getText()));
 	}
 
 }

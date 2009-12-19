@@ -794,18 +794,20 @@ public class CommonLib {
 			// System.out.println(realEndAddressStr);
 			String result = Application.commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr);
 			// System.out.println(result);
-			String[] lines = result.split("\n");
+			if (result != null) {
+				String[] lines = result.split("\n");
 
-			int offset = 0;
-			// System.out.println(result);
+				int offset = 0;
+				// System.out.println(result);
 
-			for (int y = 0; y < lines.length; y++) {
-				String[] b = lines[y].replaceFirst("^.*:", "").split("\t");
-				// System.out.println(lines[y]);
-				for (int x = 1; x < b.length && x < 200; x++) {
-					// System.out.print(offset + " ");
-					bytes[offset] = (byte) Long.parseLong(b[x].substring(2).trim(), 16);
-					offset++;
+				for (int y = 0; y < lines.length; y++) {
+					String[] b = lines[y].replaceFirst("^.*:", "").split("\t");
+					// System.out.println(lines[y]);
+					for (int x = 1; x < b.length && x < 200; x++) {
+						// System.out.print(offset + " ");
+						bytes[offset] = (byte) Long.parseLong(b[x].substring(2).trim(), 16);
+						offset++;
+					}
 				}
 			}
 		}
