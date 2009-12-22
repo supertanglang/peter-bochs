@@ -1,5 +1,9 @@
 #summary Changes
 
+=== versio n 20091222 ===
+
+1) better TSS dump
+
 === version 20090917 ===
 
 1) dump the ELF
