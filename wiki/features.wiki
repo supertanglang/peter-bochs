@@ -51,3 +51,12 @@ Just right click on the memory window, you can dump GDT/IDT/PDE/PTE at any memor
 To see how many time the breakpoint is hit
 
 [http://peter-bochs.googlecode.com/files/hit_count.png]
+
+= Better TSS dump =
+
+[http://peter-bochs.googlecode.com/files/tss1.gif]
+
+[http://peter-bochs.googlecode.com/files/tss2.gif]
+
+click on the page directory table on the left hand side, it will dump the corresponding page table on the right hand side.
+[http://peter-bochs.googlecode.com/files/tss3.gif]
