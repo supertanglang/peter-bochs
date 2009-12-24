@@ -1,6 +1,14 @@
 #summary Changes
 
-=== versio n 20091222 ===
+=== version 20091224 ===
+
+fixed these bug:
+
+1) gdt is linear address, not physical address
+
+2) parse TR register value incrorrectly
+
+=== version 20091222 ===
 
 1) better TSS dump
 
