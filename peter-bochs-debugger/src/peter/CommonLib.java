@@ -599,18 +599,18 @@ public class CommonLib {
 	}
 
 	public static long getLong(byte b0, byte b1, byte b2, byte b3, byte b4, byte b5, byte b6, byte b7) {
-		return ((((long) b0 & 0xff) << 0) | (((long) b1 & 0xff) << 8) | (((long) b2 & 0xff) << 16) | (((long) b3 & 0xff) << 24) | (((long) b4 & 0xff) << 32)
-				| (((long) b5 & 0xff) << 40) | (((long) b6 & 0xff) << 48) | (((long) b7 & 0xff) << 56));
+		return ((((long) b0 & 0xff) << 0) | (((long) b1 & 0xff) << 8) | (((long) b2 & 0xff) << 16) | (((long) b3 & 0xff) << 24) | (((long) b4 & 0xff) << 32) | (((long) b5 & 0xff) << 40)
+				| (((long) b6 & 0xff) << 48) | (((long) b7 & 0xff) << 56));
 	}
 
 	public static long getLong(int b0, int b1, int b2, int b3, int b4, int b5, int b6, int b7) {
-		return ((((long) b0 & 0xff) << 0) | (((long) b1 & 0xff) << 8) | (((long) b2 & 0xff) << 16) | (((long) b3 & 0xff) << 24) | (((long) b4 & 0xff) << 32)
-				| (((long) b5 & 0xff) << 40) | (((long) b6 & 0xff) << 48) | (((long) b7 & 0xff) << 56));
+		return ((((long) b0 & 0xff) << 0) | (((long) b1 & 0xff) << 8) | (((long) b2 & 0xff) << 16) | (((long) b3 & 0xff) << 24) | (((long) b4 & 0xff) << 32) | (((long) b5 & 0xff) << 40)
+				| (((long) b6 & 0xff) << 48) | (((long) b7 & 0xff) << 56));
 	}
 
 	public static long getLong(long b0, long b1, long b2, long b3, long b4, long b5, long b6, long b7) {
-		return ((((long) b0 & 0xff) << 0) | (((long) b1 & 0xff) << 8) | (((long) b2 & 0xff) << 16) | (((long) b3 & 0xff) << 24) | (((long) b4 & 0xff) << 32)
-				| (((long) b5 & 0xff) << 40) | (((long) b6 & 0xff) << 48) | (((long) b7 & 0xff) << 56));
+		return ((((long) b0 & 0xff) << 0) | (((long) b1 & 0xff) << 8) | (((long) b2 & 0xff) << 16) | (((long) b3 & 0xff) << 24) | (((long) b4 & 0xff) << 32) | (((long) b5 & 0xff) << 40)
+				| (((long) b6 & 0xff) << 48) | (((long) b7 & 0xff) << 56));
 
 	}
 
@@ -651,11 +651,11 @@ public class CommonLib {
 		Sheet sheet = wb.createSheet("Registers");
 
 		// Create a row and put some cells in it. Rows are 0 based.
-		String columnNames[] = { "time", "cs", "eip", "ds", "es", "fs", "gs", "ss", "eflags", "eax", "ebx", "ecx", "edx", "esi", "edi", "ebp", "esp", "cr0", "cr2", "cr3", "cr4",
-				"gdtr", "ldtr", "idtr", "tr" };
-		Vector data[] = { AllRegisters.time, AllRegisters.cs, AllRegisters.eip, AllRegisters.ds, AllRegisters.es, AllRegisters.fs, AllRegisters.gs, AllRegisters.ss,
-				AllRegisters.eflags, AllRegisters.eax, AllRegisters.ebx, AllRegisters.ecx, AllRegisters.edx, AllRegisters.esi, AllRegisters.edi, AllRegisters.ebp,
-				AllRegisters.esp, AllRegisters.cr0, AllRegisters.cr2, AllRegisters.cr3, AllRegisters.cr4, AllRegisters.gdtr, AllRegisters.ldtr, AllRegisters.idtr, AllRegisters.tr };
+		String columnNames[] = { "time", "cs", "eip", "ds", "es", "fs", "gs", "ss", "eflags", "eax", "ebx", "ecx", "edx", "esi", "edi", "ebp", "esp", "cr0", "cr2", "cr3", "cr4", "gdtr", "ldtr",
+				"idtr", "tr" };
+		Vector data[] = { AllRegisters.time, AllRegisters.cs, AllRegisters.eip, AllRegisters.ds, AllRegisters.es, AllRegisters.fs, AllRegisters.gs, AllRegisters.ss, AllRegisters.eflags,
+				AllRegisters.eax, AllRegisters.ebx, AllRegisters.ecx, AllRegisters.edx, AllRegisters.esi, AllRegisters.edi, AllRegisters.ebp, AllRegisters.esp, AllRegisters.cr0, AllRegisters.cr2,
+				AllRegisters.cr3, AllRegisters.cr4, AllRegisters.gdtr, AllRegisters.ldtr, AllRegisters.idtr, AllRegisters.tr };
 		Row row = sheet.createRow(0);
 
 		Cell cell;
@@ -694,6 +694,19 @@ public class CommonLib {
 		}
 	}
 
+	public static void exportTableModelToExcel(File file, TableModel model1, TableModel model2, String sheetName) {
+		Workbook wb = new HSSFWorkbook();// Write the output to a file
+		exportTableModelToExcel(file, model1, model2, sheetName, wb);
+		FileOutputStream fileOut;
+		try {
+			fileOut = new FileOutputStream(file);
+			wb.write(fileOut);
+			fileOut.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void exportTableModelToExcel(File file, TableModel model, String sheetName, Workbook wb) {
 		CreationHelper createHelper = wb.getCreationHelper();
 		Sheet sheet = wb.createSheet(sheetName);
@@ -712,6 +725,47 @@ public class CommonLib {
 			for (int x = 0; x < model.getColumnCount(); x++) {
 				cell = row.createCell(x);
 				cell.setCellValue(model.getValueAt(y, x).toString());
+			}
+		}
+	}
+
+	public static void exportTableModelToExcel(File file, TableModel model1, TableModel model2, String sheetName, Workbook wb) {
+		CreationHelper createHelper = wb.getCreationHelper();
+		Sheet sheet = wb.createSheet(sheetName);
+
+		// column header
+		Row row = sheet.createRow(0);
+		Cell cell;
+		for (int x = 0; x < model1.getColumnCount(); x++) {
+			cell = row.createCell(x);
+			cell.setCellValue(model1.getColumnName(x));
+		}
+
+		// data
+		int y;
+		for (y = 0; y < model1.getRowCount(); y++) {
+			row = sheet.createRow(y + 1);
+			for (int x = 0; x < model1.getColumnCount(); x++) {
+				cell = row.createCell(x);
+				cell.setCellValue(model1.getValueAt(y, x).toString());
+			}
+		}
+
+		// column header
+		y++;
+		row = sheet.createRow(y);
+		for (int x = 0; x < model2.getColumnCount(); x++) {
+			cell = row.createCell(x);
+			cell.setCellValue(model2.getColumnName(x));
+		}
+		y++;
+
+		// data
+		for (int z = 0; z < model2.getRowCount(); z++) {
+			row = sheet.createRow(z + y);
+			for (int x = 0; x < model2.getColumnCount(); x++) {
+				cell = row.createCell(x);
+				cell.setCellValue(model2.getValueAt(z, x).toString());
 			}
 		}
 	}
@@ -820,9 +874,13 @@ public class CommonLib {
 			Properties properties = new Properties();
 			properties.load(new URL(url).openStream());
 			HashMap<String, String> map = new HashMap<String, String>();
+			System.out.println(properties.getProperty("software"));
 			map.put("software", properties.getProperty("software"));
+			System.out.println(properties.getProperty("latestVersion"));
 			map.put("latestVersion", properties.getProperty("latestVersion"));
+			System.out.println(properties.getProperty("url"));
 			map.put("url", properties.getProperty("url"));
+			System.out.println(properties.getProperty("downloadURL"));
 			map.put("downloadURL", properties.getProperty("downloadURL"));
 			return map;
 		} catch (Exception ex) {
