@@ -22,6 +22,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
+import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -42,6 +43,8 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.Vector;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 import javax.swing.ButtonGroup;
 import javax.swing.ComboBoxModel;
@@ -217,7 +220,8 @@ public class Application extends javax.swing.JFrame {
 	private JTable jAddressTranslateTable2;
 	private JPanel jPanel22;
 	private JPanel jPanel24;
-	private JPanel jPanel26;
+	private JToolBar jPanel26;
+	private JButton jClearBochsButton;
 	public JTextField jDumpPageDirectoryAddressTextField;
 	private JButton jDumpPageTableAtAddressButton;
 	private JButton jButton20;
@@ -275,7 +279,7 @@ public class Application extends javax.swing.JFrame {
 	private JToolBar jToolBar2;
 	private JPanel jPageTableGraphPanel;
 	private JButton jPagingGraphButton;
-	private JPanel jPanel19;
+	private JToolBar jPanel19;
 	private JButton jGDTGraphButton;
 	private JLabel jRunningLabel;
 	private JPanel jMainPanel;
@@ -291,7 +295,7 @@ public class Application extends javax.swing.JFrame {
 	private JPanel jPanel14;
 	private ButtonGroup buttonGroup2;
 	private JRadioButton jRadioButton2;
-	private JPanel jPanel13;
+	private JToolBar jPanel13;
 	private JRadioButton jRadioButton1;
 	private JTable jHistoryTable;
 	private JMenuItem jDialogMenuItem;
@@ -341,11 +345,57 @@ public class Application extends javax.swing.JFrame {
 	private long currentMemoryWindowsAddress;
 	public static boolean isLinux;
 	public static String version = "";
+	private JButton jButton21;
 
 	/**
 	 * Auto-generated main method to display this JFrame
 	 */
 	public static void main(String[] args) {
+		try {
+			if (Application.class.getProtectionDomain().getCodeSource().getLocation().getFile().endsWith(".jar")) {
+				JarFile jarFile = new JarFile(Application.class.getProtectionDomain().getCodeSource().getLocation().getFile());
+				InputStream is = jarFile.getInputStream(new JarEntry("exe/PauseBochs.exe"));
+				InputStream is2 = jarFile.getInputStream(new JarEntry("exe/StopBochs.exe"));
+				InputStream is3 = jarFile.getInputStream(new JarEntry("exe/ndisasm.exe"));
+
+				BufferedOutputStream fOut = null;
+				try {
+					fOut = new BufferedOutputStream(new FileOutputStream(new File("PauseBochs.exe")));
+					byte[] buffer = new byte[32 * 1024];
+					int bytesRead = 0;
+					while ((bytesRead = is.read(buffer)) != -1) {
+						fOut.write(buffer, 0, bytesRead);
+					}
+					fOut.close();
+
+					fOut = new BufferedOutputStream(new FileOutputStream(new File("StopBochs.exe")));
+					buffer = new byte[32 * 1024];
+					bytesRead = 0;
+					while ((bytesRead = is2.read(buffer)) != -1) {
+						fOut.write(buffer, 0, bytesRead);
+					}
+					fOut.close();
+
+					fOut = new BufferedOutputStream(new FileOutputStream(new File("ndisasm.exe")));
+					buffer = new byte[32 * 1024];
+					bytesRead = 0;
+					while ((bytesRead = is3.read(buffer)) != -1) {
+						fOut.write(buffer, 0, bytesRead);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				} finally {
+					is.close();
+					is2.close();
+					is3.close();
+					fOut.close();
+				}
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		if (args.length > 0) {
 			if (args[0].equals("-version") || args[0].equals("-v")) {
 				System.out.println(Global.version);
@@ -612,7 +662,7 @@ public class Application extends javax.swing.JFrame {
 					jRunBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/resultset_next.png")));
 					jRunBochsButton.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
-							jButton1ActionPerformed(evt);
+							jRunBochsButtonActionPerformed(evt);
 						}
 					});
 				}
@@ -842,7 +892,6 @@ public class Application extends javax.swing.JFrame {
 
 	private void jBochsCommandTextFieldKeyTyped(KeyEvent evt) {
 		if (evt.getKeyChar() == '\n') {
-			this.jBochsEditorPane.setText("");
 			jBochsCommandButtonActionPerformed(null);
 			jBochsCommandTextField.setText("");
 		}
@@ -872,7 +921,7 @@ public class Application extends javax.swing.JFrame {
 		stopBochsMenuItemActionPerformed(null);
 	}
 
-	private void jButton1ActionPerformed(ActionEvent evt) {
+	private void jRunBochsButtonActionPerformed(ActionEvent evt) {
 		commandReceiver.shouldShow = false;
 		if (jRunBochsButton.getText().equals(language.getString("Run_bochs"))) {
 			runBochsMenuItemActionPerformed(null);
@@ -883,10 +932,12 @@ public class Application extends javax.swing.JFrame {
 
 	public static void sendCommand(String command) {
 		try {
+			command = command.toLowerCase().trim();
 			commandReceiver.clearBuffer();
 			commandOutputStream.write(command + "\n");
 			commandOutputStream.flush();
-			if (!command.equals("6") && !command.equals("c") && !command.startsWith("pb") && !command.startsWith("lb") && !command.startsWith("bpd") && !command.startsWith("bpe")) {
+			if (!command.equals("6") && !command.equals("c") && !command.startsWith("pb") && !command.startsWith("lb") && !command.startsWith("bpd") && !command.startsWith("bpe")
+					&& !command.startsWith("set")) {
 				commandReceiver.waitUntilHaveInput();
 			}
 
@@ -1094,6 +1145,7 @@ public class Application extends javax.swing.JFrame {
 			jStatusLabel.setText("Updating EFlags");
 			// commandReceiver.setCommandNoOfLine(-1);
 			commandReceiver.clearBuffer();
+			commandReceiver.shouldShow = false;
 			sendCommand("info eflags");
 			String result = commandReceiver.getCommandResultUntilEnd();
 			String arr[] = result.replaceAll("<.*> ", "").split(" ");
@@ -1116,6 +1168,7 @@ public class Application extends javax.swing.JFrame {
 			jStatusLabel.setText("Updating Address translate");
 			// commandReceiver.setCommandNoOfLine(-1);
 			commandReceiver.clearBuffer();
+			commandReceiver.shouldShow = false;
 			sendCommand("info tab");
 			Thread.currentThread().sleep(100);
 			String result = commandReceiver.getCommandResultUntilEnd();
@@ -1149,6 +1202,8 @@ public class Application extends javax.swing.JFrame {
 	public void updatePageTable(long pageDirectoryBaseAddress) {
 		Vector<IA32PageDirectory> ia32_pageDirectories = new Vector<IA32PageDirectory>();
 		try {
+			commandReceiver.clearBuffer();
+			commandReceiver.shouldShow = false;
 			jStatusLabel.setText("Updating page table");
 			// commandReceiver.setCommandNoOfLine(512);
 			sendCommand("xp /4096bx " + pageDirectoryBaseAddress);
@@ -1213,7 +1268,7 @@ public class Application extends javax.swing.JFrame {
 			ex.printStackTrace();
 		}
 
-		if (Global.debug && jAutoRefreshPageTableGraphCheckBox.isSelected()) {
+		if (false && Global.debug && jAutoRefreshPageTableGraphCheckBox.isSelected()) {
 			GraphModel model = new DefaultGraphModel();
 			GraphLayoutCache view = new GraphLayoutCache(model, new DefaultCellViewFactory() {
 				public CellView createView(GraphModel model, Object cell) {
@@ -1250,6 +1305,7 @@ public class Application extends javax.swing.JFrame {
 
 			Vector<IA32PageDirectory> pageDirectoryCells = new Vector<IA32PageDirectory>();
 			for (int x = 0; x < ia32_pageDirectories.size(); x++) {
+				System.out.println(x);
 				IA32PageDirectory cell = ia32_pageDirectories.get(x);
 				GraphConstants.setGradientColor(cell.getAttributes(), Color.orange);
 				GraphConstants.setOpaque(cell.getAttributes(), true);
@@ -1374,6 +1430,7 @@ public class Application extends javax.swing.JFrame {
 			// commandReceiver.setCommandNoOfLine(512);
 
 			commandReceiver.clearBuffer();
+			commandReceiver.shouldShow = false;
 			sendCommand("print-stack 40");
 			String result = commandReceiver.getCommandResultUntilHaveLines(40);
 			String[] lines = result.split("\n");
@@ -1442,6 +1499,7 @@ public class Application extends javax.swing.JFrame {
 				command = "disassemble " + address + " " + (address + 100);
 			}
 			commandReceiver.clearBuffer();
+			commandReceiver.shouldShow = false;
 			sendCommand(command);
 			Thread.currentThread().sleep(100);
 			// commandReceiver.setCommandNoOfLine(15);
@@ -1493,6 +1551,7 @@ public class Application extends javax.swing.JFrame {
 				limit = 100;
 			}
 			commandReceiver.clearBuffer();
+			commandReceiver.shouldShow = false;
 			sendCommand("info gdt 0 " + limit);
 			String limitStr = String.format("0x%02x", limit);
 
@@ -1528,7 +1587,7 @@ public class Application extends javax.swing.JFrame {
 			jStatusLabel.setText("Updating IDT");
 
 			commandReceiver.clearBuffer();
-
+			commandReceiver.shouldShow = false;
 			int limit = Integer.parseInt(this.jRegisterPanel1.jIDTRLimitTextField.getText().substring(2), 16);
 			limit = (limit + 1) / 8 - 1;
 			if (limit > 25) {
@@ -1601,6 +1660,7 @@ public class Application extends javax.swing.JFrame {
 		try {
 			jStatusLabel.setText("Updating general registers");
 			sendCommand("r");
+			commandReceiver.shouldShow = false;
 			String result = commandReceiver.getCommandResult("ax:", "eflags");
 			String lines[] = result.split("\n");
 			jStatusProgressBar.setMaximum(lines.length - 1);
@@ -1682,15 +1742,12 @@ public class Application extends javax.swing.JFrame {
 					if (line.matches(".*gdtr:.*")) {
 						changeText(this.jRegisterPanel1.jGDTRTextField, line.split("=")[1].split(",")[0]);
 						changeText(this.jRegisterPanel1.jGDTRLimitTextField, str[1].split("=")[1]);
-					}
-					if (line.matches(".*ldtr.*")) {
+					} else if (line.matches(".*ldtr.*")) {
 						changeText(this.jRegisterPanel1.jLDTRTextField, line.split("=")[1].split(",")[0]);
-					}
-					if (line.matches(".*idtr:.*")) {
+					} else if (line.matches(".*idtr:.*")) {
 						changeText(this.jRegisterPanel1.jIDTRTextField, line.split("=")[1].split(",")[0]);
 						changeText(this.jRegisterPanel1.jIDTRLimitTextField, str[1].split("=")[1]);
-					}
-					if (line.matches(".*tr:.*")) {
+					} else if (line.matches(".*tr:.*")) {
 						changeText(this.jRegisterPanel1.jTRTextField, line.split("=")[1].split(",")[0]);
 					}
 				}
@@ -1744,7 +1801,7 @@ public class Application extends javax.swing.JFrame {
 						changeText(this.jRegisterPanel1.jIDTRTextField, line.split("=")[1].split(",")[0]);
 						changeText(this.jRegisterPanel1.jIDTRLimitTextField, str[1].split("=")[1]);
 					} else if (line.matches(".*tr:.*")) {
-						changeText(this.jRegisterPanel1.jTRTextField, line.split("=")[1].split(",")[0]);
+						changeText(this.jRegisterPanel1.jTRTextField, line.split(":")[1].split(",")[0]);
 					}
 				}
 			} catch (Exception ex) {
@@ -1840,6 +1897,7 @@ public class Application extends javax.swing.JFrame {
 				jStatusLabel.setText("Updating memory");
 				int totalByte = 200;
 				commandReceiver.clearBuffer();
+				commandReceiver.shouldShow = false;
 				sendCommand("xp /" + totalByte + "bx " + this.jMemoryAddressComboBox.getSelectedItem().toString());
 				currentMemoryWindowsAddress = CommonLib.string2decimal(this.jMemoryAddressComboBox.getSelectedItem().toString());
 
@@ -1922,9 +1980,8 @@ public class Application extends javax.swing.JFrame {
 					return;
 				}
 			}
-			JScrollPane temp = new JScrollPane();
-			temp.setViewportView(new GDTLDTPanel(this, 0, CommonLib.hex2decimal(this.jRegisterPanel1.jGDTRTextField.getText()), jGDTTable.getSelectedRow() + 1));
-			jTabbedPane2.addTab("GDT " + String.format("0x%02x", jGDTTable.getSelectedRow() + 1), temp);
+			jTabbedPane2.addTab("GDT " + String.format("0x%02x", jGDTTable.getSelectedRow() + 1), new GDTLDTPanel(this, 0, CommonLib
+					.hex2decimal(this.jRegisterPanel1.jGDTRTextField.getText()), jGDTTable.getSelectedRow() + 1));
 			jTabbedPane2.setSelectedIndex(jTabbedPane2.getTabCount() - 1);
 		}
 	}
@@ -2003,6 +2060,7 @@ public class Application extends javax.swing.JFrame {
 						String base = "0x" + Long.toHexString(CommonLib.getValue(value, 12, 31) << 12);
 						String avl = String.valueOf((value >> 9) & 3);
 						String g = String.valueOf((value >> 8) & 1);
+						String pat = String.valueOf((value >> 7) & 1);
 						String d = String.valueOf((value >> 6) & 1);
 						String a = String.valueOf((value >> 5) & 1);
 						String pcd = String.valueOf((value >> 4) & 1);
@@ -2010,7 +2068,8 @@ public class Application extends javax.swing.JFrame {
 						String us = String.valueOf((value >> 2) & 1);
 						String wr = String.valueOf((value >> 1) & 1);
 						String p = String.valueOf((value >> 0) & 1);
-						model.addRow(new String[] { String.valueOf(y * 2 + z), base, avl, g, d, a, pcd, pwt, us, wr, p });
+
+						model.addRow(new String[] { String.valueOf(y * 2 + z), base, avl, g, pat, d, a, pcd, pwt, us, wr, p });
 					} catch (Exception ex) {
 					}
 				}
@@ -2499,12 +2558,11 @@ public class Application extends javax.swing.JFrame {
 		return jRadioButton1;
 	}
 
-	private JPanel getJPanel13() {
+	private JToolBar getJPanel13() {
 		if (jPanel13 == null) {
-			jPanel13 = new JPanel();
+			jPanel13 = new JToolBar();
 			FlowLayout jPanel13Layout = new FlowLayout();
 			jPanel13Layout.setAlignment(FlowLayout.LEFT);
-			jPanel13.setLayout(jPanel13Layout);
 			{
 				jLabel3 = new JLabel();
 				jPanel13.add(jLabel3);
@@ -2609,6 +2667,11 @@ public class Application extends javax.swing.JFrame {
 		if (jButton1 == null) {
 			jButton1 = new JButton();
 			jButton1.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/disk.png")));
+			jButton1.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jButton1ActionPerformed(evt);
+				}
+			});
 		}
 		return jButton1;
 	}
@@ -3246,12 +3309,15 @@ public class Application extends javax.swing.JFrame {
 							}
 							{
 								jPanel2 = new JPanel();
-								BorderLayout jPanel2Layout = new BorderLayout();
+								TableLayout jPanel2Layout = new TableLayout(new double[][] { { TableLayout.FILL, 411.0, TableLayout.MINIMUM, TableLayout.MINIMUM },
+										{ TableLayout.FILL } });
+								jPanel2Layout.setHGap(5);
+								jPanel2Layout.setVGap(5);
 								jPanel2.setLayout(jPanel2Layout);
 								jPanel1.add(jPanel2, BorderLayout.SOUTH);
 								{
 									jBochsCommandTextField = new JTextField();
-									jPanel2.add(jBochsCommandTextField, BorderLayout.CENTER);
+									jPanel2.add(jBochsCommandTextField, "0, 0, 1, 0");
 									jBochsCommandTextField.addKeyListener(new KeyAdapter() {
 										public void keyPressed(KeyEvent evt) {
 											jBochsCommandTextFieldKeyPressed(evt);
@@ -3264,7 +3330,8 @@ public class Application extends javax.swing.JFrame {
 								}
 								{
 									jBochsCommandButton = new JButton();
-									jPanel2.add(jBochsCommandButton, BorderLayout.EAST);
+									jPanel2.add(jBochsCommandButton, "2, 0");
+									jPanel2.add(getJClearBochsButton(), "3, 0");
 									jBochsCommandButton.setText("Run");
 									jBochsCommandButton.addActionListener(new ActionListener() {
 										public void actionPerformed(ActionEvent evt) {
@@ -3510,25 +3577,19 @@ public class Application extends javax.swing.JFrame {
 					{
 						jPanel3 = new JPanel();
 						jTabbedPane2.addTab(language.getString("History"), null, jPanel3, null);
-						TableLayout jPanel3Layout = new TableLayout(new double[][] { { TableLayout.FILL, TableLayout.FILL, TableLayout.FILL, TableLayout.FILL },
-								{ 36.0, TableLayout.FILL } });
-						jPanel3Layout.setHGap(5);
-						jPanel3Layout.setVGap(5);
+						BorderLayout jPanel3Layout = new BorderLayout();
 						jPanel3.setLayout(jPanel3Layout);
 						{
 							jScrollPane6 = new JScrollPane();
-							jPanel3.add(jScrollPane6, "0, 1, 3, 1");
-							jPanel3.add(getJPanel13(), "0, 0, 1, 0");
+							jPanel3.add(jScrollPane6, BorderLayout.CENTER);
+							jPanel3.add(getJPanel13(), BorderLayout.NORTH);
 							jScrollPane6.setViewportView(getJHistoryTable());
 						}
 					}
 					{
 						jPanel11 = new JPanel();
 						jTabbedPane2.addTab(language.getString("Paging"), null, jPanel11, null);
-						jTabbedPane2.addTab(language.getString("Address_translate") + " (experimential)", null, getJAddressTranslatePanel(), null);
-						if (!Global.debug) {
-							jTabbedPane2.removeTabAt(jTabbedPane2.getTabCount() - 1);
-						}
+						jTabbedPane2.addTab(language.getString("Address_translate"), null, getJAddressTranslatePanel(), null);
 						jTabbedPane2.addTab("Page table graph (experimental)", null, getJPageTableGraphPanel(), null);
 						if (!Global.debug) {
 							jTabbedPane2.removeTabAt(jTabbedPane2.getTabCount() - 1);
@@ -3583,13 +3644,13 @@ public class Application extends javax.swing.JFrame {
 
 	}
 
-	private JPanel getJPanel19() {
+	private JToolBar getJPanel19() {
 		if (jPanel19 == null) {
-			jPanel19 = new JPanel();
+			jPanel19 = new JToolBar();
 			FlowLayout jPanel19Layout = new FlowLayout();
 			jPanel19Layout.setAlignment(FlowLayout.LEFT);
-			jPanel19.setLayout(jPanel19Layout);
 			jPanel19.add(getJPagingGraphButton());
+			jPanel19.add(getJButton21x());
 			jPanel19.add(getJButton20());
 			jPanel19.add(getJDumpPageDirectoryAddressTextField());
 			jPanel19.add(getJButton21());
@@ -3600,7 +3661,7 @@ public class Application extends javax.swing.JFrame {
 	private JButton getJPagingGraphButton() {
 		if (jPagingGraphButton == null) {
 			jPagingGraphButton = new JButton();
-			jPagingGraphButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/printer.png")));
+			jPagingGraphButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/disk.png")));
 			jPagingGraphButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jPagingGraphButtonActionPerformed(evt);
@@ -3611,6 +3672,14 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jPagingGraphButtonActionPerformed(ActionEvent evt) {
+		final JFileChooser fc = new JFileChooser();
+		int returnVal = fc.showSaveDialog(this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File file = fc.getSelectedFile();
+			if (!CommonLib.saveImage(jSplitPane3, file)) {
+				JOptionPane.showMessageDialog(this, "Cannot save image.", "Error", JOptionPane.ERROR_MESSAGE);
+			}
+		}
 	}
 
 	private JPanel getJPageTableGraphPanel() {
@@ -3691,9 +3760,6 @@ public class Application extends javax.swing.JFrame {
 		if (jSearchAddressRadioButton2 == null) {
 			jSearchAddressRadioButton2 = new JRadioButton();
 			jSearchAddressRadioButton2.setText(language.getString("Linear_address"));
-			if (!Global.debug) {
-				jSearchAddressRadioButton2.setVisible(false);
-			}
 			getButtonGroup3().add(jSearchAddressRadioButton2);
 		}
 
@@ -3705,9 +3771,6 @@ public class Application extends javax.swing.JFrame {
 			jSearchAddressRadioButton3 = new JRadioButton();
 			jSearchAddressRadioButton3.setVisible(false);
 			jSearchAddressRadioButton3.setText(language.getString("Physical_address"));
-			if (!Global.debug) {
-				jSearchAddressRadioButton2.setVisible(false);
-			}
 			getButtonGroup3().add(jSearchAddressRadioButton3);
 		}
 
@@ -3773,7 +3836,12 @@ public class Application extends javax.swing.JFrame {
 	private JButton getJButton17() {
 		if (jButton17 == null) {
 			jButton17 = new JButton();
-			jButton17.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/printer.png")));
+			jButton17.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/disk.png")));
+			jButton17.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jButton17ActionPerformed(evt);
+				}
+			});
 		}
 		return jButton17;
 	}
@@ -3782,7 +3850,11 @@ public class Application extends javax.swing.JFrame {
 		if (jButton18 == null) {
 			jButton18 = new JButton();
 			jButton18.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/excel.gif")));
-			jButton18.setText("Excel");
+			jButton18.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jButton18ActionPerformed(evt);
+				}
+			});
 		}
 		return jButton18;
 	}
@@ -3805,6 +3877,11 @@ public class Application extends javax.swing.JFrame {
 	private JTextField getJAddressTextField() {
 		if (jAddressTextField == null) {
 			jAddressTextField = new JTextField();
+			jAddressTextField.addKeyListener(new KeyAdapter() {
+				public void keyTyped(KeyEvent evt) {
+					jAddressTextFieldKeyTyped(evt);
+				}
+			});
 		}
 		return jAddressTextField;
 	}
@@ -3882,6 +3959,7 @@ public class Application extends javax.swing.JFrame {
 			model.linearAddress.add(linearAddress);
 
 			long pdNo = CommonLib.getValue(linearAddress, 31, 22);
+			System.out.println(linearAddress + "==" + pdNo);
 			model.pdNo.add(pdNo);
 			byte pdeBytes[] = CommonLib.getMemoryFromBochs(CommonLib.string2decimal(this.jRegisterPanel1.jCR3TextField.getText()) + (pdNo * 4), 4);
 			int pde = CommonLib.getInt(pdeBytes, 0);
@@ -4507,12 +4585,11 @@ public class Application extends javax.swing.JFrame {
 		return jELFDumpPanel;
 	}
 
-	private JPanel getJPanel26() {
+	private JToolBar getJPanel26() {
 		if (jPanel26 == null) {
-			jPanel26 = new JPanel();
+			jPanel26 = new JToolBar();
 			FlowLayout jPanel26Layout = new FlowLayout();
 			jPanel26Layout.setAlignment(FlowLayout.LEFT);
-			jPanel26.setLayout(jPanel26Layout);
 			jPanel26.add(getJELFComboBox());
 			jPanel26.add(getJButton16x());
 		}
@@ -4524,7 +4601,7 @@ public class Application extends javax.swing.JFrame {
 			ComboBoxModel jELFComboBoxModel = new DefaultComboBoxModel(new String[] {});
 			jELFComboBox = new JComboBox();
 			jELFComboBox.setModel(jELFComboBoxModel);
-			jELFComboBox.setPreferredSize(new java.awt.Dimension(345, 30));
+			jELFComboBox.setMaximumSize(new java.awt.Dimension(400, 30));
 			jELFComboBox.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jELFComboBoxActionPerformed(evt);
@@ -4862,7 +4939,12 @@ public class Application extends javax.swing.JFrame {
 	private JTextField getJDumpPageDirectoryAddressTextField() {
 		if (jDumpPageDirectoryAddressTextField == null) {
 			jDumpPageDirectoryAddressTextField = new JTextField();
-			jDumpPageDirectoryAddressTextField.setPreferredSize(new java.awt.Dimension(158, 18));
+			jDumpPageDirectoryAddressTextField.setMaximumSize(new java.awt.Dimension(150, 28));
+			jDumpPageDirectoryAddressTextField.addKeyListener(new KeyAdapter() {
+				public void keyTyped(KeyEvent evt) {
+					jDumpPageDirectoryAddressTextFieldKeyTyped(evt);
+				}
+			});
 		}
 		return jDumpPageDirectoryAddressTextField;
 	}
@@ -4875,4 +4957,85 @@ public class Application extends javax.swing.JFrame {
 		updatePageTable(CommonLib.string2decimal(jDumpPageDirectoryAddressTextField.getText()));
 	}
 
+	private JButton getJButton21x() {
+		if (jButton21 == null) {
+			jButton21 = new JButton();
+			jButton21.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/excel.gif")));
+			jButton21.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jButton21ActionPerformed(evt);
+				}
+			});
+		}
+		return jButton21;
+	}
+
+	private void jButton21ActionPerformed(ActionEvent evt) {
+		final JFileChooser fc = new JFileChooser();
+		int returnVal = fc.showSaveDialog(this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File file = fc.getSelectedFile();
+			CommonLib.exportTableModelToExcel(file, this.jPageDirectoryTable.getModel(), this.jPageTableTable.getModel(), jMemoryAddressComboBox.getSelectedItem().toString());
+		}
+	}
+
+	private void jButton1ActionPerformed(ActionEvent evt) {
+		final JFileChooser fc = new JFileChooser();
+		int returnVal = fc.showSaveDialog(this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File file = fc.getSelectedFile();
+			if (!CommonLib.saveImage(jHistoryTable, file)) {
+				JOptionPane.showMessageDialog(this, "Cannot save image.", "Error", JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+
+	private void jButton17ActionPerformed(ActionEvent evt) {
+		final JFileChooser fc = new JFileChooser();
+		int returnVal = fc.showSaveDialog(this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File file = fc.getSelectedFile();
+			if (!CommonLib.saveImage(jAddressTranslateTable2, file)) {
+				JOptionPane.showMessageDialog(this, "Cannot save image.", "Error", JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+
+	private void jButton18ActionPerformed(ActionEvent evt) {
+		final JFileChooser fc = new JFileChooser();
+		int returnVal = fc.showSaveDialog(this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File file = fc.getSelectedFile();
+			CommonLib.exportTableModelToExcel(file, this.jAddressTranslateTable2.getModel(), jMemoryAddressComboBox.getSelectedItem().toString());
+		}
+	}
+
+	private void jDumpPageDirectoryAddressTextFieldKeyTyped(KeyEvent evt) {
+		if (evt.getKeyChar() == '\n') {
+			jDumpPageTableAtAddressButtonActionPerformed(null);
+		}
+	}
+
+	private void jAddressTextFieldKeyTyped(KeyEvent evt) {
+		if (evt.getKeyChar() == '\n') {
+			jRefreshAddressTranslateButtonActionPerformed(null);
+		}
+	}
+
+	private JButton getJClearBochsButton() {
+		if (jClearBochsButton == null) {
+			jClearBochsButton = new JButton();
+			jClearBochsButton.setText(language.getString("Clear"));
+			jClearBochsButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jClearBochsButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jClearBochsButton;
+	}
+
+	private void jClearBochsButtonActionPerformed(ActionEvent evt) {
+		this.jBochsEditorPane.setText("");
+	}
 }
