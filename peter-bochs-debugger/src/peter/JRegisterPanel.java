@@ -134,8 +134,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 	private JLabel jEBXLabel;
 	Application application;
 	BorderLayout thisLayout = new BorderLayout();
-	FormLayout jPanel2Layout = new FormLayout(
-			"max(p;15dlu), 24dlu, 72dlu, 5dlu, max(p;15dlu), 67dlu, 5dlu, max(p;15dlu), 68dlu, 5dlu, 28dlu, 5dlu, max(p;15dlu), 72dlu, 5dlu, 83dlu",
+	FormLayout jPanel2Layout = new FormLayout("max(p;15dlu), 24dlu, 72dlu, 5dlu, max(p;15dlu), 67dlu, 5dlu, max(p;15dlu), 68dlu, 5dlu, 28dlu, 5dlu, max(p;15dlu), 72dlu, 5dlu, 83dlu",
 			"max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu)");
 
 	/**
@@ -1011,102 +1010,82 @@ public class JRegisterPanel extends javax.swing.JPanel {
 	}
 
 	private void jECXTextFieldKeyTyped(KeyEvent evt) {
-		System.out.println("jECXTextField.keyTyped, event=" + evt);
-		// TODO add your code for jECXTextField.keyTyped
+		Application.sendCommand("set ecx=" + jECXTextField.getText());
 	}
 
 	private void jEDXTextFieldKeyTyped(KeyEvent evt) {
-		System.out.println("jEDXTextField.keyTyped, event=" + evt);
-		// TODO add your code for jEDXTextField.keyTyped
+		Application.sendCommand("set edx=" + jEDXTextField.getText());
 	}
 
 	private void jESITextFieldKeyTyped(KeyEvent evt) {
-		System.out.println("jESITextField.keyTyped, event=" + evt);
-		// TODO add your code for jESITextField.keyTyped
+		Application.sendCommand("set esi=" + jESITextField.getText());
 	}
 
 	private void jEDITextFieldKeyTyped(KeyEvent evt) {
-		System.out.println("jEDITextField.keyTyped, event=" + evt);
-		// TODO add your code for jEDITextField.keyTyped
+		Application.sendCommand("set edi=" + jEDITextField.getText());
 	}
 
 	private void jEBPTextFieldKeyTyped(KeyEvent evt) {
-		System.out.println("jEBPTextField.keyTyped, event=" + evt);
-		// TODO add your code for jEBPTextField.keyTyped
+		Application.sendCommand("set ebp=" + jEBPTextField.getText());
 	}
 
 	private void jESPTextFieldKeyTyped(KeyEvent evt) {
-		System.out.println("jESPTextField.keyTyped, event=" + evt);
-		// TODO add your code for jESPTextField.keyTyped
+		Application.sendCommand("set esp=" + jESPTextField.getText());
 	}
 
 	private void jCR0TextFieldKeyTyped(KeyEvent evt) {
-		System.out.println("jCR0TextField.keyTyped, event=" + evt);
-		// TODO add your code for jCR0TextField.keyTyped
+		Application.sendCommand("set cr0=" + jCR0TextField.getText());
 	}
 
 	private void jCR2TextFieldKeyTyped(KeyEvent evt) {
-		System.out.println("jCR2TextField.keyTyped, event=" + evt);
-		// TODO add your code for jCR2TextField.keyTyped
+		Application.sendCommand("set cr2=" + jCR2TextField.getText());
 	}
 
 	private void jCR3TextFieldKeyTyped(KeyEvent evt) {
-		System.out.println("jCR3TextField.keyTyped, event=" + evt);
-		// TODO add your code for jCR3TextField.keyTyped
+		Application.sendCommand("set cr3=" + jCR3TextField.getText());
 	}
 
 	private void jCR4TextFieldKeyTyped(KeyEvent evt) {
-		System.out.println("jCR4TextField.keyTyped, event=" + evt);
-		// TODO add your code for jCR4TextField.keyTyped
+		Application.sendCommand("set cr4=" + jCR4TextField.getText());
 	}
 
 	private void jGDTRTextFieldKeyTyped(KeyEvent evt) {
-		System.out.println("jGDTRTextField.keyTyped, event=" + evt);
-		// TODO add your code for jGDTRTextField.keyTyped
+		Application.sendCommand("set gdtr=" + jGDTRTextField.getText());
 	}
 
 	private void jLDTRTextFieldKeyTyped(KeyEvent evt) {
-		System.out.println("jLDTRTextField.keyTyped, event=" + evt);
-		// TODO add your code for jLDTRTextField.keyTyped
+		Application.sendCommand("set ldtr=" + jLDTRTextField.getText());
 	}
 
 	private void jIDTRTextFieldKeyTyped(KeyEvent evt) {
-		System.out.println("jIDTRTextField.keyTyped, event=" + evt);
-		// TODO add your code for jIDTRTextField.keyTyped
+		Application.sendCommand("set idtr=" + jIDTRTextField.getText());
 	}
 
 	private void jTRTextFieldKeyTyped(KeyEvent evt) {
-		System.out.println("jTRTextField.keyTyped, event=" + evt);
-		// TODO add your code for jTRTextField.keyTyped
+		Application.sendCommand("set tr=" + jTRTextField.getText());
 	}
 
 	private void jDR0TextFieldKeyTyped(KeyEvent evt) {
-		System.out.println("jDR0TextField.keyTyped, event=" + evt);
-		// TODO add your code for jDR0TextField.keyTyped
+		Application.sendCommand("set dr0=" + jDR0TextField.getText());
 	}
 
 	private void jDR1TextFieldKeyTyped(KeyEvent evt) {
-		System.out.println("jDR1TextField.keyTyped, event=" + evt);
-		// TODO add your code for jDR1TextField.keyTyped
+		Application.sendCommand("set dr1=" + jDR1TextField.getText());
 	}
 
 	private void jDR2TextFieldKeyTyped(KeyEvent evt) {
-		System.out.println("jDR2TextField.keyTyped, event=" + evt);
-		// TODO add your code for jDR2TextField.keyTyped
+		Application.sendCommand("set dr2=" + jDR2TextField.getText());
 	}
 
 	private void jDR3TextFieldKeyTyped(KeyEvent evt) {
-		System.out.println("jDR3TextField.keyTyped, event=" + evt);
-		// TODO add your code for jDR3TextField.keyTyped
+		Application.sendCommand("set dr3=" + jDR3TextField.getText());
 	}
 
 	private void jDR6TextFieldKeyTyped(KeyEvent evt) {
-		System.out.println("jDR6TextField.keyTyped, event=" + evt);
-		// TODO add your code for jDR6TextField.keyTyped
+		Application.sendCommand("set dr6=" + jDR6TextField.getText());
 	}
 
 	private void jDR7TextFieldKeyTyped(KeyEvent evt) {
-		System.out.println("jDR7TextField.keyTyped, event=" + evt);
-		// TODO add your code for jDR7TextField.keyTyped
+		Application.sendCommand("set dr7=" + jDR7TextField.getText());
 	}
 }
