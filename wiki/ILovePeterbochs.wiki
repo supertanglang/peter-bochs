@@ -1,3 +1,1 @@
-#summary If you love peter-bochs, write some comments here.
-
-= Introduction =
+= If you love peter-bochs, write some comments here, thanks. =
