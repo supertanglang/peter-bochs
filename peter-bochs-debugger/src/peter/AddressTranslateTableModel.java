@@ -20,9 +20,9 @@ public class AddressTranslateTableModel extends DefaultTableModel {
 	public Vector<Long> baseAddress = new Vector<Long>();
 	public Vector<Long> linearAddress = new Vector<Long>();
 	public Vector<Long> pdNo = new Vector<Long>();
-	public Vector<Integer> pde = new Vector<Integer>();
+	public Vector<Long> pde = new Vector<Long>();
 	public Vector<Long> ptNo = new Vector<Long>();
-	public Vector<Integer> pte = new Vector<Integer>();
+	public Vector<Long> pte = new Vector<Long>();
 	public Vector<Long> physicalAddress = new Vector<Long>();
 	public Vector<String> bytes = new Vector<String>();
 

@@ -22,7 +22,7 @@ public class ElfUtil {
 		// read .text bytes
 		try {
 			HashMap map = new HashMap();
-			byte bytes[] = FileUtils.readFileToByteArray(elfFile);
+			int bytes[] = CommonLib.byteArrayToIntArray(FileUtils.readFileToByteArray(elfFile));
 
 			// header
 			LinkedHashMap header = new LinkedHashMap();
@@ -39,7 +39,7 @@ public class ElfUtil {
 			header.put("e_phnum", CommonLib.getShort(bytes[44], bytes[45]));
 			header.put("e_shentsize", CommonLib.getShort(bytes[46], bytes[47]));
 			header.put("e_shnum", CommonLib.getShort(bytes[48], bytes[49]));
-			int e_shstrndx = CommonLib.getShort(bytes[50], bytes[51]);
+			long e_shstrndx = CommonLib.getShort(bytes[50], bytes[51]);
 			header.put("e_shstrndx", e_shstrndx);
 			map.put("header", header);
 			// end header
@@ -49,8 +49,8 @@ public class ElfUtil {
 			short e_shnum = (Short) header.get("e_shnum");
 			int offset = e_shoff;
 
-			int sectionNameOffset = CommonLib.getInt(bytes, offset + 16 + e_shstrndx * 40);
-			int sectionNameSize = CommonLib.getInt(bytes, offset + 20 + e_shstrndx * 40);
+			long sectionNameOffset = CommonLib.getInt(bytes, (int) (offset + 16 + e_shstrndx * 40));
+			long sectionNameSize = CommonLib.getInt(bytes, (int) (offset + 20 + e_shstrndx * 40));
 
 			int strtabOffset = 0;
 			int strtabSize = 0;
@@ -65,9 +65,9 @@ public class ElfUtil {
 			for (int x = 0; x < e_shnum; x++) {
 				LinkedHashMap section = new LinkedHashMap();
 				section.put("No.", x);
-				int sh_name = CommonLib.getInt(bytes, offset + 0);
+				long sh_name = CommonLib.getInt(bytes, offset + 0);
 				try {
-					section.put("sh_name", CommonLib.copyToStringUntilZero(bytes, sectionNameOffset + sh_name));
+					section.put("sh_name", CommonLib.copyToStringUntilZero(bytes, (int) (sectionNameOffset + sh_name)));
 				} catch (Exception ex) {
 					section.put("sh_name", sh_name + "= ERROR");
 				}
@@ -141,12 +141,12 @@ public class ElfUtil {
 
 					symbolTable.put("No.", z);
 
-					int sh_name = CommonLib.getInt(bytes, offset + 0);
+					long sh_name = CommonLib.getInt(bytes, offset + 0);
 
 					if (symtabTables.get(x).get("name").equals(".symtab")) {
-						symbolTable.put("st_name", CommonLib.copyToStringUntilZero(bytes, strtabOffset + sh_name));
+						symbolTable.put("st_name", CommonLib.copyToStringUntilZero(bytes, (int) (strtabOffset + sh_name)));
 					} else {
-						symbolTable.put("st_name", CommonLib.copyToStringUntilZero(bytes, dynstrOffset + sh_name));
+						symbolTable.put("st_name", CommonLib.copyToStringUntilZero(bytes, (int) (dynstrOffset + sh_name)));
 					}
 					symbolTable.put("st_value", CommonLib.getInt(bytes, offset + 4));
 					symbolTable.put("st_size", CommonLib.getInt(bytes, offset + 8));
@@ -175,18 +175,18 @@ public class ElfUtil {
 
 					noteSectionMap.put("No.", z);
 
-					int namesz = CommonLib.getInt(bytes, tempOffset);
+					long namesz = CommonLib.getInt(bytes, tempOffset);
 					noteSectionMap.put("namesz", namesz);
 					tempOffset += 4;
-					int descsz = CommonLib.getInt(bytes, tempOffset);
+					long descsz = CommonLib.getInt(bytes, tempOffset);
 					noteSectionMap.put("descsz", descsz);
 					tempOffset += 4;
-					int type = CommonLib.getInt(bytes, tempOffset);
+					long type = CommonLib.getInt(bytes, tempOffset);
 					noteSectionMap.put("type", type);
 					tempOffset += 4;
-					noteSectionMap.put("name", CommonLib.convertToString(Arrays.copyOfRange(bytes, tempOffset, tempOffset + namesz)));
+					noteSectionMap.put("name", CommonLib.convertToString(Arrays.copyOfRange(bytes, tempOffset, (int) (tempOffset + namesz))));
 					tempOffset += namesz + 1;
-					noteSectionMap.put("desc", CommonLib.convertToString(Arrays.copyOfRange(bytes, tempOffset, tempOffset + descsz)));
+					noteSectionMap.put("desc", CommonLib.convertToString(Arrays.copyOfRange(bytes, tempOffset, (int) (tempOffset + descsz))));
 					tempOffset += descsz * 4;
 					v.add(noteSectionMap);
 					z++;
@@ -340,34 +340,34 @@ public class ElfUtil {
 		 * // Entry size if section holds table } Elf32_Shdr;
 		 */
 
-		int strtabOffset = CommonLib.getInt(bytes, (int) (e_shoff + (e_shstrndx * 40) + (4 * 4)));
+		long strtabOffset = CommonLib.getInt(bytes, (int) (e_shoff + (e_shstrndx * 40) + (4 * 4)));
 
 		long pointer = e_shoff;
 		long debugSectionOffset = 0;
 		long debugSectionSize = 0;
 		for (int x = 0; x < e_shnum; x++) {
-			int sh_name = CommonLib.getInt(bytes, (int) pointer);
-			int t[] = Arrays.copyOfRange(bytes, strtabOffset + sh_name, strtabOffset + sh_name + 40);
+			long sh_name = CommonLib.getInt(bytes, (int) pointer);
+			int t[] = Arrays.copyOfRange(bytes, (int) (strtabOffset + sh_name), (int) (strtabOffset + sh_name + 40));
 			String sectionName = new String(t, 0, t.length);
 			sectionName = sectionName.substring(0, sectionName.indexOf(0));
 			pointer += 4;
-			int sh_type = CommonLib.getInt(bytes, (int) pointer);
+			long sh_type = CommonLib.getInt(bytes, (int) pointer);
 			pointer += 4;
-			int sh_flags = CommonLib.getInt(bytes, (int) pointer);
+			long sh_flags = CommonLib.getInt(bytes, (int) pointer);
 			pointer += 4;
-			int sh_addr = CommonLib.getInt(bytes, (int) pointer);
+			long sh_addr = CommonLib.getInt(bytes, (int) pointer);
 			pointer += 4;
-			int sh_offset = CommonLib.getInt(bytes, (int) pointer);
+			long sh_offset = CommonLib.getInt(bytes, (int) pointer);
 			pointer += 4;
-			int sh_size = CommonLib.getInt(bytes, (int) pointer);
+			long sh_size = CommonLib.getInt(bytes, (int) pointer);
 			pointer += 4;
-			int sh_link = CommonLib.getInt(bytes, (int) pointer);
+			long sh_link = CommonLib.getInt(bytes, (int) pointer);
 			pointer += 4;
-			int sh_info = CommonLib.getInt(bytes, (int) pointer);
+			long sh_info = CommonLib.getInt(bytes, (int) pointer);
 			pointer += 4;
-			int sh_addralign = CommonLib.getInt(bytes, (int) pointer);
+			long sh_addralign = CommonLib.getInt(bytes, (int) pointer);
 			pointer += 4;
-			int sh_entsize = CommonLib.getInt(bytes, (int) pointer);
+			long sh_entsize = CommonLib.getInt(bytes, (int) pointer);
 			pointer += 4;
 
 			if (sectionName.equals(".debug_line")) {
@@ -413,7 +413,7 @@ public class ElfUtil {
 				}
 
 				/* Get this CU's Line Number Block version number. */
-				short li_version = CommonLib.getShort(bytes, (int) hdrptr);
+				long li_version = CommonLib.getShort(bytes, (int) hdrptr);
 				// System.out.println("li_version=" + li_version);
 				hdrptr += 2;
 				if (li_version != 2 && li_version != 3) {
