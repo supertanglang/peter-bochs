@@ -507,77 +507,69 @@ public class CommonLib {
 		}
 	}
 
-	public static byte[] hexStringToByteArray(String s) {
+	public static int[] hexStringToByteArray(String s) {
 		if (s.length() % 2 == 1) {
 			s = "0" + s;
 		}
 		int len = s.length();
-		byte[] data = new byte[len / 2];
+		int[] data = new int[len / 2];
 		for (int i = 0; i < len; i += 2) {
 			data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i + 1), 16));
 		}
 		return data;
 	}
 
-	public static byte[] integerStringToByteArray(String s) {
+	public static int[] integerStringToByteArray(String s) {
 		if (s.length() % 2 == 1) {
 			s = "0" + s;
 		}
 		int len = s.length();
-		byte[] data = new byte[len / 2];
+		int[] data = new int[len / 2];
 		for (int i = 0; i < len; i += 2) {
 			data[i / 2] = (byte) ((Character.digit(s.charAt(i), 10) * 10) + Character.digit(s.charAt(i + 1), 10));
 		}
 		return data;
 	}
 
-	public static byte[] stringToByteArray(String s) {
+	public static int[] stringToByteArray(String s) {
 		int len = s.length();
-		byte[] data = new byte[len];
+		int[] data = new int[len];
 		for (int i = 0; i < len; i++) {
 			data[i] = (byte) s.charAt(i);
 		}
 		return data;
 	}
 
-	public static void putShort(byte b[], short s, int index) {
+	public static void putShort(int b[], short s, int index) {
 		b[index] = (byte) (s >> 0);
 		b[index + 1] = (byte) (s >> 8);
 	}
 
-	public static short getShort(byte b0, byte b1) {
-		return (short) ((b0 << 0) | (b1 & 0xff) << 8);
+	public static long getShort(int b0, int b1) {
+		return (long) ((b0 & 0xff << 0) | (b1 & 0xff) << 8);
 	}
 
-	public static short getShort(byte[] bb, int index) {
-		return (short) (((bb[index + 0] & 0xff) << 0) | ((bb[index + 1] & 0xff) << 8));
-	}
-
-	public static short getShort(int[] bb, int index) {
-		return (short) (((bb[index + 0] & 0xff) << 0) | ((bb[index + 1] & 0xff) << 8));
+	public static long getShort(int[] bb, int index) {
+		return (long) (((bb[index + 0] & 0xff) << 0) | ((bb[index + 1] & 0xff) << 8));
 	}
 
 	// ///////////////////////////////////////////////////////
-	public static void putInt(byte[] bb, int x, int index) {
+	public static void putInt(int[] bb, int x, int index) {
 		bb[index + 0] = (byte) (x >> 0);
 		bb[index + 1] = (byte) (x >> 8);
 		bb[index + 2] = (byte) (x >> 16);
 		bb[index + 3] = (byte) (x >> 24);
 	}
 
-	public static int getInt(byte[] bb, int index) {
-		return (int) ((((bb[index + 0] & 0xff) << 0) | ((bb[index + 1] & 0xff) << 8) | ((bb[index + 2] & 0xff) << 16) | ((bb[index + 3] & 0xff) << 24)));
+	public static long getInt(int[] bb, int index) {
+		return (long) ((((bb[index + 0] & 0xff) << 0) | ((bb[index + 1] & 0xff) << 8) | ((bb[index + 2] & 0xff) << 16) | ((bb[index + 3] & 0xff) << 24)));
 	}
 
-	public static int getInt(int[] bb, int index) {
-		return (int) ((((bb[index + 0] & 0xff) << 0) | ((bb[index + 1] & 0xff) << 8) | ((bb[index + 2] & 0xff) << 16) | ((bb[index + 3] & 0xff) << 24)));
+	public static long getInt(int b0, int b1, int b2, int b3) {
+		return (long) ((((b0 & 0xff) << 0) | ((b1 & 0xff) << 8) | ((b2 & 0xff) << 16) | ((b3 & 0xff) << 24)));
 	}
 
-	public static int getInt(byte b0, byte b1, byte b2, byte b3) {
-		return (int) ((((b0 & 0xff) << 0) | ((b1 & 0xff) << 8) | ((b2 & 0xff) << 16) | ((b3 & 0xff) << 24)));
-	}
-
-	public static void putLong(byte[] bb, long x, int index) {
+	public static void putLong(int[] bb, long x, int index) {
 		bb[index + 0] = (byte) (x >> 0);
 		bb[index + 1] = (byte) (x >> 8);
 		bb[index + 2] = (byte) (x >> 16);
@@ -588,9 +580,8 @@ public class CommonLib {
 		bb[index + 7] = (byte) (x >> 56);
 	}
 
-	public static long getLong(byte[] bb, int index) {
-		return ((((long) bb[index + 0] & 0xff) << 0) | (((long) bb[index + 1] & 0xff) << 8) | (((long) bb[index + 2] & 0xff) << 16) | (((long) bb[index + 3] & 0xff) << 24)
-				| (((long) bb[index + 4] & 0xff) << 32) | (((long) bb[index + 5] & 0xff) << 40) | (((long) bb[index + 6] & 0xff) << 48) | (((long) bb[index + 7] & 0xff) << 56));
+	public static long getLong(int b0, byte b1) {
+		return (long) (b0 & 0xff) | (long) (b1 & 0xff) << 8;
 	}
 
 	public static long getLong(int[] bb, int index) {
@@ -598,21 +589,20 @@ public class CommonLib {
 				| (((long) bb[index + 4] & 0xff) << 32) | (((long) bb[index + 5] & 0xff) << 40) | (((long) bb[index + 6] & 0xff) << 48) | (((long) bb[index + 7] & 0xff) << 56));
 	}
 
-	public static long getLong(byte b0, byte b1, byte b2, byte b3, byte b4, byte b5, byte b6, byte b7) {
-		return ((((long) b0 & 0xff) << 0) | (((long) b1 & 0xff) << 8) | (((long) b2 & 0xff) << 16) | (((long) b3 & 0xff) << 24) | (((long) b4 & 0xff) << 32) | (((long) b5 & 0xff) << 40)
-				| (((long) b6 & 0xff) << 48) | (((long) b7 & 0xff) << 56));
-	}
-
 	public static long getLong(int b0, int b1, int b2, int b3, int b4, int b5, int b6, int b7) {
 		return ((((long) b0 & 0xff) << 0) | (((long) b1 & 0xff) << 8) | (((long) b2 & 0xff) << 16) | (((long) b3 & 0xff) << 24) | (((long) b4 & 0xff) << 32) | (((long) b5 & 0xff) << 40)
 				| (((long) b6 & 0xff) << 48) | (((long) b7 & 0xff) << 56));
 	}
 
-	public static long getLong(long b0, long b1, long b2, long b3, long b4, long b5, long b6, long b7) {
-		return ((((long) b0 & 0xff) << 0) | (((long) b1 & 0xff) << 8) | (((long) b2 & 0xff) << 16) | (((long) b3 & 0xff) << 24) | (((long) b4 & 0xff) << 32) | (((long) b5 & 0xff) << 40)
-				| (((long) b6 & 0xff) << 48) | (((long) b7 & 0xff) << 56));
-
-	}
+	// public static long getLong(long b0, long b1, long b2, long b3, long b4,
+	// long b5, long b6, long b7) {
+	// return ((((long) b0 & 0xff) << 0) | (((long) b1 & 0xff) << 8) | (((long)
+	// b2 & 0xff) << 16) | (((long) b3 & 0xff) << 24) | (((long) b4 & 0xff) <<
+	// 32)
+	// | (((long) b5 & 0xff) << 40) | (((long) b6 & 0xff) << 48) | (((long) b7 &
+	// 0xff) << 56));
+	//
+	// }
 
 	public static long getBit(long value, int bitNo) {
 		return value >> bitNo & 1;
@@ -792,10 +782,10 @@ public class CommonLib {
 		Application.commandReceiver.clearBuffer();
 		Application.sendCommand("xp /8bx " + pdAddr);
 		String result = Application.commandReceiver.getCommandResult(String.format("%08x", pdAddr));
-		byte bytes[] = new byte[8];
+		int bytes[] = new int[8];
 		String[] b = result.replaceFirst("^.*:", "").split("\t");
 		for (int y = 1; y <= 8; y++) {
-			bytes[y - 1] = (byte) (long) CommonLib.string2decimal(b[y]);
+			bytes[y - 1] = CommonLib.string2decimal(b[y]).intValue();
 		}
 		Long pde = getValue(CommonLib.getLong(bytes, 0), 12, 31) << 12;
 		System.out.println("pde=" + Long.toHexString(pde));
@@ -805,7 +795,7 @@ public class CommonLib {
 		Application.commandReceiver.clearBuffer();
 		Application.sendCommand("xp /8bx " + ptAddr);
 		result = Application.commandReceiver.getCommandResult(String.format("%08x", ptAddr));
-		bytes = new byte[8];
+		bytes = new int[8];
 		b = result.replaceFirst("^.*:", "").split("\t");
 		for (int y = 1; y <= 8; y++) {
 			bytes[y - 1] = (byte) (long) CommonLib.string2decimal(b[y]);
@@ -820,7 +810,7 @@ public class CommonLib {
 		Application.commandReceiver.clearBuffer();
 		Application.sendCommand("xp /8bx " + address);
 		String result = Application.commandReceiver.getCommandResult(String.format("%08x", address));
-		byte bytes[] = new byte[8];
+		int bytes[] = new int[8];
 		String[] b = result.replaceFirst("^.*:", "").split("\t");
 		for (int y = 1; y <= 8; y++) {
 			bytes[y - 1] = (byte) (long) CommonLib.string2decimal(b[y]);
@@ -828,8 +818,8 @@ public class CommonLib {
 		return CommonLib.getLong(bytes, 0);
 	}
 
-	public static byte[] getMemoryFromBochs(long address, int totalByte) {
-		byte bytes[] = new byte[totalByte];
+	public static int[] getMemoryFromBochs(long address, int totalByte) {
+		int bytes[] = new int[totalByte];
 
 		Application.commandReceiver.clearBuffer();
 		Application.sendCommand("xp /" + totalByte + "bx " + address);
@@ -890,7 +880,7 @@ public class CommonLib {
 		return null;
 	}
 
-	public static String convertToString(byte[] bytes) {
+	public static String convertToString(int[] bytes) {
 		String str = "";
 		for (int x = 0; x < bytes.length; x++) {
 			str += String.format("%02x", bytes[x]) + " ";
@@ -898,7 +888,7 @@ public class CommonLib {
 		return str;
 	}
 
-	public static String copyToStringUntilZero(byte[] bytes, int offset) {
+	public static String copyToStringUntilZero(int[] bytes, int offset) {
 		String str = "";
 		int h = offset;
 		while (bytes[h] != 0 && h < bytes.length) {
@@ -906,5 +896,21 @@ public class CommonLib {
 			h++;
 		}
 		return str;
+	}
+
+	public static int[] byteArrayToIntArray(byte[] b) {
+		int i[] = new int[b.length];
+		for (int x = 0; x < i.length; x++) {
+			i[x] = b[x];
+		}
+		return i;
+	}
+
+	public static byte[] intArrayToByteArray(int[] b) {
+		byte i[] = new byte[b.length];
+		for (int x = 0; x < i.length; x++) {
+			i[x] = (byte) b[x];
+		}
+		return i;
 	}
 }

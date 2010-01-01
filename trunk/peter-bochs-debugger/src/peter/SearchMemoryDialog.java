@@ -51,8 +51,8 @@ public class SearchMemoryDialog extends javax.swing.JDialog {
 		this.to = to;
 
 		initGUI();
-		setTitle(Application.language.getString("Search") + " " + pattern + " " + Application.language.getString("From") + " 0x" + Long.toHexString(from) + " "
-				+ Application.language.getString("To") + " 0x" + Long.toHexString(to));
+		setTitle(Application.language.getString("Search") + " " + pattern + " " + Application.language.getString("From") + " 0x" + Long.toHexString(from) + " " + Application.language.getString("To")
+				+ " 0x" + Long.toHexString(to));
 		t = new Thread(s);
 		t.start();
 	}
@@ -110,14 +110,13 @@ public class SearchMemoryDialog extends javax.swing.JDialog {
 	}
 
 	class SearchThread implements Runnable {
-
 		public void run() {
 			if (pattern.startsWith("0x")) {
-				patternByte = CommonLib.hexStringToByteArray(pattern.substring(2));
+				patternByte = CommonLib.intArrayToByteArray(CommonLib.hexStringToByteArray(pattern.substring(2)));
 			} else if (CommonLib.isNumeric(pattern)) {
-				patternByte = CommonLib.integerStringToByteArray(pattern);
+				patternByte = CommonLib.intArrayToByteArray(CommonLib.integerStringToByteArray(pattern));
 			} else {
-				patternByte = CommonLib.stringToByteArray(pattern);
+				patternByte = CommonLib.intArrayToByteArray(CommonLib.stringToByteArray(pattern));
 			}
 
 			for (int x = 0; x < patternByte.length; x++) {

@@ -41,7 +41,7 @@ public class HelperDialog extends javax.swing.JDialog {
 		DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
 		if (type.equals("GDT")) {
 			int totalGDT = 40;
-			byte b[] = CommonLib.getMemoryFromBochs(address, totalGDT * 8);
+			int b[] = CommonLib.getMemoryFromBochs(address, totalGDT * 8);
 			for (int x = 0; x < totalGDT * 8; x += 8) {
 				long value = CommonLib.getLong(b, x);
 				long bit[] = new long[64];
@@ -72,7 +72,7 @@ public class HelperDialog extends javax.swing.JDialog {
 				// end parse descriptor
 			}
 		} else if (type.equals("GDT Descriptor")) {
-			byte b[] = CommonLib.getMemoryFromBochs(address, 8);
+			int b[] = CommonLib.getMemoryFromBochs(address, 8);
 			long value = CommonLib.getLong(b, 0);
 			long bit[] = new long[64];
 
@@ -211,7 +211,7 @@ public class HelperDialog extends javax.swing.JDialog {
 			}
 		} else if (type.equals("IDT")) {
 			int totalGDT = 40;
-			byte b[] = CommonLib.getMemoryFromBochs(address, totalGDT * 8);
+			int b[] = CommonLib.getMemoryFromBochs(address, totalGDT * 8);
 			for (int x = 0; x < totalGDT * 8; x += 8) {
 				long value = CommonLib.getLong(b, x);
 				long bit[] = new long[64];
@@ -236,7 +236,7 @@ public class HelperDialog extends javax.swing.JDialog {
 				// end parse descriptor
 			}
 		} else if (type.equals("IDT Descriptor")) {
-			byte b[] = CommonLib.getMemoryFromBochs(address, 8);
+			int b[] = CommonLib.getMemoryFromBochs(address, 8);
 			long value = CommonLib.getLong(b, 0);
 			long bit[] = new long[64];
 
@@ -264,7 +264,7 @@ public class HelperDialog extends javax.swing.JDialog {
 				model.addRow(new String[] { "type", "wrong descriptor, value=0x" + Long.toHexString(value) });
 			}
 		} else if (type.equals("PDE")) {
-			byte b[] = CommonLib.getMemoryFromBochs(address, 8);
+			int b[] = CommonLib.getMemoryFromBochs(address, 8);
 			long value = CommonLib.getLong(b, 0);
 			long bit[] = new long[64];
 
@@ -286,7 +286,7 @@ public class HelperDialog extends javax.swing.JDialog {
 			model.addRow(new String[] { "avl", String.valueOf(avl) });
 			model.addRow(new String[] { "page table address", "0x" + Long.toHexString(pageTableAddress) });
 		} else if (type.equals("PTE")) {
-			byte b[] = CommonLib.getMemoryFromBochs(address, 8);
+			int b[] = CommonLib.getMemoryFromBochs(address, 8);
 			long value = CommonLib.getLong(b, 0);
 			long bit[] = new long[64];
 

@@ -81,6 +81,7 @@ public class XMLHelper {
 		hashmap2.put("mobile", "123");
 		vector2.add(hashmap2);
 		vectorToXML("history.xml", "history", "good", vector2);
+		vectorToXML("history.xml", "history", "good2", vector2);
 		// end test vector
 
 		readXMLNode("history.xml", "/history/mobile");
@@ -113,21 +114,19 @@ public class XMLHelper {
 			}
 			File xmlDocument = new File(xmlFile);
 			InputSource inputSource = new InputSource();
-			return xmltoVector(new FileInputStream(xmlDocument), xpath);
+			return xmlToVector(new FileInputStream(xmlDocument), xpath);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			return new Vector<HashMap>();
 		}
 	}
 
-	public static Vector<HashMap> xmltoVector(InputStream is, String xpath) {
+	public static Vector<HashMap> xmlToVector(InputStream is, String xpath) {
 		try {
 			XPathFactory factory = XPathFactory.newInstance();
 			XPath xPath = factory.newXPath();
-			// XPathExpression xPathExpression =
-			// xPath.compile("/history");
 			InputSource inputSource = new InputSource(is);
-			// String root = xPath.evaluate("/", inputSource);
+
 			NodeList nodes = (NodeList) xPath.evaluate(xpath, inputSource, XPathConstants.NODESET);
 			Vector<HashMap> vector = new Vector<HashMap>();
 
@@ -186,10 +185,19 @@ public class XMLHelper {
 		try {
 			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-			Document document = documentBuilder.newDocument();
+			File file = new File(xmlFile);
+			Document document;
+			Element rootNode;
+			if (file.exists()) {
+				document = documentBuilder.parse(new File(xmlFile));
+				rootNode = document.getDocumentElement();
+			} else {
+				document = documentBuilder.newDocument();
+				rootNode = document.createElement(xpath);
+				document.appendChild(rootNode);
+			}
 
-			Element rootNode = document.createElement(xpath);
-			document.appendChild(rootNode);
+			
 
 			for (int x = 0; x < vector.size(); x++) {
 				Element parentNode = document.createElement(parentNodeName);

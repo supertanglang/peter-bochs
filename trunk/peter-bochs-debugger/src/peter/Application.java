@@ -346,6 +346,7 @@ public class Application extends javax.swing.JFrame {
 	public static boolean isLinux;
 	public static String version = "";
 	private JButton jButton21;
+	public static String currentLanguage = "en_US";
 
 	/**
 	 * Auto-generated main method to display this JFrame
@@ -452,7 +453,8 @@ public class Application extends javax.swing.JFrame {
 				fontFamily = ini.get("global", "font");
 			}
 			if (ini.get("general", "language") != null && !ini.get("general", "language").trim().equals("")) {
-				language = Utf8ResourceBundle.getBundle("language_" + ini.get("general", "language"));
+				currentLanguage = ini.get("general", "language");
+				language = Utf8ResourceBundle.getBundle("language_" + currentLanguage);
 			} else {
 				language = Utf8ResourceBundle.getBundle("language_en_US");
 			}
@@ -521,8 +523,12 @@ public class Application extends javax.swing.JFrame {
 				sendCommand("6");
 			}
 
+			Date date1 = new Date();
 			while (commandReceiver.getLinesLength() < 9) {
 				Thread.currentThread().sleep(100);
+				if (new Date().getTime() - date1.getTime() > 4000) {
+					break;
+				}
 			}
 
 			String versionLines[] = commandReceiver.getCommandResultUntilEnd().split("\n");
@@ -1231,11 +1237,11 @@ public class Application extends javax.swing.JFrame {
 
 					for (int z = 0; z < 2; z++) {
 						try {
-							byte bytes[] = new byte[4];
+							int bytes[] = new int[4];
 							for (int x = 0; x < 4; x++) {
-								bytes[x] = (byte) (long) CommonLib.hex2decimal(b[x + z * 4].substring(2).trim());
+								bytes[x] = CommonLib.hex2decimal(b[x + z * 4].substring(2).trim()).intValue();
 							}
-							int value = CommonLib.getInt(bytes, 0);
+							long value = CommonLib.getInt(bytes, 0);
 							// "No.", "PT base", "AVL", "G",
 							// "D", "A", "PCD", "PWT",
 							// "U/S", "W/R", "P"
@@ -1338,13 +1344,13 @@ public class Application extends javax.swing.JFrame {
 
 					for (int z = 0; z < 2; z++) {
 						try {
-							byte bytes[] = new byte[4];
+							int bytes[] = new int[4];
 							for (int x2 = 0; x2 < 4; x2++) {
-								bytes[x2] = (byte) (long) CommonLib.hex2decimal(b[x2 + z * 4].substring(2).trim());
+								bytes[x2] = CommonLib.hex2decimal(b[x2 + z * 4].substring(2).trim()).intValue();
 							}
-							int value = CommonLib.getInt(bytes, 0);
+							long value = CommonLib.getInt(bytes, 0);
 
-							String base = Integer.toHexString(value & 0xfffff000);
+							String base = Long.toHexString(value & 0xfffff000);
 							String avl = String.valueOf((value >> 9) & 3);
 							String g = String.valueOf((value >> 8) & 1);
 							String d = String.valueOf((value >> 6) & 1);
@@ -2048,11 +2054,11 @@ public class Application extends javax.swing.JFrame {
 
 				for (int z = 0; z < 2; z++) {
 					try {
-						byte bytes[] = new byte[4];
+						int bytes[] = new int[4];
 						for (int x = 0; x < 4; x++) {
-							bytes[x] = (byte) (long) CommonLib.hex2decimal(b[x + z * 4].substring(2).trim());
+							bytes[x] = CommonLib.hex2decimal(b[x + z * 4].substring(2).trim()).intValue();
 						}
-						int value = CommonLib.getInt(bytes, 0);
+						long value = CommonLib.getInt(bytes, 0);
 						// "No.", "PT base", "AVL", "G",
 						// "D", "A", "PCD", "PWT",
 						// "U/S", "W/R", "P"
@@ -3614,7 +3620,19 @@ public class Application extends javax.swing.JFrame {
 			new Thread() {
 				public void run() {
 					URL url = getClass().getClassLoader().getResource("images/ajax-loader.gif");
-					jRunningLabel.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\"" + url + "\" /></center></html>");
+					if (currentLanguage.equals("zh_TW")) {
+						jRunningLabel
+								.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\""
+										+ url
+										+ "\" /><br><br><a style=\"color: #ffffff;  text-decoration:none\" href=\"http://www.kingofcoders.com\">編程王網站  www.kingofcoders.com</a></center></html>");
+					} else if (currentLanguage.equals("zh_CN")) {
+						jRunningLabel
+								.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\""
+										+ url
+										+ "\" /><br><br><img src=\"http://www.kingofcoders.com/images/KOC_logo2.jpg\" /><br><a style=\"color: #ffffff;  text-decoration:none\" href=\"http://www.kingofcoders.com\">编程王网站  www.kingofcoders.com</a></center></html>");
+					} else {
+						jRunningLabel.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\"" + url + "\" /></center></html>");
+					}
 				}
 			}.start();
 			jRunningLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -3914,7 +3932,7 @@ public class Application extends javax.swing.JFrame {
 			model.segNo.add(segNo);
 
 			// read GDT descriptor
-			byte descriptor[] = CommonLib.getMemoryFromBochs(CommonLib.string2decimal(this.jRegisterPanel1.jGDTRTextField.getText()) + (segNo * 8), 8);
+			int descriptor[] = CommonLib.getMemoryFromBochs(CommonLib.string2decimal(this.jRegisterPanel1.jGDTRTextField.getText()) + (segNo * 8), 8);
 			long baseAddress = CommonLib.getLong(descriptor[2], descriptor[3], descriptor[4], descriptor[7], 0, 0, 0, 0);
 			long linearAddress = baseAddress + address;
 			model.baseAddress.add(baseAddress);
@@ -3922,21 +3940,21 @@ public class Application extends javax.swing.JFrame {
 
 			long pdNo = CommonLib.getValue(linearAddress, 31, 22);
 			model.pdNo.add(pdNo);
-			byte pdeBytes[] = CommonLib.getMemoryFromBochs(CommonLib.string2decimal(this.jRegisterPanel1.jCR3TextField.getText()) + (pdNo * 4), 4);
-			int pde = CommonLib.getInt(pdeBytes, 0);
+			int pdeBytes[] = CommonLib.getMemoryFromBochs(CommonLib.string2decimal(this.jRegisterPanel1.jCR3TextField.getText()) + (pdNo * 4), 4);
+			long pde = CommonLib.getInt(pdeBytes, 0);
 			model.pde.add(pde);
 
 			long ptNo = CommonLib.getValue(linearAddress, 21, 12);
 			model.ptNo.add(ptNo);
 			long pageTableBaseAddress = pde & 0xfffff000;
-			byte pteBytes[] = CommonLib.getMemoryFromBochs(pageTableBaseAddress + (ptNo * 4), 4);
-			int pte = CommonLib.getInt(pteBytes, 0);
+			int pteBytes[] = CommonLib.getMemoryFromBochs(pageTableBaseAddress + (ptNo * 4), 4);
+			long pte = CommonLib.getInt(pteBytes, 0);
 			long pagePhysicalAddress = pte & 0xfffff000;
 			model.pte.add(pte);
 
 			long physicalAddress = pagePhysicalAddress + CommonLib.getValue(linearAddress, 11, 0);
 			model.physicalAddress.add(physicalAddress);
-			byte bytesAtPhysicalAddress[] = CommonLib.getMemoryFromBochs(physicalAddress, 8);
+			int bytesAtPhysicalAddress[] = CommonLib.getMemoryFromBochs(physicalAddress, 8);
 			model.bytes.add(CommonLib.convertToString(bytesAtPhysicalAddress));
 
 			model.fireTableDataChanged();
@@ -3961,21 +3979,21 @@ public class Application extends javax.swing.JFrame {
 			long pdNo = CommonLib.getValue(linearAddress, 31, 22);
 			System.out.println(linearAddress + "==" + pdNo);
 			model.pdNo.add(pdNo);
-			byte pdeBytes[] = CommonLib.getMemoryFromBochs(CommonLib.string2decimal(this.jRegisterPanel1.jCR3TextField.getText()) + (pdNo * 4), 4);
-			int pde = CommonLib.getInt(pdeBytes, 0);
+			int pdeBytes[] = CommonLib.getMemoryFromBochs(CommonLib.string2decimal(this.jRegisterPanel1.jCR3TextField.getText()) + (pdNo * 4), 4);
+			long pde = CommonLib.getInt(pdeBytes, 0);
 			model.pde.add(pde);
 
 			long ptNo = CommonLib.getValue(linearAddress, 21, 12);
 			model.ptNo.add(ptNo);
 			long pageTableBaseAddress = pde & 0xfffff000;
-			byte pteBytes[] = CommonLib.getMemoryFromBochs(pageTableBaseAddress + (ptNo * 4), 4);
-			int pte = CommonLib.getInt(pteBytes, 0);
+			int pteBytes[] = CommonLib.getMemoryFromBochs(pageTableBaseAddress + (ptNo * 4), 4);
+			long pte = CommonLib.getInt(pteBytes, 0);
 			long pagePhysicalAddress = pte & 0xfffff000;
 			model.pte.add(pte);
 
 			long physicalAddress = pagePhysicalAddress + CommonLib.getValue(linearAddress, 11, 0);
 			model.physicalAddress.add(physicalAddress);
-			byte bytesAtPhysicalAddress[] = CommonLib.getMemoryFromBochs(physicalAddress, 8);
+			int bytesAtPhysicalAddress[] = CommonLib.getMemoryFromBochs(physicalAddress, 8);
 			model.bytes.add(CommonLib.convertToString(bytesAtPhysicalAddress));
 
 			model.fireTableDataChanged();
@@ -4032,10 +4050,10 @@ public class Application extends javax.swing.JFrame {
 				sendCommand("xp /8bx " + gdtBase);
 				String result = commandReceiver.getCommandResult(String.format("%08x", gdtBase));
 
-				byte bytes[] = new byte[8];
+				int bytes[] = new int[8];
 				String[] b = result.replaceFirst("^.*:", "").split("\t");
 				for (int y = 1; y <= 8; y++) {
-					bytes[y - 1] = (byte) (long) CommonLib.string2decimal(b[y]);
+					bytes[y - 1] = CommonLib.string2decimal(b[y]).intValue();
 				}
 
 				Long gdtDescriptor = CommonLib.getLong(bytes, 0);
@@ -5037,5 +5055,53 @@ public class Application extends javax.swing.JFrame {
 
 	private void jClearBochsButtonActionPerformed(ActionEvent evt) {
 		this.jBochsEditorPane.setText("");
+	}
+
+	public static int[] getPhysicalMemory(long address, int totalByte) {
+		return getMemory(address, totalByte, true);
+	}
+
+	public static int[] getLinearMemory(long address, int totalByte) {
+		return getMemory(address, totalByte, false);
+	}
+
+	private static int[] getMemory(long address, int totalByte, boolean isPhysicalAddress) {
+		commandReceiver.clearBuffer();
+		commandReceiver.shouldShow = false;
+		if (isPhysicalAddress) {
+			sendCommand("xp /" + totalByte + "bx " + address);
+		} else {
+			sendCommand("x /" + totalByte + "bx " + address);
+		}
+		int bytes[] = new int[totalByte];
+
+		if (totalByte > 0) {
+			float totalByte2 = totalByte - 1;
+			totalByte2 = totalByte2 / 8;
+			int totalByte3 = (int) Math.floor(totalByte2);
+			String realEndAddressStr;
+			String realStartAddressStr;
+			long realStartAddress = address;
+			realStartAddressStr = String.format("%08x", realStartAddress);
+			long realEndAddress = realStartAddress + totalByte3 * 8;
+			realEndAddressStr = String.format("%08x", realEndAddress);
+			String result = commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr);
+			if (result != null) {
+				String[] lines = result.split("\n");
+				int offset = 0;
+				// System.out.println(result);
+				for (int y = 0; y < lines.length; y++) {
+					String[] b = lines[y].replaceFirst("^.*:", "").split("\t");
+					// System.out.println(lines[y]);
+
+					for (int x = 1; x < b.length && offset < totalByte; x++) {
+						// System.out.println(offset + "==" + x);
+						bytes[offset] = CommonLib.string2decimal(b[x]).intValue();
+						offset++;
+					}
+				}
+			}
+		}
+		return bytes;
 	}
 }

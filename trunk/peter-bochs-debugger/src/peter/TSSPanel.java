@@ -62,7 +62,7 @@ public class TSSPanel extends JPanel {
 	private JLabel jTypeLabel;
 	private JTable jTable2;
 	private JScrollPane jScrollPane1;
-	private byte b[] = new byte[8];
+	private int b[] = new int[8];
 	private long value;
 	private long bit[] = new long[64];
 	private Application application;
@@ -407,7 +407,7 @@ public class TSSPanel extends JPanel {
 			String result2 = Application.commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr);
 			String[] lines2 = result2.split("\n");
 
-			byte tssByte[] = new byte[(int) limit];
+			int tssByte[] = new int[(int) limit];
 			for (int y = 0; y < lines2.length; y++) {
 				String byteStr[] = lines2[y].replaceFirst("^.*>:\t", "").split("\t");
 				for (int x = 0; x < 8 && x < byteStr.length; x++) {
@@ -483,11 +483,11 @@ public class TSSPanel extends JPanel {
 
 					for (int z = 0; z < 2; z++) {
 						try {
-							byte bytes[] = new byte[4];
+							int bytes[] = new int[4];
 							for (int x = 0; x < 4; x++) {
-								bytes[x] = (byte) (long) CommonLib.hex2decimal(b[x + z * 4].substring(2).trim());
+								bytes[x] = CommonLib.hex2decimal(b[x + z * 4].substring(2).trim()).intValue();
 							}
-							int value = CommonLib.getInt(bytes, 0);
+							long value = CommonLib.getInt(bytes, 0);
 							// "No.", "PT base", "AVL", "G",
 							// "D", "A", "PCD", "PWT",
 							// "U/S", "W/R", "P"
@@ -559,11 +559,11 @@ public class TSSPanel extends JPanel {
 
 				for (int z = 0; z < 2; z++) {
 					try {
-						byte bytes[] = new byte[4];
+						int bytes[] = new int[4];
 						for (int x = 0; x < 4; x++) {
-							bytes[x] = (byte) (long) CommonLib.hex2decimal(b[x + z * 4].substring(2).trim());
+							bytes[x] = CommonLib.hex2decimal(b[x + z * 4].substring(2).trim()).intValue();
 						}
-						int value = CommonLib.getInt(bytes, 0);
+						long value = CommonLib.getInt(bytes, 0);
 						// "No.", "PT base", "AVL", "G",
 						// "D", "A", "PCD", "PWT",
 						// "U/S", "W/R", "P"

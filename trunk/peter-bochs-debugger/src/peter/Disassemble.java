@@ -11,8 +11,8 @@ import org.apache.commons.io.FileUtils;
 public class Disassemble {
 	public static String disassemble(long address, int bits) {
 		try {
-			byte bytes[] = CommonLib.getMemoryFromBochs(address, 100);
-			FileUtils.writeByteArrayToFile(new File("temp"), bytes);
+			int bytes[] = CommonLib.getMemoryFromBochs(address, 100);
+			FileUtils.writeByteArrayToFile(new File("temp"), CommonLib.intArrayToByteArray(bytes));
 
 			ProcessBuilder pb;
 			if (Application.isLinux) {

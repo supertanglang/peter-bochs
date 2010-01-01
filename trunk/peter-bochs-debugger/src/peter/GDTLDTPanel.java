@@ -1,17 +1,18 @@
 package peter;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
+import java.util.LinkedHashMap;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+
+import peter.architecture.DescriptorParser;
 
 /**
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
@@ -32,7 +33,7 @@ public class GDTLDTPanel extends JPanel {
 	private JLabel jTypeLabel;
 	private JTable jFieldTable;
 	private JScrollPane jScrollPane1;
-	private byte b[] = new byte[8];
+	private int b[] = new int[8];
 	private long value;
 	private long bit[] = new long[64];
 	private Application application;
@@ -59,6 +60,7 @@ public class GDTLDTPanel extends JPanel {
 				jTabbedPane1 = new JTabbedPane();
 				this.add(jTabbedPane1, BorderLayout.CENTER);
 				jTabbedPane1.setTabPlacement(JTabbedPane.LEFT);
+				jTabbedPane1.setPreferredSize(new java.awt.Dimension(515, 437));
 				{
 					jPanel2 = new JPanel();
 					jTabbedPane1.addTab("Info", null, jPanel2, null);
@@ -94,7 +96,6 @@ public class GDTLDTPanel extends JPanel {
 					{
 						jScrollPane2 = new JScrollPane();
 						jPanel3.add(jScrollPane2, BorderLayout.CENTER);
-						jScrollPane2.setPreferredSize(new java.awt.Dimension(554, 595));
 						{
 							TableModel jTable2Model = new DefaultTableModel(new String[][] {}, new String[] { "Field", "Value" });
 							jFieldTable = new JTable();
@@ -138,7 +139,6 @@ public class GDTLDTPanel extends JPanel {
 
 			for (int x = 32; x < 64; x++) {
 				jByteTable.setValueAt(value >> x & 1, 0, 63 - x);
-				jByteTable.setPreferredSize(new java.awt.Dimension(669, 32));
 			}
 
 			// parse descriptor
@@ -220,25 +220,38 @@ public class GDTLDTPanel extends JPanel {
 
 	private void parseLDT() {
 		try {
-			jFieldTable.getColumnModel().getColumn(0).setHeaderValue("No");
-			jFieldTable.getColumnModel().getColumn(1).setHeaderValue("Type");
 			DefaultTableModel model = (DefaultTableModel) jFieldTable.getModel();
-			jFieldTable.getColumnModel().getColumn(0).setMaxWidth(40);
-			jFieldTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
-			jFieldTable.setPreferredSize(new Dimension(600, 600));
-			// application.commandReceiver.setCommandNoOfLine(20);
-			application.sendCommand("info ldt 0 20");
-			String result = application.commandReceiver.getCommandResult("XX", "XX");
-			String lines[] = result.split("\n");
-			for (int x = 1; x < lines.length; x++) {
-				try {
-					model.addRow(new String[] { lines[x].replaceFirst("^.*\\[", "").replaceFirst("].*$", ""), lines[x].replaceFirst("^.*]=", "") });
-				} catch (Exception ex) {
-				}
+
+			long base = CommonLib.getInt(b[2], b[3], b[4], b[7]);
+			long limit = CommonLib.getShort(b[0], b[1]);
+			model.addRow(new String[] { "base", "0x" + Long.toHexString(base) });
+			model.addRow(new String[] { "limit", "0x" + Long.toHexString(limit) });
+			model.addRow(new String[] { "dpl", "0x" + Long.toHexString(bit[14] << 1 + bit[13]) });
+			model.addRow(new String[] { "p", "0x" + Long.toHexString(bit[15]) });
+			model.addRow(new String[] { "avl", "0x" + Long.toHexString(bit[20]) });
+			model.addRow(new String[] { "g", "0x" + Long.toHexString(bit[23]) });
+
+			JScrollPane pane = new JScrollPane();
+			jTabbedPane1.addTab("Descriptors", null, pane, null);
+			JTable table = new JTable();
+			DefaultTableModel model2 = new DefaultTableModel(new String[][] {}, new String[] { "No.", "Type", "Base", "Limit", "A", "R/W", "C/E", "X", "S", "DPL", "P", "AVL", "D", "G", "Value" });
+
+			if (limit > 1000) {
+				limit = 1000;
 			}
+			int bytes[] = Application.getPhysicalMemory(base, (int) (limit + 1));
+
+			for (int x = 0; x < limit; x += 8) {
+				System.out.println(x);
+				long value = CommonLib.getLong(bytes, x);
+				LinkedHashMap<String, String> hm = DescriptorParser.parseDescriptor(value);
+				model2.addRow(new String[] { String.valueOf(x), hm.get("Type"), "", "", "", "", "", "", "", "", "", "", "", "", hm.get("Value") });
+			}
+
+			table.setModel(model2);
+			pane.setViewportView(table);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 	}
-
 }
