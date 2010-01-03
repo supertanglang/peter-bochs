@@ -1,5 +1,9 @@
 #summary Changes
 
+=== version 20100101 ===
+
+1) can dump the descriptor in TSS
+
 === version 20091224 ===
 
 fixed these bug:
