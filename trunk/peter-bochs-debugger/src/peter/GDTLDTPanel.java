@@ -63,7 +63,7 @@ public class GDTLDTPanel extends JPanel {
 				jTabbedPane1.setPreferredSize(new java.awt.Dimension(515, 437));
 				{
 					jPanel2 = new JPanel();
-					jTabbedPane1.addTab("Info", null, jPanel2, null);
+					jTabbedPane1.addTab(Application.language.getString("Info"), null, jPanel2, null);
 					BorderLayout jPanel2Layout = new BorderLayout();
 					jPanel2.setLayout(jPanel2Layout);
 					{
@@ -90,14 +90,15 @@ public class GDTLDTPanel extends JPanel {
 				}
 				{
 					jPanel3 = new JPanel();
-					jTabbedPane1.addTab("Field", null, jPanel3, null);
+					jTabbedPane1.addTab(Application.language.getString("Field"), null, jPanel3, null);
 					BorderLayout jPanel3Layout = new BorderLayout();
 					jPanel3.setLayout(jPanel3Layout);
 					{
 						jScrollPane2 = new JScrollPane();
 						jPanel3.add(jScrollPane2, BorderLayout.CENTER);
 						{
-							TableModel jTable2Model = new DefaultTableModel(new String[][] {}, new String[] { "Field", "Value" });
+							TableModel jTable2Model = new DefaultTableModel(new String[][] {}, new String[] { Application.language.getString("Field"),
+									Application.language.getString("Value") });
 							jFieldTable = new JTable();
 							jScrollPane2.setViewportView(jFieldTable);
 							jFieldTable.setModel(jTable2Model);
@@ -149,8 +150,8 @@ public class GDTLDTPanel extends JPanel {
 				jTypeLabel.setText("Type : Data descriptor, value=0x" + Long.toHexString(value));
 				parseDataDescriptor();
 			} else if (bit[44] == 0 && bit[43] == 0 && bit[42] == 0 && bit[41] == 1 && bit[40] == 0) {
-				jTypeLabel.setText("Type : LDT descriptor, value=0x" + Long.toHexString(value) + ", base=0x" + Long.toHexString(CommonLib.getInt(b[2], b[3], b[4], b[7])) + ", limit=0x"
-						+ Long.toHexString(CommonLib.getShort(b[0], b[1])));
+				jTypeLabel.setText("Type : LDT descriptor, value=0x" + Long.toHexString(value) + ", base=0x" + Long.toHexString(CommonLib.getInt(b[2], b[3], b[4], b[7]))
+						+ ", limit=0x" + Long.toHexString(CommonLib.getShort(b[0], b[1])));
 				parseLDT();
 			} else if (bit[44] == 0 && bit[42] == 0 && bit[40] == 1) {
 				jTypeLabel.setText("Type : TSS descriptor, value=0x" + Long.toHexString(value));
@@ -231,24 +232,31 @@ public class GDTLDTPanel extends JPanel {
 			model.addRow(new String[] { "avl", "0x" + Long.toHexString(bit[20]) });
 			model.addRow(new String[] { "g", "0x" + Long.toHexString(bit[23]) });
 
+			// parse each descriptor
+
 			JScrollPane pane = new JScrollPane();
-			jTabbedPane1.addTab("Descriptors", null, pane, null);
+			jTabbedPane1.addTab(Application.language.getString("Descriptor"), null, pane, null);
 			JTable table = new JTable();
-			DefaultTableModel model2 = new DefaultTableModel(new String[][] {}, new String[] { "No.", "Type", "Base", "Limit", "A", "R/W", "C/E", "X", "S", "DPL", "P", "AVL", "D", "G", "Value" });
+			DefaultTableModel model2 = new DefaultTableModel(new String[][] {}, new String[] { "No.", "Type", "Value", "Base", "Limit", "A", "R/W", "C/E", "X", "S", "DPL", "P",
+					"AVL", "D/B", "G" });
 
 			if (limit > 1000) {
 				limit = 1000;
 			}
-			int bytes[] = Application.getPhysicalMemory(base, (int) (limit + 1));
+			int bytes[] = Application.getLinearMemory(base, (int) (limit + 1));
 
 			for (int x = 0; x < limit; x += 8) {
-				System.out.println(x);
 				long value = CommonLib.getLong(bytes, x);
 				LinkedHashMap<String, String> hm = DescriptorParser.parseDescriptor(value);
-				model2.addRow(new String[] { String.valueOf(x), hm.get("Type"), "", "", "", "", "", "", "", "", "", "", "", "", hm.get("Value") });
+				model2.addRow(new String[] { String.valueOf(x), hm.get("Type"), hm.get("Value"), hm.get("Base"), hm.get("Limit"), hm.get("A"), hm.get("R/W"), hm.get("C/E"),
+						hm.get("X"), hm.get("S"), hm.get("DPL"), hm.get("P"), hm.get("AVL"), hm.get("D/B"), hm.get("G") });
 			}
-
+			table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 			table.setModel(model2);
+			table.getColumnModel().getColumn(2).setPreferredWidth(150);
+			for (int x = 5; x <= 14; x++) {
+				table.getColumnModel().getColumn(x).setPreferredWidth(50);
+			}
 			pane.setViewportView(table);
 		} catch (Exception ex) {
 			ex.printStackTrace();

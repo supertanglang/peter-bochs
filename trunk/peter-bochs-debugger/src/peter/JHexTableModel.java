@@ -4,7 +4,7 @@ import javax.swing.table.AbstractTableModel;
 
 public class JHexTableModel extends AbstractTableModel {
 	private String[] columnNames = { Application.language.getString("Offset"), "0", "1", "2", "3", "4", "5", "6", "7", Application.language.getString("String") };
-	private String qw[] = new String[(getColumnCount() - 2) * getRowCount()];
+	private int qw[] = new int[(getColumnCount() - 2) * getRowCount()];
 	private int radix = 16;
 	private long currentAddress;
 
@@ -29,18 +29,17 @@ public class JHexTableModel extends AbstractTableModel {
 			if (column == 0) {
 				return "0x" + Long.toHexString(currentAddress + (row * (getColumnCount() - 2)));
 			} else if (column == getColumnCount() - 1) {
-				char c0 = (char) Integer.parseInt(qw[row * (getColumnCount() - 2)], 16);
-				char c1 = (char) Integer.parseInt(qw[1 + row * (getColumnCount() - 2)], 16);
-				char c2 = (char) Integer.parseInt(qw[2 + row * (getColumnCount() - 2)], 16);
-				char c3 = (char) Integer.parseInt(qw[3 + row * (getColumnCount() - 2)], 16);
-				char c4 = (char) Integer.parseInt(qw[4 + row * (getColumnCount() - 2)], 16);
-				char c5 = (char) Integer.parseInt(qw[5 + row * (getColumnCount() - 2)], 16);
-				char c6 = (char) Integer.parseInt(qw[6 + row * (getColumnCount() - 2)], 16);
-				char c7 = (char) Integer.parseInt(qw[7 + row * (getColumnCount() - 2)], 16);
-				return String.valueOf(c0) + String.valueOf(c1) + String.valueOf(c2) + String.valueOf(c3) + String.valueOf(c4) + String.valueOf(c5) + String.valueOf(c6)
-						+ String.valueOf(c7);
+				char c0 = (char) qw[row * (getColumnCount() - 2)];
+				char c1 = (char) qw[1 + row * (getColumnCount() - 2)];
+				char c2 = (char) qw[2 + row * (getColumnCount() - 2)];
+				char c3 = (char) qw[3 + row * (getColumnCount() - 2)];
+				char c4 = (char) qw[4 + row * (getColumnCount() - 2)];
+				char c5 = (char) qw[5 + row * (getColumnCount() - 2)];
+				char c6 = (char) qw[6 + row * (getColumnCount() - 2)];
+				char c7 = (char) qw[7 + row * (getColumnCount() - 2)];
+				return String.valueOf(c0) + String.valueOf(c1) + String.valueOf(c2) + String.valueOf(c3) + String.valueOf(c4) + String.valueOf(c5) + String.valueOf(c6) + String.valueOf(c7);
 			} else {
-				long l = Long.parseLong(qw[(column - 1) + row * (getColumnCount() - 2)], 16);
+				long l = qw[(column - 1) + row * (getColumnCount() - 2)];
 				if (radix == 16) {
 					return String.format("%02x", l);
 					// return Long.toHexString(l);
@@ -59,7 +58,7 @@ public class JHexTableModel extends AbstractTableModel {
 		}
 	}
 
-	public void set(String qw[]) {
+	public void set(int qw[]) {
 		this.qw = qw;
 	}
 
