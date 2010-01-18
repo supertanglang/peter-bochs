@@ -113,7 +113,9 @@ import peter.graph.PageDirectoryView;
 import com.jgraph.layout.JGraphFacade;
 import com.jgraph.layout.JGraphLayout;
 import com.jgraph.layout.tree.JGraphTreeLayout;
-import com.petersoft.JClosableTabbedPane;
+import com.petersoft.advancedswing.diskpanel.DiskPanel;
+import com.petersoft.advancedswing.jmaximizabletabbedpane.JMaximizableTabbedPane;
+import com.petersoft.advancedswing.jmaximizabletabbedpane.JMaximizableTabbedPane_BasePanel;
 
 /**
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
@@ -132,7 +134,7 @@ public class Application extends javax.swing.JFrame {
 	private JMenu jMenu5;
 	private JScrollPane jScrollPane1;
 	private JScrollPane jScrollPane2;
-	private JClosableTabbedPane jTabbedPane1;
+	private JMaximizableTabbedPane jTabbedPane1;
 	private JHexTable jHexTable1;
 	private JEditorPane jBochsEditorPane;
 
@@ -158,10 +160,10 @@ public class Application extends javax.swing.JFrame {
 	private JPanel jPanel7;
 	private JPanel jPanel6;
 	private JPanel jPanel5;
-	private JClosableTabbedPane jTabbedPane3;
+	private JMaximizableTabbedPane jTabbedPane3;
 	private JMenuItem pauseBochsMenuItem;
 	private JPanel jPanel3;
-	public JClosableTabbedPane jTabbedPane2;
+	public JMaximizableTabbedPane jTabbedPane2;
 	private JButton jBochsCommandButton;
 	private JTextField jBochsCommandTextField;
 	private JPanel jPanel2;
@@ -221,6 +223,9 @@ public class Application extends javax.swing.JFrame {
 	private JPanel jPanel22;
 	private JPanel jPanel24;
 	private JToolBar jPanel26;
+	private JMaximizableTabbedPane_BasePanel jMaximizableTabbedPane_BasePanel1;
+	private DiskPanel diskPanel;
+	private JButton jGoLinearButton;
 	private JButton jClearBochsButton;
 	public JTextField jDumpPageDirectoryAddressTextField;
 	private JButton jDumpPageTableAtAddressButton;
@@ -232,7 +237,7 @@ public class Application extends javax.swing.JFrame {
 	private JScrollPane jScrollPane15;
 	private JTable jELFHeaderTable;
 	private JScrollPane jELFHeaderScrollPane;
-	private JClosableTabbedPane jTabbedPane4;
+	private JMaximizableTabbedPane jTabbedPane4;
 	private JButton jButton16;
 	private JComboBox jELFComboBox;
 	private JPanel jELFDumpPanel;
@@ -347,6 +352,7 @@ public class Application extends javax.swing.JFrame {
 	public static String version = "";
 	private JButton jButton21;
 	public static String currentLanguage = "en_US";
+	public static String bochsrc;
 
 	/**
 	 * Auto-generated main method to display this JFrame
@@ -401,6 +407,12 @@ public class Application extends javax.swing.JFrame {
 			if (args[0].equals("-version") || args[0].equals("-v")) {
 				System.out.println(Global.version);
 				return;
+			}
+		}
+
+		for (String str : args) {
+			if (str.contains("bochsrc")) {
+				bochsrc = str;
 			}
 		}
 
@@ -579,7 +591,7 @@ public class Application extends javax.swing.JFrame {
 				updateBochsStatus();
 
 				CardLayout cl = (CardLayout) (jMainPanel.getLayout());
-				cl.show(jMainPanel, "jSplitPane2");
+				cl.show(jMainPanel, "jMaximizableTabbedPane_BasePanel1");
 
 				jRunBochsButton.setText(language.getString("Run_bochs"));
 				jRunBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/resultset_next.png")));
@@ -976,7 +988,7 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jGOMemoryButtonActionPerformed(ActionEvent evt) {
-		updateMemory();
+		updateMemory(true);
 
 		addMemoryAddressComboBox(jMemoryAddressComboBox.getSelectedItem().toString());
 
@@ -1031,7 +1043,7 @@ public class Application extends javax.swing.JFrame {
 				if (Global.debug) {
 					System.out.println("updateMemory");
 				}
-				updateMemory();
+				updateMemory(true);
 
 				if (Global.debug) {
 					System.out.println("updateInstruction");
@@ -1599,6 +1611,7 @@ public class Application extends javax.swing.JFrame {
 			if (limit > 25) {
 				limit = 25;
 			}
+			System.out.println(limit);
 			sendCommand("info idt 0 " + limit);
 
 			String limitStr = String.format("0x%02x", limit);
@@ -1897,59 +1910,72 @@ public class Application extends javax.swing.JFrame {
 		}
 	}
 
-	private void updateMemory() {
+	private void updateMemory(boolean isPhysicalAddress) {
 		try {
 			if (this.jMemoryAddressComboBox.getSelectedItem() != null) {
 				jStatusLabel.setText("Updating memory");
 				int totalByte = 200;
-				commandReceiver.clearBuffer();
-				commandReceiver.shouldShow = false;
-				sendCommand("xp /" + totalByte + "bx " + this.jMemoryAddressComboBox.getSelectedItem().toString());
-				currentMemoryWindowsAddress = CommonLib.string2decimal(this.jMemoryAddressComboBox.getSelectedItem().toString());
+				int bytes[] = this.getMemory(CommonLib.string2decimal(this.jMemoryAddressComboBox.getSelectedItem().toString()), totalByte, isPhysicalAddress);
+				jStatusLabel.setText("");
+				jHexTable1.getModel().setCurrentAddress(CommonLib.string2decimal(this.jMemoryAddressComboBox.getSelectedItem().toString()));
+				jHexTable1.updateUI();
+				jHexTable1.getModel().set(bytes);
 
-				if (totalByte > 0) {
-					float totalByte2 = totalByte - 1;
-					totalByte2 = totalByte2 / 8;
-					int totalByte3 = (int) Math.floor(totalByte2);
-					String realEndAddressStr;
-					String realStartAddressStr;
-					String base = this.jMemoryAddressComboBox.getSelectedItem().toString();
-					long realStartAddress = CommonLib.string2decimal(base);
-					realStartAddressStr = String.format("%08x", realStartAddress);
-					long realEndAddress = realStartAddress + totalByte3 * 8;
-					realEndAddressStr = String.format("%08x", realEndAddress);
-					// System.out.println(realStartAddressStr);
-					// System.out.println(realEndAddressStr);
-					String result = commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr);
-					// System.out.println(result);
-					if (result != null) {
-						String[] lines = result.split("\n");
-						String bytes[] = new String[totalByte];
-						int offset = 0;
-						// System.out.println(result);
-						jStatusProgressBar.setMaximum(lines.length - 1);
-						for (int y = 0; y < lines.length; y++) {
-							jStatusProgressBar.setValue(y);
-							String[] b = lines[y].replaceFirst("^.*:", "").split("\t");
-							// System.out.println(lines[y]);
-
-							for (int x = 1; x < b.length && offset < totalByte; x++) {
-								// System.out.println(offset + "==" + x);
-								bytes[offset] = b[x].substring(2).trim();
-								offset++;
-							}
-							// System.out.println();
-							jStatusLabel.setText("Updating memory " + (y + 1) + "/" + (lines.length - 1));
-						}
-						jHexTable1.getModel().set(bytes);
-					}
-					jStatusLabel.setText("");
-					// System.out.println(lines.length);
-
-					jHexTable1.getModel().setCurrentAddress(CommonLib.string2decimal(this.jMemoryAddressComboBox.getSelectedItem().toString()));
-					jHexTable1.updateUI();
-				}
+				// commandReceiver.clearBuffer();
+				// commandReceiver.shouldShow = false;
+				// sendCommand("xp /" + totalByte + "bx " +
+				// this.jMemoryAddressComboBox.getSelectedItem().toString());
+				// currentMemoryWindowsAddress =
+				// CommonLib.string2decimal(this.jMemoryAddressComboBox.getSelectedItem().toString());
+				//				
+				// if (totalByte > 0) {
+				// float totalByte2 = totalByte - 1;
+				// totalByte2 = totalByte2 / 8;
+				// int totalByte3 = (int) Math.floor(totalByte2);
+				// String realEndAddressStr;
+				// String realStartAddressStr;
+				// String base =
+				// this.jMemoryAddressComboBox.getSelectedItem().toString();
+				// long realStartAddress = CommonLib.string2decimal(base);
+				// realStartAddressStr = String.format("%08x",
+				// realStartAddress);
+				// long realEndAddress = realStartAddress + totalByte3 * 8;
+				// realEndAddressStr = String.format("%08x", realEndAddress);
+				// // System.out.println(realStartAddressStr);
+				// // System.out.println(realEndAddressStr);
+				// String result =
+				// commandReceiver.getCommandResult(realStartAddressStr,
+				// realEndAddressStr);
+				// // System.out.println(result);
+				// if (result != null) {
+				// String[] lines = result.split("\n");
+				// String bytes[] = new String[totalByte];
+				// int offset = 0;
+				// // System.out.println(result);
+				// jStatusProgressBar.setMaximum(lines.length - 1);
+				// for (int y = 0; y < lines.length; y++) {
+				// jStatusProgressBar.setValue(y);
+				// String[] b = lines[y].replaceFirst("^.*:", "").split("\t");
+				// // System.out.println(lines[y]);
+				//
+				// for (int x = 1; x < b.length && offset < totalByte; x++) {
+				// // System.out.println(offset + "==" + x);
+				// bytes[offset] = b[x].substring(2).trim();
+				// offset++;
+				// }
+				// // System.out.println();
+				// jStatusLabel.setText("Updating memory " + (y + 1) + "/" +
+				// (lines.length - 1));
+				// }
+				// jHexTable1.getModel().set(bytes);
+				// }
+				// jStatusLabel.setText("");
+				// // System.out.println(lines.length);
+				//
+				// jHexTable1.getModel().setCurrentAddress(CommonLib.string2decimal(this.jMemoryAddressComboBox.getSelectedItem().toString()));
+				// jHexTable1.updateUI();
 			}
+			// }
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -1986,8 +2012,8 @@ public class Application extends javax.swing.JFrame {
 					return;
 				}
 			}
-			jTabbedPane2.addTab("GDT " + String.format("0x%02x", jGDTTable.getSelectedRow() + 1), new GDTLDTPanel(this, 0, CommonLib
-					.hex2decimal(this.jRegisterPanel1.jGDTRTextField.getText()), jGDTTable.getSelectedRow() + 1));
+			jTabbedPane2.addTabWithCloseButton("GDT " + String.format("0x%02x", jGDTTable.getSelectedRow() + 1), null, new GDTLDTPanel(this, 0, CommonLib
+					.hex2decimal(this.jRegisterPanel1.jGDTRTextField.getText()), jGDTTable.getSelectedRow() + 1), null);
 			jTabbedPane2.setSelectedIndex(jTabbedPane2.getTabCount() - 1);
 		}
 	}
@@ -3138,479 +3164,487 @@ public class Application extends javax.swing.JFrame {
 			CardLayout jMainPanelLayout = new CardLayout();
 			jMainPanel.setLayout(jMainPanelLayout);
 			{
-				jSplitPane2 = new JSplitPane();
-				jMainPanel.add(jSplitPane2, "jSplitPane2");
+				jMainPanel.add(getJMaximizableTabbedPane_BasePanel1(), "jMaximizableTabbedPane_BasePanel1");
 				jMainPanel.add(getJRunningLabel(), "Running Label");
-				jSplitPane2.setPreferredSize(new java.awt.Dimension(1009, 781));
-				jSplitPane2.setOrientation(JSplitPane.VERTICAL_SPLIT);
-				{
-					jSplitPane1 = new JSplitPane();
-					jSplitPane2.add(jSplitPane1, JSplitPane.TOP);
-					jSplitPane1.setDividerLocation(400);
-					{
-						jTabbedPane1 = new JClosableTabbedPane();
-						jSplitPane1.add(jTabbedPane1, JSplitPane.RIGHT);
-						{
-							jPanel10 = new JPanel();
-							BorderLayout jPanel10Layout = new BorderLayout();
-							jPanel10.setLayout(jPanel10Layout);
-							jTabbedPane1.addTab(language.getString("Instruction"), null, jPanel10, null);
-							jPanel10.setPreferredSize(new java.awt.Dimension(604, 452));
-							{
-								jInstructionControlPanel = new JPanel();
-								jPanel10.add(jInstructionControlPanel, BorderLayout.NORTH);
-								{
-									ComboBoxModel jInstructionComboBoxModel = new DefaultComboBoxModel(new String[] {});
-									jInstructionComboBox = new JComboBox();
-									jInstructionControlPanel.add(jInstructionComboBox);
-									jInstructionComboBox.setModel(jInstructionComboBoxModel);
-									jInstructionComboBox.setEditable(true);
-								}
-								{
-									jDisassembleButton = new JButton();
-									jInstructionControlPanel.add(jDisassembleButton);
-									jInstructionControlPanel.add(getJButton14());
-									jInstructionControlPanel.add(getJButton3());
-									jInstructionControlPanel.add(getJButton12());
-									jDisassembleButton.setText(language.getString("Disassemble") + " cs:eip");
-									jDisassembleButton.addActionListener(new ActionListener() {
-										public void actionPerformed(ActionEvent evt) {
-											jDisassembleButtonActionPerformed(evt);
-										}
-									});
-								}
-							}
-							{
-								jScrollPane5 = new JScrollPane();
-								jPanel10.add(jScrollPane5, BorderLayout.CENTER);
-								{
-									TableModel jInstructionTableModel = new DefaultTableModel(new String[][] {}, new String[] { language.getString("Address"),
-											language.getString("Instruction"), language.getString("Bytes") }) {
-										public boolean isCellEditable(int row, int col) {
-											return false;
-										}
-									};
-									jInstructionTable = new JTable();
-									jScrollPane5.setViewportView(jInstructionTable);
-									jInstructionTable.setModel(jInstructionTableModel);
-									jInstructionTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
-									jInstructionTable.getColumnModel().getColumn(0).setPreferredWidth(40);
-									jInstructionTable.getColumnModel().getColumn(1).setPreferredWidth(200);
-									jInstructionTable.getColumnModel().getColumn(2).setPreferredWidth(40);
-								}
-							}
-						}
-						{
-							jPanel4 = new JPanel();
-							jTabbedPane1.addTab(language.getString("Breakpoint"), null, jPanel4, null);
-							BorderLayout jPanel4Layout = new BorderLayout();
-							jPanel4.setLayout(jPanel4Layout);
-							{
-								jScrollPane9 = new JScrollPane();
-								jPanel4.add(jScrollPane9, BorderLayout.CENTER);
-								{
-									TableModel jTable1Model = new DefaultTableModel(new String[][] {}, new String[] { language.getString("No"), language.getString("Address_type"),
-											"Disp Enb Address", language.getString("Hit") }) {
-										public boolean isCellEditable(int row, int col) {
-											return false;
-										}
-									};
-									jBreakpointTable = new JTable();
-									jScrollPane9.setViewportView(jBreakpointTable);
-									jBreakpointTable.setModel(jTable1Model);
-									jBreakpointTable.getColumnModel().getColumn(0).setCellRenderer(new JBreakpointTableCellRenderer());
-								}
-							}
-							{
-								jPanel12 = new JPanel();
-								jPanel4.add(jPanel12, BorderLayout.SOUTH);
-								{
-									jAddBreakpointButton = new JButton();
-									jPanel12.add(jAddBreakpointButton);
-									jAddBreakpointButton.setText(language.getString("Add"));
-									jAddBreakpointButton.addActionListener(new ActionListener() {
-										public void actionPerformed(ActionEvent evt) {
-											jAddBreakpointButtonActionPerformed(evt);
-										}
-									});
-								}
-								{
-									jDeleteBreakpointButton = new JButton();
-									jPanel12.add(jDeleteBreakpointButton);
-									jDeleteBreakpointButton.setText(language.getString("Del"));
-									jDeleteBreakpointButton.addActionListener(new ActionListener() {
-										public void actionPerformed(ActionEvent evt) {
-											jDeleteBreakpointButtonActionPerformed(evt);
-										}
-									});
-								}
-								{
-									jRefreshBreakpointButton = new JButton();
-									jPanel12.add(jRefreshBreakpointButton);
-									jRefreshBreakpointButton.setText(language.getString("Refresh"));
-									jRefreshBreakpointButton.addActionListener(new ActionListener() {
-										public void actionPerformed(ActionEvent evt) {
-											jRefreshBreakpointButtonActionPerformed(evt);
-										}
-									});
-								}
-								{
-									jEnableBreakpointButton = new JButton();
-									jPanel12.add(jEnableBreakpointButton);
-									jEnableBreakpointButton.setText(language.getString("Enable"));
-									jEnableBreakpointButton.addActionListener(new ActionListener() {
-										public void actionPerformed(ActionEvent evt) {
-											jEnableBreakpointButtonActionPerformed(evt);
-										}
-									});
-								}
-								{
-									jDisableBreakpointButton = new JButton();
-									jPanel12.add(jDisableBreakpointButton);
-									jDisableBreakpointButton.setText(language.getString("Disable"));
-									jDisableBreakpointButton.addActionListener(new ActionListener() {
-										public void actionPerformed(ActionEvent evt) {
-											jDisableBreakpointButtonActionPerformed(evt);
-										}
-									});
-								}
-								{
-									jSaveBreakpointButton = new JButton();
-									jPanel12.add(jSaveBreakpointButton);
-									jSaveBreakpointButton.setText(language.getString("Save"));
-									jSaveBreakpointButton.addActionListener(new ActionListener() {
-										public void actionPerformed(ActionEvent evt) {
-											jSaveBreakpointButtonActionPerformed(evt);
-										}
-									});
-								}
-								{
-									jLoadBreakpointButton = new JButton();
-									jPanel12.add(jLoadBreakpointButton);
-									jLoadBreakpointButton.setText(language.getString("Load"));
-									jLoadBreakpointButton.addActionListener(new ActionListener() {
-										public void actionPerformed(ActionEvent evt) {
-											jLoadBreakpointButtonActionPerformed(evt);
-										}
-									});
-								}
-							}
-						}
-						{
-							jPanel1 = new JPanel();
-							jTabbedPane1.addTab(language.getString("Bochs"), null, jPanel1, null);
-							jTabbedPane1.addTab("ELF", null, getJELFBreakpointPanel(), null);
-							if (!Global.debug) {
-								jTabbedPane1.removeTabAt(jTabbedPane1.getTabCount() - 1);
-							}
-							BorderLayout jPanel1Layout = new BorderLayout();
-							jPanel1.setLayout(jPanel1Layout);
-							{
-								jScrollPane4 = new JScrollPane();
-								jPanel1.add(jScrollPane4, BorderLayout.CENTER);
-								{
-									jBochsEditorPane = new JEditorPane();
-									jScrollPane4.setViewportView(jBochsEditorPane);
-								}
-							}
-							{
-								jPanel2 = new JPanel();
-								TableLayout jPanel2Layout = new TableLayout(new double[][] { { TableLayout.FILL, 411.0, TableLayout.MINIMUM, TableLayout.MINIMUM },
-										{ TableLayout.FILL } });
-								jPanel2Layout.setHGap(5);
-								jPanel2Layout.setVGap(5);
-								jPanel2.setLayout(jPanel2Layout);
-								jPanel1.add(jPanel2, BorderLayout.SOUTH);
-								{
-									jBochsCommandTextField = new JTextField();
-									jPanel2.add(jBochsCommandTextField, "0, 0, 1, 0");
-									jBochsCommandTextField.addKeyListener(new KeyAdapter() {
-										public void keyPressed(KeyEvent evt) {
-											jBochsCommandTextFieldKeyPressed(evt);
-										}
+			}
+		}
+		return jMainPanel;
+	}
 
-										public void keyTyped(KeyEvent evt) {
-											jBochsCommandTextFieldKeyTyped(evt);
-										}
-									});
+	private JSplitPane getJSplitPane2() {
+		jSplitPane2 = new JSplitPane();
+
+		jSplitPane2.setPreferredSize(new java.awt.Dimension(1009, 781));
+		jSplitPane2.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		{
+			jSplitPane1 = new JSplitPane();
+			jSplitPane2.add(jSplitPane1, JSplitPane.TOP);
+			jSplitPane1.setDividerLocation(400);
+			{
+				jTabbedPane1 = new JMaximizableTabbedPane();
+				jSplitPane1.add(jTabbedPane1, JSplitPane.RIGHT);
+				{
+					jPanel10 = new JPanel();
+					BorderLayout jPanel10Layout = new BorderLayout();
+					jPanel10.setLayout(jPanel10Layout);
+					jTabbedPane1.addTab(language.getString("Instruction"), null, jPanel10, null);
+					jPanel10.setPreferredSize(new java.awt.Dimension(604, 452));
+					{
+						jInstructionControlPanel = new JPanel();
+						jPanel10.add(jInstructionControlPanel, BorderLayout.NORTH);
+						{
+							ComboBoxModel jInstructionComboBoxModel = new DefaultComboBoxModel(new String[] {});
+							jInstructionComboBox = new JComboBox();
+							jInstructionControlPanel.add(jInstructionComboBox);
+							jInstructionComboBox.setModel(jInstructionComboBoxModel);
+							jInstructionComboBox.setEditable(true);
+						}
+						{
+							jDisassembleButton = new JButton();
+							jInstructionControlPanel.add(jDisassembleButton);
+							jInstructionControlPanel.add(getJButton14());
+							jInstructionControlPanel.add(getJButton3());
+							jInstructionControlPanel.add(getJButton12());
+							jDisassembleButton.setText(language.getString("Disassemble") + " cs:eip");
+							jDisassembleButton.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jDisassembleButtonActionPerformed(evt);
 								}
-								{
-									jBochsCommandButton = new JButton();
-									jPanel2.add(jBochsCommandButton, "2, 0");
-									jPanel2.add(getJClearBochsButton(), "3, 0");
-									jBochsCommandButton.setText("Run");
-									jBochsCommandButton.addActionListener(new ActionListener() {
-										public void actionPerformed(ActionEvent evt) {
-											jBochsCommandButtonActionPerformed(evt);
-										}
-									});
-								}
-							}
+							});
 						}
 					}
 					{
-						jTabbedPane3 = new JClosableTabbedPane();
-						jSplitPane1.add(jTabbedPane3, JSplitPane.LEFT);
+						jScrollPane5 = new JScrollPane();
+						jPanel10.add(jScrollPane5, BorderLayout.CENTER);
 						{
-							jPanel8 = new JPanel();
-							BorderLayout jPanel8Layout = new BorderLayout();
-							jPanel8.setLayout(jPanel8Layout);
-							jTabbedPane3.addTab(language.getString("Memory"), null, jPanel8, null);
-							{
-								jScrollPane2 = new JScrollPane();
-								jPanel8.add(jScrollPane2, BorderLayout.CENTER);
-								{
-									jHexTable1 = new JHexTable();
-									jHexTable1.getColumnModel().getColumn(0).setPreferredWidth(30);
-									for (int x = 1; x < 9; x++) {
-										jHexTable1.getColumnModel().getColumn(x).setPreferredWidth(10);
-									}
-									jScrollPane2.setViewportView(jHexTable1);
-									jHexTable1.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
-									jHexTable1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-									jHexTable1.setCellSelectionEnabled(true);
-									jHexTable1.addMouseListener(new MouseAdapter() {
-										public void mouseClicked(MouseEvent evt) {
-											jHexTable1MouseClicked(evt);
-										}
-									});
+							TableModel jInstructionTableModel = new DefaultTableModel(new String[][] {}, new String[] { language.getString("Address"),
+									language.getString("Instruction"), language.getString("Bytes") }) {
+								public boolean isCellEditable(int row, int col) {
+									return false;
 								}
-							}
-							{
-								jPanel9 = new JPanel();
-								FlowLayout jPanel9Layout = new FlowLayout();
-								jPanel9.setLayout(jPanel9Layout);
-								jPanel8.add(jPanel9, BorderLayout.NORTH);
-								{
-									// ComboBoxModel jMemoryAddressComboBoxModel
-									// = new DefaultComboBoxModel(new String[] {
-									// "0x00000000" });
-									jMemoryAddressComboBox = new JComboBox();
-									jPanel9.add(jMemoryAddressComboBox);
-									jMemoryAddressComboBox.setSelectedItem("0x00000000");
-									// jMemoryAddressComboBox.setModel(jMemoryAddressComboBoxModel);
-									jMemoryAddressComboBox.setEditable(true);
-									jMemoryAddressComboBox.addActionListener(new ActionListener() {
-										public void actionPerformed(ActionEvent evt) {
-											jMemoryAddressComboBoxActionPerformed(evt);
-										}
-									});
-									new Thread() {
-										public void run() {
-											Vector<HashMap> vector = XMLHelper.xmltoVector("memoryCombo.xml", "/address/record");
-											for (int x = 0; x < vector.size(); x++) {
-												addMemoryAddressComboBox(vector.get(x).get("address").toString());
-											}
-										}
-									}.start();
-								}
-								{
-									jGOMemoryButton = new JButton();
-									jPanel9.add(jGOMemoryButton);
-									jPanel9.add(getJButton2());
-									jPanel9.add(getJButton5());
-									jGOMemoryButton.setText(language.getString("Go"));
-									jGOMemoryButton.addActionListener(new ActionListener() {
-										public void actionPerformed(ActionEvent evt) {
-											jGOMemoryButtonActionPerformed(evt);
-										}
-									});
-								}
-								{
-									jBinaryRadioButton = new JRadioButton();
-									jPanel9.add(jBinaryRadioButton);
-									jBinaryRadioButton.setText("2");
-									jBinaryRadioButton.addItemListener(new ItemListener() {
-										public void itemStateChanged(ItemEvent evt) {
-											jBinaryRadioButtonItemStateChanged(evt);
-										}
-									});
-									jBinaryRadioButton.addChangeListener(new ChangeListener() {
-										public void stateChanged(ChangeEvent evt) {
-											jBinaryRadioButtonStateChanged(evt);
-										}
-									});
-									getButtonGroup1().add(jBinaryRadioButton);
-								}
-								{
-									jOctRadioButton1 = new JRadioButton();
-									jPanel9.add(jOctRadioButton1);
-									jOctRadioButton1.setText("8");
-									jOctRadioButton1.addItemListener(new ItemListener() {
-										public void itemStateChanged(ItemEvent evt) {
-											jOctRadioButton1ItemStateChanged(evt);
-										}
-									});
-									jOctRadioButton1.addChangeListener(new ChangeListener() {
-										public void stateChanged(ChangeEvent evt) {
-											jOctRadioButton1StateChanged(evt);
-										}
-									});
-									getButtonGroup1().add(jOctRadioButton1);
-								}
-								{
-									jDecRadioButton = new JRadioButton();
-									jPanel9.add(jDecRadioButton);
-									jDecRadioButton.setText("10");
-									jDecRadioButton.addItemListener(new ItemListener() {
-										public void itemStateChanged(ItemEvent evt) {
-											jDecRadioButtonItemStateChanged(evt);
-										}
-									});
-									jDecRadioButton.addChangeListener(new ChangeListener() {
-										public void stateChanged(ChangeEvent evt) {
-											jDecRadioButtonStateChanged(evt);
-										}
-									});
-									getButtonGroup1().add(jDecRadioButton);
-								}
-								{
-									jHexRadioButton = new JRadioButton();
-									jPanel9.add(jHexRadioButton);
-									jHexRadioButton.setText("16");
-									jHexRadioButton.setSelected(true);
-									jHexRadioButton.addItemListener(new ItemListener() {
-										public void itemStateChanged(ItemEvent evt) {
-											jHexRadioButtonItemStateChanged(evt);
-										}
-									});
-									jHexRadioButton.addChangeListener(new ChangeListener() {
-										public void stateChanged(ChangeEvent evt) {
-											jHexRadioButtonStateChanged(evt);
-										}
-									});
-									getButtonGroup1().add(jHexRadioButton);
-								}
-							}
-						}
-						{
-							jPanel5 = new JPanel();
-							jTabbedPane3.addTab(language.getString("GDT"), null, jPanel5, null);
-							BorderLayout jPanel5Layout = new BorderLayout();
-							jPanel5.setLayout(jPanel5Layout);
-							{
-								jScrollPane3 = new JScrollPane();
-								jPanel5.add(jScrollPane3, BorderLayout.CENTER);
-								jPanel5.add(getJPanel14(), BorderLayout.NORTH);
-								{
-									JGDTTableModel jGDTTableModel = new JGDTTableModel();
-									jGDTTable = new JTable();
-									jGDTTable.setModel(jGDTTableModel);
-									jScrollPane3.setViewportView(jGDTTable);
-									jGDTTable.getColumnModel().getColumn(0).setMaxWidth(40);
-									jGDTTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
-									jGDTTable.addMouseListener(new MouseAdapter() {
-										public void mouseClicked(MouseEvent evt) {
-											jGDTTableMouseClicked(evt);
-										}
-									});
-
-								}
-							}
-						}
-						{
-							jPanel6 = new JPanel();
-							BorderLayout jPanel6Layout = new BorderLayout();
-							jPanel6.setLayout(jPanel6Layout);
-							jTabbedPane3.addTab(language.getString("IDT"), null, jPanel6, null);
-							{
-								jScrollPane10 = new JScrollPane();
-								jPanel6.add(jScrollPane10, BorderLayout.CENTER);
-								jPanel6.add(getJPanel15(), BorderLayout.NORTH);
-								{
-									JIDTTableModel jIDTTableModel = new JIDTTableModel();
-									jIDTTable = new JTable();
-									jIDTTable.setModel(jIDTTableModel);
-									jScrollPane10.setViewportView(jIDTTable);
-									jIDTTable.getColumnModel().getColumn(0).setMaxWidth(40);
-									jIDTTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
-								}
-							}
-						}
-						{
-							jPanel7 = new JPanel();
-							BorderLayout jPanel7Layout = new BorderLayout();
-							jPanel7.setLayout(jPanel7Layout);
-							jTabbedPane3.addTab(language.getString("LDT"), null, jPanel7, null);
-							jTabbedPane3.addTab(language.getString("Search_memory"), null, getJPanel17(), null);
-							{
-								jScrollPane11 = new JScrollPane();
-								jPanel7.add(jScrollPane11, BorderLayout.CENTER);
-								jPanel7.add(getJPanel16(), BorderLayout.NORTH);
-								{
-									JLDTTableModel jLDTTableModel = new JLDTTableModel();
-									jLDTTable = new JTable();
-									jLDTTable.setModel(jLDTTableModel);
-									jScrollPane11.setViewportView(jLDTTable);
-									jLDTTable.getColumnModel().getColumn(0).setMaxWidth(40);
-									jLDTTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
-									jLDTTable.addMouseListener(new MouseAdapter() {
-										public void mouseClicked(MouseEvent evt) {
-											jLDTTableMouseClicked(evt);
-										}
-									});
-								}
-							}
+							};
+							jInstructionTable = new JTable();
+							jScrollPane5.setViewportView(jInstructionTable);
+							jInstructionTable.setModel(jInstructionTableModel);
+							jInstructionTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+							jInstructionTable.getColumnModel().getColumn(0).setPreferredWidth(40);
+							jInstructionTable.getColumnModel().getColumn(1).setPreferredWidth(200);
+							jInstructionTable.getColumnModel().getColumn(2).setPreferredWidth(40);
 						}
 					}
 				}
 				{
-					jTabbedPane2 = new JClosableTabbedPane();
-					// jTabbedPane2.setCloseIcon(true);
-					// jTabbedPane2.setMaxIcon(true);
-					//
-					// jTabbedPane2.addCloseListener(new CloseListener() {
-					// public void closeOperation(MouseEvent e) {
-					// jTabbedPane2.remove(jTabbedPane2.getOverTabIndex());
-					// }
-					// });
-					//
-					// jTabbedPane2.addMaxListener(new MaxListener() {
-					// public void maxOperation(MouseEvent e) {
-					// jTabbedPane2.detachTab(jTabbedPane2.getOverTabIndex());
-					// }
-					// });
+					jPanel4 = new JPanel();
+					jTabbedPane1.addTab(language.getString("Breakpoint"), null, jPanel4, null);
+					BorderLayout jPanel4Layout = new BorderLayout();
+					jPanel4.setLayout(jPanel4Layout);
+					{
+						jScrollPane9 = new JScrollPane();
+						jPanel4.add(jScrollPane9, BorderLayout.CENTER);
+						{
+							TableModel jTable1Model = new DefaultTableModel(new String[][] {}, new String[] { language.getString("No"), language.getString("Address_type"),
+									"Disp Enb Address", language.getString("Hit") }) {
+								public boolean isCellEditable(int row, int col) {
+									return false;
+								}
+							};
+							jBreakpointTable = new JTable();
+							jScrollPane9.setViewportView(jBreakpointTable);
+							jBreakpointTable.setModel(jTable1Model);
+							jBreakpointTable.getColumnModel().getColumn(0).setCellRenderer(new JBreakpointTableCellRenderer());
+						}
+					}
+					{
+						jPanel12 = new JPanel();
+						jPanel4.add(jPanel12, BorderLayout.SOUTH);
+						{
+							jAddBreakpointButton = new JButton();
+							jPanel12.add(jAddBreakpointButton);
+							jAddBreakpointButton.setText(language.getString("Add"));
+							jAddBreakpointButton.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jAddBreakpointButtonActionPerformed(evt);
+								}
+							});
+						}
+						{
+							jDeleteBreakpointButton = new JButton();
+							jPanel12.add(jDeleteBreakpointButton);
+							jDeleteBreakpointButton.setText(language.getString("Del"));
+							jDeleteBreakpointButton.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jDeleteBreakpointButtonActionPerformed(evt);
+								}
+							});
+						}
+						{
+							jRefreshBreakpointButton = new JButton();
+							jPanel12.add(jRefreshBreakpointButton);
+							jRefreshBreakpointButton.setText(language.getString("Refresh"));
+							jRefreshBreakpointButton.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jRefreshBreakpointButtonActionPerformed(evt);
+								}
+							});
+						}
+						{
+							jEnableBreakpointButton = new JButton();
+							jPanel12.add(jEnableBreakpointButton);
+							jEnableBreakpointButton.setText(language.getString("Enable"));
+							jEnableBreakpointButton.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jEnableBreakpointButtonActionPerformed(evt);
+								}
+							});
+						}
+						{
+							jDisableBreakpointButton = new JButton();
+							jPanel12.add(jDisableBreakpointButton);
+							jDisableBreakpointButton.setText(language.getString("Disable"));
+							jDisableBreakpointButton.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jDisableBreakpointButtonActionPerformed(evt);
+								}
+							});
+						}
+						{
+							jSaveBreakpointButton = new JButton();
+							jPanel12.add(jSaveBreakpointButton);
+							jSaveBreakpointButton.setText(language.getString("Save"));
+							jSaveBreakpointButton.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jSaveBreakpointButtonActionPerformed(evt);
+								}
+							});
+						}
+						{
+							jLoadBreakpointButton = new JButton();
+							jPanel12.add(jLoadBreakpointButton);
+							jLoadBreakpointButton.setText(language.getString("Load"));
+							jLoadBreakpointButton.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jLoadBreakpointButtonActionPerformed(evt);
+								}
+							});
+						}
+					}
+				}
+				{
+					jPanel1 = new JPanel();
+					jTabbedPane1.addTab(language.getString("Bochs"), null, jPanel1, null);
+					jTabbedPane1.addTab("ELF", null, getJELFBreakpointPanel(), null);
+					DiskPanel diskPanel = getDiskPanel();
+					jTabbedPane1.addTab(diskPanel.getFile().getName(), null, diskPanel, null);
 
-					jSplitPane2.add(jTabbedPane2, JSplitPane.BOTTOM);
+					if (!Global.debug) {
+						jTabbedPane1.removeTabAt(jTabbedPane1.getTabCount() - 1);
+					}
+					BorderLayout jPanel1Layout = new BorderLayout();
+					jPanel1.setLayout(jPanel1Layout);
 					{
-						jScrollPane1 = new JScrollPane();
-						jTabbedPane2.addTab(language.getString("Register"), null, jScrollPane1, null);
+						jScrollPane4 = new JScrollPane();
+						jPanel1.add(jScrollPane4, BorderLayout.CENTER);
 						{
-							jRegisterPanel1 = new JRegisterPanel(this);
-							jScrollPane1.setViewportView(jRegisterPanel1);
+							jBochsEditorPane = new JEditorPane();
+							jScrollPane4.setViewportView(jBochsEditorPane);
 						}
 					}
 					{
-						jPanel3 = new JPanel();
-						jTabbedPane2.addTab(language.getString("History"), null, jPanel3, null);
-						BorderLayout jPanel3Layout = new BorderLayout();
-						jPanel3.setLayout(jPanel3Layout);
+						jPanel2 = new JPanel();
+						TableLayout jPanel2Layout = new TableLayout(new double[][] { { TableLayout.FILL, 411.0, TableLayout.MINIMUM, TableLayout.MINIMUM }, { TableLayout.FILL } });
+						jPanel2Layout.setHGap(5);
+						jPanel2Layout.setVGap(5);
+						jPanel2.setLayout(jPanel2Layout);
+						jPanel1.add(jPanel2, BorderLayout.SOUTH);
 						{
-							jScrollPane6 = new JScrollPane();
-							jPanel3.add(jScrollPane6, BorderLayout.CENTER);
-							jPanel3.add(getJPanel13(), BorderLayout.NORTH);
-							jScrollPane6.setViewportView(getJHistoryTable());
+							jBochsCommandTextField = new JTextField();
+							jPanel2.add(jBochsCommandTextField, "0, 0, 1, 0");
+							jBochsCommandTextField.addKeyListener(new KeyAdapter() {
+								public void keyPressed(KeyEvent evt) {
+									jBochsCommandTextFieldKeyPressed(evt);
+								}
+
+								public void keyTyped(KeyEvent evt) {
+									jBochsCommandTextFieldKeyTyped(evt);
+								}
+							});
+						}
+						{
+							jBochsCommandButton = new JButton();
+							jPanel2.add(jBochsCommandButton, "2, 0");
+							jPanel2.add(getJClearBochsButton(), "3, 0");
+							jBochsCommandButton.setText("Run");
+							jBochsCommandButton.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jBochsCommandButtonActionPerformed(evt);
+								}
+							});
+						}
+					}
+				}
+			}
+			{
+				jTabbedPane3 = new JMaximizableTabbedPane();
+				jSplitPane1.add(jTabbedPane3, JSplitPane.LEFT);
+				{
+					jPanel8 = new JPanel();
+					BorderLayout jPanel8Layout = new BorderLayout();
+					jPanel8.setLayout(jPanel8Layout);
+					jTabbedPane3.addTab(language.getString("Memory"), null, jPanel8, null);
+					{
+						jScrollPane2 = new JScrollPane();
+						jPanel8.add(jScrollPane2, BorderLayout.CENTER);
+						{
+							jHexTable1 = new JHexTable();
+							jHexTable1.getColumnModel().getColumn(0).setPreferredWidth(30);
+							for (int x = 1; x < 9; x++) {
+								jHexTable1.getColumnModel().getColumn(x).setPreferredWidth(10);
+							}
+							jScrollPane2.setViewportView(jHexTable1);
+							jHexTable1.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+							jHexTable1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+							jHexTable1.setCellSelectionEnabled(true);
+							jHexTable1.addMouseListener(new MouseAdapter() {
+								public void mouseClicked(MouseEvent evt) {
+									jHexTable1MouseClicked(evt);
+								}
+							});
 						}
 					}
 					{
-						jPanel11 = new JPanel();
-						jTabbedPane2.addTab(language.getString("Paging"), null, jPanel11, null);
-						jTabbedPane2.addTab(language.getString("Address_translate"), null, getJAddressTranslatePanel(), null);
-						jTabbedPane2.addTab("Page table graph (experimental)", null, getJPageTableGraphPanel(), null);
-						if (!Global.debug) {
-							jTabbedPane2.removeTabAt(jTabbedPane2.getTabCount() - 1);
+						jPanel9 = new JPanel();
+						FlowLayout jPanel9Layout = new FlowLayout();
+						jPanel9.setLayout(jPanel9Layout);
+						jPanel8.add(jPanel9, BorderLayout.NORTH);
+						{
+							// ComboBoxModel jMemoryAddressComboBoxModel
+							// = new DefaultComboBoxModel(new String[] {
+							// "0x00000000" });
+							jMemoryAddressComboBox = new JComboBox();
+							jPanel9.add(jMemoryAddressComboBox);
+							jMemoryAddressComboBox.setSelectedItem("0x00000000");
+							// jMemoryAddressComboBox.setModel(jMemoryAddressComboBoxModel);
+							jMemoryAddressComboBox.setEditable(true);
+							jMemoryAddressComboBox.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jMemoryAddressComboBoxActionPerformed(evt);
+								}
+							});
+							new Thread() {
+								public void run() {
+									Vector<HashMap> vector = XMLHelper.xmltoVector("memoryCombo.xml", "/address/record");
+									for (int x = 0; x < vector.size(); x++) {
+										addMemoryAddressComboBox(vector.get(x).get("address").toString());
+									}
+								}
+							}.start();
 						}
-						jTabbedPane2.addTab(language.getString("Table_translate"), null, getJTableTranslateScrollPane(), null);
-						jTabbedPane2.addTab(language.getString("ELF_dump"), null, getJELFDumpScrollPane(), null);
-						BorderLayout jPanel11Layout = new BorderLayout();
-						jPanel11.setLayout(jPanel11Layout);
-						jPanel11.add(getJSplitPane3(), BorderLayout.CENTER);
-						jPanel11.add(getJPanel19(), BorderLayout.NORTH);
+						{
+							jGOMemoryButton = new JButton();
+							jPanel9.add(jGOMemoryButton);
+							jPanel9.add(getJGoLinearButton());
+							jPanel9.add(getJButton2());
+							jPanel9.add(getJButton5());
+							jGOMemoryButton.setText(language.getString("Go"));
+							jGOMemoryButton.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jGOMemoryButtonActionPerformed(evt);
+								}
+							});
+						}
+						{
+							jBinaryRadioButton = new JRadioButton();
+							jPanel9.add(jBinaryRadioButton);
+							jBinaryRadioButton.setText("2");
+							jBinaryRadioButton.addItemListener(new ItemListener() {
+								public void itemStateChanged(ItemEvent evt) {
+									jBinaryRadioButtonItemStateChanged(evt);
+								}
+							});
+							jBinaryRadioButton.addChangeListener(new ChangeListener() {
+								public void stateChanged(ChangeEvent evt) {
+									jBinaryRadioButtonStateChanged(evt);
+								}
+							});
+							getButtonGroup1().add(jBinaryRadioButton);
+						}
+						{
+							jOctRadioButton1 = new JRadioButton();
+							jPanel9.add(jOctRadioButton1);
+							jOctRadioButton1.setText("8");
+							jOctRadioButton1.addItemListener(new ItemListener() {
+								public void itemStateChanged(ItemEvent evt) {
+									jOctRadioButton1ItemStateChanged(evt);
+								}
+							});
+							jOctRadioButton1.addChangeListener(new ChangeListener() {
+								public void stateChanged(ChangeEvent evt) {
+									jOctRadioButton1StateChanged(evt);
+								}
+							});
+							getButtonGroup1().add(jOctRadioButton1);
+						}
+						{
+							jDecRadioButton = new JRadioButton();
+							jPanel9.add(jDecRadioButton);
+							jDecRadioButton.setText("10");
+							jDecRadioButton.addItemListener(new ItemListener() {
+								public void itemStateChanged(ItemEvent evt) {
+									jDecRadioButtonItemStateChanged(evt);
+								}
+							});
+							jDecRadioButton.addChangeListener(new ChangeListener() {
+								public void stateChanged(ChangeEvent evt) {
+									jDecRadioButtonStateChanged(evt);
+								}
+							});
+							getButtonGroup1().add(jDecRadioButton);
+						}
+						{
+							jHexRadioButton = new JRadioButton();
+							jPanel9.add(jHexRadioButton);
+							jHexRadioButton.setText("16");
+							jHexRadioButton.setSelected(true);
+							jHexRadioButton.addItemListener(new ItemListener() {
+								public void itemStateChanged(ItemEvent evt) {
+									jHexRadioButtonItemStateChanged(evt);
+								}
+							});
+							jHexRadioButton.addChangeListener(new ChangeListener() {
+								public void stateChanged(ChangeEvent evt) {
+									jHexRadioButtonStateChanged(evt);
+								}
+							});
+							getButtonGroup1().add(jHexRadioButton);
+						}
+					}
+				}
+				{
+					jPanel5 = new JPanel();
+					jTabbedPane3.addTab(language.getString("GDT"), null, jPanel5, null);
+					BorderLayout jPanel5Layout = new BorderLayout();
+					jPanel5.setLayout(jPanel5Layout);
+					{
+						jScrollPane3 = new JScrollPane();
+						jPanel5.add(jScrollPane3, BorderLayout.CENTER);
+						jPanel5.add(getJPanel14(), BorderLayout.NORTH);
+						{
+							JGDTTableModel jGDTTableModel = new JGDTTableModel();
+							jGDTTable = new JTable();
+							jGDTTable.setModel(jGDTTableModel);
+							jScrollPane3.setViewportView(jGDTTable);
+							jGDTTable.getColumnModel().getColumn(0).setMaxWidth(40);
+							jGDTTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+							jGDTTable.addMouseListener(new MouseAdapter() {
+								public void mouseClicked(MouseEvent evt) {
+									jGDTTableMouseClicked(evt);
+								}
+							});
+
+						}
+					}
+				}
+				{
+					jPanel6 = new JPanel();
+					BorderLayout jPanel6Layout = new BorderLayout();
+					jPanel6.setLayout(jPanel6Layout);
+					jTabbedPane3.addTab(language.getString("IDT"), null, jPanel6, null);
+					{
+						jScrollPane10 = new JScrollPane();
+						jPanel6.add(jScrollPane10, BorderLayout.CENTER);
+						jPanel6.add(getJPanel15(), BorderLayout.NORTH);
+						{
+							JIDTTableModel jIDTTableModel = new JIDTTableModel();
+							jIDTTable = new JTable();
+							jIDTTable.setModel(jIDTTableModel);
+							jScrollPane10.setViewportView(jIDTTable);
+							jIDTTable.getColumnModel().getColumn(0).setMaxWidth(40);
+							jIDTTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+						}
+					}
+				}
+				{
+					jPanel7 = new JPanel();
+					BorderLayout jPanel7Layout = new BorderLayout();
+					jPanel7.setLayout(jPanel7Layout);
+					jTabbedPane3.addTab(language.getString("LDT"), null, jPanel7, null);
+					jTabbedPane3.addTab(language.getString("Search_memory"), null, getJPanel17(), null);
+					{
+						jScrollPane11 = new JScrollPane();
+						jPanel7.add(jScrollPane11, BorderLayout.CENTER);
+						jPanel7.add(getJPanel16(), BorderLayout.NORTH);
+						{
+							JLDTTableModel jLDTTableModel = new JLDTTableModel();
+							jLDTTable = new JTable();
+							jLDTTable.setModel(jLDTTableModel);
+							jScrollPane11.setViewportView(jLDTTable);
+							jLDTTable.getColumnModel().getColumn(0).setMaxWidth(40);
+							jLDTTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+							jLDTTable.addMouseListener(new MouseAdapter() {
+								public void mouseClicked(MouseEvent evt) {
+									jLDTTableMouseClicked(evt);
+								}
+							});
+						}
 					}
 				}
 			}
 		}
-		return jMainPanel;
+		{
+			jTabbedPane2 = new JMaximizableTabbedPane();
+			// jTabbedPane2.setCloseIcon(true);
+			// jTabbedPane2.setMaxIcon(true);
+			//
+			// jTabbedPane2.addCloseListener(new CloseListener() {
+			// public void closeOperation(MouseEvent e) {
+			// jTabbedPane2.remove(jTabbedPane2.getOverTabIndex());
+			// }
+			// });
+			//
+			// jTabbedPane2.addMaxListener(new MaxListener() {
+			// public void maxOperation(MouseEvent e) {
+			// jTabbedPane2.detachTab(jTabbedPane2.getOverTabIndex());
+			// }
+			// });
+
+			jSplitPane2.add(jTabbedPane2, JSplitPane.BOTTOM);
+			{
+				jScrollPane1 = new JScrollPane();
+				jTabbedPane2.addTab(language.getString("Register"), null, jScrollPane1, null);
+				{
+					jRegisterPanel1 = new JRegisterPanel(this);
+					jScrollPane1.setViewportView(jRegisterPanel1);
+				}
+			}
+			{
+				jPanel3 = new JPanel();
+				jTabbedPane2.addTab(language.getString("History"), null, jPanel3, null);
+				BorderLayout jPanel3Layout = new BorderLayout();
+				jPanel3.setLayout(jPanel3Layout);
+				{
+					jScrollPane6 = new JScrollPane();
+					jPanel3.add(jScrollPane6, BorderLayout.CENTER);
+					jPanel3.add(getJPanel13(), BorderLayout.NORTH);
+					jScrollPane6.setViewportView(getJHistoryTable());
+				}
+			}
+			{
+				jPanel11 = new JPanel();
+				jTabbedPane2.addTab(language.getString("Paging"), null, jPanel11, null);
+				jTabbedPane2.addTab(language.getString("Address_translate"), null, getJAddressTranslatePanel(), null);
+				jTabbedPane2.addTab("Page table graph (experimental)", null, getJPageTableGraphPanel(), null);
+				if (!Global.debug) {
+					jTabbedPane2.removeTabAt(jTabbedPane2.getTabCount() - 1);
+				}
+				jTabbedPane2.addTab(language.getString("Table_translate"), null, getJTableTranslateScrollPane(), null);
+				jTabbedPane2.addTab(language.getString("ELF_dump"), null, getJELFDumpScrollPane(), null);
+				BorderLayout jPanel11Layout = new BorderLayout();
+				jPanel11.setLayout(jPanel11Layout);
+				jPanel11.add(getJSplitPane3(), BorderLayout.CENTER);
+				jPanel11.add(getJPanel19(), BorderLayout.NORTH);
+			}
+		}
+		return jSplitPane2;
 	}
 
 	private JLabel getJRunningLabel() {
@@ -4644,7 +4678,7 @@ public class Application extends javax.swing.JFrame {
 
 	private JTabbedPane getJTabbedPane4() {
 		if (jTabbedPane4 == null) {
-			jTabbedPane4 = new JClosableTabbedPane();
+			jTabbedPane4 = new JMaximizableTabbedPane();
 			jTabbedPane4.addTab("Header", null, getJELFHeaderScrollPane(), null);
 			jTabbedPane4.addTab("Section", null, getJScrollPane15(), null);
 			jTabbedPane4.addTab("Program header", null, getJScrollPane16(), null);
@@ -5103,5 +5137,59 @@ public class Application extends javax.swing.JFrame {
 			}
 		}
 		return bytes;
+	}
+
+	private JButton getJGoLinearButton() {
+		if (jGoLinearButton == null) {
+			jGoLinearButton = new JButton();
+			jGoLinearButton.setText("Lin");
+			jGoLinearButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jGoLinearButtonActionPerformed(evt);
+				}
+			});
+			jGoLinearButton.setToolTipText(language.getString("Linear_address"));
+		}
+		return jGoLinearButton;
+	}
+
+	private void jGoLinearButtonActionPerformed(ActionEvent evt) {
+		updateMemory(false);
+
+		addMemoryAddressComboBox(jMemoryAddressComboBox.getSelectedItem().toString());
+
+		Vector<HashMap> v = new Vector<HashMap>();
+
+		for (int x = 0; x < jMemoryAddressComboBox.getItemCount(); x++) {
+			HashMap<String, String> h = new HashMap<String, String>();
+			h.put("address", jMemoryAddressComboBox.getItemAt(x).toString());
+			v.add(h);
+		}
+		XMLHelper.vectorToXML("memoryCombo.xml", "address", "record", v);
+	}
+
+	private DiskPanel getDiskPanel() {
+		if (diskPanel == null) {
+			diskPanel = new DiskPanel();
+			String line = CommonLib.findLineInFile(new File(bochsrc), "ata0-master");
+			String strs[] = line.split(",");
+			for (String str : strs) {
+				if (str.toLowerCase().contains("path=")) {
+					String filename = str.split("=")[1];
+					filename = filename.replaceAll("\"", "");
+					diskPanel.setFile(new File(filename));
+					break;
+				}
+			}
+		}
+		return diskPanel;
+	}
+
+	private JMaximizableTabbedPane_BasePanel getJMaximizableTabbedPane_BasePanel1() {
+		if (jMaximizableTabbedPane_BasePanel1 == null) {
+			jMaximizableTabbedPane_BasePanel1 = new JMaximizableTabbedPane_BasePanel();
+			jMaximizableTabbedPane_BasePanel1.add(getJSplitPane2(), "MAIN");
+		}
+		return jMaximizableTabbedPane_BasePanel1;
 	}
 }

@@ -1,20 +1,42 @@
 package peter;
 
-import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
-import java.util.List;
-import java.util.regex.*;
-
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Properties;
+import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.table.TableModel;
-import javax.swing.text.*;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Document;
+import javax.swing.text.Highlighter;
+import javax.swing.text.JTextComponent;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -912,5 +934,35 @@ public class CommonLib {
 			i[x] = (byte) b[x];
 		}
 		return i;
+	}
+
+	public static int[] getBytes(long value) {
+		int b[] = new int[8];
+		for (int x = 0; x < 8; x++) {
+			b[x] = (int) ((value >> (x * 8)) & 0xff);
+		}
+		return b;
+	}
+
+	public static String findLineInFile(File file, String pattern) {
+		try {
+			List list = FileUtils.readLines(file);
+			List<String> l = new ArrayList<String>();
+			Collections.sort(list);
+			int index = Collections.binarySearch(list, pattern, new Comparator() {
+				public int compare(Object o1, Object o2) {
+					if (o1.toString().toLowerCase().contains(o2.toString().toLowerCase()) || o2.toString().toLowerCase().contains(o1.toString().toLowerCase())) {
+						return 0;
+					} else {
+						return o1.toString().compareTo(o2.toString());
+					}
+				}
+			});
+
+			return list.get(index).toString();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }
