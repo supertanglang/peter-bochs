@@ -60,3 +60,9 @@ To see how many time the breakpoint is hit
 
 click on the page directory table on the left hand side, it will dump the corresponding page table on the right hand side.
 [http://peter-bochs.googlecode.com/files/tss3.gif]
+
+= Disk Panel = 
+
+Can dump the harddisk image now.
+
+[http://peter-bochs.googlecode.com/files/diskpanel.png]
