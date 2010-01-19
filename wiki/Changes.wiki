@@ -1,5 +1,9 @@
 #summary Changes
 
+=== version 20100118 ===
+
+1) Added DiskPane, can dump the harddisk image
+
 === version 20100101 ===
 
 1) can dump the descriptor in TSS
