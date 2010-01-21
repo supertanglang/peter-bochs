@@ -45,9 +45,9 @@ public class ElfUtil {
 			// end header
 
 			// sections
-			int e_shoff = (Integer) header.get("e_shoff");
-			short e_shnum = (Short) header.get("e_shnum");
-			int offset = e_shoff;
+			long e_shoff = (Long) header.get("e_shoff");
+			short e_shnum = (short) ((Long) header.get("e_shnum")).intValue();
+			int offset = (int) e_shoff;
 
 			long sectionNameOffset = CommonLib.getInt(bytes, (int) (offset + 16 + e_shstrndx * 40));
 			long sectionNameSize = CommonLib.getInt(bytes, (int) (offset + 20 + e_shstrndx * 40));
@@ -82,27 +82,27 @@ public class ElfUtil {
 				section.put("sh_addralign", CommonLib.getInt(bytes, offset + 32));
 				section.put("sh_entsize", CommonLib.getInt(bytes, offset + 36));
 
-				if ((Integer) section.get("sh_type") == 2 || (Integer) section.get("sh_type") == 0xb) {
+				if ((Long) section.get("sh_type") == 2 || (Long) section.get("sh_type") == 0xb) {
 					HashMap hm = new HashMap();
 					hm.put("name", section.get("sh_name"));
-					hm.put("offset", (Integer) section.get("sh_offset"));
-					hm.put("size", (Integer) section.get("sh_size") / 16);
+					hm.put("offset", (Long) section.get("sh_offset"));
+					hm.put("size", (Long) section.get("sh_size") / 16);
 					symtabTables.add(hm);
-				} else if ((Integer) section.get("sh_type") == 7) {
+				} else if ((Long) section.get("sh_type") == 7) {
 					HashMap tempMap = new HashMap();
 					tempMap.put("name", section.get("sh_name"));
-					tempMap.put("offset", (Integer) section.get("sh_offset"));
-					tempMap.put("size", (Integer) section.get("sh_size"));
+					tempMap.put("offset", (Long) section.get("sh_offset"));
+					tempMap.put("size", (Long) section.get("sh_size"));
 
 					noteSection.add(tempMap);
 				}
 
 				if (section.get("sh_name").equals(".strtab")) {
-					strtabOffset = (Integer) section.get("sh_offset");
-					strtabSize = (Integer) section.get("sh_size");
+					strtabOffset = ((Long) section.get("sh_offset")).intValue();
+					strtabSize = ((Long) section.get("sh_size")).intValue();
 				} else if (section.get("sh_name").equals(".dynstr")) {
-					dynstrOffset = (Integer) section.get("sh_offset");
-					dynstrSize = (Integer) section.get("sh_size");
+					dynstrOffset = ((Long) section.get("sh_offset")).intValue();
+					dynstrSize = ((Long) section.get("sh_size")).intValue();
 				}
 
 				offset += 40;
@@ -111,8 +111,8 @@ public class ElfUtil {
 			// end sections
 
 			// program header
-			int e_phoff = (Integer) header.get("e_phoff");
-			short e_phnum = (Short) header.get("e_phnum");
+			int e_phoff = ((Long) header.get("e_phoff")).intValue();
+			short e_phnum = (short) ((Long) header.get("e_phnum")).intValue();
 			offset = e_phoff;
 			for (int x = 0; x < e_phnum; x++) {
 				LinkedHashMap programHeader = new LinkedHashMap();
@@ -135,8 +135,8 @@ public class ElfUtil {
 				HashMap tempMap = new HashMap();
 				tempMap.put("name", symtabTables.get(x).get("name"));
 				Vector<LinkedHashMap> v = new Vector<LinkedHashMap>();
-				offset = (Integer) symtabTables.get(x).get("offset");
-				for (int z = 0; z < (Integer) symtabTables.get(x).get("size"); z++) {
+				offset = ((Long) symtabTables.get(x).get("offset")).intValue();
+				for (int z = 0; z < ((Long) symtabTables.get(x).get("size")).intValue(); z++) {
 					LinkedHashMap symbolTable = new LinkedHashMap();
 
 					symbolTable.put("No.", z);
@@ -168,9 +168,9 @@ public class ElfUtil {
 
 				Vector<LinkedHashMap> v = new Vector<LinkedHashMap>();
 
-				int tempOffset = (Integer) noteSection.get(x).get("offset");
+				int tempOffset = ((Long) noteSection.get(x).get("offset")).intValue();
 				int z = 0;
-				while (tempOffset < (Integer) noteSection.get(x).get("offset") + (Integer) noteSection.get(x).get("size")) {
+				while (tempOffset < (Long) noteSection.get(x).get("offset") + (Long) noteSection.get(x).get("size")) {
 					LinkedHashMap noteSectionMap = new LinkedHashMap();
 
 					noteSectionMap.put("No.", z);
