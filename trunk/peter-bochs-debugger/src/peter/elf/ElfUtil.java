@@ -117,13 +117,88 @@ public class ElfUtil {
 			for (int x = 0; x < e_phnum; x++) {
 				LinkedHashMap programHeader = new LinkedHashMap();
 				programHeader.put("No.", x);
-				programHeader.put("p_type", CommonLib.getInt(bytes, offset + 0));
+				int pt_type = (int) CommonLib.getInt(bytes, offset + 0);
+				String pt_type_str;
+				switch (pt_type) {
+				case 0:
+					pt_type_str = "PT_NULL";
+					break;
+				case 1:
+					pt_type_str = "PT_LOAD";
+					break;
+				case 2:
+					pt_type_str = "PT_DYNAMIC";
+					break;
+				case 3:
+					pt_type_str = "PT_INTERP";
+					break;
+				case 4:
+					pt_type_str = "PT_NOTE";
+					break;
+				case 5:
+					pt_type_str = "PT_SHLIB";
+					break;
+				case 6:
+					pt_type_str = "PT_PHDR";
+					break;
+				case 7:
+					pt_type_str = "PT_TLS";
+					break;
+				case 8:
+					pt_type_str = "PT_NUM";
+					break;
+
+				case 0x60000000:
+					pt_type_str = "PT_LOOS";
+					break;
+				case 0x6474e550:
+					pt_type_str = "PT_GNU_EH_FRAME";
+					break;
+				case 0x6474e551:
+					pt_type_str = "PT_GNU_STACK";
+					break;
+				case 0x6474e552:
+					pt_type_str = "PT_GNU_RELRO";
+					break;
+				case 0x6ffffffa:
+					pt_type_str = "PT_LOSUNW/PT_SUNWBSS";
+					break;
+				case 0x6ffffffb:
+					pt_type_str = "PT_SUNWSTACK";
+					break;
+				case 0x6fffffff:
+					pt_type_str = "PT_HISUNW/PT_HIOS";
+					break;
+				case 0x70000000:
+					pt_type_str = "PT_LOPROC";
+					break;
+				case 0x7fffffff:
+					pt_type_str = "PT_HIPROC";
+					break;
+				default:
+					pt_type_str = "Unknown";
+				}
+
+				programHeader.put("p_type", CommonLib.getInt(bytes, offset + 0) + " " + pt_type_str);
 				programHeader.put("p_offset", CommonLib.getInt(bytes, offset + 4));
 				programHeader.put("p_vaddr", CommonLib.getInt(bytes, offset + 8));
 				programHeader.put("p_paddr", CommonLib.getInt(bytes, offset + 12));
 				programHeader.put("p_filesz", CommonLib.getInt(bytes, offset + 16));
 				programHeader.put("p_memsz", CommonLib.getInt(bytes, offset + 20));
-				programHeader.put("p_flags", CommonLib.getInt(bytes, offset + 24));
+
+				String p_flags_str = "";
+				int p_flags_l = (int) CommonLib.getInt(bytes, offset + 24);
+				if ((p_flags_l & (1 << 2)) == (1 << 2)) {
+					p_flags_str += "r";
+				}
+				if ((p_flags_l & (1 << 1)) == (1 << 1)) {
+					p_flags_str += "w";
+				}
+				if ((p_flags_l & (1 << 0)) == (1 << 0)) {
+					p_flags_str += "x";
+				}
+
+				programHeader.put("p_flags", p_flags_l + " " + p_flags_str);
 				programHeader.put("p_align", CommonLib.getInt(bytes, offset + 28));
 				offset += 32;
 				map.put("programHeader" + x, programHeader);

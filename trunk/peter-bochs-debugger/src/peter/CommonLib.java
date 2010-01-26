@@ -17,8 +17,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
@@ -612,8 +612,8 @@ public class CommonLib {
 	}
 
 	public static long getLong(int b0, int b1, int b2, int b3, int b4, int b5, int b6, int b7) {
-		return ((((long) b0 & 0xff) << 0) | (((long) b1 & 0xff) << 8) | (((long) b2 & 0xff) << 16) | (((long) b3 & 0xff) << 24) | (((long) b4 & 0xff) << 32) | (((long) b5 & 0xff) << 40)
-				| (((long) b6 & 0xff) << 48) | (((long) b7 & 0xff) << 56));
+		return ((((long) b0 & 0xff) << 0) | (((long) b1 & 0xff) << 8) | (((long) b2 & 0xff) << 16) | (((long) b3 & 0xff) << 24) | (((long) b4 & 0xff) << 32)
+				| (((long) b5 & 0xff) << 40) | (((long) b6 & 0xff) << 48) | (((long) b7 & 0xff) << 56));
 	}
 
 	// public static long getLong(long b0, long b1, long b2, long b3, long b4,
@@ -663,11 +663,11 @@ public class CommonLib {
 		Sheet sheet = wb.createSheet("Registers");
 
 		// Create a row and put some cells in it. Rows are 0 based.
-		String columnNames[] = { "time", "cs", "eip", "ds", "es", "fs", "gs", "ss", "eflags", "eax", "ebx", "ecx", "edx", "esi", "edi", "ebp", "esp", "cr0", "cr2", "cr3", "cr4", "gdtr", "ldtr",
-				"idtr", "tr" };
-		Vector data[] = { AllRegisters.time, AllRegisters.cs, AllRegisters.eip, AllRegisters.ds, AllRegisters.es, AllRegisters.fs, AllRegisters.gs, AllRegisters.ss, AllRegisters.eflags,
-				AllRegisters.eax, AllRegisters.ebx, AllRegisters.ecx, AllRegisters.edx, AllRegisters.esi, AllRegisters.edi, AllRegisters.ebp, AllRegisters.esp, AllRegisters.cr0, AllRegisters.cr2,
-				AllRegisters.cr3, AllRegisters.cr4, AllRegisters.gdtr, AllRegisters.ldtr, AllRegisters.idtr, AllRegisters.tr };
+		String columnNames[] = { "time", "cs", "eip", "ds", "es", "fs", "gs", "ss", "eflags", "eax", "ebx", "ecx", "edx", "esi", "edi", "ebp", "esp", "cr0", "cr2", "cr3", "cr4",
+				"gdtr", "ldtr", "idtr", "tr" };
+		Vector data[] = { AllRegisters.time, AllRegisters.cs, AllRegisters.eip, AllRegisters.ds, AllRegisters.es, AllRegisters.fs, AllRegisters.gs, AllRegisters.ss,
+				AllRegisters.eflags, AllRegisters.eax, AllRegisters.ebx, AllRegisters.ecx, AllRegisters.edx, AllRegisters.esi, AllRegisters.edi, AllRegisters.ebp,
+				AllRegisters.esp, AllRegisters.cr0, AllRegisters.cr2, AllRegisters.cr3, AllRegisters.cr4, AllRegisters.gdtr, AllRegisters.ldtr, AllRegisters.idtr, AllRegisters.tr };
 		Row row = sheet.createRow(0);
 
 		Cell cell;
@@ -949,18 +949,31 @@ public class CommonLib {
 			List list = FileUtils.readLines(file);
 			List<String> l = new ArrayList<String>();
 			Collections.sort(list);
-			int index = Collections.binarySearch(list, pattern, new Comparator() {
-				public int compare(Object o1, Object o2) {
-					if (o1.toString().toLowerCase().contains(o2.toString().toLowerCase()) || o2.toString().toLowerCase().contains(o1.toString().toLowerCase())) {
-						return 0;
-					} else {
-						return o1.toString().compareTo(o2.toString());
-					}
-				}
-			});
+			// int index = Collections.binarySearch(list, pattern, new
+			// Comparator() {
+			// public int compare(Object o1, Object o2) {
+			// if
+			// (o1.toString().toLowerCase().contains(o2.toString().toLowerCase())
+			// ||
+			// o2.toString().toLowerCase().contains(o1.toString().toLowerCase()))
+			// {
+			// return 0;
+			// } else {
+			// return o1.toString().compareTo(o2.toString());
+			// }
+			// }
+			// });
 
-			return list.get(index).toString();
-		} catch (IOException e) {
+			// int index = 0;
+			Iterator<String> iterator = list.iterator();
+			while (iterator.hasNext()) {
+				String str = iterator.next();
+				if (str.trim().startsWith(pattern)) {
+					return str;
+				}
+				// index++;
+			}
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
