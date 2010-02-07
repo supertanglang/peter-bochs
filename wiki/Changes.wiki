@@ -1,5 +1,9 @@
 #summary Changes
 
+=== version 20100207 ===
+
+1) right click popup on breakpoint table can dump/disasseble at breakpoint location
+
 === version 20100118 ===
 
 1) Added DiskPane, can dump the harddisk image
