@@ -188,16 +188,14 @@ public class XMLHelper {
 			File file = new File(xmlFile);
 			Document document;
 			Element rootNode;
-			if (file.exists()) {
-				document = documentBuilder.parse(new File(xmlFile));
-				rootNode = document.getDocumentElement();
-			} else {
-				document = documentBuilder.newDocument();
-				rootNode = document.createElement(xpath);
-				document.appendChild(rootNode);
-			}
-
-			
+			// if (file.exists()) {
+			// document = documentBuilder.parse(new File(xmlFile));
+			// rootNode = document.getDocumentElement();
+			// } else {
+			document = documentBuilder.newDocument();
+			rootNode = document.createElement(xpath);
+			document.appendChild(rootNode);
+			// }
 
 			for (int x = 0; x < vector.size(); x++) {
 				Element parentNode = document.createElement(parentNodeName);

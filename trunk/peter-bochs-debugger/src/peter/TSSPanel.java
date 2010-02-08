@@ -5,20 +5,29 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.Vector;
+import javax.swing.ButtonGroup;
 
 import javax.swing.DefaultCellEditor;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.JToolBar;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
@@ -29,6 +38,7 @@ import peter.architecture.IA32PageDirectory;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
+import info.clearthought.layout.TableLayout;
 
 /**
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
@@ -49,11 +59,28 @@ public class TSSPanel extends JPanel {
 	private JTable jPageDirectoryTable;
 	private JLabel jLabel1;
 	private JTable jTSSTable;
+	private JCheckBox jHideIfAddressIsZeroCheckBox;
+	private ButtonGroup buttonGroup1;
+	private JButton jButton19;
+	private JButton jRefreshAddressTranslateTableButton;
+	private JButton jButton18;
+	private JButton jButton17;
+	private JToolBar jToolBar3;
+	private JTable jAddressTranslateTable2;
+	private JScrollPane jScrollPane13;
+	private JPanel jPanel22;
+	private JTextField jAddressTextField;
+	private JButton jRefreshAddressTranslateButton;
+	private JPanel jPanel21;
+	private JRadioButton jSearchAddressRadioButton3;
+	private JRadioButton jSearchAddressRadioButton2;
+	private JRadioButton jSearchAddressRadioButton1;
+	private JPanel jPanel20;
+	private JPanel jAddressTranslatePanel;
 	private JScrollPane jScrollPane5;
 	private JScrollPane jScrollPane4;
 	private JScrollPane jScrollPane3;
 	private JScrollPane jScrollPane2;
-	private JButton jButton2;
 	private JTextField jLinearAddressTextField;
 	private JPanel jPanel3;
 	private JSplitPane jSplitPane2;
@@ -68,6 +95,8 @@ public class TSSPanel extends JPanel {
 	private Application application;
 	private int type;
 	private long gdtAddress;
+	private long ldtr;
+	private long cr3;
 
 	public TSSPanel(Application application, int type, long gdtAddress, int gdtNo) {
 		this.application = application;
@@ -167,11 +196,7 @@ public class TSSPanel extends JPanel {
 						{
 							jLinearAddressTextField = new JTextField();
 							jPanel3.add(jLinearAddressTextField, new CellConstraints("3, 1, 1, 1, default, default"));
-						}
-						{
-							jButton2 = new JButton();
-							jPanel3.add(jButton2, new CellConstraints("4, 1, 1, 1, default, default"));
-							jButton2.setText("Go");
+							jPanel3.add(getJHideIfAddressIsZeroCheckBox(), new CellConstraints("4, 1, 1, 1, default, default"));
 						}
 					}
 					{
@@ -215,6 +240,126 @@ public class TSSPanel extends JPanel {
 								jPageTableTable.setModel(jPageTableTableModel);
 								jPageTableTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 							}
+						}
+					}
+				}
+				{
+					jAddressTranslatePanel = new JPanel();
+					jTabbedPane1.addTab("Address  translate", null, jAddressTranslatePanel, null);
+					BorderLayout jAddressTranslatePanelLayout = new BorderLayout();
+					jAddressTranslatePanel.setLayout(jAddressTranslatePanelLayout);
+					{
+						jPanel20 = new JPanel();
+						TableLayout jPanel20Layout = new TableLayout(new double[][] { { 8.0, 156.0, 13.0 }, { 25.0, 25.0, 25.0, 22.0, 37.0, TableLayout.FILL } });
+						jPanel20Layout.setHGap(5);
+						jPanel20Layout.setVGap(5);
+						jAddressTranslatePanel.add(jPanel20, BorderLayout.WEST);
+						jPanel20.setPreferredSize(new java.awt.Dimension(189, 629));
+						jPanel20.setLayout(jPanel20Layout);
+						{
+							jSearchAddressRadioButton1 = new JRadioButton();
+							jSearchAddressRadioButton1.setText(Application.language.getString("Virtual_address"));
+							jPanel20.add(jSearchAddressRadioButton1, "1, 0, 2, 0");
+							jSearchAddressRadioButton1.setSelected(true);
+							getButtonGroup1().add(jSearchAddressRadioButton1);
+						}
+						{
+							jSearchAddressRadioButton2 = new JRadioButton();
+							jSearchAddressRadioButton2.setText(Application.language.getString("Linear_address"));
+							jPanel20.add(jSearchAddressRadioButton2, "1, 1, 2, 1");
+							getButtonGroup1().add(jSearchAddressRadioButton2);
+						}
+						{
+							jSearchAddressRadioButton3 = new JRadioButton();
+							jPanel20.add(jSearchAddressRadioButton3, "1, 2, 2, 2");
+							jSearchAddressRadioButton3.setVisible(false);
+						}
+						{
+							jPanel21 = new JPanel();
+							jPanel20.add(jPanel21, "1, 4");
+							{
+								jRefreshAddressTranslateButton = new JButton();
+								jRefreshAddressTranslateButton.setText(Application.language.getString("Convert"));
+								jPanel21.add(jRefreshAddressTranslateButton);
+								jRefreshAddressTranslateButton.addActionListener(new ActionListener() {
+									public void actionPerformed(ActionEvent evt) {
+										jRefreshAddressTranslateButtonActionPerformed(evt);
+									}
+								});
+							}
+						}
+						{
+							jAddressTextField = new JTextField();
+							jPanel20.add(jAddressTextField, "1, 3");
+							jAddressTextField.addKeyListener(new KeyAdapter() {
+								public void keyTyped(KeyEvent evt) {
+									jAddressTextFieldKeyTyped(evt);
+								}
+							});
+						}
+					}
+					{
+						jPanel22 = new JPanel();
+						BorderLayout jPanel22Layout = new BorderLayout();
+						jAddressTranslatePanel.add(jPanel22, BorderLayout.CENTER);
+						jPanel22.setLayout(jPanel22Layout);
+						{
+							jScrollPane13 = new JScrollPane();
+							jPanel22.add(jScrollPane13, BorderLayout.CENTER);
+							jScrollPane13.setPreferredSize(new java.awt.Dimension(150, 32));
+							{
+								AddressTranslateTableModel addressTranslateTableModel = new AddressTranslateTableModel();
+								jAddressTranslateTable2 = new JTable();
+								jScrollPane13.setViewportView(jAddressTranslateTable2);
+								jAddressTranslateTable2.setModel(addressTranslateTableModel);
+								jAddressTranslateTable2.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+							}
+						}
+					}
+					{
+						jToolBar3 = new JToolBar();
+						jAddressTranslatePanel.add(jToolBar3, BorderLayout.NORTH);
+						{
+							jButton17 = new JButton();
+							jToolBar3.add(jButton17);
+							jButton17.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/disk.png")));
+							jButton17.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jButton17ActionPerformed(evt);
+								}
+							});
+						}
+						{
+							jButton18 = new JButton();
+							jToolBar3.add(jButton18);
+							jButton18.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/excel.gif")));
+							jButton18.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jButton18ActionPerformed(evt);
+								}
+							});
+						}
+						{
+							jRefreshAddressTranslateTableButton = new JButton();
+							jToolBar3.add(jRefreshAddressTranslateTableButton);
+							jRefreshAddressTranslateTableButton.setText("Refresh");
+							jRefreshAddressTranslateTableButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/arrow_refresh.png")));
+							jRefreshAddressTranslateTableButton.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jRefreshAddressTranslateTableButtonActionPerformed(evt);
+								}
+							});
+						}
+						{
+							jButton19 = new JButton();
+							jToolBar3.add(jButton19);
+							jButton19.setText("Delete");
+							jButton19.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/cross.png")));
+							jButton19.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jButton19ActionPerformed(evt);
+								}
+							});
 						}
 					}
 				}
@@ -425,7 +570,7 @@ public class TSSPanel extends JPanel {
 			tssModel.addRow(new String[] { "0x10", "ss1", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x10], tssByte[0x11], 0, 0, 0, 0, 0, 0)) });
 			tssModel.addRow(new String[] { "0x14", "esp2", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x14], tssByte[0x15], tssByte[0x16], tssByte[0x17], 0, 0, 0, 0)) });
 			tssModel.addRow(new String[] { "0x18", "ss2", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x18], tssByte[0x19], 0, 0, 0, 0, 0, 0)) });
-			long cr3 = CommonLib.getLong(tssByte[0x1c], tssByte[0x1d], tssByte[0x1e], tssByte[0x1f], 0, 0, 0, 0);
+			cr3 = CommonLib.getLong(tssByte[0x1c], tssByte[0x1d], tssByte[0x1e], tssByte[0x1f], 0, 0, 0, 0);
 			tssModel.addRow(new String[] { "0x1c", "cr3", "0x" + Long.toHexString(cr3), "dump" });
 			tssModel.addRow(new String[] { "0x20", "eip", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x20], tssByte[0x21], tssByte[0x22], tssByte[0x23], 0, 0, 0, 0)) });
 			tssModel.addRow(new String[] { "0x24", "eflags", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x24], tssByte[0x25], tssByte[0x26], tssByte[0x27], 0, 0, 0, 0)) });
@@ -445,7 +590,7 @@ public class TSSPanel extends JPanel {
 			tssModel.addRow(new String[] { "0x58", "fs", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x58], tssByte[0x59], 0, 0, 0, 0, 0, 0)) });
 			tssModel.addRow(new String[] { "0x5c", "gs", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x5c], tssByte[0x5d], 0, 0, 0, 0, 0, 0)) });
 			tssModel.addRow(new String[] { "0x60", "ldtr", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x60], tssByte[0x61], 0, 0, 0, 0, 0, 0)) });
-
+			ldtr = CommonLib.getLong(tssByte[0x60], tssByte[0x61], 0, 0, 0, 0, 0, 0);
 			tssModel.addRow(new String[] { "0x66", "iobp", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x66], tssByte[0x67], 0, 0, 0, 0, 0, 0)) });
 
 			updatePageTable(cr3);
@@ -665,5 +810,209 @@ public class TSSPanel extends JPanel {
 		protected void fireEditingStopped() {
 			super.fireEditingStopped();
 		}
+	}
+
+	private void jRefreshAddressTranslateButtonActionPerformed(ActionEvent evt) {
+		AddressTranslateTableModel model = (AddressTranslateTableModel) this.jAddressTranslateTable2.getModel();
+
+		if (jSearchAddressRadioButton1.isSelected()) {
+			if (!this.jAddressTextField.getText().contains(":") || this.jAddressTextField.getText().replaceAll("[^:]", "").length() != 1) {
+				JOptionPane.showMessageDialog(this, "Error, please input <segment selector>:<offset>\n\ne.g. : 0x10:0x12345678", "Error", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			Long segSelector = CommonLib.string2decimal(this.jAddressTextField.getText().split(":")[0]);
+			Long address = CommonLib.string2decimal(this.jAddressTextField.getText().split(":")[1]);
+
+			// for (int x = 0; x < model.getRowCount(); x++) {
+			// if (model.searchType.get(x).equals(1) &&
+			// model.searchSegSelector.get(x).equals(segSelector) &&
+			// model.searchAddress.get(x).equals(address)) {
+			// return;
+			// }
+			// }
+
+			model.searchType.add(1);
+			model.searchSegSelector.add(segSelector);
+			model.searchAddress.add(address);
+
+			model.virtualAddress.add(address);
+			long segNo = segSelector >> 3;
+			model.segNo.add(segNo);
+
+			// read GDT descriptor
+			int descriptor[] = CommonLib.getMemoryFromBochs(ldtr + (segNo * 8), 8);
+			long baseAddress = CommonLib.getLong(descriptor[2], descriptor[3], descriptor[4], descriptor[7], 0, 0, 0, 0);
+			long linearAddress = baseAddress + address;
+			model.baseAddress.add(baseAddress);
+			model.linearAddress.add(linearAddress);
+
+			long pdNo = CommonLib.getValue(linearAddress, 31, 22);
+			model.pdNo.add(pdNo);
+			int pdeBytes[] = CommonLib.getMemoryFromBochs(cr3 + (pdNo * 4), 4);
+			long pde = CommonLib.getInt(pdeBytes, 0);
+			model.pde.add(pde);
+
+			long ptNo = CommonLib.getValue(linearAddress, 21, 12);
+			model.ptNo.add(ptNo);
+			long pageTableBaseAddress = pde & 0xfffff000;
+			int pteBytes[] = CommonLib.getMemoryFromBochs(pageTableBaseAddress + (ptNo * 4), 4);
+			long pte = CommonLib.getInt(pteBytes, 0);
+			long pagePhysicalAddress = pte & 0xfffff000;
+			model.pte.add(pte);
+
+			long physicalAddress = pagePhysicalAddress + CommonLib.getValue(linearAddress, 11, 0);
+			model.physicalAddress.add(physicalAddress);
+			int bytesAtPhysicalAddress[] = CommonLib.getMemoryFromBochs(physicalAddress, 8);
+			model.bytes.add(CommonLib.convertToString(bytesAtPhysicalAddress));
+
+			model.fireTableDataChanged();
+		} else if (jSearchAddressRadioButton2.isSelected()) {
+			// for (int x = 0; x < model.getRowCount(); x++) {
+			// if (model.searchType.get(x).equals(2) &&
+			// model.searchAddress.get(x).equals(CommonLib.string2decimal(this.jAddressTextField.getText())))
+			// {
+			// return;
+			// }
+			// }
+			Long address = CommonLib.string2decimal(this.jAddressTextField.getText());
+
+			model.searchType.add(2);
+			model.searchAddress.add(address);
+
+			long baseAddress = 0;
+			long linearAddress = baseAddress + address;
+			model.baseAddress.add(baseAddress);
+			model.linearAddress.add(linearAddress);
+
+			long pdNo = CommonLib.getValue(linearAddress, 31, 22);
+			System.out.println(linearAddress + "==" + pdNo);
+			model.pdNo.add(pdNo);
+			int pdeBytes[] = CommonLib.getMemoryFromBochs(cr3 + (pdNo * 4), 4);
+			long pde = CommonLib.getInt(pdeBytes, 0);
+			model.pde.add(pde);
+
+			long ptNo = CommonLib.getValue(linearAddress, 21, 12);
+			model.ptNo.add(ptNo);
+			long pageTableBaseAddress = pde & 0xfffff000;
+			int pteBytes[] = CommonLib.getMemoryFromBochs(pageTableBaseAddress + (ptNo * 4), 4);
+			long pte = CommonLib.getInt(pteBytes, 0);
+			long pagePhysicalAddress = pte & 0xfffff000;
+			model.pte.add(pte);
+
+			long physicalAddress = pagePhysicalAddress + CommonLib.getValue(linearAddress, 11, 0);
+			model.physicalAddress.add(physicalAddress);
+			int bytesAtPhysicalAddress[] = CommonLib.getMemoryFromBochs(physicalAddress, 8);
+			model.bytes.add(CommonLib.convertToString(bytesAtPhysicalAddress));
+
+			model.fireTableDataChanged();
+		} else if (jSearchAddressRadioButton3.isSelected()) {
+			for (int x = 0; x < model.getRowCount(); x++) {
+				if (model.searchType.get(x).equals(3) && model.searchAddress.get(x).equals(CommonLib.string2decimal(this.jAddressTextField.getText()))) {
+					return;
+				}
+			}
+			Long addr = CommonLib.string2decimal(this.jAddressTextField.getText());
+			model.searchType.add(3);
+			model.searchSegSelector.add(0L);
+			model.searchAddress.add(addr);
+
+			model.virtualAddress.add(0L);
+			model.segNo.add(0L);
+			model.linearAddress.add(0L);
+			model.pdNo.add(0L);
+			model.ptNo.add(0L);
+			model.physicalAddress.add(0L);
+			model.bytes.add("");
+
+			model.fireTableDataChanged();
+		}
+	}
+
+	private void jAddressTextFieldKeyTyped(KeyEvent evt) {
+		if (evt.getKeyChar() == '\n') {
+			jRefreshAddressTranslateButtonActionPerformed(null);
+		}
+	}
+
+	private void jButton17ActionPerformed(ActionEvent evt) {
+		final JFileChooser fc = new JFileChooser();
+		int returnVal = fc.showSaveDialog(this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File file = fc.getSelectedFile();
+			if (!CommonLib.saveImage(jAddressTranslateTable2, file)) {
+				JOptionPane.showMessageDialog(this, "Cannot save image.", "Error", JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+
+	private void jButton18ActionPerformed(ActionEvent evt) {
+		final JFileChooser fc = new JFileChooser();
+		int returnVal = fc.showSaveDialog(this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File file = fc.getSelectedFile();
+			CommonLib.exportTableModelToExcel(file, this.jAddressTranslateTable2.getModel(), String.valueOf(cr3));
+		}
+	}
+
+	private void jRefreshAddressTranslateTableButtonActionPerformed(ActionEvent evt) {
+		AddressTranslateTableModel model = (AddressTranslateTableModel) this.jAddressTranslateTable2.getModel();
+		for (int x = 0; x < model.getRowCount(); x++) {
+			if (model.searchType.get(x).equals(1)) {
+				model.segNo.set(x, model.searchSegSelector.get(x) >> 3);
+				model.virtualAddress.set(x, model.searchAddress.get(x));
+
+				long gdtBase = CommonLib.getPhysicalAddress(cr3, ldtr);
+				System.out.println("gdtBase=" + Long.toHexString(gdtBase));
+				Application.commandReceiver.clearBuffer();
+				gdtBase += model.segNo.get(x) * 8;
+				Application.sendCommand("xp /8bx " + gdtBase);
+				String result = Application.commandReceiver.getCommandResult(String.format("%08x", gdtBase));
+
+				int bytes[] = new int[8];
+				String[] b = result.replaceFirst("^.*:", "").split("\t");
+				for (int y = 1; y <= 8; y++) {
+					bytes[y - 1] = CommonLib.string2decimal(b[y]).intValue();
+				}
+
+				Long gdtDescriptor = CommonLib.getLong(bytes, 0);
+				System.out.println(Long.toHexString(gdtDescriptor));
+				long base = CommonLib.getLong(bytes[2], bytes[3], bytes[4], bytes[7], 0, 0, 0, 0);
+				System.out.println(Long.toHexString(base));
+
+				model.linearAddress.set(x, base + model.searchAddress.get(x));
+			}
+		}
+		model.fireTableDataChanged();
+	}
+
+	private void jButton19ActionPerformed(ActionEvent evt) {
+		int rows[] = jAddressTranslateTable2.getSelectedRows();
+		AddressTranslateTableModel model = (AddressTranslateTableModel) this.jAddressTranslateTable2.getModel();
+		model.removeRow(rows);
+	}
+	
+	private ButtonGroup getButtonGroup1() {
+		if(buttonGroup1 == null) {
+			buttonGroup1 = new ButtonGroup();
+		}
+		return buttonGroup1;
+	}
+	
+	private JCheckBox getJHideIfAddressIsZeroCheckBox() {
+		if(jHideIfAddressIsZeroCheckBox == null) {
+			jHideIfAddressIsZeroCheckBox = new JCheckBox();
+			jHideIfAddressIsZeroCheckBox.setText("Hide if address = 0");
+			jHideIfAddressIsZeroCheckBox.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jHideIfAddressIsZeroCheckBoxActionPerformed(evt);
+				}
+			});
+		}
+		return jHideIfAddressIsZeroCheckBox;
+	}
+	
+	private void jHideIfAddressIsZeroCheckBoxActionPerformed(ActionEvent evt) {
+		((PageDirectoryTableModel) jPageDirectoryTable.getModel()).setShowZeroAddress(!jHideIfAddressIsZeroCheckBox.isSelected());
+		((PageTableTableModel) jPageTableTable.getModel()).setShowZeroAddress(!jHideIfAddressIsZeroCheckBox.isSelected());
 	}
 }

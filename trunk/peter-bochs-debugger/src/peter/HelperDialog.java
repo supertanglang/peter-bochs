@@ -247,8 +247,8 @@ public class HelperDialog extends javax.swing.JDialog {
 			if (bit[44] == 0 && bit[42] == 1 && bit[41] == 1 && bit[40] == 0) {
 				// interrupt date
 				model.addRow(new String[] { "type", "interrupt gate, value=0x" + Long.toHexString(value) });
-				model.addRow(new String[] { "cs", "0x"+Long.toHexString(CommonLib.getLong(b[2], b[3], 0, 0, 0, 0, 0, 0)) });
-				model.addRow(new String[] { "offset", "0x"+Long.toHexString(CommonLib.getLong(b[0], b[1], b[6], b[7], 0, 0, 0, 0)) });
+				model.addRow(new String[] { "cs", "0x" + Long.toHexString(CommonLib.getLong(b[2], b[3], 0, 0, 0, 0, 0, 0)) });
+				model.addRow(new String[] { "offset", "0x" + Long.toHexString(CommonLib.getLong(b[0], b[1], b[6], b[7], 0, 0, 0, 0)) });
 				model.addRow(new String[] { "g", String.valueOf(bit[42]) });
 				model.addRow(new String[] { "d", String.valueOf(bit[43]) });
 				model.addRow(new String[] { "s", String.valueOf(bit[44]) });
@@ -321,7 +321,7 @@ public class HelperDialog extends javax.swing.JDialog {
 			thisLayout.setHGap(5);
 			thisLayout.setVGap(5);
 			getContentPane().setLayout(thisLayout);
-			this.setTitle("Helper");
+			this.setTitle("Helper, address : 0x" + Long.toHexString(address));
 			{
 				jBytesLabel = new JLabel();
 				getContentPane().add(jBytesLabel, "0, 0, 1, 0");
