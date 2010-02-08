@@ -119,10 +119,14 @@ import com.petersoft.advancedswing.jmaximizabletabbedpane.JMaximizableTabbedPane
 import com.petersoft.advancedswing.jmaximizabletabbedpane.JMaximizableTabbedPane_BasePanel;
 
 /**
- * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI Builder, which is free for non-commercial use. If Jigloo is being used commercially (ie, by a
- * corporation, company or business for any purpose whatever) then you should purchase a license for each developer using Jigloo. Please visit www.cloudgarden.com for details. Use
- * of Jigloo implies acceptance of these licen sing terms. A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR ANY
- * CORPORATE OR COMMERCIAL PURPOSE.
+ * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
+ * Builder, which is free for non-commercial use. If Jigloo is being used
+ * commercially (ie, by a corporation, company or business for any purpose
+ * whatever) then you should purchase a license for each developer using Jigloo.
+ * Please visit www.cloudgarden.com for details. Use of Jigloo implies
+ * acceptance of these licen sing terms. A COMMERCIAL LICENSE HAS NOT BEEN
+ * PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR
+ * ANY CORPORATE OR COMMERCIAL PURPOSE.
  */
 public class Application extends javax.swing.JFrame {
 	private JMenuItem aboutUsMenuItem;
@@ -220,6 +224,13 @@ public class Application extends javax.swing.JFrame {
 	private JPanel jPanel22;
 	private JPanel jPanel24;
 	private JToolBar jPanel26;
+	private JMenuItem jMenuItem7;
+	private JMenuItem jMenuItem6;
+	private JPopupMenu jBreakpointPopupMenu;
+	private JMenuItem jMenuItem5;
+	private JMenuItem jMenuItem4;
+	private JPopupMenu jInstructionPanelPopupMenu;
+	private JCheckBox jHideIfAddressIsZeroCheckBox;
 	private JMaximizableTabbedPane_BasePanel jMaximizableTabbedPane_BasePanel1;
 	private DiskPanel diskPanel;
 	private JButton jGoLinearButton;
@@ -255,7 +266,6 @@ public class Application extends javax.swing.JFrame {
 	private JPanel jPanel23;
 	private JPanel jELFBreakpointPanel;
 	private JMenuItem jDisassemble32MenuItem;
-	private JMenuItem jDisassemble16MenuItem;
 	private JMenuItem jPTEMenuItem;
 	private JMenuItem jPDEMenuItem;
 	private JMenuItem jIDTDescriptorMenuItem;
@@ -350,6 +360,7 @@ public class Application extends javax.swing.JFrame {
 	private JButton jButton21;
 	public static String currentLanguage = "en_US";
 	public static String bochsrc;
+	static boolean preventSetVisibleHang = true;
 
 	/**
 	 * Auto-generated main method to display this JFrame
@@ -404,8 +415,7 @@ public class Application extends javax.swing.JFrame {
 			System.out.println("Wrong number of argument");
 			System.out.println("In Linux : java -jar peter-bochs-debugger.jar bochs -f bochxrc.bxrc");
 			System.out.println("In windows : java -jar peter-bochs-debugger.jar c:\\program files\\bochs2.4.3\\bochsdbg.exe -q -f bochxrc.bxrc");
-			System.out
-					.println("!!! if using peter-bochs in windows, you need to pass the full path of bochs exe and -q to the parameter. (!!! relative path of bochs exe will not work)");
+			System.out.println("!!! if using peter-bochs in windows, you need to pass the full path of bochs exe and -q to the parameter. (!!! relative path of bochs exe will not work)");
 			System.out.println("!!! to use \"experimental feature\", please add \"-debug\" to the parameter list");
 			return;
 		} else {
@@ -436,10 +446,33 @@ public class Application extends javax.swing.JFrame {
 		}
 
 		arguments = args;
+
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				Application inst = new Application();
+
+				new Thread() {
+					public void run() {
+						try {
+							Thread.currentThread().sleep(5000);
+							if (preventSetVisibleHang) {
+								System.out.println("setVisible(true) cause system hang, this probably a swing bug, so force exit");
+								System.exit(-1);
+							}
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				}.start();
+
+				if (Global.debug) {
+					System.out.println("setVisible(true)");
+				}
 				inst.setVisible(true);
+				preventSetVisibleHang = false;
+				if (Global.debug) {
+					System.out.println("end setVisible(true)");
+				}
 			}
 		});
 	}
@@ -489,16 +522,32 @@ public class Application extends javax.swing.JFrame {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		initGUI();
 
+		if (Global.debug) {
+			System.out.println("initGUI()");
+		}
+		initGUI();
+		if (Global.debug) {
+			System.out.println("end initGUI()");
+		}
+
+		if (Global.debug) {
+			System.out.println("startBochs()");
+		}
 		startBochs();
+		if (Global.debug) {
+			System.out.println("end startBochs()");
+		}
 		new Thread() {
 			public void run() {
 				HashMap<String, String> map = CommonLib.checkLatestVersion();
+				if (Global.debug) {
+					System.out.println("finished checkLatestVersion()");
+				}
 				if (map != null) {
 					if (map.get("latestVersion").compareTo(Global.version) > 0) {
-						jLatestVersionLabel.setText(language.getString("Latest_version_available") + " : " + map.get("latestVersion") + "     "
-								+ language.getString("Download_url") + " : " + map.get("downloadURL"));
+						jLatestVersionLabel.setText(language.getString("Latest_version_available") + " : " + map.get("latestVersion") + "     " + language.getString("Download_url") + " : "
+								+ map.get("downloadURL"));
 					} else {
 						jLatestVersionLabel.setText("");
 					}
@@ -581,6 +630,9 @@ public class Application extends javax.swing.JFrame {
 			this.enableAllButtons(false);
 			jRunBochsButton.setText(language.getString("Run_bochs"));
 			jRunBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/resultset_next.png")));
+
+			CardLayout cl = (CardLayout) (jMainPanel.getLayout());
+			cl.show(jMainPanel, "jMaximizableTabbedPane_BasePanel1");
 
 			if (isLinux) {
 				ProcessBuilder pb = new ProcessBuilder("killall", "-9", "bochs");
@@ -986,7 +1038,7 @@ public class Application extends javax.swing.JFrame {
 			commandOutputStream.write(command + "\n");
 			commandOutputStream.flush();
 			if (!command.equals("6") && !command.equals("c") && !command.startsWith("pb") && !command.startsWith("lb") && !command.startsWith("bpd") && !command.startsWith("bpe")
-					&& !command.startsWith("set")) {
+					&& !command.startsWith("del") && !command.startsWith("set")) {
 				commandReceiver.waitUntilHaveInput();
 			}
 
@@ -1354,7 +1406,6 @@ public class Application extends javax.swing.JFrame {
 
 			Vector<IA32PageDirectory> pageDirectoryCells = new Vector<IA32PageDirectory>();
 			for (int x = 0; x < ia32_pageDirectories.size(); x++) {
-				System.out.println(x);
 				IA32PageDirectory cell = ia32_pageDirectories.get(x);
 				GraphConstants.setGradientColor(cell.getAttributes(), Color.orange);
 				GraphConstants.setOpaque(cell.getAttributes(), true);
@@ -1576,8 +1627,8 @@ public class Application extends javax.swing.JFrame {
 						// System.out.println(lines[x]);
 						String strs[] = lines[x].split(":");
 						int secondColon = lines[x].indexOf(":", lines[x].indexOf(":") + 1);
-						model.addRow(new String[] { strs[0].trim() + " " + strs[1].trim().replaceAll("\\( *\\)", ""),
-								lines[x].substring(secondColon + 1).trim().split(";")[0].trim(), lines[x].split(";")[1] });
+						model.addRow(new String[] { strs[0].trim() + " " + strs[1].trim().replaceAll("\\( *\\)", ""), lines[x].substring(secondColon + 1).trim().split(";")[0].trim(),
+								lines[x].split(";")[1] });
 					} catch (Exception ex) {
 						// System.out.println("error 1 : cannot parse"
 						// + lines[x]);
@@ -1943,6 +1994,7 @@ public class Application extends javax.swing.JFrame {
 	private void updateMemory(boolean isPhysicalAddress) {
 		try {
 			if (this.jMemoryAddressComboBox.getSelectedItem() != null) {
+				currentMemoryWindowsAddress = CommonLib.string2decimal(this.jMemoryAddressComboBox.getSelectedItem().toString());
 				jStatusLabel.setText("Updating memory");
 				int totalByte = 200;
 				int bytes[] = this.getMemory(CommonLib.string2decimal(this.jMemoryAddressComboBox.getSelectedItem().toString()), totalByte, isPhysicalAddress);
@@ -1955,8 +2007,7 @@ public class Application extends javax.swing.JFrame {
 				// commandReceiver.shouldShow = false;
 				// sendCommand("xp /" + totalByte + "bx " +
 				// this.jMemoryAddressComboBox.getSelectedItem().toString());
-				// currentMemoryWindowsAddress =
-				// CommonLib.string2decimal(this.jMemoryAddressComboBox.getSelectedItem().toString());
+
 				//				
 				// if (totalByte > 0) {
 				// float totalByte2 = totalByte - 1;
@@ -2100,7 +2151,7 @@ public class Application extends javax.swing.JFrame {
 
 			String result = commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr);
 			String[] lines = result.split("\n");
-			DefaultTableModel model = (DefaultTableModel) jPageTableTable.getModel();
+			PageTableTableModel model = (PageTableTableModel) jPageTableTable.getModel();
 			while (model.getRowCount() > 0) {
 				model.removeRow(0);
 			}
@@ -2130,8 +2181,10 @@ public class Application extends javax.swing.JFrame {
 						String us = String.valueOf((value >> 2) & 1);
 						String wr = String.valueOf((value >> 1) & 1);
 						String p = String.valueOf((value >> 0) & 1);
-
+						boolean tempB = model.isShowZeroAddress();
+						model.setShowZeroAddress(true);
 						model.addRow(new String[] { String.valueOf(y * 2 + z), base, avl, g, pat, d, a, pcd, pwt, us, wr, p });
+						model.setShowZeroAddress(tempB);
 					} catch (Exception ex) {
 					}
 				}
@@ -2144,7 +2197,7 @@ public class Application extends javax.swing.JFrame {
 	private void jPageTableTableMouseClicked(MouseEvent evt) {
 		if (evt.getClickCount() == 2) {
 			String pageAddress = jPageTableTable.getValueAt(jPageTableTable.getSelectedRow(), 1).toString();
-			this.jMemoryAddressComboBox.setSelectedItem("0x" + pageAddress);
+			this.jMemoryAddressComboBox.setSelectedItem(pageAddress);
 			this.jGOMemoryButtonActionPerformed(null);
 		}
 	}
@@ -2675,15 +2728,18 @@ public class Application extends javax.swing.JFrame {
 				jScrollPane7 = new JScrollPane();
 				jSplitPane3.add(jScrollPane7, JSplitPane.RIGHT);
 				{
-					TableModel jTable1Model = new DefaultTableModel(new String[][] {}, new String[] { "No.", language.getString("Physical_address"), "AVL", "G", "PAT", "D", "A",
-							"PCD", "PWT", "U/S", "W/R", "P" }) {
-						public boolean isCellEditable(int row, int column) {
-							return false;
-						}
-					};
+					// TableModel jTable1Model = new DefaultTableModel(new
+					// String[][] {}, new String[] { "No.",
+					// language.getString("Physical_address"), "AVL", "G",
+					// "PAT", "D", "A",
+					// "PCD", "PWT", "U/S", "W/R", "P" }) {
+					// public boolean isCellEditable(int row, int column) {
+					// return false;
+					// }
+					// };
 					jPageTableTable = new JTable();
 					jScrollPane7.setViewportView(jPageTableTable);
-					jPageTableTable.setModel(jTable1Model);
+					jPageTableTable.setModel(new PageTableTableModel());
 					jPageTableTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 					jPageTableTable.getColumnModel().getColumn(0).setPreferredWidth(40);
 					for (int x = 2; x <= 11; x++) {
@@ -2700,15 +2756,18 @@ public class Application extends javax.swing.JFrame {
 				jScrollPane8 = new JScrollPane();
 				jSplitPane3.add(jScrollPane8, JSplitPane.LEFT);
 				{
-					TableModel jPageDirectoryTableModel = new DefaultTableModel(new String[][] {}, new String[] { "No.", "PT base", "AVL", "G", "D", "A", "PCD", "PWT", "U/S",
-							"W/R", "P" }) {
-						public boolean isCellEditable(int row, int column) {
-							return false;
-						}
-					};
+					// TableModel jPageDirectoryTableModel = new
+					// DefaultTableModel(new String[][] {}, new String[] {
+					// "No.", "PT base", "AVL", "G", "D", "A", "PCD", "PWT",
+					// "U/S",
+					// "W/R", "P" }) {
+					// public boolean isCellEditable(int row, int column) {
+					// return false;
+					// }
+					// };
 					jPageDirectoryTable = new JTable();
 					jScrollPane8.setViewportView(jPageDirectoryTable);
-					jPageDirectoryTable.setModel(jPageDirectoryTableModel);
+					jPageDirectoryTable.setModel(new PageDirectoryTableModel());
 					jPageDirectoryTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 					jPageDirectoryTable.getColumnModel().getColumn(0).setPreferredWidth(40);
 					for (int x = 2; x < 11; x++) {
@@ -3144,8 +3203,8 @@ public class Application extends javax.swing.JFrame {
 
 	private void jSearchMemoryButtonActionPerformed(ActionEvent evt) {
 		try {
-			new SearchMemoryDialog(this, this.jSearchMemoryTable, this.jSearchMemoryTextField.getText(), CommonLib.string2decimal(this.jSearchMemoryFromComboBox.getSelectedItem()
-					.toString()), CommonLib.string2decimal(this.jSearchMemoryToComboBox.getSelectedItem().toString())).setVisible(true);
+			new SearchMemoryDialog(this, this.jSearchMemoryTable, this.jSearchMemoryTextField.getText(), CommonLib.string2decimal(this.jSearchMemoryFromComboBox.getSelectedItem().toString()),
+					CommonLib.string2decimal(this.jSearchMemoryToComboBox.getSelectedItem().toString())).setVisible(true);
 		} catch (Exception ex) {
 
 		}
@@ -3217,8 +3276,7 @@ public class Application extends javax.swing.JFrame {
 					jPanel10 = new JPanel();
 					BorderLayout jPanel10Layout = new BorderLayout();
 					jPanel10.setLayout(jPanel10Layout);
-					jTabbedPane1.addTab(language.getString("Instruction"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/text_padding_top.png")),
-							jPanel10, null);
+					jTabbedPane1.addTab(language.getString("Instruction"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/text_padding_top.png")), jPanel10, null);
 					jPanel10.setPreferredSize(new java.awt.Dimension(604, 452));
 					{
 						jInstructionControlPanel = new JPanel();
@@ -3248,8 +3306,8 @@ public class Application extends javax.swing.JFrame {
 						jScrollPane5 = new JScrollPane();
 						jPanel10.add(jScrollPane5, BorderLayout.CENTER);
 						{
-							TableModel jInstructionTableModel = new DefaultTableModel(new String[][] {}, new String[] { language.getString("Address"),
-									language.getString("Instruction"), language.getString("Bytes") }) {
+							TableModel jInstructionTableModel = new DefaultTableModel(new String[][] {}, new String[] { language.getString("Address"), language.getString("Instruction"),
+									language.getString("Bytes") }) {
 								public boolean isCellEditable(int row, int col) {
 									return false;
 								}
@@ -3261,6 +3319,11 @@ public class Application extends javax.swing.JFrame {
 							jInstructionTable.getColumnModel().getColumn(0).setPreferredWidth(40);
 							jInstructionTable.getColumnModel().getColumn(1).setPreferredWidth(200);
 							jInstructionTable.getColumnModel().getColumn(2).setPreferredWidth(40);
+							jInstructionTable.addMouseListener(new MouseAdapter() {
+								public void mouseClicked(MouseEvent evt) {
+									jInstructionTableMouseClicked(evt);
+								}
+							});
 						}
 					}
 				}
@@ -3273,8 +3336,8 @@ public class Application extends javax.swing.JFrame {
 						jScrollPane9 = new JScrollPane();
 						jPanel4.add(jScrollPane9, BorderLayout.CENTER);
 						{
-							TableModel jTable1Model = new DefaultTableModel(new String[][] {}, new String[] { language.getString("No"), language.getString("Address_type"),
-									"Disp Enb Address", language.getString("Hit") }) {
+							TableModel jTable1Model = new DefaultTableModel(new String[][] {}, new String[] { language.getString("No"), language.getString("Address_type"), "Disp Enb Address",
+									language.getString("Hit") }) {
 								public boolean isCellEditable(int row, int col) {
 									return false;
 								}
@@ -3283,6 +3346,11 @@ public class Application extends javax.swing.JFrame {
 							jScrollPane9.setViewportView(jBreakpointTable);
 							jBreakpointTable.setModel(jTable1Model);
 							jBreakpointTable.getColumnModel().getColumn(0).setCellRenderer(new JBreakpointTableCellRenderer());
+							jBreakpointTable.addMouseListener(new MouseAdapter() {
+								public void mouseClicked(MouseEvent evt) {
+									jBreakpointTableMouseClicked(evt);
+								}
+							});
 						}
 					}
 					{
@@ -3362,13 +3430,11 @@ public class Application extends javax.swing.JFrame {
 				}
 				{
 					jPanel1 = new JPanel();
-					jTabbedPane1.addTab(language.getString("Bochs"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/application_xp_terminal.png")),
-							jPanel1, null);
+					jTabbedPane1.addTab(language.getString("Bochs"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/application_xp_terminal.png")), jPanel1, null);
 					jTabbedPane1.addTab("ELF", new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/linux.png")), getJELFBreakpointPanel(), null);
 					DiskPanel diskPanel = getDiskPanel();
 					if (diskPanel.getFile() != null) {
-						jTabbedPane1.addTab(diskPanel.getFile().getName(), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/package.png")), diskPanel,
-								null);
+						jTabbedPane1.addTab(diskPanel.getFile().getName(), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/package.png")), diskPanel, null);
 					}
 					BorderLayout jPanel1Layout = new BorderLayout();
 					jPanel1.setLayout(jPanel1Layout);
@@ -3599,8 +3665,7 @@ public class Application extends javax.swing.JFrame {
 					BorderLayout jPanel7Layout = new BorderLayout();
 					jPanel7.setLayout(jPanel7Layout);
 					jTabbedPane3.addTab(language.getString("LDT"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/ldt.png")), jPanel7, null);
-					jTabbedPane3.addTab(language.getString("Search_memory"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/memory.png")),
-							getJPanel17(), null);
+					jTabbedPane3.addTab(language.getString("Search_memory"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/memory.png")), getJPanel17(), null);
 					{
 						jScrollPane11 = new JScrollPane();
 						jPanel7.add(jScrollPane11, BorderLayout.CENTER);
@@ -3642,8 +3707,7 @@ public class Application extends javax.swing.JFrame {
 			jSplitPane2.add(jTabbedPane2, JSplitPane.BOTTOM);
 			{
 				jScrollPane1 = new JScrollPane();
-				jTabbedPane2.addTab(language.getString("Register"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/text_kerning.png")), jScrollPane1,
-						null);
+				jTabbedPane2.addTab(language.getString("Register"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/text_kerning.png")), jScrollPane1, null);
 				{
 					jRegisterPanel1 = new JRegisterPanel(this);
 					jScrollPane1.setViewportView(jRegisterPanel1);
@@ -3664,17 +3728,16 @@ public class Application extends javax.swing.JFrame {
 			{
 				jPanel11 = new JPanel();
 				jTabbedPane2.addTab(language.getString("Paging"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/page_copy.png")), jPanel11, null);
-				jTabbedPane2.addTab(language.getString("Address_translate"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/page_go.png")),
-						getJAddressTranslatePanel(), null);
-				jTabbedPane2.addTab("Page table graph (experimental)", new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/page_lightning.png")),
-						getJPageTableGraphPanel(), null);
+				jTabbedPane2.addTab(language.getString("Address_translate"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/page_go.png")), getJAddressTranslatePanel(),
+						null);
+				jTabbedPane2
+						.addTab("Page table graph (experimental)", new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/page_lightning.png")), getJPageTableGraphPanel(), null);
 				if (!Global.debug) {
 					jTabbedPane2.removeTabAt(jTabbedPane2.getTabCount() - 1);
 				}
 				jTabbedPane2.addTab(language.getString("Table_translate"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/page_refresh.png")),
 						getJTableTranslateScrollPane(), null);
-				jTabbedPane2.addTab(language.getString("ELF_dump"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/linux.png")),
-						getJELFDumpScrollPane(), null);
+				jTabbedPane2.addTab(language.getString("ELF_dump"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/linux.png")), getJELFDumpScrollPane(), null);
 				BorderLayout jPanel11Layout = new BorderLayout();
 				jPanel11.setLayout(jPanel11Layout);
 				jPanel11.add(getJSplitPane3(), BorderLayout.CENTER);
@@ -3692,10 +3755,8 @@ public class Application extends javax.swing.JFrame {
 				public void run() {
 					URL url = getClass().getClassLoader().getResource("images/ajax-loader.gif");
 					if (currentLanguage.equals("zh_TW")) {
-						jRunningLabel
-								.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\""
-										+ url
-										+ "\" /><br><br><a style=\"color: #ffffff;  text-decoration:none\" href=\"http://www.kingofcoders.com\">編程王網站  www.kingofcoders.com</a></center></html>");
+						jRunningLabel.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\"" + url
+								+ "\" /><br><br><a style=\"color: #ffffff;  text-decoration:none\" href=\"http://www.kingofcoders.com\">編程王網站  www.kingofcoders.com</a></center></html>");
 					} else if (currentLanguage.equals("zh_CN")) {
 						jRunningLabel
 								.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\""
@@ -3743,6 +3804,7 @@ public class Application extends javax.swing.JFrame {
 			jPanel19.add(getJButton20());
 			jPanel19.add(getJDumpPageDirectoryAddressTextField());
 			jPanel19.add(getJButton21());
+			jPanel19.add(getJHideIfAddressIsZeroCheckBox());
 		}
 		return jPanel19;
 	}
@@ -4113,8 +4175,8 @@ public class Application extends javax.swing.JFrame {
 				model.segNo.set(x, model.searchSegSelector.get(x) >> 3);
 				model.virtualAddress.set(x, model.searchAddress.get(x));
 
-				long gdtBase = CommonLib.getPhysicalAddress(CommonLib.string2decimal(this.jRegisterPanel1.jCR3TextField.getText()), CommonLib
-						.string2decimal(this.jRegisterPanel1.jGDTRTextField.getText()));
+				long gdtBase = CommonLib.getPhysicalAddress(CommonLib.string2decimal(this.jRegisterPanel1.jCR3TextField.getText()), CommonLib.string2decimal(this.jRegisterPanel1.jGDTRTextField
+						.getText()));
 				System.out.println("gdtBase=" + Long.toHexString(gdtBase));
 				commandReceiver.clearBuffer();
 				gdtBase += model.segNo.get(x) * 8;
@@ -4162,7 +4224,6 @@ public class Application extends javax.swing.JFrame {
 			jHexTablePopupMenu.add(getJMenuItem5());
 			jHexTablePopupMenu.add(getJMenuItem6());
 			jHexTablePopupMenu.add(getJMenuItem7());
-			jHexTablePopupMenu.add(getJDisassemble16MenuItem());
 			jHexTablePopupMenu.add(getJDisassemble32MenuItem());
 		}
 		return jHexTablePopupMenu;
@@ -4277,23 +4338,6 @@ public class Application extends javax.swing.JFrame {
 		}
 	}
 
-	private JMenuItem getJDisassemble16MenuItem() {
-		if (jDisassemble16MenuItem == null) {
-			jDisassemble16MenuItem = new JMenuItem();
-			jDisassemble16MenuItem.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent evt) {
-					jDisassembleMenuItemActionPerformed(evt);
-				}
-			});
-			jDisassemble16MenuItem.setText(language.getString("Disassemble") + "16 bits");
-		}
-		return jDisassemble16MenuItem;
-	}
-
-	private void jDisassembleMenuItemActionPerformed(ActionEvent evt) {
-		System.out.println(Disassemble.disassemble(currentMemoryWindowsAddress + jHexTable1.getSelectedRow() * 8 + jHexTable1.getSelectedColumn() - 1, 16));
-		jTabbedPane1.setSelectedIndex(0);
-	}
 
 	private JMenuItem getJDisassemble32MenuItem() {
 		if (jDisassemble32MenuItem == null) {
@@ -4303,13 +4347,14 @@ public class Application extends javax.swing.JFrame {
 					jDisassemble32MenuItemActionPerformed(evt);
 				}
 			});
-			jDisassemble32MenuItem.setText(language.getString("Disassemble") + "132 bits");
+			jDisassemble32MenuItem.setText(language.getString("Disassemble"));
 		}
 		return jDisassemble32MenuItem;
 	}
 
 	private void jDisassemble32MenuItemActionPerformed(ActionEvent evt) {
-		System.out.println(Disassemble.disassemble(currentMemoryWindowsAddress + jHexTable1.getSelectedRow() * 8 + jHexTable1.getSelectedColumn() - 1, 32));
+		this.jInstructionComboBox.setSelectedItem(currentMemoryWindowsAddress + jHexTable1.getSelectedRow() * 8 + jHexTable1.getSelectedColumn() - 1);
+		jButton14ActionPerformed(null);
 		jTabbedPane1.setSelectedIndex(0);
 	}
 
@@ -4962,8 +5007,8 @@ public class Application extends javax.swing.JFrame {
 
 	private JTable getJSectionTable() {
 		if (jELFSectionTable == null) {
-			TableModel jSectionTableModel = new DefaultTableModel(null, new String[] { "No.", "sh_name", "sh_type", "sh_flags", "sh_addr", "sh_offset", "sh_size", "sh_link",
-					"sh_info", "sh_addralign", "sh_entsize" });
+			TableModel jSectionTableModel = new DefaultTableModel(null, new String[] { "No.", "sh_name", "sh_type", "sh_flags", "sh_addr", "sh_offset", "sh_size", "sh_link", "sh_info",
+					"sh_addralign", "sh_entsize" });
 			jELFSectionTable = new JTable();
 			jELFSectionTable.setModel(jSectionTableModel);
 			jELFSectionTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -5244,5 +5289,166 @@ public class Application extends javax.swing.JFrame {
 			jMaximizableTabbedPane_BasePanel1.add(getJSplitPane2(), "MAIN");
 		}
 		return jMaximizableTabbedPane_BasePanel1;
+	}
+
+	private JCheckBox getJHideIfAddressIsZeroCheckBox() {
+		if (jHideIfAddressIsZeroCheckBox == null) {
+			jHideIfAddressIsZeroCheckBox = new JCheckBox();
+			jHideIfAddressIsZeroCheckBox.setText("Hide if address = 0");
+			jHideIfAddressIsZeroCheckBox.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jHideIfAddressIsZeroCheckBoxActionPerformed(evt);
+				}
+			});
+		}
+		return jHideIfAddressIsZeroCheckBox;
+	}
+
+	private void jHideIfAddressIsZeroCheckBoxActionPerformed(ActionEvent evt) {
+		((PageDirectoryTableModel) jPageDirectoryTable.getModel()).setShowZeroAddress(!jHideIfAddressIsZeroCheckBox.isSelected());
+		((PageTableTableModel) jPageTableTable.getModel()).setShowZeroAddress(!jHideIfAddressIsZeroCheckBox.isSelected());
+	}
+
+	private JPopupMenu getJInstructionPanelPopupMenu() {
+		if (jInstructionPanelPopupMenu == null) {
+			jInstructionPanelPopupMenu = new JPopupMenu();
+			jInstructionPanelPopupMenu.add(getJMenuItem4x());
+			jInstructionPanelPopupMenu.add(getJMenuItem5x());
+		}
+		return jInstructionPanelPopupMenu;
+	}
+
+	/**
+	 * Auto-generated method for setting the popup menu for a component
+	 */
+	private void setComponentPopupMenu(final java.awt.Component parent, final javax.swing.JPopupMenu menu) {
+		parent.addMouseListener(new java.awt.event.MouseAdapter() {
+			public void mousePressed(java.awt.event.MouseEvent e) {
+				if (e.isPopupTrigger())
+					menu.show(parent, e.getX(), e.getY());
+			}
+
+			public void mouseReleased(java.awt.event.MouseEvent e) {
+				if (e.isPopupTrigger())
+					menu.show(parent, e.getX(), e.getY());
+			}
+		});
+	}
+
+	private JMenuItem getJMenuItem4x() {
+		if (jMenuItem4 == null) {
+			jMenuItem4 = new JMenuItem();
+			jMenuItem4.setText("Set physical breakpoint here");
+			jMenuItem4.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jMenuItem4ActionPerformed(evt);
+				}
+			});
+		}
+		return jMenuItem4;
+	}
+
+	private JMenuItem getJMenuItem5x() {
+		if (jMenuItem5 == null) {
+			jMenuItem5 = new JMenuItem();
+			jMenuItem5.setText("Set linear breakpoint here");
+			jMenuItem5.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jMenuItem5ActionPerformed(evt);
+				}
+			});
+		}
+		return jMenuItem5;
+	}
+
+	private void jInstructionTableMouseClicked(MouseEvent evt) {
+		if (SwingUtilities.isRightMouseButton(evt)) {
+			// select
+			Point p = evt.getPoint();
+			int rowNumber = jInstructionTable.rowAtPoint(p);
+			int columnNumber = jInstructionTable.columnAtPoint(p);
+			ListSelectionModel model = jInstructionTable.getSelectionModel();
+			model.setSelectionInterval(rowNumber, rowNumber);
+			jInstructionTable.getColumnModel().getSelectionModel().setSelectionInterval(columnNumber, columnNumber);
+			// end select
+
+			getJInstructionPanelPopupMenu().show(evt.getComponent(), evt.getX(), evt.getY());
+		}
+	}
+
+	private void jMenuItem4ActionPerformed(ActionEvent evt) {
+		Application.sendCommand("pb 0x" + this.jInstructionTable.getValueAt(this.jInstructionTable.getSelectedRow(), 0));
+		this.updateBreakpoint();
+	}
+
+	private void jMenuItem5ActionPerformed(ActionEvent evt) {
+		Application.sendCommand("lb 0x" + this.jInstructionTable.getValueAt(this.jInstructionTable.getSelectedRow(), 0));
+		this.updateBreakpoint();
+	}
+
+	private void jBreakpointTableMouseClicked(MouseEvent evt) {
+		if (SwingUtilities.isRightMouseButton(evt)) {
+			// select
+			Point p = evt.getPoint();
+			int rowNumber = jBreakpointTable.rowAtPoint(p);
+			int columnNumber = jBreakpointTable.columnAtPoint(p);
+			ListSelectionModel model = jBreakpointTable.getSelectionModel();
+			model.setSelectionInterval(rowNumber, rowNumber);
+			jBreakpointTable.getColumnModel().getSelectionModel().setSelectionInterval(columnNumber, columnNumber);
+			// end select
+
+			getJBreakpointPopupMenu().show(evt.getComponent(), evt.getX(), evt.getY());
+		}
+	}
+
+	private JPopupMenu getJBreakpointPopupMenu() {
+		if (jBreakpointPopupMenu == null) {
+			jBreakpointPopupMenu = new JPopupMenu();
+			jBreakpointPopupMenu.add(getJMenuItem6x());
+			jBreakpointPopupMenu.add(getJMenuItem7x());
+		}
+		return jBreakpointPopupMenu;
+	}
+
+	private JMenuItem getJMenuItem6x() {
+		if (jMenuItem6 == null) {
+			jMenuItem6 = new JMenuItem();
+			jMenuItem6.setText("Dump here");
+			jMenuItem6.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jMenuItem6ActionPerformed(evt);
+				}
+			});
+		}
+		return jMenuItem6;
+	}
+
+	private JMenuItem getJMenuItem7x() {
+		if (jMenuItem7 == null) {
+			jMenuItem7 = new JMenuItem();
+			jMenuItem7.setText(language.getString("Disassemble"));
+			jMenuItem7.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jMenuItem7ActionPerformed(evt);
+				}
+			});
+		}
+		return jMenuItem7;
+	}
+
+	private void jMenuItem6ActionPerformed(ActionEvent evt) {
+		this.jMemoryAddressComboBox.setSelectedItem(this.jBreakpointTable.getValueAt(this.jBreakpointTable.getSelectedRow(), 2));
+		if (this.jBreakpointTable.getValueAt(this.jBreakpointTable.getSelectedRow(), 0).toString().contains("lb")) {
+			jGoLinearButtonActionPerformed(null);
+		} else {
+			jGOMemoryButtonActionPerformed(null);
+		}
+		jTabbedPane3.setSelectedIndex(0);
+	}
+
+	private void jMenuItem7ActionPerformed(ActionEvent evt) {
+		this.jInstructionComboBox.setSelectedItem(this.jBreakpointTable.getValueAt(this.jBreakpointTable.getSelectedRow(), 2));
+		jButton14ActionPerformed(null);
+		jTabbedPane1.setSelectedIndex(0);
 	}
 }
