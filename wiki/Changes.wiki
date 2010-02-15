@@ -1,5 +1,13 @@
 #summary Changes
 
+=== version 20100214 ===
+
+1) fixed : cannot enable/disable the breakpoint that currently catched
+
+2) fixed "hide if address = 0" checkbox is TSSPanel
+
+3) fixed : display wrong field value (P, AVL, G) in LDT
+
 === version 20100207 ===
 
 1) right click popup on breakpoint table can dump/disasseble at breakpoint location
