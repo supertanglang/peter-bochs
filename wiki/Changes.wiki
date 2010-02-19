@@ -1,5 +1,19 @@
 #summary Changes
 
+=== version 20100217 ===
+
+fixed this bug:
+
+1) when load breakpoint, lbreakpoint will become pbreakpoint
+
+2) instruction "-1" , "-10" call updateBreakpointTableColor()
+
+3) search memory dialog's progress bar still have problem
+
+added these features:
+
+1) added instruction up and down button
+
 === version 20100214 ===
 
 1) fixed : cannot enable/disable the breakpoint that currently catched
