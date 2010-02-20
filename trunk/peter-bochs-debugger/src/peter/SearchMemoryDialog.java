@@ -13,7 +13,6 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.table.DefaultTableModel;
 
 /**
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
@@ -33,7 +32,6 @@ public class SearchMemoryDialog extends javax.swing.JDialog {
 	String pattern;
 	long from;
 	long to;
-	private JScrollPane jScrollPane1;
 	private JTextField jTextField1;
 	private JLabel jLabel1;
 	private JPanel jPanel2;
@@ -88,18 +86,13 @@ public class SearchMemoryDialog extends javax.swing.JDialog {
 				getContentPane().add(jPanel2, BorderLayout.NORTH);
 				jPanel2.setPreferredSize(new java.awt.Dimension(290, 35));
 				{
+					jTextField1 = new JTextField();
+					jPanel2.add(jTextField1, BorderLayout.CENTER);
+				}
+				{
 					jLabel1 = new JLabel();
 					jPanel2.add(jLabel1, BorderLayout.NORTH);
 					jLabel1.setText(Application.language.getString("Searching_these_bytes"));
-				}
-				{
-					jScrollPane1 = new JScrollPane();
-					jPanel2.add(jScrollPane1, BorderLayout.CENTER);
-					jScrollPane1.setPreferredSize(new java.awt.Dimension(271, 18));
-					{
-						jTextField1 = new JTextField();
-						jScrollPane1.setViewportView(jTextField1);
-					}
 				}
 			}
 			setSize(350, 130);
@@ -123,6 +116,7 @@ public class SearchMemoryDialog extends javax.swing.JDialog {
 				jTextField1.setText(jTextField1.getText() + String.format("0x%02x", patternByte[x]) + " ");
 			}
 
+			jProgressBar1.setMaximum(100);
 			int totalByte = 200;
 			for (long addr = from; addr <= to; addr += (totalByte - patternByte.length + 1)) {
 				jAddressLabel.setText("0x" + Long.toHexString(addr));
@@ -168,7 +162,7 @@ public class SearchMemoryDialog extends javax.swing.JDialog {
 					return;
 				}
 
-				jProgressBar1.setValue((int) (addr * 100 / to));
+				jProgressBar1.setValue((int) ((addr - from) * 100 / (to - from)));
 			}
 			jProgressBar1.setValue(100);
 			jButton1.setText(Application.language.getString("Finished"));

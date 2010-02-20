@@ -1,5 +1,7 @@
 package peter;
 
+import info.clearthought.layout.TableLayout;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -11,8 +13,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.Vector;
-import javax.swing.ButtonGroup;
 
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultCellEditor;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -38,17 +40,12 @@ import peter.architecture.IA32PageDirectory;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
-import info.clearthought.layout.TableLayout;
 
 /**
- * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
- * Builder, which is free for non-commercial use. If Jigloo is being used
- * commercially (ie, by a corporation, company or business for any purpose
- * whatever) then you should purchase a license for each developer using Jigloo.
- * Please visit www.cloudgarden.com for details. Use of Jigloo implies
- * acceptance of these licensing terms. A COMMERCIAL LICENSE HAS NOT BEEN
- * PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR
- * ANY CORPORATE OR COMMERCIAL PURPOSE.
+ * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI Builder, which is free for non-commercial use. If Jigloo is being used commercially (ie, by a
+ * corporation, company or business for any purpose whatever) then you should purchase a license for each developer using Jigloo. Please visit www.cloudgarden.com for details. Use
+ * of Jigloo implies acceptance of these licensing terms. A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR ANY
+ * CORPORATE OR COMMERCIAL PURPOSE.
  */
 public class TSSPanel extends JPanel {
 	private JTable jTable1;
@@ -208,11 +205,14 @@ public class TSSPanel extends JPanel {
 							jSplitPane2.add(jScrollPane4, JSplitPane.LEFT);
 							jScrollPane4.setPreferredSize(new java.awt.Dimension(399, 573));
 							{
-								TableModel jPageDirectoryTableModel = new DefaultTableModel(new String[][] {}, new String[] { "No.", "PT base", "AVL", "G", "D", "A", "PCD", "PWT", "U/S", "W/R", "P" }) {
-									public boolean isCellEditable(int row, int column) {
-										return false;
-									}
-								};
+								// TableModel jPageDirectoryTableModel = new DefaultTableModel(new String[][] {}, new String[] { "No.",
+								// "PT base", "AVL", "G", "D", "A", "PCD",
+								// "PWT", "U/S", "W/R", "P" }) {
+								// public boolean isCellEditable(int row, int column) {
+								// return false;
+								// }
+								// };
+								PageDirectoryTableModel jPageDirectoryTableModel = new PageDirectoryTableModel();
 								jPageDirectoryTable = new JTable();
 								jScrollPane4.setViewportView(jPageDirectoryTable);
 								jPageDirectoryTable.setModel(jPageDirectoryTableModel);
@@ -229,12 +229,14 @@ public class TSSPanel extends JPanel {
 							jSplitPane2.add(jScrollPane5, JSplitPane.RIGHT);
 							jScrollPane5.setPreferredSize(new java.awt.Dimension(507, 573));
 							{
-								TableModel jPageTableTableModel = new DefaultTableModel(new String[][] {}, new String[] { "No.", Application.language.getString("Physical_address"), "AVL", "G", "PAT",
-										"D", "A", "PCD", "PWT", "U/S", "W/R", "P" }) {
-									public boolean isCellEditable(int row, int column) {
-										return false;
-									}
-								};
+								// TableModel jPageTableTableModel = new DefaultTableModel(new String[][] {}, new String[] { "No.",
+								// Application.language.getString("Physical_address"), "AVL", "G", "PAT",
+								// "D", "A", "PCD", "PWT", "U/S", "W/R", "P" }) {
+								// public boolean isCellEditable(int row, int column) {
+								// return false;
+								// }
+								// };
+								PageTableTableModel jPageTableTableModel = new PageTableTableModel();
 								jPageTableTable = new JTable();
 								jScrollPane5.setViewportView(jPageTableTable);
 								jPageTableTable.setModel(jPageTableTableModel);
@@ -370,10 +372,15 @@ public class TSSPanel extends JPanel {
 				Application.sendCommand("info gdt " + gdtNo);
 				String gdtNoHex = String.format("0x%02x", gdtNo);
 				result = Application.commandReceiver.getCommandResult("GDT[" + gdtNoHex + "]");
-			} else {
+			} else if (type == 1) {
 				Application.sendCommand("info ldt " + gdtNo);
 				String gdtNoHex = String.format("0x%02x", gdtNo);
 				result = Application.commandReceiver.getCommandResult("LDT[" + gdtNoHex + "]");
+			} else if (type == 2) {
+				Application.sendCommand("info idt " + gdtNo);
+				String gdtNoHex = String.format("0x%02x", gdtNo);
+				result = Application.commandReceiver.getCommandResult("IDT[" + gdtNoHex + "]");
+				System.out.println(result);
 			}
 
 			// String lines[] =
@@ -600,6 +607,7 @@ public class TSSPanel extends JPanel {
 	}
 
 	public void updatePageTable(long pageDirectoryBaseAddress) {
+		this.jLinearAddressTextField.setText("0x" + Long.toHexString(pageDirectoryBaseAddress));
 		Vector<IA32PageDirectory> ia32_pageDirectories = new Vector<IA32PageDirectory>();
 		try {
 			// commandReceiver.setCommandNoOfLine(512);
@@ -990,16 +998,16 @@ public class TSSPanel extends JPanel {
 		AddressTranslateTableModel model = (AddressTranslateTableModel) this.jAddressTranslateTable2.getModel();
 		model.removeRow(rows);
 	}
-	
+
 	private ButtonGroup getButtonGroup1() {
-		if(buttonGroup1 == null) {
+		if (buttonGroup1 == null) {
 			buttonGroup1 = new ButtonGroup();
 		}
 		return buttonGroup1;
 	}
-	
+
 	private JCheckBox getJHideIfAddressIsZeroCheckBox() {
-		if(jHideIfAddressIsZeroCheckBox == null) {
+		if (jHideIfAddressIsZeroCheckBox == null) {
 			jHideIfAddressIsZeroCheckBox = new JCheckBox();
 			jHideIfAddressIsZeroCheckBox.setText("Hide if address = 0");
 			jHideIfAddressIsZeroCheckBox.addActionListener(new ActionListener() {
@@ -1010,7 +1018,7 @@ public class TSSPanel extends JPanel {
 		}
 		return jHideIfAddressIsZeroCheckBox;
 	}
-	
+
 	private void jHideIfAddressIsZeroCheckBoxActionPerformed(ActionEvent evt) {
 		((PageDirectoryTableModel) jPageDirectoryTable.getModel()).setShowZeroAddress(!jHideIfAddressIsZeroCheckBox.isSelected());
 		((PageTableTableModel) jPageTableTable.getModel()).setShowZeroAddress(!jHideIfAddressIsZeroCheckBox.isSelected());

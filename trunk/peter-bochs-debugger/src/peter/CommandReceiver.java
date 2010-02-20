@@ -18,7 +18,7 @@ public class CommandReceiver implements Runnable {
 	// private int threadID = 0;
 	public boolean shouldShow;
 
-	int timeoutSecond = 8;
+	int timeoutSecond = 1;
 
 	boolean readCommandFinish;
 	Vector<String> lines = new Vector<String>();
@@ -54,6 +54,7 @@ public class CommandReceiver implements Runnable {
 	}
 
 	public String getCommandResultUntilEnd() {
+		long startTime = new Date().getTime();
 		commandResult = "";
 
 		String str = "";
@@ -63,14 +64,20 @@ public class CommandReceiver implements Runnable {
 				if (lines.size() > 0) {
 					str += lines.get(0) + "\n";
 					lines.remove(0);
+					startTime = new Date().getTime();
 				} else {
 					return str;
+				}
+				long diff = new Date().getTime() - startTime;
+				if (diff / 1000 >= 4) {
+					return null;
 				}
 			}
 		}
 	}
 
 	public String getCommandResultUntilHaveLines(int noOfLine) {
+		long startTime = new Date().getTime();
 		commandResult = "";
 
 		String str = "";
@@ -80,10 +87,15 @@ public class CommandReceiver implements Runnable {
 				if (lines.size() > 0) {
 					str += lines.get(0) + "\n";
 					lines.remove(0);
+					startTime = new Date().getTime();
 				} else {
 					if (str.split("\n").length >= noOfLine) {
 						return str;
 					}
+				}
+				long diff = new Date().getTime() - startTime;
+				if (diff / 1000 >= timeoutSecond) {
+					return null;
 				}
 			}
 		}
@@ -106,6 +118,7 @@ public class CommandReceiver implements Runnable {
 					} else {
 						lines.remove(0);
 					}
+					startTime = new Date().getTime();
 				}
 			}
 			long diff = new Date().getTime() - startTime;
@@ -125,8 +138,7 @@ public class CommandReceiver implements Runnable {
 		while (true) {
 			synchronized (lines) {
 				if (lines.size() > 0) {
-					// System.out.println("line size=" + lines.size() + ">" +
-					// lines.get(0));
+					// System.out.println("line size=" + lines.size() + ">" + lines.get(0));
 					if (startCapture) {
 						if (lines.get(0).contains((endPattern))) {
 							str += lines.get(0) + "\n";
@@ -152,6 +164,7 @@ public class CommandReceiver implements Runnable {
 							lines.remove(0);
 						}
 					}
+					startTime = new Date().getTime();
 				}
 				long diff = new Date().getTime() - startTime;
 				// System.out.println(diff);

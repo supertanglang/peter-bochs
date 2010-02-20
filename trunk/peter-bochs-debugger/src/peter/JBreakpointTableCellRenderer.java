@@ -21,7 +21,7 @@ public class JBreakpointTableCellRenderer extends JLabel implements TableCellRen
 		}
 		if (value.toString().startsWith("-")) {
 			this.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/arrow_right_red.png")));
-			this.setText(value.toString().substring(1));
+			this.setText(value.toString().replaceAll("^-*", ""));
 		} else {
 			this.setIcon(null);
 			this.setText(value.toString());

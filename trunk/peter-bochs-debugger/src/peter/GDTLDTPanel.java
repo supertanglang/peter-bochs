@@ -227,10 +227,10 @@ public class GDTLDTPanel extends JPanel {
 			long limit = CommonLib.getShort(b[0], b[1]);
 			model.addRow(new String[] { "base", "0x" + Long.toHexString(base) });
 			model.addRow(new String[] { "limit", "0x" + Long.toHexString(limit) });
-			model.addRow(new String[] { "dpl", "0x" + Long.toHexString(bit[14] << 1 + bit[13]) });
-			model.addRow(new String[] { "p", "0x" + Long.toHexString(bit[15]) });
-			model.addRow(new String[] { "avl", "0x" + Long.toHexString(bit[20]) });
-			model.addRow(new String[] { "g", "0x" + Long.toHexString(bit[23]) });
+			model.addRow(new String[] { "dpl", "0x" + Long.toHexString(bit[46] << 1 + bit[45]) });
+			model.addRow(new String[] { "p", "0x" + Long.toHexString(bit[47]) });
+			model.addRow(new String[] { "avl", "0x" + Long.toHexString(bit[52]) });
+			model.addRow(new String[] { "g", "0x" + Long.toHexString(bit[55]) });
 
 			// parse each descriptor
 
