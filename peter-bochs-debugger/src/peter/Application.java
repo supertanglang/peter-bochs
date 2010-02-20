@@ -119,14 +119,10 @@ import com.petersoft.advancedswing.jmaximizabletabbedpane.JMaximizableTabbedPane
 import com.petersoft.advancedswing.jmaximizabletabbedpane.JMaximizableTabbedPane_BasePanel;
 
 /**
- * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
- * Builder, which is free for non-commercial use. If Jigloo is being used
- * commercially (ie, by a corporation, company or business for any purpose
- * whatever) then you should purchase a license for each developer using Jigloo.
- * Please visit www.cloudgarden.com for details. Use of Jigloo implies
- * acceptance of these licen sing terms. A COMMERCIAL LICENSE HAS NOT BEEN
- * PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR
- * ANY CORPORATE OR COMMERCIAL PURPOSE.
+ * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI Builder, which is free for non-commercial use. If Jigloo is being used commercially (ie, by a
+ * corporation, company or business for any purpose whatever) then you should purchase a license for each developer using Jigloo. Please visit www.cloudgarden.com for details. Use
+ * of Jigloo implies acceptance of these licen sing terms. A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR ANY
+ * CORPORATE OR COMMERCIAL PURPOSE.
  */
 public class Application extends javax.swing.JFrame {
 	private JMenuItem aboutUsMenuItem;
@@ -224,6 +220,14 @@ public class Application extends javax.swing.JFrame {
 	private JPanel jPanel22;
 	private JPanel jPanel24;
 	private JToolBar jPanel26;
+	private JMenuItem jJPMenuItem;
+	private JMenuItem jKRMenuItem;
+	private JButton jInstructionUpTenButton;
+	private JButton jInstructionDownButton;
+	private JButton jInstructionUpButton;
+	private JMenuItem jMenuItem9;
+	private JMenuItem jMenuItem8;
+	private JPopupMenu jSearchMemoryTablePopupMenu;
 	private JMenuItem jMenuItem7;
 	private JMenuItem jMenuItem6;
 	private JPopupMenu jBreakpointPopupMenu;
@@ -327,9 +331,9 @@ public class Application extends javax.swing.JFrame {
 	private JMenu jFontMenu;
 	private int fontsize;
 	private String fontFamily;
-	private JMenuItem jMenuItem3;
-	private JMenuItem jMenuItem2;
-	private JMenuItem jMenuItem1;
+	private JMenuItem jSCMenuItem;
+	private JMenuItem jHKMenuItem;
+	private JMenuItem jEnglishMenuItem;
 	private JMenu jMenu6;
 	private JSplitPane jSplitPane3;
 	private JButton jButton1;
@@ -443,6 +447,12 @@ public class Application extends javax.swing.JFrame {
 			args = (String[]) ArrayUtils.removeElement(args, "-debug");
 		} else {
 			Global.debug = false;
+		}
+
+		if (ArrayUtils.contains(args, "-loadBreakpoint") || ArrayUtils.contains(args, "-loadbreakpoint")) {
+			Global.loadBreakpoint = true;
+			args = (String[]) ArrayUtils.removeElement(args, "-loadBreakpoint");
+			args = (String[]) ArrayUtils.removeElement(args, "-loadbreakpoint");
 		}
 
 		arguments = args;
@@ -564,7 +574,9 @@ public class Application extends javax.swing.JFrame {
 					IOUtils.toString(in);
 					IOUtils.closeQuietly(in);
 				} catch (Exception ex) {
-					ex.printStackTrace();
+					if (Global.debug) {
+						ex.printStackTrace();
+					}
 				}
 			}
 		}.start();
@@ -698,10 +710,9 @@ public class Application extends javax.swing.JFrame {
 				public void run() {
 					try {
 						InputStream in = new URL("http://peter-bochs.googlecode.com/files/run.txt").openStream();
-						IOUtils.toString(in);
+						String str = IOUtils.toString(in);
 						IOUtils.closeQuietly(in);
 					} catch (Exception ex) {
-						ex.printStackTrace();
 					}
 				}
 			}.start();
@@ -1175,6 +1186,12 @@ public class Application extends javax.swing.JFrame {
 				jStatusLabel.setText("");
 
 				enableAllButtons(true);
+
+				if (Global.loadBreakpoint) {
+					jLoadBreakpointButtonActionPerformed(null);
+					Global.loadBreakpoint = false; // since we only have to load
+					// once
+				}
 			}
 		};
 		updateThread.start();
@@ -1192,6 +1209,17 @@ public class Application extends javax.swing.JFrame {
 			} else {
 				if (value.startsWith("-")) {
 					jBreakpointTable.setValueAt(value.substring(1), x, 0);
+				}
+			}
+		}
+
+		for (int x = 0; x < jInstructionTable.getRowCount(); x++) {
+			String value = jInstructionTable.getValueAt(x, 0).toString();
+			if (CommonLib.string2decimal("0x" + eipStr).equals(CommonLib.string2decimal("0x" + jInstructionTable.getValueAt(x, 0).toString()))) {
+				jInstructionTable.setValueAt("-" + value, x, 0);
+			} else {
+				if (value.startsWith("-")) {
+					jInstructionTable.setValueAt(value.substring(1), x, 0);
 				}
 			}
 		}
@@ -1588,15 +1616,15 @@ public class Application extends javax.swing.JFrame {
 
 	private void updateInstructionUsingBochs(Long address) {
 		try {
+			final int maximumLine = 40;
 			String command;
 			jStatusLabel.setText("Updating instruction");
 			if (address == null) {
 				Long cs = CommonLib.hex2decimal(this.jRegisterPanel1.jCSTextField.getText());
 				Long eip = CommonLib.hex2decimal(this.jRegisterPanel1.jEIPTextField.getText()) + 75;
-				command = "disassemble cs:eip 0x" + Long.toHexString(cs) + ":0x" + Long.toHexString(eip + 100);
-				// System.out.println(command);
+				command = "disasm cs:eip 0x" + Long.toHexString(cs) + ":0x" + Long.toHexString(eip + 200);
 			} else {
-				command = "disassemble " + address + " " + (address + 100);
+				command = "disasm " + address + " " + (address + 200);
 			}
 			commandReceiver.clearBuffer();
 			commandReceiver.shouldShow = false;
@@ -1620,7 +1648,7 @@ public class Application extends javax.swing.JFrame {
 					model.removeRow(0);
 				}
 				jStatusProgressBar.setMaximum(lines.length - 1);
-				for (int x = 0; x < lines.length; x++) {
+				for (int x = 0; x < lines.length && x < maximumLine; x++) {
 					jStatusProgressBar.setValue(x);
 					try {
 						lines[x] = lines[x].replaceFirst("\\<.*\\>", "");
@@ -1702,7 +1730,7 @@ public class Application extends javax.swing.JFrame {
 			JIDTTableModel model = (JIDTTableModel) jIDTTable.getModel();
 			model.clear();
 			jStatusProgressBar.setMaximum(lines.length - 1);
-			for (int x = 1; x < lines.length; x++) {
+			for (int x = 0; x < lines.length; x++) {
 				jStatusLabel.setText("Updating IDT " + x);
 				jStatusProgressBar.setValue(x);
 				try {
@@ -2241,6 +2269,7 @@ public class Application extends javax.swing.JFrame {
 	private void jDisassembleButtonActionPerformed(ActionEvent evt) {
 		jDisassembleButton.setEnabled(false);
 		this.updateInstruction(null);
+		updateBreakpointTableColor();
 		jDisassembleButton.setEnabled(true);
 	}
 
@@ -2257,6 +2286,7 @@ public class Application extends javax.swing.JFrame {
 					sendCommand("lb " + address);
 				}
 				updateBreakpoint();
+				updateBreakpointTableColor();
 			}
 		}
 		jAddBreakpointButton.setEnabled(true);
@@ -2269,7 +2299,8 @@ public class Application extends javax.swing.JFrame {
 		for (int x = 0; x < this.jBreakpointTable.getRowCount(); x++) {
 			HashMap<String, String> h = new HashMap<String, String>();
 			h.put("no", String.valueOf(x));
-			h.put("type", this.jBreakpointTable.getValueAt(x, 1).toString());
+			h.put("type", this.jBreakpointTable.getValueAt(x, 0).toString());
+			h.put("enable", this.jBreakpointTable.getValueAt(x, 1).toString());
 			h.put("address", this.jBreakpointTable.getValueAt(x, 2).toString());
 			h.put("hit", this.jBreakpointTable.getValueAt(x, 3).toString());
 			v.add(h);
@@ -2281,23 +2312,33 @@ public class Application extends javax.swing.JFrame {
 	private void jLoadBreakpointButtonActionPerformed(ActionEvent evt) {
 		jLoadBreakpointButton.setEnabled(false);
 		Vector<HashMap> vector = XMLHelper.xmltoVector("breakpoint.xml", "/breakpoints/record");
-		for (int x = 0; x < vector.size(); x++) {
-			boolean match = false;
-			for (int y = 0; y < this.jBreakpointTable.getRowCount(); y++) {
-				if (vector.get(x).get("address").toString().trim().equals(jBreakpointTable.getValueAt(y, 2).toString().trim())) {
-					match = true;
-					break;
+		try {
+			for (int x = 0; x < vector.size(); x++) {
+				boolean match = false;
+				for (int y = 0; y < this.jBreakpointTable.getRowCount(); y++) {
+					if (vector.get(x).get("address").toString().trim().equals(jBreakpointTable.getValueAt(y, 2).toString().trim())) {
+						match = true;
+						break;
+					}
+				}
+				if (!match) {
+					if (vector.get(x).get("type").toString().contains("pbreakpoint")) {
+						sendCommand("pb " + vector.get(x).get("address").toString());
+					} else {
+						sendCommand("lb " + vector.get(x).get("address").toString());
+					}
+					if (vector.get(x).get("enable").toString().trim().equals("keep n")) {
+						sendCommand("bpd " + jBreakpointTable.getValueAt(jBreakpointTable.getRowCount() - 1, 0).toString().split(" ")[0]);
+					}
 				}
 			}
-			if (!match) {
-				sendCommand("pb " + vector.get(x).get("address").toString());
-				updateBreakpoint();
-				if (vector.get(x).get("type").toString().trim().equals("keep n")) {
-					sendCommand("bpd " + jBreakpointTable.getValueAt(jBreakpointTable.getRowCount() - 1, 0).toString().split(" ")[0]);
-					updateBreakpoint();
-				}
+		} catch (Exception e) {
+			if (Global.debug) {
+				e.printStackTrace();
 			}
 		}
+		updateBreakpoint();
+		updateBreakpointTableColor();
 		jLoadBreakpointButton.setEnabled(true);
 	}
 
@@ -2305,9 +2346,10 @@ public class Application extends javax.swing.JFrame {
 		jDeleteBreakpointButton.setEnabled(false);
 		int rows[] = jBreakpointTable.getSelectedRows();
 		for (int x = 0; x < rows.length; x++) {
-			sendCommand("del " + jBreakpointTable.getValueAt(rows[x], 0).toString().trim().split(" ")[0]);
+			sendCommand("del " + jBreakpointTable.getValueAt(rows[x], 0).toString().replaceAll("^-*", "").trim().split(" ")[0]);
 		}
 		updateBreakpoint();
+		updateBreakpointTableColor();
 		jDeleteBreakpointButton.setEnabled(true);
 	}
 
@@ -2315,9 +2357,10 @@ public class Application extends javax.swing.JFrame {
 		jDisableBreakpointButton.setEnabled(false);
 		int rows[] = jBreakpointTable.getSelectedRows();
 		for (int x = 0; x < rows.length; x++) {
-			sendCommand("bpd " + jBreakpointTable.getValueAt(rows[x], 0).toString().trim().split(" ")[0]);
+			sendCommand("bpd " + jBreakpointTable.getValueAt(rows[x], 0).toString().replaceAll("^-*", "").trim().split(" ")[0]);
 		}
 		updateBreakpoint();
+		updateBreakpointTableColor();
 		jDisableBreakpointButton.setEnabled(true);
 	}
 
@@ -2325,10 +2368,10 @@ public class Application extends javax.swing.JFrame {
 		jEnableBreakpointButton.setEnabled(false);
 		int rows[] = jBreakpointTable.getSelectedRows();
 		for (int x = 0; x < rows.length; x++) {
-			sendCommand("bpe " + jBreakpointTable.getValueAt(rows[x], 0).toString().trim().split(" ")[0]);
-			System.out.println("bpe " + jBreakpointTable.getValueAt(rows[x], 0).toString().trim().split(" ")[0]);
+			sendCommand("bpe " + jBreakpointTable.getValueAt(rows[x], 0).toString().replaceAll("^-*", "").trim().split(" ")[0]);
 		}
 		updateBreakpoint();
+		updateBreakpointTableColor();
 		jEnableBreakpointButton.setEnabled(true);
 	}
 
@@ -2583,47 +2626,49 @@ public class Application extends javax.swing.JFrame {
 			jMenu6.add(getJMenuItem1());
 			jMenu6.add(getJMenuItem2());
 			jMenu6.add(getJMenuItem3());
+			jMenu6.add(getJKRMenuItem());
+			jMenu6.add(getJJPMenuItem());
 		}
 		return jMenu6;
 	}
 
 	private JMenuItem getJMenuItem1() {
-		if (jMenuItem1 == null) {
-			jMenuItem1 = new JMenuItem();
-			jMenuItem1.setText(language.getString("English"));
-			jMenuItem1.addActionListener(new ActionListener() {
+		if (jEnglishMenuItem == null) {
+			jEnglishMenuItem = new JMenuItem();
+			jEnglishMenuItem.setText(language.getString("English"));
+			jEnglishMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jMenuItem1ActionPerformed(evt);
 				}
 			});
 		}
-		return jMenuItem1;
+		return jEnglishMenuItem;
 	}
 
 	private JMenuItem getJMenuItem2() {
-		if (jMenuItem2 == null) {
-			jMenuItem2 = new JMenuItem();
-			jMenuItem2.setText(language.getString("Traditional_chinese"));
-			jMenuItem2.addActionListener(new ActionListener() {
+		if (jHKMenuItem == null) {
+			jHKMenuItem = new JMenuItem();
+			jHKMenuItem.setText(language.getString("Traditional_chinese"));
+			jHKMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jMenuItem2ActionPerformed(evt);
 				}
 			});
 		}
-		return jMenuItem2;
+		return jHKMenuItem;
 	}
 
 	private JMenuItem getJMenuItem3() {
-		if (jMenuItem3 == null) {
-			jMenuItem3 = new JMenuItem();
-			jMenuItem3.setText(language.getString("Simplified_chinese"));
-			jMenuItem3.addActionListener(new ActionListener() {
+		if (jSCMenuItem == null) {
+			jSCMenuItem = new JMenuItem();
+			jSCMenuItem.setText(language.getString("Simplified_chinese"));
+			jSCMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jMenuItem3ActionPerformed(evt);
 				}
 			});
 		}
-		return jMenuItem3;
+		return jSCMenuItem;
 	}
 
 	private void jMenuItem2ActionPerformed(ActionEvent evt) {
@@ -3129,6 +3174,11 @@ public class Application extends javax.swing.JFrame {
 	private JTable getJSearchMemoryTable() {
 		if (jSearchMemoryTable == null) {
 			jSearchMemoryTable = new JTable();
+			jSearchMemoryTable.addMouseListener(new MouseAdapter() {
+				public void mouseClicked(MouseEvent evt) {
+					jSearchMemoryTableMouseClicked(evt);
+				}
+			});
 			jSearchMemoryTable.setModel(new SearchTableModel());
 		}
 		return jSearchMemoryTable;
@@ -3203,6 +3253,11 @@ public class Application extends javax.swing.JFrame {
 
 	private void jSearchMemoryButtonActionPerformed(ActionEvent evt) {
 		try {
+			if (this.jSearchMemoryToComboBox.getSelectedItem().toString().trim().startsWith("+")) {
+				this.jSearchMemoryToComboBox.setSelectedItem("0x"
+						+ Long.toHexString(CommonLib.string2decimal(this.jSearchMemoryFromComboBox.getSelectedItem().toString())
+								+ CommonLib.string2decimal(this.jSearchMemoryToComboBox.getSelectedItem().toString().substring(1))));
+			}
 			new SearchMemoryDialog(this, this.jSearchMemoryTable, this.jSearchMemoryTextField.getText(), CommonLib.string2decimal(this.jSearchMemoryFromComboBox.getSelectedItem().toString()),
 					CommonLib.string2decimal(this.jSearchMemoryToComboBox.getSelectedItem().toString())).setVisible(true);
 		} catch (Exception ex) {
@@ -3227,6 +3282,7 @@ public class Application extends javax.swing.JFrame {
 		this.addInstructionComboBox(this.jInstructionComboBox.getSelectedItem().toString());
 		jDisassembleButton.setEnabled(false);
 		updateInstruction(CommonLib.string2decimal(this.jInstructionComboBox.getSelectedItem().toString()));
+		updateBreakpointTableColor();
 		jDisassembleButton.setEnabled(true);
 	}
 
@@ -3292,6 +3348,9 @@ public class Application extends javax.swing.JFrame {
 							jDisassembleButton = new JButton();
 							jInstructionControlPanel.add(jDisassembleButton);
 							jInstructionControlPanel.add(getJButton14());
+							jInstructionControlPanel.add(getJInstructionUpTenButton());
+							jInstructionControlPanel.add(getJInstructionUpButton());
+							jInstructionControlPanel.add(getJButton22());
 							jInstructionControlPanel.add(getJButton3());
 							jInstructionControlPanel.add(getJButton12());
 							jDisassembleButton.setText(language.getString("Disassemble") + " cs:eip");
@@ -3319,6 +3378,7 @@ public class Application extends javax.swing.JFrame {
 							jInstructionTable.getColumnModel().getColumn(0).setPreferredWidth(40);
 							jInstructionTable.getColumnModel().getColumn(1).setPreferredWidth(200);
 							jInstructionTable.getColumnModel().getColumn(2).setPreferredWidth(40);
+							jInstructionTable.getColumnModel().getColumn(0).setCellRenderer(new JInstructionTableCellRenderer());
 							jInstructionTable.addMouseListener(new MouseAdapter() {
 								public void mouseClicked(MouseEvent evt) {
 									jInstructionTableMouseClicked(evt);
@@ -3543,6 +3603,7 @@ public class Application extends javax.swing.JFrame {
 							jPanel9.add(getJButton2());
 							jPanel9.add(getJButton5());
 							jGOMemoryButton.setText(language.getString("Go"));
+							jGOMemoryButton.setToolTipText(language.getString("Physical_address"));
 							jGOMemoryButton.addActionListener(new ActionListener() {
 								public void actionPerformed(ActionEvent evt) {
 									jGOMemoryButtonActionPerformed(evt);
@@ -3657,6 +3718,11 @@ public class Application extends javax.swing.JFrame {
 							jScrollPane10.setViewportView(jIDTTable);
 							jIDTTable.getColumnModel().getColumn(0).setMaxWidth(40);
 							jIDTTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+							jIDTTable.addMouseListener(new MouseAdapter() {
+								public void mouseClicked(MouseEvent evt) {
+									jIDTTableMouseClicked(evt);
+								}
+							});
 						}
 					}
 				}
@@ -4110,7 +4176,6 @@ public class Application extends javax.swing.JFrame {
 			model.linearAddress.add(linearAddress);
 
 			long pdNo = CommonLib.getValue(linearAddress, 31, 22);
-			System.out.println(linearAddress + "==" + pdNo);
 			model.pdNo.add(pdNo);
 			int pdeBytes[] = CommonLib.getMemoryFromBochs(CommonLib.string2decimal(this.jRegisterPanel1.jCR3TextField.getText()) + (pdNo * 4), 4);
 			long pde = CommonLib.getInt(pdeBytes, 0);
@@ -4337,7 +4402,6 @@ public class Application extends javax.swing.JFrame {
 			jGOMemoryButtonActionPerformed(evt);
 		}
 	}
-
 
 	private JMenuItem getJDisassemble32MenuItem() {
 		if (jDisassemble32MenuItem == null) {
@@ -4586,7 +4650,6 @@ public class Application extends javax.swing.JFrame {
 
 		for (int x = 0; x < jBreakpointTable.getRowCount(); x++) {
 			long addr = CommonLib.string2decimal(jBreakpointTable.getValueAt(x, 2).toString());
-			System.out.println(addr + "==" + address);
 			if (addr == address) {
 				String breakpointNo = jBreakpointTable.getValueAt(x, 0).toString().trim().split(" ")[0];
 				sendCommand("bpe " + breakpointNo);
@@ -5450,5 +5513,214 @@ public class Application extends javax.swing.JFrame {
 		this.jInstructionComboBox.setSelectedItem(this.jBreakpointTable.getValueAt(this.jBreakpointTable.getSelectedRow(), 2));
 		jButton14ActionPerformed(null);
 		jTabbedPane1.setSelectedIndex(0);
+	}
+
+	private void jSearchMemoryTableMouseClicked(MouseEvent evt) {
+		if (SwingUtilities.isRightMouseButton(evt)) {
+			// select
+			Point p = evt.getPoint();
+			int rowNumber = jSearchMemoryTable.rowAtPoint(p);
+			int columnNumber = jSearchMemoryTable.columnAtPoint(p);
+			ListSelectionModel model = jSearchMemoryTable.getSelectionModel();
+			model.setSelectionInterval(rowNumber, rowNumber);
+			jSearchMemoryTable.getColumnModel().getSelectionModel().setSelectionInterval(columnNumber, columnNumber);
+			// end select
+
+			getJSearchMemoryTablePopupMenu().show(evt.getComponent(), evt.getX(), evt.getY());
+		}
+	}
+
+	private JPopupMenu getJSearchMemoryTablePopupMenu() {
+		if (jSearchMemoryTablePopupMenu == null) {
+			jSearchMemoryTablePopupMenu = new JPopupMenu();
+			jSearchMemoryTablePopupMenu.add(getJMenuItem8());
+			jSearchMemoryTablePopupMenu.add(getJMenuItem9());
+		}
+		return jSearchMemoryTablePopupMenu;
+	}
+
+	private JMenuItem getJMenuItem8() {
+		if (jMenuItem8 == null) {
+			jMenuItem8 = new JMenuItem();
+			jMenuItem8.setText("Set physical breakpoint here");
+			jMenuItem8.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jMenuItem8ActionPerformed(evt);
+				}
+			});
+		}
+		return jMenuItem8;
+	}
+
+	private JMenuItem getJMenuItem9() {
+		if (jMenuItem9 == null) {
+			jMenuItem9 = new JMenuItem();
+			jMenuItem9.setText("Set linear breakpoint here");
+			jMenuItem9.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jMenuItem9ActionPerformed(evt);
+				}
+			});
+		}
+		return jMenuItem9;
+	}
+
+	private void jMenuItem8ActionPerformed(ActionEvent evt) {
+		System.out.println(this.jSearchMemoryTable.getValueAt(this.jSearchMemoryTable.getSelectedRow(), 0));
+		Application.sendCommand("pb " + this.jSearchMemoryTable.getValueAt(this.jSearchMemoryTable.getSelectedRow(), 0));
+		this.updateBreakpoint();
+	}
+
+	private void jMenuItem9ActionPerformed(ActionEvent evt) {
+		Application.sendCommand("lb " + this.jSearchMemoryTable.getValueAt(this.jSearchMemoryTable.getSelectedRow(), 0));
+		this.updateBreakpoint();
+	}
+
+	private JButton getJInstructionUpButton() {
+		if (jInstructionUpButton == null) {
+			jInstructionUpButton = new JButton();
+			jInstructionUpButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/arrow_up1.png")));
+			jInstructionUpButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jInstructionUpButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jInstructionUpButton;
+	}
+
+	private JButton getJButton22() {
+		if (jInstructionDownButton == null) {
+			jInstructionDownButton = new JButton();
+			jInstructionDownButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/arrow_down.png")));
+			jInstructionDownButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jInstructionDownButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jInstructionDownButton;
+	}
+
+	private void jInstructionUpButtonActionPerformed(ActionEvent evt) {
+		// String address[] = new String[20];
+		// for (int z = 0; z < 20; z++) {
+		// address[z] = this.jInstructionTable.getValueAt(z, 0).toString().replaceAll("^-*", "");
+		// }
+		// String firstAddress = this.jInstructionTable.getValueAt(0, 0).toString().replaceAll("^-*", "");
+		// String originalAddress = jInstructionComboBox.getSelectedItem().toString();
+		//
+		// for (int x = 10; x < 50; x++) {
+		// long newAddress = CommonLib.string2decimal("0x" + firstAddress) - x;
+		// this.jInstructionComboBox.setSelectedItem("0x" + Long.toHexString(newAddress));
+		// this.updateInstruction(newAddress);
+		// String midAddress[] = new String[20];
+		//
+		// for (int z = 0; z < 20; z++) {
+		// midAddress[z] = this.jInstructionTable.getValueAt(10 + z, 0).toString().replaceAll("^-*", "");
+		// }
+		//
+		// // compare
+		// boolean match = true;
+		// for (int z = 0; z < 20 && match; z++) {
+		// System.out.println(address[z] + "==" + midAddress[z]);
+		// if (!address[z].equals(midAddress[z])) {
+		// match = false;
+		// }
+		// }
+		// if (match) {
+		// return;
+		// }
+		// }
+		//
+		// // cannot find the correct address, restore it
+		// System.out.println("restore");
+		// this.jInstructionComboBox.setSelectedItem("0x" + firstAddress);
+		// this.updateInstruction(CommonLib.string2decimal("0x" + firstAddress));
+
+		String firstAddress = this.jInstructionTable.getValueAt(0, 0).toString().replaceAll("^-*", "");
+		firstAddress = Long.toHexString(CommonLib.string2decimal("0x" + firstAddress) - 1);
+
+		this.jInstructionComboBox.setSelectedItem("0x" + firstAddress);
+		this.updateInstruction(CommonLib.string2decimal("0x" + firstAddress));
+		this.updateBreakpointTableColor();
+	}
+
+	private void jInstructionDownButtonActionPerformed(ActionEvent evt) {
+		String firstAddress = this.jInstructionTable.getValueAt(10, 0).toString().replaceAll("^-*", "");
+
+		this.jInstructionComboBox.setSelectedItem("0x" + firstAddress);
+		this.updateInstruction(CommonLib.string2decimal("0x" + firstAddress));
+		this.updateBreakpointTableColor();
+	}
+
+	private JButton getJInstructionUpTenButton() {
+		if (jInstructionUpTenButton == null) {
+			jInstructionUpTenButton = new JButton();
+			jInstructionUpTenButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/arrow_up10.png")));
+			jInstructionUpTenButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jInstructionUpTenButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jInstructionUpTenButton;
+	}
+
+	private void jInstructionUpTenButtonActionPerformed(ActionEvent evt) {
+		String firstAddress = this.jInstructionTable.getValueAt(0, 0).toString().replaceAll("^-*", "");
+		firstAddress = Long.toHexString(CommonLib.string2decimal("0x" + firstAddress) - 16);
+
+		this.jInstructionComboBox.setSelectedItem("0x" + firstAddress);
+		this.updateInstruction(CommonLib.string2decimal("0x" + firstAddress));
+		this.updateBreakpointTableColor();
+	}
+
+	private JMenuItem getJKRMenuItem() {
+		if (jKRMenuItem == null) {
+			jKRMenuItem = new JMenuItem();
+			jKRMenuItem.setText("Korean");
+			jKRMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jKRMenuItemActionPerformed(evt);
+				}
+			});
+		}
+		return jKRMenuItem;
+	}
+
+	private void jKRMenuItemActionPerformed(ActionEvent evt) {
+		changeLanguage("KR");
+	}
+
+	private JMenuItem getJJPMenuItem() {
+		if (jJPMenuItem == null) {
+			jJPMenuItem = new JMenuItem();
+			jJPMenuItem.setText("Japanese");
+			jJPMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jJPMenuItemActionPerformed(evt);
+				}
+			});
+		}
+		return jJPMenuItem;
+	}
+
+	private void jJPMenuItemActionPerformed(ActionEvent evt) {
+		changeLanguage("JP");
+	}
+
+	private void jIDTTableMouseClicked(MouseEvent evt) {
+		if (evt.getClickCount() == 2) {
+			for (int x = 0; x < jTabbedPane2.getTabCount(); x++) {
+				if (jTabbedPane2.getTitleAt(x).equals(("IDT " + String.format("0x%02x", jGDTTable.getSelectedRow() + 1)))) {
+					jTabbedPane2.setSelectedIndex(x);
+					return;
+				}
+			}
+			jTabbedPane2.addTabWithCloseButton("IDT " + String.format("0x%02x", jIDTTable.getSelectedRow() + 1), null, new IDTDescriptorPanel(this, CommonLib
+					.hex2decimal(this.jRegisterPanel1.jIDTRTextField.getText()), jIDTTable.getSelectedRow() + 1), null);
+			jTabbedPane2.setSelectedIndex(jTabbedPane2.getTabCount() - 1);
+		}
 	}
 }

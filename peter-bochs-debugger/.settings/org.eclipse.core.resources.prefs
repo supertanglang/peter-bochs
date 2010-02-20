@@ -1,5 +1,7 @@
-#Thu Dec 31 12:09:46 CST 2009
+#Thu Feb 18 17:03:40 CST 2010
 eclipse.preferences.version=1
+encoding//src/language_JP.properties=UTF-8
+encoding//src/language_KR.properties=UTF-8
 encoding//src/language_zh_CN.properties=UTF-8
 encoding//src/language_zh_TW.properties=UTF-8
 encoding//src/peter/Application.java=UTF-8
