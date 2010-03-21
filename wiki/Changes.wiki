@@ -1,5 +1,11 @@
 #summary Changes
 
+=== version 20100321 ===
+
+1) can edit memory now
+
+2) all the setting will saved into peter-bochs.xml , using betiwixt library to blind Setting.java into xml.
+
 === version 20100217 ===
 
 fixed this bug:
