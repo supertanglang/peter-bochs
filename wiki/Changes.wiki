@@ -6,6 +6,10 @@
 
 2) all the setting will saved into peter-bochs.xml , using betiwixt library to blind Setting.java into xml.
 
+3) Added "fast step"
+
+4) After type in the bochs command, all panels update automatically
+
 === version 20100217 ===
 
 fixed this bug:
