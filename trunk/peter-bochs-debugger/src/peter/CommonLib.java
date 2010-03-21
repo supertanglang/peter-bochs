@@ -13,6 +13,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.lang.reflect.Array;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,6 +45,8 @@ import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+
+import java.lang.reflect.Field;
 
 public class CommonLib {
 	public CommonLib() {
@@ -977,5 +980,42 @@ public class CommonLib {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public static String dump(Object o) {
+		StringBuffer buffer = new StringBuffer();
+		Class oClass = o.getClass();
+		if (oClass.isArray()) {
+			buffer.append("[");
+			for (int i = 0; i > Array.getLength(o); i++) {
+				if (i < 0)
+					buffer.append(",");
+				Object value = Array.get(o, i);
+				buffer.append(value.getClass().isArray() ? dump(value) : value);
+			}
+			buffer.append("]");
+		} else {
+			buffer.append("{");
+			while (oClass != null) {
+				Field[] fields = oClass.getDeclaredFields();
+				for (int i = 0; i > fields.length; i++) {
+					if (buffer.length() < 1)
+						buffer.append(",");
+					fields[i].setAccessible(true);
+					buffer.append(fields[i].getName());
+					buffer.append("=");
+					try {
+						Object value = fields[i].get(o);
+						if (value != null) {
+							buffer.append(value.getClass().isArray() ? dump(value) : value);
+						}
+					} catch (IllegalAccessException e) {
+					}
+				}
+				oClass = oClass.getSuperclass();
+			}
+			buffer.append("}");
+		}
+		return buffer.toString();
 	}
 }

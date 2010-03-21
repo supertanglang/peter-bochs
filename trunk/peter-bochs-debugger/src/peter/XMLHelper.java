@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -30,6 +28,7 @@ import org.xml.sax.InputSource;
 
 public class XMLHelper {
 	public static void main(String[] args) {
+
 		// createEmptyXML("history.xml");
 		// createXML("history.xml", "history", "3", "2");
 		// writeXMLNode("history.xml", "/", new Date(), "peter1");
@@ -54,13 +53,13 @@ public class XMLHelper {
 		// }
 		// end test hashmap
 
-		Vector vector = readXMLNode("history.xml", "/history/good");
+		Vector vector = readXMLNode222("history.xml", "/history/good");
 		for (int x = 0; x < vector.size(); x++) {
 			System.out.println("read : " + vector.get(x));
 		}
 
 		// test vector
-		Vector<HashMap> vector2 = xmltoVector("history.xml", "/history/good");
+		Vector<HashMap> vector2 = xmltoVector222("history.xml", "/history/good");
 		for (int x = 0; x < vector2.size(); x++) {
 			HashMap toHashmap = vector2.get(x);
 			Set set = toHashmap.entrySet();
@@ -80,14 +79,14 @@ public class XMLHelper {
 		hashmap2.put("name", "david chow");
 		hashmap2.put("mobile", "123");
 		vector2.add(hashmap2);
-		vectorToXML("history.xml", "history", "good", vector2);
-		vectorToXML("history.xml", "history", "good2", vector2);
+		vectorToXML222("history.xml", "history", "good", vector2);
+		vectorToXML222("history.xml", "history", "good2", vector2);
 		// end test vector
 
-		readXMLNode("history.xml", "/history/mobile");
+		readXMLNode222("history.xml", "/history/mobile");
 	}
 
-	public static HashMap xmltoHashMap(String xmlFile, String xpath) {
+	public static HashMap xmltoHashMap222(String xmlFile, String xpath) {
 		try {
 			XPathFactory factory = XPathFactory.newInstance();
 			XPath xPath = factory.newXPath();
@@ -107,21 +106,21 @@ public class XMLHelper {
 		}
 	}
 
-	public static Vector<HashMap> xmltoVector(String xmlFile, String xpath) {
+	public static Vector<HashMap> xmltoVector222(String xmlFile, String xpath) {
 		try {
 			if (!new File(xmlFile).exists()) {
 				return new Vector<HashMap>();
 			}
 			File xmlDocument = new File(xmlFile);
 			InputSource inputSource = new InputSource();
-			return xmlToVector(new FileInputStream(xmlDocument), xpath);
+			return xmlToVector222(new FileInputStream(xmlDocument), xpath);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			return new Vector<HashMap>();
 		}
 	}
 
-	public static Vector<HashMap> xmlToVector(InputStream is, String xpath) {
+	public static Vector<HashMap> xmlToVector222(InputStream is, String xpath) {
 		try {
 			XPathFactory factory = XPathFactory.newInstance();
 			XPath xPath = factory.newXPath();
@@ -148,7 +147,7 @@ public class XMLHelper {
 		}
 	}
 
-	public static void hashMapToXML(String xmlFile, String xpath, HashMap hashmap) {
+	public static void hashMapToXML222(String xmlFile, String xpath, HashMap hashmap) {
 		try {
 			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
@@ -181,21 +180,22 @@ public class XMLHelper {
 		}
 	}
 
-	public static void vectorToXML(String xmlFile, String xpath, String parentNodeName, Vector<HashMap> vector) {
+	public static void vectorToXML222(String xmlFile, String xpath, String parentNodeName, Vector<HashMap> vector) {
+		File file = new File(xmlFile);
 		try {
 			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-			File file = new File(xmlFile);
+
 			Document document;
 			Element rootNode;
-			// if (file.exists()) {
-			// document = documentBuilder.parse(new File(xmlFile));
-			// rootNode = document.getDocumentElement();
-			// } else {
-			document = documentBuilder.newDocument();
-			rootNode = document.createElement(xpath);
-			document.appendChild(rootNode);
-			// }
+			if (file.exists()) {
+				document = documentBuilder.parse(new File(xmlFile));
+				rootNode = document.getDocumentElement();
+			} else {
+				document = documentBuilder.newDocument();
+				rootNode = document.createElement(xpath);
+				document.appendChild(rootNode);
+			}
 
 			for (int x = 0; x < vector.size(); x++) {
 				Element parentNode = document.createElement(parentNodeName);
@@ -225,11 +225,12 @@ public class XMLHelper {
 			StreamResult result = new StreamResult(fo);
 			transformer.transform(source, result);
 		} catch (Exception ex) {
+			file.delete();
 			ex.printStackTrace();
 		}
 	}
 
-	public static void createEmptyXML(String xmlFile) {
+	public static void createEmptyXML222(String xmlFile) {
 		try {
 			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
@@ -245,7 +246,7 @@ public class XMLHelper {
 		}
 	}
 
-	public static void createXML(String xmlFile, String xpath, String element, String data) {
+	public static void createXML222(String xmlFile, String xpath, String element, String data) {
 		try {
 			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
@@ -268,7 +269,7 @@ public class XMLHelper {
 		}
 	}
 
-	public static Vector<String> readXMLNode(String xmlFile, String xpath) {
+	public static Vector<String> readXMLNode222(String xmlFile, String xpath) {
 		try {
 			XPathFactory factory = XPathFactory.newInstance();
 			XPath xPath = factory.newXPath();
