@@ -37,7 +37,8 @@ public class JHexTableModel extends AbstractTableModel {
 				char c5 = (char) qw[5 + row * (getColumnCount() - 2)];
 				char c6 = (char) qw[6 + row * (getColumnCount() - 2)];
 				char c7 = (char) qw[7 + row * (getColumnCount() - 2)];
-				return String.valueOf(c0) + String.valueOf(c1) + String.valueOf(c2) + String.valueOf(c3) + String.valueOf(c4) + String.valueOf(c5) + String.valueOf(c6) + String.valueOf(c7);
+				return String.valueOf(c0) + String.valueOf(c1) + String.valueOf(c2) + String.valueOf(c3) + String.valueOf(c4) + String.valueOf(c5) + String.valueOf(c6)
+						+ String.valueOf(c7);
 			} else {
 				long l = qw[(column - 1) + row * (getColumnCount() - 2)];
 				if (radix == 16) {
@@ -63,8 +64,9 @@ public class JHexTableModel extends AbstractTableModel {
 	}
 
 	public void setValueAt(Object newVal, int row, int column) {
-		System.out.println(newVal);
-		super.setValueAt(newVal, row, column);
+		long address = CommonLib.hex2decimal(this.getValueAt(row, 0).toString()) + (column - 1);
+		Application.sendCommand("setpmem " + address + " 1 " + CommonLib.hex2decimal(newVal.toString()));
+		qw[(int) (address - currentAddress)] = (int) (long) CommonLib.hex2decimal(newVal.toString());
 	}
 
 	public int getColumnCount() {

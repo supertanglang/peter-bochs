@@ -49,6 +49,11 @@ public class CommandReceiver implements Runnable {
 				if (lines.size() > 0) {
 					return;
 				}
+				// try {
+				// Thread.currentThread().sleep(2000);
+				// } catch (InterruptedException e) {
+				// }
+				// System.out.println(lines.size());
 			}
 		}
 	}
@@ -138,7 +143,8 @@ public class CommandReceiver implements Runnable {
 		while (true) {
 			synchronized (lines) {
 				if (lines.size() > 0) {
-					// System.out.println("line size=" + lines.size() + ">" + lines.get(0));
+					// System.out.println("line size=" + lines.size() + ">" +
+					// lines.get(0));
 					if (startCapture) {
 						if (lines.get(0).contains((endPattern))) {
 							str += lines.get(0) + "\n";
