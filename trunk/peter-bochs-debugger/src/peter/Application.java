@@ -93,7 +93,6 @@ import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.ini4j.Wini;
 import org.jgraph.JGraph;
 import org.jgraph.graph.CellView;
 import org.jgraph.graph.DefaultCellViewFactory;
@@ -143,10 +142,6 @@ public class Application extends javax.swing.JFrame {
 	private JEditorPane jBochsEditorPane;
 
 	public static CommandReceiver commandReceiver;
-
-	public JEditorPane getjBochsEditorPane() {
-		return jBochsEditorPane;
-	}
 
 	private JSplitPane jSplitPane1;
 	private JRegisterPanel jRegisterPanel1;
@@ -227,6 +222,7 @@ public class Application extends javax.swing.JFrame {
 	private JPanel jPanel22;
 	private JPanel jPanel24;
 	private JToolBar jPanel26;
+	private JButton jSettingButton;
 	private JMenuItem jMenuItem2;
 	private JMenuItem jMenuItem1;
 	private JPopupMenu jELFTablePopupMenu;
@@ -333,15 +329,12 @@ public class Application extends javax.swing.JFrame {
 	// Vector<HashMap> bochsCommandLength =
 	// XMLHelper.xmltoVector(getClass().getClassLoader().getResourceAsStream("peter/bochsCommandLength.xml"),
 	// "/bochsCommandLength");
-	Wini ini;
 	private static String[] arguments;
 	private JMenuItem jFont14MenuItem;
 	private JMenuItem jFont12MenuItem;
 	private JMenuItem jFont10MenuItem;
 	private JMenuItem jFont8MenuItem;
 	private JMenu jFontMenu;
-	private int fontsize;
-	private String fontFamily;
 	private JMenuItem jSCMenuItem;
 	private JMenuItem jHKMenuItem;
 	private JMenuItem jEnglishMenuItem;
@@ -373,7 +366,6 @@ public class Application extends javax.swing.JFrame {
 	public static boolean isLinux;
 	public static String version = "";
 	private JButton jButton21;
-	public static String currentLanguage = "en_US";
 	public static String bochsrc;
 	static boolean preventSetVisibleHang = true;
 	public static Setting setting = Setting.load();
@@ -512,35 +504,18 @@ public class Application extends javax.swing.JFrame {
 				e.printStackTrace();
 			}
 
-			File iniFile = new File("setting.ini");
-			if (!iniFile.exists()) {
-				iniFile.createNewFile();
-			}
-			ini = new Wini(iniFile);
+			language = Utf8ResourceBundle.getBundle("language_" + setting.getCurrentLanguage());
 
-			if (ini.get("global", "fontsize") != null && !ini.get("global", "fontsize").trim().equals("")) {
-				fontsize = Integer.parseInt(ini.get("global", "fontsize"));
-			}
-			if (ini.get("global", "font") != null && !ini.get("global", "font").trim().equals("")) {
-				fontFamily = ini.get("global", "font");
-			}
-			if (ini.get("general", "language") != null && !ini.get("general", "language").trim().equals("")) {
-				currentLanguage = ini.get("general", "language");
-				language = Utf8ResourceBundle.getBundle("language_" + currentLanguage);
-			} else {
-				language = Utf8ResourceBundle.getBundle("language_en_US");
-			}
 			if (!isLinux) {
 				if (!new File("PauseBochs.exe").exists() || !new File("StopBochs.exe").exists()) {
-					JOptionPane.showMessageDialog(null, language.getString("PauseBochsExe"), language.getString("Error"), JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, MyLanguage.getString("PauseBochsExe"), MyLanguage.getString("Error"), JOptionPane.ERROR_MESSAGE);
 					System.exit(-1);
 				}
 				if (!new File("ndisasm.exe").exists()) {
-					JOptionPane.showMessageDialog(null, language.getString("NdisasmExe"), language.getString("Error"), JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, MyLanguage.getString("NdisasmExe"), MyLanguage.getString("Error"), JOptionPane.ERROR_MESSAGE);
 					System.exit(-1);
 				}
 			}
-			setFont();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -568,7 +543,7 @@ public class Application extends javax.swing.JFrame {
 				}
 				if (map != null) {
 					if (map.get("latestVersion").compareTo(Global.version) > 0) {
-						jLatestVersionLabel.setText(language.getString("Latest_version_available") + " : " + map.get("latestVersion") + "     " + language.getString("Download_url") + " : "
+						jLatestVersionLabel.setText(MyLanguage.getString("Latest_version_available") + " : " + map.get("latestVersion") + "     " + MyLanguage.getString("Download_url") + " : "
 								+ map.get("downloadURL"));
 					} else {
 						jLatestVersionLabel.setText("");
@@ -601,7 +576,7 @@ public class Application extends javax.swing.JFrame {
 	private void startBochs() {
 		try {
 			this.enableAllButtons(true);
-			jRunBochsButton.setText(language.getString("Run_bochs"));
+			jRunBochsButton.setText(MyLanguage.getString("Run_bochs"));
 			jRunBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/resultset_next.png")));
 
 			if (p != null) {
@@ -645,7 +620,7 @@ public class Application extends javax.swing.JFrame {
 
 			this.updateBreakpoint();
 		} catch (Exception ex) {
-			JOptionPane.showMessageDialog(this, language.getString("Unable_to_start_bochs"));
+			JOptionPane.showMessageDialog(this, MyLanguage.getString("Unable_to_start_bochs"));
 			ex.printStackTrace();
 		}
 	}
@@ -653,7 +628,7 @@ public class Application extends javax.swing.JFrame {
 	private void stopBochs() {
 		try {
 			this.enableAllButtons(false);
-			jRunBochsButton.setText(language.getString("Run_bochs"));
+			jRunBochsButton.setText(MyLanguage.getString("Run_bochs"));
 			jRunBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/resultset_next.png")));
 
 			CardLayout cl = (CardLayout) (jMainPanel.getLayout());
@@ -673,7 +648,7 @@ public class Application extends javax.swing.JFrame {
 
 	private synchronized void pauseBochs() {
 		try {
-			if (jRunBochsButton.getText().equals(language.getString("Pause_bochs"))) {
+			if (jRunBochsButton.getText().equals(MyLanguage.getString("Pause_bochs"))) {
 				commandReceiver.clearBuffer();
 				commandReceiver.waitUntilNoInput();
 				if (isLinux) {
@@ -689,7 +664,7 @@ public class Application extends javax.swing.JFrame {
 				CardLayout cl = (CardLayout) (jMainPanel.getLayout());
 				cl.show(jMainPanel, "jMaximizableTabbedPane_BasePanel1");
 
-				jRunBochsButton.setText(language.getString("Run_bochs"));
+				jRunBochsButton.setText(MyLanguage.getString("Run_bochs"));
 				jRunBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/resultset_next.png")));
 				// jStepBochsButton.setEnabled(true);
 			}
@@ -703,7 +678,7 @@ public class Application extends javax.swing.JFrame {
 			sendCommand("c");
 			CardLayout cl = (CardLayout) (jMainPanel.getLayout());
 			cl.show(jMainPanel, "Running Label");
-			jRunBochsButton.setText(language.getString("Pause_bochs"));
+			jRunBochsButton.setText(MyLanguage.getString("Pause_bochs"));
 			jRunBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/pause.png")));
 
 			new Thread() {
@@ -740,7 +715,7 @@ public class Application extends javax.swing.JFrame {
 		try {
 			{
 				this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-				this.setTitle(language.getString("Title") + " " + Global.version);
+				this.setTitle(MyLanguage.getString("Title") + " " + Global.version);
 
 				this.setIconImage(new ImageIcon(getClass().getClassLoader().getResource("icons/peter.png")).getImage());
 				this.addWindowListener(new WindowAdapter() {
@@ -763,7 +738,7 @@ public class Application extends javax.swing.JFrame {
 				{
 					jStartBochButton = new JButton();
 					jToolBar1.add(jStartBochButton);
-					jStartBochButton.setText(language.getString("Start_bochs"));
+					jStartBochButton.setText(MyLanguage.getString("Start_bochs"));
 					jStartBochButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/accept.png")));
 					jStartBochButton.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
@@ -774,7 +749,7 @@ public class Application extends javax.swing.JFrame {
 				{
 					jStopBochsButton = new JButton();
 					jToolBar1.add(jStopBochsButton);
-					jStopBochsButton.setText(language.getString("Stop_bochs"));
+					jStopBochsButton.setText(MyLanguage.getString("Stop_bochs"));
 					jStopBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/stop.png")));
 					jStopBochsButton.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
@@ -785,7 +760,7 @@ public class Application extends javax.swing.JFrame {
 				{
 					jRunBochsButton = new JButton();
 					jToolBar1.add(jRunBochsButton);
-					jRunBochsButton.setText(language.getString("Run_bochs"));
+					jRunBochsButton.setText(MyLanguage.getString("Run_bochs"));
 					jRunBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/resultset_next.png")));
 					jRunBochsButton.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
@@ -798,7 +773,7 @@ public class Application extends javax.swing.JFrame {
 					jToolBar1.add(jStepBochsButton);
 					jToolBar1.add(getJFastStepBochsButton());
 					jStepBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/step.png")));
-					jStepBochsButton.setText(language.getString("Step"));
+					jStepBochsButton.setText(MyLanguage.getString("Step"));
 					jStepBochsButton.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
 							jStepBochsButtonActionPerformed(evt);
@@ -809,8 +784,9 @@ public class Application extends javax.swing.JFrame {
 					jUpdateBochsButton = new JButton();
 					jToolBar1.add(jUpdateBochsButton);
 					jToolBar1.add(getJButton13());
+					jToolBar1.add(getJSettingButton());
 					jUpdateBochsButton.setEnabled(true);
-					jUpdateBochsButton.setText(language.getString("Update"));
+					jUpdateBochsButton.setText(MyLanguage.getString("Update"));
 					jUpdateBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/arrow_refresh.png")));
 					jUpdateBochsButton.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
@@ -841,7 +817,7 @@ public class Application extends javax.swing.JFrame {
 				{
 					jMenu3 = new JMenu();
 					jMenuBar1.add(jMenu3);
-					jMenu3.setText(language.getString("File"));
+					jMenu3.setText(MyLanguage.getString("File"));
 					{
 						jSeparator2 = new JSeparator();
 						jMenu3.add(jSeparator2);
@@ -849,7 +825,7 @@ public class Application extends javax.swing.JFrame {
 					{
 						exitMenuItem = new JMenuItem();
 						jMenu3.add(exitMenuItem);
-						exitMenuItem.setText(language.getString("Exit"));
+						exitMenuItem.setText(MyLanguage.getString("Exit"));
 						exitMenuItem.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent evt) {
 								exitMenuItemActionPerformed(evt);
@@ -862,11 +838,11 @@ public class Application extends javax.swing.JFrame {
 					jMenuBar1.add(jMenu4);
 					jMenuBar1.add(getJFontMenu());
 					jMenuBar1.add(getJMenu6());
-					jMenu4.setText(language.getString("Bochs"));
+					jMenu4.setText(MyLanguage.getString("Bochs"));
 					{
 						startBochsMenuItem = new JMenuItem();
 						jMenu4.add(startBochsMenuItem);
-						startBochsMenuItem.setText(language.getString("Start_bochs"));
+						startBochsMenuItem.setText(MyLanguage.getString("Start_bochs"));
 						startBochsMenuItem.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent evt) {
 								startBochsMenuItemActionPerformed(evt);
@@ -876,7 +852,7 @@ public class Application extends javax.swing.JFrame {
 					{
 						stopBochsMenuItem = new JMenuItem();
 						jMenu4.add(stopBochsMenuItem);
-						stopBochsMenuItem.setText(language.getString("Stop_bochs"));
+						stopBochsMenuItem.setText(MyLanguage.getString("Stop_bochs"));
 						stopBochsMenuItem.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent evt) {
 								stopBochsMenuItemActionPerformed(evt);
@@ -890,7 +866,7 @@ public class Application extends javax.swing.JFrame {
 					{
 						runBochsMenuItem = new JMenuItem();
 						jMenu4.add(runBochsMenuItem);
-						runBochsMenuItem.setText(language.getString("Run_bochs"));
+						runBochsMenuItem.setText(MyLanguage.getString("Run_bochs"));
 						runBochsMenuItem.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent evt) {
 								runBochsMenuItemActionPerformed(evt);
@@ -900,7 +876,7 @@ public class Application extends javax.swing.JFrame {
 					{
 						pauseBochsMenuItem = new JMenuItem();
 						jMenu4.add(pauseBochsMenuItem);
-						pauseBochsMenuItem.setText(language.getString("Pause_bochs"));
+						pauseBochsMenuItem.setText(MyLanguage.getString("Pause_bochs"));
 						pauseBochsMenuItem.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent evt) {
 								pauseBochsMenuItemActionPerformed(evt);
@@ -910,7 +886,7 @@ public class Application extends javax.swing.JFrame {
 					{
 						jUpdateBochsStatusMenuItem = new JMenuItem();
 						jMenu4.add(jUpdateBochsStatusMenuItem);
-						jUpdateBochsStatusMenuItem.setText(language.getString("Update_bochs_status"));
+						jUpdateBochsStatusMenuItem.setText(MyLanguage.getString("Update_bochs_status"));
 						jUpdateBochsStatusMenuItem.setBounds(83, 86, 79, 20);
 						jUpdateBochsStatusMenuItem.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent evt) {
@@ -922,11 +898,11 @@ public class Application extends javax.swing.JFrame {
 				{
 					jMenu5 = new JMenu();
 					jMenuBar1.add(jMenu5);
-					jMenu5.setText(language.getString("Help"));
+					jMenu5.setText(MyLanguage.getString("Help"));
 					{
 						aboutUsMenuItem = new JMenuItem();
 						jMenu5.add(aboutUsMenuItem);
-						aboutUsMenuItem.setText(language.getString("About_us"));
+						aboutUsMenuItem.setText(MyLanguage.getString("About_us"));
 						aboutUsMenuItem.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent evt) {
 								aboutUsMenuItemActionPerformed(evt);
@@ -938,27 +914,18 @@ public class Application extends javax.swing.JFrame {
 			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 			setSize(screenSize.width * 2 / 3, screenSize.height * 4 / 5);
 
-			int width = ini.get("window", "width", int.class);
-			int height = ini.get("window", "height", int.class);
-			if (width > 0 && height > 0) {
-				setSize(width, height);
-			}
-			int x = ini.get("window", "x", int.class);
-			int y = ini.get("window", "y", int.class);
+			setSize(setting.getWidth(), setting.getHeight());
+
+			int x = setting.getX();
+			int y = setting.getY();
 			setLocation(x, y);
 
-			int divX = ini.get("window", "divX", int.class);
-			if (divX > 0) {
-				jSplitPane1.setDividerLocation(divX);
-			}
-
-			int divY = ini.get("window", "divY", int.class);
-			if (divY > 0) {
-				jSplitPane2.setDividerLocation(divY);
-			}
+			jSplitPane1.setDividerLocation(setting.getDivX());
+			jSplitPane2.setDividerLocation(setting.getDivY());
 			// pack();
 
 			initChineseFont();
+			initGlobalFontSetting(new Font(setting.getFontFamily(), Font.PLAIN, setting.getFontsize()));
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(ERROR);
@@ -977,8 +944,7 @@ public class Application extends javax.swing.JFrame {
 						JMenuItem jMenuItem = new JMenuItem(allfonts[j].getFontName());
 						jMenuItem.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent evt) {
-								fontFamily = ((JMenuItem) evt.getSource()).getText();
-								setFont();
+								setting.setFontFamily(((JMenuItem) evt.getSource()).getText());
 							}
 						});
 						jMenu2.add(jMenuItem);
@@ -1050,7 +1016,7 @@ public class Application extends javax.swing.JFrame {
 
 	private void jRunBochsButtonActionPerformed(ActionEvent evt) {
 		commandReceiver.shouldShow = false;
-		if (jRunBochsButton.getText().equals(language.getString("Run_bochs"))) {
+		if (jRunBochsButton.getText().equals(MyLanguage.getString("Run_bochs"))) {
 			runBochsMenuItemActionPerformed(null);
 		} else {
 			pauseBochsMenuItemActionPerformed(null);
@@ -1060,7 +1026,7 @@ public class Application extends javax.swing.JFrame {
 	public static void sendCommand(String command) {
 		try {
 			command = command.toLowerCase().trim();
-//			do {
+			// do {
 			commandReceiver.clearBuffer();
 			commandOutputStream.write(command + "\n");
 			commandOutputStream.flush();
@@ -1069,7 +1035,7 @@ public class Application extends javax.swing.JFrame {
 				commandReceiver.waitUntilHaveInput();
 				return;
 			}
-//			}while();
+			// }while();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -1978,9 +1944,9 @@ public class Application extends javax.swing.JFrame {
 					changeText(this.jRegisterPanel1.jCR0TextField, line.split(" ")[1].split("=")[1].replace(":", ""));
 
 					if (CommonLib.getBit(CommonLib.string2decimal(jRegisterPanel1.jCR0TextField.getText()), 0) == 1) {
-						jCPUModeLabel.setText(language.getString("Protected_mode") + "     ");
+						jCPUModeLabel.setText(MyLanguage.getString("Protected_mode") + "     ");
 					} else {
-						jCPUModeLabel.setText(language.getString("Real_mode") + "     ");
+						jCPUModeLabel.setText(MyLanguage.getString("Real_mode") + "     ");
 					}
 					String arr[] = line.split(":")[2].split(" ");
 
@@ -2123,18 +2089,14 @@ public class Application extends javax.swing.JFrame {
 		if (p != null) {
 			p.destroy();
 		}
-		ini.put("window", "width", this.getWidth());
-		ini.put("window", "height", this.getHeight());
-		ini.put("window", "x", this.getLocation().x);
-		ini.put("window", "y", this.getLocation().y);
-		ini.put("window", "divX", jSplitPane1.getDividerLocation());
-		ini.put("window", "divY", jSplitPane2.getDividerLocation());
 
-		try {
-			ini.store();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		setting.setWidth(this.getWidth());
+		setting.setHeight(this.getHeight());
+		setting.setX(this.getLocation().x);
+		setting.setY(this.getLocation().y);
+		setting.setDivX(jSplitPane1.getDividerLocation());
+		setting.setDivY(jSplitPane2.getDividerLocation());
+		setting.save();
 	}
 
 	private void jGDTTableMouseClicked(MouseEvent evt) {
@@ -2299,12 +2261,12 @@ public class Application extends javax.swing.JFrame {
 
 	private void jAddBreakpointButtonActionPerformed(ActionEvent evt) {
 		jAddBreakpointButton.setEnabled(false);
-		String type = (String) JOptionPane.showInputDialog(this, null, "Add breakpoint", JOptionPane.QUESTION_MESSAGE, null, new Object[] { language.getString("Physical_address"),
-				language.getString("Linear_address") }, "Breakpoint");
+		String type = (String) JOptionPane.showInputDialog(this, null, "Add breakpoint", JOptionPane.QUESTION_MESSAGE, null, new Object[] { MyLanguage.getString("Physical_address"),
+				MyLanguage.getString("Linear_address") }, "Breakpoint");
 		if (type != null) {
 			String address = JOptionPane.showInputDialog(this, "Please input breakpoint address", "Add breakpoint", JOptionPane.QUESTION_MESSAGE);
 			if (address != null) {
-				if (type.equals(language.getString("Physical_address"))) {
+				if (type.equals(MyLanguage.getString("Physical_address"))) {
 					sendCommand("pb " + address);
 				} else {
 					sendCommand("lb " + address);
@@ -2353,7 +2315,7 @@ public class Application extends javax.swing.JFrame {
 						sendCommand("lb " + vector.get(x).getAddress());
 					}
 					if (vector.get(x).getEnable().trim().equals("keep n")) {
-						sendCommand("bpd " + (x+1));
+						sendCommand("bpd " + (x + 1));
 					}
 				}
 			}
@@ -2471,7 +2433,7 @@ public class Application extends javax.swing.JFrame {
 
 	private JTable getJAddressTranslateTable() {
 		if (jAddressTranslateTable == null) {
-			TableModel jAddressTranslateTableModel = new DefaultTableModel(new String[][] {}, new String[] { language.getString("From"), language.getString("To") });
+			TableModel jAddressTranslateTableModel = new DefaultTableModel(new String[][] {}, new String[] { MyLanguage.getString("From"), MyLanguage.getString("To") });
 			jAddressTranslateTable = new JTable();
 			jAddressTranslateTable.setModel(jAddressTranslateTableModel);
 		}
@@ -2481,7 +2443,7 @@ public class Application extends javax.swing.JFrame {
 	private JMenu getJFontMenu() {
 		if (jFontMenu == null) {
 			jFontMenu = new JMenu();
-			jFontMenu.setText(language.getString("Font"));
+			jFontMenu.setText(MyLanguage.getString("Font"));
 			jFontMenu.add(getJMenu1());
 			jFontMenu.add(getJMenu2());
 		}
@@ -2545,31 +2507,23 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jFont14MenuItemActionPerformed(ActionEvent evt) {
-		fontsize = 14;
-		setFont();
+		setting.setFontsize(14);
+		initGlobalFontSetting(new Font(setting.getFontFamily(), Font.PLAIN, setting.getFontsize()));
 	}
 
 	private void jFont12MenuItemActionPerformed(ActionEvent evt) {
-		fontsize = 12;
-		setFont();
+		setting.setFontsize(12);
+		initGlobalFontSetting(new Font(setting.getFontFamily(), Font.PLAIN, setting.getFontsize()));
 	}
 
 	private void jFont10MenuItemActionPerformed(ActionEvent evt) {
-		fontsize = 10;
-		setFont();
+		setting.setFontsize(10);
+		initGlobalFontSetting(new Font(setting.getFontFamily(), Font.PLAIN, setting.getFontsize()));
 	}
 
 	private void jFont8MenuItemActionPerformed(ActionEvent evt) {
-		fontsize = 8;
-		setFont();
-	}
-
-	private void setFont() {
-		if (fontFamily != null && !fontFamily.trim().equals("") && fontsize > 0) {
-			initGlobalFontSetting(new Font(fontFamily, Font.PLAIN, fontsize));
-		}
-		ini.put("global", "fontsize", fontsize);
-		ini.put("global", "font", fontFamily);
+		setting.setFontsize(8);
+		initGlobalFontSetting(new Font(setting.getFontFamily(), Font.PLAIN, setting.getFontsize()));
 	}
 
 	public void initGlobalFontSetting(Font fnt) {
@@ -2588,7 +2542,7 @@ public class Application extends javax.swing.JFrame {
 	private JMenu getJMenu1() {
 		if (jMenu1 == null) {
 			jMenu1 = new JMenu();
-			jMenu1.setText(language.getString("Size"));
+			jMenu1.setText(MyLanguage.getString("Size"));
 			jMenu1.add(getJFont8MenuItem());
 			jMenu1.add(getJFont10MenuItem());
 			jMenu1.add(getJFont12MenuItem());
@@ -2600,7 +2554,7 @@ public class Application extends javax.swing.JFrame {
 	private JMenu getJMenu2() {
 		if (jMenu2 == null) {
 			jMenu2 = new JMenu();
-			jMenu2.setText(language.getString("Font"));
+			jMenu2.setText(MyLanguage.getString("Font"));
 			jMenu2.add(getJArialMenuItem());
 			jMenu2.add(getJDialogMenuItem());
 		}
@@ -2634,19 +2588,17 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jArialMenuItemActionPerformed(ActionEvent evt) {
-		fontFamily = "Arial";
-		setFont();
+		setting.setFontFamily("Arial");
 	}
 
 	private void jDialogMenuItemActionPerformed(ActionEvent evt) {
-		fontFamily = "Dialog";
-		setFont();
+		setting.setFontFamily("Dialog");
 	}
 
 	private JMenu getJMenu6() {
 		if (jMenu6 == null) {
 			jMenu6 = new JMenu();
-			jMenu6.setText(language.getString("Language"));
+			jMenu6.setText(MyLanguage.getString("Language"));
 			jMenu6.add(getJMenuItem1());
 			jMenu6.add(getJMenuItem2());
 			jMenu6.add(getJMenuItem3());
@@ -2659,7 +2611,7 @@ public class Application extends javax.swing.JFrame {
 	private JMenuItem getJMenuItem1() {
 		if (jEnglishMenuItem == null) {
 			jEnglishMenuItem = new JMenuItem();
-			jEnglishMenuItem.setText(language.getString("English"));
+			jEnglishMenuItem.setText(MyLanguage.getString("English"));
 			jEnglishMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jMenuItem1ActionPerformed(evt);
@@ -2672,7 +2624,7 @@ public class Application extends javax.swing.JFrame {
 	private JMenuItem getJMenuItem2() {
 		if (jHKMenuItem == null) {
 			jHKMenuItem = new JMenuItem();
-			jHKMenuItem.setText(language.getString("Traditional_chinese"));
+			jHKMenuItem.setText(MyLanguage.getString("Traditional_chinese"));
 			jHKMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jMenuItem2ActionPerformed(evt);
@@ -2685,7 +2637,7 @@ public class Application extends javax.swing.JFrame {
 	private JMenuItem getJMenuItem3() {
 		if (jSCMenuItem == null) {
 			jSCMenuItem = new JMenuItem();
-			jSCMenuItem.setText(language.getString("Simplified_chinese"));
+			jSCMenuItem.setText(MyLanguage.getString("Simplified_chinese"));
 			jSCMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jMenuItem3ActionPerformed(evt);
@@ -2710,13 +2662,8 @@ public class Application extends javax.swing.JFrame {
 	private void changeLanguage(String language) {
 		JOptionPane.showMessageDialog(this, "Please restart");
 
-		ini.put("general", "language", language);
-
-		try {
-			ini.store();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		setting.setCurrentLanguage(language);
+		setting.save();
 	}
 
 	private JTable getJHistoryTable() {
@@ -2750,7 +2697,7 @@ public class Application extends javax.swing.JFrame {
 			{
 				jLabel3 = new JLabel();
 				jPanel13.add(jLabel3);
-				jLabel3.setText(language.getString("Pause_history"));
+				jLabel3.setText(MyLanguage.getString("Pause_history"));
 			}
 			jPanel13.add(getJRadioButton1());
 			jPanel13.add(getJRadioButton2());
@@ -2799,7 +2746,7 @@ public class Application extends javax.swing.JFrame {
 				{
 					// TableModel jTable1Model = new DefaultTableModel(new
 					// String[][] {}, new String[] { "No.",
-					// language.getString("Physical_address"), "AVL", "G",
+					// MyLanguage.getString("Physical_address"), "AVL", "G",
 					// "PAT", "D", "A",
 					// "PCD", "PWT", "U/S", "W/R", "P" }) {
 					// public boolean isCellEditable(int row, int column) {
@@ -3292,7 +3239,7 @@ public class Application extends javax.swing.JFrame {
 	private JButton getJButton14() {
 		if (jButton14 == null) {
 			jButton14 = new JButton();
-			jButton14.setText(language.getString("Disassemble"));
+			jButton14.setText(MyLanguage.getString("Disassemble"));
 			jButton14.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jButton14ActionPerformed(evt);
@@ -3313,7 +3260,7 @@ public class Application extends javax.swing.JFrame {
 	private JButton getJButton15() {
 		if (jButton15 == null) {
 			jButton15 = new JButton();
-			jButton15.setText(language.getString("Clear"));
+			jButton15.setText(MyLanguage.getString("Clear"));
 			jButton15.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jButton15ActionPerformed(evt);
@@ -3356,7 +3303,7 @@ public class Application extends javax.swing.JFrame {
 					jPanel10 = new JPanel();
 					BorderLayout jPanel10Layout = new BorderLayout();
 					jPanel10.setLayout(jPanel10Layout);
-					jTabbedPane1.addTab(language.getString("Instruction"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/text_padding_top.png")), jPanel10, null);
+					jTabbedPane1.addTab(MyLanguage.getString("Instruction"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/text_padding_top.png")), jPanel10, null);
 					jPanel10.setPreferredSize(new java.awt.Dimension(604, 452));
 					{
 						jInstructionControlPanel = new JPanel();
@@ -3377,7 +3324,7 @@ public class Application extends javax.swing.JFrame {
 							jInstructionControlPanel.add(getJButton22());
 							jInstructionControlPanel.add(getJButton3());
 							jInstructionControlPanel.add(getJButton12());
-							jDisassembleButton.setText(language.getString("Disassemble") + " cs:eip");
+							jDisassembleButton.setText(MyLanguage.getString("Disassemble") + " cs:eip");
 							jDisassembleButton.addActionListener(new ActionListener() {
 								public void actionPerformed(ActionEvent evt) {
 									jDisassembleButtonActionPerformed(evt);
@@ -3389,8 +3336,8 @@ public class Application extends javax.swing.JFrame {
 						jScrollPane5 = new JScrollPane();
 						jPanel10.add(jScrollPane5, BorderLayout.CENTER);
 						{
-							TableModel jInstructionTableModel = new DefaultTableModel(new String[][] {}, new String[] { language.getString("Address"), language.getString("Instruction"),
-									language.getString("Bytes") }) {
+							TableModel jInstructionTableModel = new DefaultTableModel(new String[][] {}, new String[] { MyLanguage.getString("Address"), MyLanguage.getString("Instruction"),
+									MyLanguage.getString("Bytes") }) {
 								public boolean isCellEditable(int row, int col) {
 									return false;
 								}
@@ -3413,15 +3360,15 @@ public class Application extends javax.swing.JFrame {
 				}
 				{
 					jPanel4 = new JPanel();
-					jTabbedPane1.addTab(language.getString("Breakpoint"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/cancel.png")), jPanel4, null);
+					jTabbedPane1.addTab(MyLanguage.getString("Breakpoint"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/cancel.png")), jPanel4, null);
 					BorderLayout jPanel4Layout = new BorderLayout();
 					jPanel4.setLayout(jPanel4Layout);
 					{
 						jScrollPane9 = new JScrollPane();
 						jPanel4.add(jScrollPane9, BorderLayout.CENTER);
 						{
-							TableModel jTable1Model = new DefaultTableModel(new String[][] {}, new String[] { language.getString("No"), language.getString("Address_type"), "Disp Enb Address",
-									language.getString("Hit") }) {
+							TableModel jTable1Model = new DefaultTableModel(new String[][] {}, new String[] { MyLanguage.getString("No"), MyLanguage.getString("Address_type"), "Disp Enb Address",
+									MyLanguage.getString("Hit") }) {
 								public boolean isCellEditable(int row, int col) {
 									return false;
 								}
@@ -3443,7 +3390,7 @@ public class Application extends javax.swing.JFrame {
 						{
 							jAddBreakpointButton = new JButton();
 							jPanel12.add(jAddBreakpointButton);
-							jAddBreakpointButton.setText(language.getString("Add"));
+							jAddBreakpointButton.setText(MyLanguage.getString("Add"));
 							jAddBreakpointButton.addActionListener(new ActionListener() {
 								public void actionPerformed(ActionEvent evt) {
 									jAddBreakpointButtonActionPerformed(evt);
@@ -3453,7 +3400,7 @@ public class Application extends javax.swing.JFrame {
 						{
 							jDeleteBreakpointButton = new JButton();
 							jPanel12.add(jDeleteBreakpointButton);
-							jDeleteBreakpointButton.setText(language.getString("Del"));
+							jDeleteBreakpointButton.setText(MyLanguage.getString("Del"));
 							jDeleteBreakpointButton.addActionListener(new ActionListener() {
 								public void actionPerformed(ActionEvent evt) {
 									jDeleteBreakpointButtonActionPerformed(evt);
@@ -3463,7 +3410,7 @@ public class Application extends javax.swing.JFrame {
 						{
 							jRefreshBreakpointButton = new JButton();
 							jPanel12.add(jRefreshBreakpointButton);
-							jRefreshBreakpointButton.setText(language.getString("Refresh"));
+							jRefreshBreakpointButton.setText(MyLanguage.getString("Refresh"));
 							jRefreshBreakpointButton.addActionListener(new ActionListener() {
 								public void actionPerformed(ActionEvent evt) {
 									jRefreshBreakpointButtonActionPerformed(evt);
@@ -3473,7 +3420,7 @@ public class Application extends javax.swing.JFrame {
 						{
 							jEnableBreakpointButton = new JButton();
 							jPanel12.add(jEnableBreakpointButton);
-							jEnableBreakpointButton.setText(language.getString("Enable"));
+							jEnableBreakpointButton.setText(MyLanguage.getString("Enable"));
 							jEnableBreakpointButton.addActionListener(new ActionListener() {
 								public void actionPerformed(ActionEvent evt) {
 									jEnableBreakpointButtonActionPerformed(evt);
@@ -3483,7 +3430,7 @@ public class Application extends javax.swing.JFrame {
 						{
 							jDisableBreakpointButton = new JButton();
 							jPanel12.add(jDisableBreakpointButton);
-							jDisableBreakpointButton.setText(language.getString("Disable"));
+							jDisableBreakpointButton.setText(MyLanguage.getString("Disable"));
 							jDisableBreakpointButton.addActionListener(new ActionListener() {
 								public void actionPerformed(ActionEvent evt) {
 									jDisableBreakpointButtonActionPerformed(evt);
@@ -3493,7 +3440,7 @@ public class Application extends javax.swing.JFrame {
 						{
 							jSaveBreakpointButton = new JButton();
 							jPanel12.add(jSaveBreakpointButton);
-							jSaveBreakpointButton.setText(language.getString("Save"));
+							jSaveBreakpointButton.setText(MyLanguage.getString("Save"));
 							jSaveBreakpointButton.addActionListener(new ActionListener() {
 								public void actionPerformed(ActionEvent evt) {
 									jSaveBreakpointButtonActionPerformed(evt);
@@ -3503,7 +3450,7 @@ public class Application extends javax.swing.JFrame {
 						{
 							jLoadBreakpointButton = new JButton();
 							jPanel12.add(jLoadBreakpointButton);
-							jLoadBreakpointButton.setText(language.getString("Load"));
+							jLoadBreakpointButton.setText(MyLanguage.getString("Load"));
 							jLoadBreakpointButton.addActionListener(new ActionListener() {
 								public void actionPerformed(ActionEvent evt) {
 									jLoadBreakpointButtonActionPerformed(evt);
@@ -3514,7 +3461,7 @@ public class Application extends javax.swing.JFrame {
 				}
 				{
 					jPanel1 = new JPanel();
-					jTabbedPane1.addTab(language.getString("Bochs"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/application_xp_terminal.png")), jPanel1, null);
+					jTabbedPane1.addTab(MyLanguage.getString("Bochs"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/application_xp_terminal.png")), jPanel1, null);
 					jTabbedPane1.addTab("ELF", new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/linux.png")), getJELFBreakpointPanel(), null);
 					DiskPanel diskPanel = getDiskPanel();
 					if (diskPanel.getFile() != null) {
@@ -3571,7 +3518,7 @@ public class Application extends javax.swing.JFrame {
 					jPanel8 = new JPanel();
 					BorderLayout jPanel8Layout = new BorderLayout();
 					jPanel8.setLayout(jPanel8Layout);
-					jTabbedPane3.addTab(language.getString("Memory"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/memory.png")), jPanel8, null);
+					jTabbedPane3.addTab(MyLanguage.getString("Memory"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/memory.png")), jPanel8, null);
 					{
 						jScrollPane2 = new JScrollPane();
 						jPanel8.add(jScrollPane2, BorderLayout.CENTER);
@@ -3631,8 +3578,8 @@ public class Application extends javax.swing.JFrame {
 							jPanel9.add(getJGoLinearButton());
 							jPanel9.add(getJButton2());
 							jPanel9.add(getJButton5());
-							jGOMemoryButton.setText(language.getString("Go"));
-							jGOMemoryButton.setToolTipText(language.getString("Physical_address"));
+							jGOMemoryButton.setText(MyLanguage.getString("Go"));
+							jGOMemoryButton.setToolTipText(MyLanguage.getString("Physical_address"));
 							jGOMemoryButton.addActionListener(new ActionListener() {
 								public void actionPerformed(ActionEvent evt) {
 									jGOMemoryButtonActionPerformed(evt);
@@ -3708,7 +3655,7 @@ public class Application extends javax.swing.JFrame {
 				}
 				{
 					jPanel5 = new JPanel();
-					jTabbedPane3.addTab(language.getString("GDT"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/gdt.png")), jPanel5, null);
+					jTabbedPane3.addTab(MyLanguage.getString("GDT"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/gdt.png")), jPanel5, null);
 					BorderLayout jPanel5Layout = new BorderLayout();
 					jPanel5.setLayout(jPanel5Layout);
 					{
@@ -3735,7 +3682,7 @@ public class Application extends javax.swing.JFrame {
 					jPanel6 = new JPanel();
 					BorderLayout jPanel6Layout = new BorderLayout();
 					jPanel6.setLayout(jPanel6Layout);
-					jTabbedPane3.addTab(language.getString("IDT"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/idt.png")), jPanel6, null);
+					jTabbedPane3.addTab(MyLanguage.getString("IDT"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/idt.png")), jPanel6, null);
 					{
 						jScrollPane10 = new JScrollPane();
 						jPanel6.add(jScrollPane10, BorderLayout.CENTER);
@@ -3759,8 +3706,8 @@ public class Application extends javax.swing.JFrame {
 					jPanel7 = new JPanel();
 					BorderLayout jPanel7Layout = new BorderLayout();
 					jPanel7.setLayout(jPanel7Layout);
-					jTabbedPane3.addTab(language.getString("LDT"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/ldt.png")), jPanel7, null);
-					jTabbedPane3.addTab(language.getString("Search_memory"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/memory.png")), getJPanel17(), null);
+					jTabbedPane3.addTab(MyLanguage.getString("LDT"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/ldt.png")), jPanel7, null);
+					jTabbedPane3.addTab(MyLanguage.getString("Search_memory"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/memory.png")), getJPanel17(), null);
 					{
 						jScrollPane11 = new JScrollPane();
 						jPanel7.add(jScrollPane11, BorderLayout.CENTER);
@@ -3802,7 +3749,7 @@ public class Application extends javax.swing.JFrame {
 			jSplitPane2.add(jTabbedPane2, JSplitPane.BOTTOM);
 			{
 				jScrollPane1 = new JScrollPane();
-				jTabbedPane2.addTab(language.getString("Register"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/text_kerning.png")), jScrollPane1, null);
+				jTabbedPane2.addTab(MyLanguage.getString("Register"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/text_kerning.png")), jScrollPane1, null);
 				{
 					jRegisterPanel1 = new JRegisterPanel(this);
 					jScrollPane1.setViewportView(jRegisterPanel1);
@@ -3810,7 +3757,7 @@ public class Application extends javax.swing.JFrame {
 			}
 			{
 				jPanel3 = new JPanel();
-				jTabbedPane2.addTab(language.getString("History"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/book_addresses.png")), jPanel3, null);
+				jTabbedPane2.addTab(MyLanguage.getString("History"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/book_addresses.png")), jPanel3, null);
 				BorderLayout jPanel3Layout = new BorderLayout();
 				jPanel3.setLayout(jPanel3Layout);
 				{
@@ -3822,17 +3769,17 @@ public class Application extends javax.swing.JFrame {
 			}
 			{
 				jPanel11 = new JPanel();
-				jTabbedPane2.addTab(language.getString("Paging"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/page_copy.png")), jPanel11, null);
-				jTabbedPane2.addTab(language.getString("Address_translate"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/page_go.png")), getJAddressTranslatePanel(),
+				jTabbedPane2.addTab(MyLanguage.getString("Paging"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/page_copy.png")), jPanel11, null);
+				jTabbedPane2.addTab(MyLanguage.getString("Address_translate"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/page_go.png")), getJAddressTranslatePanel(),
 						null);
 				jTabbedPane2
 						.addTab("Page table graph (experimental)", new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/page_lightning.png")), getJPageTableGraphPanel(), null);
 				if (!Global.debug) {
 					jTabbedPane2.removeTabAt(jTabbedPane2.getTabCount() - 1);
 				}
-				jTabbedPane2.addTab(language.getString("Table_translate"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/page_refresh.png")),
+				jTabbedPane2.addTab(MyLanguage.getString("Table_translate"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/page_refresh.png")),
 						getJTableTranslateScrollPane(), null);
-				jTabbedPane2.addTab(language.getString("ELF_dump"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/linux.png")), getJELFDumpScrollPane(), null);
+				jTabbedPane2.addTab(MyLanguage.getString("ELF_dump"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/linux.png")), getJELFDumpScrollPane(), null);
 				BorderLayout jPanel11Layout = new BorderLayout();
 				jPanel11.setLayout(jPanel11Layout);
 				jPanel11.add(getJSplitPane3(), BorderLayout.CENTER);
@@ -3849,10 +3796,10 @@ public class Application extends javax.swing.JFrame {
 			new Thread() {
 				public void run() {
 					URL url = getClass().getClassLoader().getResource("images/ajax-loader.gif");
-					if (currentLanguage.equals("zh_TW")) {
+					if (setting.getCurrentLanguage().equals("zh_TW")) {
 						jRunningLabel.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\"" + url
 								+ "\" /><br><br><a style=\"color: #ffffff;  text-decoration:none\" href=\"http://www.kingofcoders.com\">編程王網站  www.kingofcoders.com</a></center></html>");
-					} else if (currentLanguage.equals("zh_CN")) {
+					} else if (setting.getCurrentLanguage().equals("zh_CN")) {
 						jRunningLabel
 								.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\""
 										+ url
@@ -3995,7 +3942,7 @@ public class Application extends javax.swing.JFrame {
 	private JRadioButton getJRadioButton3() {
 		if (jSearchAddressRadioButton1 == null) {
 			jSearchAddressRadioButton1 = new JRadioButton();
-			jSearchAddressRadioButton1.setText(language.getString("Virtual_address"));
+			jSearchAddressRadioButton1.setText(MyLanguage.getString("Virtual_address"));
 			jSearchAddressRadioButton1.setSelected(true);
 			getButtonGroup3().add(jSearchAddressRadioButton1);
 		}
@@ -4005,7 +3952,7 @@ public class Application extends javax.swing.JFrame {
 	private JRadioButton getJRadioButton4() {
 		if (jSearchAddressRadioButton2 == null) {
 			jSearchAddressRadioButton2 = new JRadioButton();
-			jSearchAddressRadioButton2.setText(language.getString("Linear_address"));
+			jSearchAddressRadioButton2.setText(MyLanguage.getString("Linear_address"));
 			getButtonGroup3().add(jSearchAddressRadioButton2);
 		}
 
@@ -4016,7 +3963,7 @@ public class Application extends javax.swing.JFrame {
 		if (jSearchAddressRadioButton3 == null) {
 			jSearchAddressRadioButton3 = new JRadioButton();
 			jSearchAddressRadioButton3.setVisible(false);
-			jSearchAddressRadioButton3.setText(language.getString("Physical_address"));
+			jSearchAddressRadioButton3.setText(MyLanguage.getString("Physical_address"));
 			getButtonGroup3().add(jSearchAddressRadioButton3);
 		}
 
@@ -4026,7 +3973,7 @@ public class Application extends javax.swing.JFrame {
 	private JButton getJButton16() {
 		if (jRefreshAddressTranslateButton == null) {
 			jRefreshAddressTranslateButton = new JButton();
-			jRefreshAddressTranslateButton.setText(language.getString("Convert"));
+			jRefreshAddressTranslateButton.setText(MyLanguage.getString("Convert"));
 			jRefreshAddressTranslateButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jRefreshAddressTranslateButtonActionPerformed(evt);
@@ -4250,7 +4197,7 @@ public class Application extends javax.swing.JFrame {
 	private JButton getJRefreshAddressTranslateTableButton() {
 		if (jRefreshAddressTranslateTableButton == null) {
 			jRefreshAddressTranslateTableButton = new JButton();
-			jRefreshAddressTranslateTableButton.setText(language.getString("Refresh"));
+			jRefreshAddressTranslateTableButton.setText(MyLanguage.getString("Refresh"));
 			jRefreshAddressTranslateTableButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/arrow_refresh.png")));
 			jRefreshAddressTranslateTableButton.setText("Refresh");
 			jRefreshAddressTranslateTableButton.addActionListener(new ActionListener() {
@@ -4379,7 +4326,7 @@ public class Application extends javax.swing.JFrame {
 	private JMenuItem getJMenuItem6() {
 		if (jPDEMenuItem == null) {
 			jPDEMenuItem = new JMenuItem();
-			jPDEMenuItem.setText(language.getString("PDE"));
+			jPDEMenuItem.setText(MyLanguage.getString("PDE"));
 			jPDEMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jPDEMenuItemActionPerformed(evt);
@@ -4392,7 +4339,7 @@ public class Application extends javax.swing.JFrame {
 	private JMenuItem getJMenuItem7() {
 		if (jPTEMenuItem == null) {
 			jPTEMenuItem = new JMenuItem();
-			jPTEMenuItem.setText(language.getString("PTE"));
+			jPTEMenuItem.setText(MyLanguage.getString("PTE"));
 			jPTEMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jPTEMenuItemActionPerformed(evt);
@@ -4440,7 +4387,7 @@ public class Application extends javax.swing.JFrame {
 					jDisassemble32MenuItemActionPerformed(evt);
 				}
 			});
-			jDisassemble32MenuItem.setText(language.getString("Disassemble"));
+			jDisassemble32MenuItem.setText(MyLanguage.getString("Disassemble"));
 		}
 		return jDisassemble32MenuItem;
 	}
@@ -4603,7 +4550,7 @@ public class Application extends javax.swing.JFrame {
 					jRefreshELFBreakpointButtonActionPerformed(evt);
 				}
 			});
-			jRefreshELFBreakpointButton.setText(language.getString("Refresh"));
+			jRefreshELFBreakpointButton.setText(MyLanguage.getString("Refresh"));
 		}
 		return jRefreshELFBreakpointButton;
 	}
@@ -4616,7 +4563,7 @@ public class Application extends javax.swing.JFrame {
 					jEnableELFBreakpointButtonActionPerformed(evt);
 				}
 			});
-			jEnableELFBreakpointButton.setText(language.getString("Enable"));
+			jEnableELFBreakpointButton.setText(MyLanguage.getString("Enable"));
 		}
 		return jEnableELFBreakpointButton;
 	}
@@ -4629,7 +4576,7 @@ public class Application extends javax.swing.JFrame {
 					jDisableELFBreakpointButtonActionPerformed(evt);
 				}
 			});
-			jDisableELFBreakpointButton.setText(language.getString("Disable"));
+			jDisableELFBreakpointButton.setText(MyLanguage.getString("Disable"));
 		}
 		return jDisableELFBreakpointButton;
 	}
@@ -4642,7 +4589,7 @@ public class Application extends javax.swing.JFrame {
 					jSaveELFBreakpointButtonActionPerformed(evt);
 				}
 			});
-			jSaveELFBreakpointButton.setText(language.getString("Save"));
+			jSaveELFBreakpointButton.setText(MyLanguage.getString("Save"));
 		}
 		return jSaveELFBreakpointButton;
 	}
@@ -4655,7 +4602,7 @@ public class Application extends javax.swing.JFrame {
 					jLoadELFBreakpointButtonActionPerformed(evt);
 				}
 			});
-			jLoadELFBreakpointButton.setText(language.getString("Load"));
+			jLoadELFBreakpointButton.setText(MyLanguage.getString("Load"));
 		}
 		return jLoadELFBreakpointButton;
 	}
@@ -4754,7 +4701,7 @@ public class Application extends javax.swing.JFrame {
 					jShowELFByteCheckBoxActionPerformed(evt);
 				}
 			});
-			jShowELFByteCheckBox.setText(language.getString("Bytes"));
+			jShowELFByteCheckBox.setText(MyLanguage.getString("Bytes"));
 		}
 		return jShowELFByteCheckBox;
 	}
@@ -4786,7 +4733,7 @@ public class Application extends javax.swing.JFrame {
 	private void jLatestVersionLabelMouseClicked(MouseEvent evt) {
 		if (!jLatestVersionLabel.getText().equals("")) {
 			try {
-				java.awt.Desktop.getDesktop().browse(new URI(jLatestVersionLabel.getText().split(language.getString("Download_url") + " : ")[1]));
+				java.awt.Desktop.getDesktop().browse(new URI(jLatestVersionLabel.getText().split(MyLanguage.getString("Download_url") + " : ")[1]));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -4867,7 +4814,7 @@ public class Application extends javax.swing.JFrame {
 
 	private JTable getJELFHeaderTable() {
 		if (jELFHeaderTable == null) {
-			TableModel jELFHeaderTableModel = new DefaultTableModel(null, new String[] { language.getString("Field"), language.getString("Value") });
+			TableModel jELFHeaderTableModel = new DefaultTableModel(null, new String[] { MyLanguage.getString("Field"), MyLanguage.getString("Value") });
 			jELFHeaderTable = new JTable();
 			jELFHeaderTable.setModel(jELFHeaderTableModel);
 		}
@@ -5252,7 +5199,7 @@ public class Application extends javax.swing.JFrame {
 	private JButton getJClearBochsButton() {
 		if (jClearBochsButton == null) {
 			jClearBochsButton = new JButton();
-			jClearBochsButton.setText(language.getString("Clear"));
+			jClearBochsButton.setText(MyLanguage.getString("Clear"));
 			jClearBochsButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jClearBochsButtonActionPerformed(evt);
@@ -5323,7 +5270,7 @@ public class Application extends javax.swing.JFrame {
 					jGoLinearButtonActionPerformed(evt);
 				}
 			});
-			jGoLinearButton.setToolTipText(language.getString("Linear_address"));
+			jGoLinearButton.setToolTipText(MyLanguage.getString("Linear_address"));
 		}
 		return jGoLinearButton;
 	}
@@ -5502,7 +5449,7 @@ public class Application extends javax.swing.JFrame {
 	private JMenuItem getJMenuItem7x() {
 		if (jMenuItem7 == null) {
 			jMenuItem7 = new JMenuItem();
-			jMenuItem7.setText(language.getString("Disassemble"));
+			jMenuItem7.setText(MyLanguage.getString("Disassemble"));
 			jMenuItem7.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jMenuItem7ActionPerformed(evt);
@@ -5613,6 +5560,10 @@ public class Application extends javax.swing.JFrame {
 			});
 		}
 		return jInstructionDownButton;
+	}
+
+	public JEditorPane getjBochsEditorPane() {
+		return jBochsEditorPane;
 	}
 
 	private void jInstructionUpButtonActionPerformed(ActionEvent evt) {
@@ -5751,7 +5702,7 @@ public class Application extends javax.swing.JFrame {
 		if (jFastStepBochsButton == null) {
 			jFastStepBochsButton = new JButton();
 			jFastStepBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/step.png")));
-			jFastStepBochsButton.setText("Fast " + language.getString("Step"));
+			jFastStepBochsButton.setText("Fast " + MyLanguage.getString("Step"));
 			jFastStepBochsButton.setToolTipText("<html><body>A faster step<br><br>It will only update:<br>1) Memory panel<br>2) Insturction panel<br>3) Register panel</body></html>");
 			jFastStepBochsButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
@@ -5866,4 +5817,25 @@ public class Application extends javax.swing.JFrame {
 			this.updateBreakpoint();
 		}
 	}
+
+	private JButton getJSettingButton() {
+		if (jSettingButton == null) {
+			jSettingButton = new JButton();
+			jSettingButton.setText(MyLanguage.getString("Setting"));
+			jSettingButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/wrench.png")));
+			jSettingButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jSettingButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jSettingButton;
+	}
+
+	private void jSettingButtonActionPerformed(ActionEvent evt) {
+		JSettingDialog jSettingDialog = new JSettingDialog(this);
+		CommonLib.centerDialog(jSettingDialog);
+		jSettingDialog.setVisible(true);
+	}
+
 }
