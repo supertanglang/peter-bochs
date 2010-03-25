@@ -1,9 +1,9 @@
 package peter;
 
+import java.awt.Font;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.TreeSet;
@@ -16,25 +16,104 @@ public class Setting {
 	TreeSet<String> memoryCombo = new TreeSet<String>();
 	LinkedList<Breakpoint> breakpoint = new LinkedList<Breakpoint>();
 
+	String currentLanguage;
+	int fontsize;
+	String fontFamily;
+	int x;
+	int y;
+	int width;
+	int height;
+	int divX;
+	int divY;
+
+	public Setting() {
+		currentLanguage = "en_US";
+		fontsize = 12;
+		fontFamily = "Dialog";
+		width = 800;
+		height = 600;
+		divX = 400;
+		divY = 200;
+	}
+
+	public int getDivX() {
+		return divX;
+	}
+
+	public void setDivX(int divX) {
+		this.divX = divX;
+	}
+
+	public int getDivY() {
+		return divY;
+	}
+
+	public void setDivY(int divY) {
+		this.divY = divY;
+	}
+
+	public int getX() {
+		return x;
+	}
+
+	public void setX(int x) {
+		this.x = x;
+	}
+
+	public int getY() {
+		return y;
+	}
+
+	public void setY(int y) {
+		this.y = y;
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public void setWidth(int width) {
+		this.width = width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+
+	public void setHeight(int height) {
+		this.height = height;
+	}
+
+	public String getCurrentLanguage() {
+		return currentLanguage;
+	}
+
+	public void setCurrentLanguage(String currentLanguage) {
+		this.currentLanguage = currentLanguage;
+	}
+
+	public int getFontsize() {
+		return fontsize;
+	}
+
+	public void setFontsize(int fontsize) {
+		this.fontsize = fontsize;
+	}
+
+	public String getFontFamily() {
+		return fontFamily;
+	}
+
+	public void setFontFamily(String fontFamily) {
+		this.fontFamily = fontFamily;
+	}
+
 	public LinkedList<Breakpoint> getBreakpoint() {
 		return breakpoint;
 	}
 
 	public void setBreakpoint(LinkedList<Breakpoint> breakpoint) {
 		this.breakpoint = breakpoint;
-	}
-
-	public Setting() {
-		// memoryCombo.add("123");
-		// memoryCombo.add("456");
-		// memoryCombo.add("789");
-		//
-		// Breakpoint hm = new Breakpoint();
-		// hm.setType("ppp");
-		// breakpoint.add(hm);
-		// hm = new Breakpoint();
-		// hm.setType("address");
-		// breakpoint.add(hm);
 	}
 
 	String lastElfHistoryOpenDir = new File(".").getAbsolutePath();
