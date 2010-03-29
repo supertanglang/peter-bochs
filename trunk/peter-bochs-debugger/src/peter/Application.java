@@ -368,7 +368,8 @@ public class Application extends javax.swing.JFrame {
 	private JButton jButton21;
 	public static String bochsrc;
 	static boolean preventSetVisibleHang = true;
-	public static Setting setting = Setting.load();
+
+	boolean breakpointLoadedOnce = false;
 
 	/**
 	 * Auto-generated main method to display this JFrame
@@ -454,9 +455,8 @@ public class Application extends javax.swing.JFrame {
 		}
 
 		if (ArrayUtils.contains(args, "-loadBreakpoint") || ArrayUtils.contains(args, "-loadbreakpoint")) {
-			Global.loadBreakpoint = true;
+			Setting.getInstance().setLoadBreakpointAtStartup(true);
 			args = (String[]) ArrayUtils.removeElement(args, "-loadBreakpoint");
-			args = (String[]) ArrayUtils.removeElement(args, "-loadbreakpoint");
 		}
 
 		arguments = args;
@@ -504,7 +504,7 @@ public class Application extends javax.swing.JFrame {
 				e.printStackTrace();
 			}
 
-			language = Utf8ResourceBundle.getBundle("language_" + setting.getCurrentLanguage());
+			language = Utf8ResourceBundle.getBundle("language_" + Setting.getInstance().getCurrentLanguage());
 
 			if (!isLinux) {
 				if (!new File("PauseBochs.exe").exists() || !new File("StopBochs.exe").exists()) {
@@ -914,18 +914,18 @@ public class Application extends javax.swing.JFrame {
 			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 			setSize(screenSize.width * 2 / 3, screenSize.height * 4 / 5);
 
-			setSize(setting.getWidth(), setting.getHeight());
+			setSize(Setting.getInstance().getWidth(), Setting.getInstance().getHeight());
 
-			int x = setting.getX();
-			int y = setting.getY();
+			int x = Setting.getInstance().getX();
+			int y = Setting.getInstance().getY();
 			setLocation(x, y);
 
-			jSplitPane1.setDividerLocation(setting.getDivX());
-			jSplitPane2.setDividerLocation(setting.getDivY());
+			jSplitPane1.setDividerLocation(Setting.getInstance().getDivX());
+			jSplitPane2.setDividerLocation(Setting.getInstance().getDivY());
 			// pack();
 
 			initChineseFont();
-			initGlobalFontSetting(new Font(setting.getFontFamily(), Font.PLAIN, setting.getFontsize()));
+			initGlobalFontSetting(new Font(Setting.getInstance().getFontFamily(), Font.PLAIN, Setting.getInstance().getFontsize()));
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(ERROR);
@@ -944,7 +944,7 @@ public class Application extends javax.swing.JFrame {
 						JMenuItem jMenuItem = new JMenuItem(allfonts[j].getFontName());
 						jMenuItem.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent evt) {
-								setting.setFontFamily(((JMenuItem) evt.getSource()).getText());
+								Setting.getInstance().setFontFamily(((JMenuItem) evt.getSource()).getText());
 							}
 						});
 						jMenu2.add(jMenuItem);
@@ -966,16 +966,17 @@ public class Application extends javax.swing.JFrame {
 				stopBochs();
 			} else {
 				try {
-					System.out.println("save=" + jBochsCommandTextField.getText());
-					setting.getBochsCommandHistory().add(jBochsCommandTextField.getText());
-					setting.save();
+					Setting.getInstance().getBochsCommandHistory().add(jBochsCommandTextField.getText());
+					Setting.getInstance().save();
 				} catch (Exception ex2) {
 				}
 
 				commandReceiver.shouldShow = true;
 
 				sendCommand(this.jBochsCommandTextField.getText());
-				updateBochsStatus(true);
+				if (Setting.getInstance().isUpdateAfterBochsCommand()) {
+					updateBochsStatusForBochsCommand(true);
+				}
 				commandHistoryIndex = 0;
 			}
 		} catch (Exception ex) {
@@ -1069,8 +1070,8 @@ public class Application extends javax.swing.JFrame {
 
 		addMemoryAddressComboBox(jMemoryAddressComboBox.getSelectedItem().toString());
 
-		setting.getMemoryCombo().add(jMemoryAddressComboBox.getSelectedItem().toString());
-		setting.save();
+		Setting.getInstance().getMemoryCombo().add(jMemoryAddressComboBox.getSelectedItem().toString());
+		Setting.getInstance().save();
 	}
 
 	private void addMemoryAddressComboBox(String str) {
@@ -1168,10 +1169,115 @@ public class Application extends javax.swing.JFrame {
 
 				enableAllButtons(true);
 
-				if (Global.loadBreakpoint) {
+				if (breakpointLoadedOnce == false && Setting.getInstance().loadBreakpointAtStartup) {
 					jLoadBreakpointButtonActionPerformed(null);
-					Global.loadBreakpoint = false; // since we only have to load
-					// once
+					breakpointLoadedOnce = true; // since we only have to load once
+				}
+			}
+		};
+		updateThread.start();
+		if (shouldWait) {
+			try {
+				updateThread.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void updateBochsStatusForBochsCommand(boolean shouldWait) {
+		Thread updateThread = new Thread() {
+			public void run() {
+				enableAllButtons(false);
+
+				if (Setting.getInstance().isUpdateAfterBochsCommand_register()) {
+					if (Global.debug) {
+						System.out.println("updateRegister");
+					}
+					updateRegister();
+					if (Global.debug) {
+						System.out.println("updateEFlag");
+					}
+					updateEFlag();
+				}
+
+				if (Setting.getInstance().isUpdateAfterBochsCommand_memory()) {
+					if (Global.debug) {
+						System.out.println("updateMemory");
+					}
+					updateMemory(true);
+				}
+
+				if (Setting.getInstance().isUpdateAfterBochsCommand_instruction()) {
+					if (Global.debug) {
+						System.out.println("updateInstruction");
+					}
+					updateInstruction(null);
+				}
+
+				if (Setting.getInstance().isUpdateAfterBochsCommand_gdt()) {
+					if (Global.debug) {
+						System.out.println("updateGDT");
+					}
+					updateGDT();
+				}
+
+				if (Setting.getInstance().isUpdateAfterBochsCommand_idt()) {
+					if (Global.debug) {
+						System.out.println("updateIDT");
+					}
+					updateIDT();
+				}
+
+				if (Setting.getInstance().isUpdateAfterBochsCommand_ldt()) {
+					if (Global.debug) {
+						System.out.println("updateLDT");
+					}
+					updateLDT();
+				}
+
+				if (Setting.getInstance().isUpdateAfterBochsCommand_pageTable()) {
+					if (Global.debug) {
+						System.out.println("updatePageTable");
+					}
+					updatePageTable(CommonLib.string2decimal(jRegisterPanel1.jCR3TextField.getText()));
+				}
+
+				if (Setting.getInstance().isUpdateAfterBochsCommand_stack()) {
+					if (Global.debug) {
+						System.out.println("updateStack");
+					}
+					updateStack();
+				}
+
+				if (Setting.getInstance().isUpdateAfterBochsCommand_addressTranslate()) {
+					if (Global.debug) {
+						System.out.println("updateAddressTranslate");
+					}
+					updateAddressTranslate();
+				}
+
+				if (Setting.getInstance().isUpdateAfterBochsCommand_history()) {
+					if (Global.debug) {
+						System.out.println("updateHistoryTable");
+					}
+					updateHistoryTable();
+				}
+
+				if (Setting.getInstance().isUpdateAfterBochsCommand_breakpoint()) {
+					if (Global.debug) {
+						System.out.println("updateBreakpointTableColor");
+					}
+					updateBreakpointTableColor();
+				}
+
+				jStatusLabel.setText("");
+
+				enableAllButtons(true);
+
+				if (breakpointLoadedOnce == false && Setting.getInstance().loadBreakpointAtStartup) {
+					jLoadBreakpointButtonActionPerformed(null);
+					breakpointLoadedOnce = true; // since we only have to load once
 				}
 			}
 		};
@@ -2090,13 +2196,13 @@ public class Application extends javax.swing.JFrame {
 			p.destroy();
 		}
 
-		setting.setWidth(this.getWidth());
-		setting.setHeight(this.getHeight());
-		setting.setX(this.getLocation().x);
-		setting.setY(this.getLocation().y);
-		setting.setDivX(jSplitPane1.getDividerLocation());
-		setting.setDivY(jSplitPane2.getDividerLocation());
-		setting.save();
+		Setting.getInstance().setWidth(this.getWidth());
+		Setting.getInstance().setHeight(this.getHeight());
+		Setting.getInstance().setX(this.getLocation().x);
+		Setting.getInstance().setY(this.getLocation().y);
+		Setting.getInstance().setDivX(jSplitPane1.getDividerLocation());
+		Setting.getInstance().setDivY(jSplitPane2.getDividerLocation());
+		Setting.getInstance().save();
 	}
 
 	private void jGDTTableMouseClicked(MouseEvent evt) {
@@ -2280,7 +2386,7 @@ public class Application extends javax.swing.JFrame {
 
 	private void jSaveBreakpointButtonActionPerformed(ActionEvent evt) {
 		jSaveBreakpointButton.setEnabled(false);
-		LinkedList<Breakpoint> v = setting.getBreakpoint();
+		LinkedList<Breakpoint> v = Setting.getInstance().getBreakpoint();
 		v.clear();
 
 		for (int x = 0; x < this.jBreakpointTable.getRowCount(); x++) {
@@ -2292,13 +2398,13 @@ public class Application extends javax.swing.JFrame {
 			h.setHit(Integer.parseInt(this.jBreakpointTable.getValueAt(x, 3).toString()));
 			v.add(h);
 		}
-		setting.save();
+		Setting.getInstance().save();
 		jSaveBreakpointButton.setEnabled(true);
 	}
 
 	private void jLoadBreakpointButtonActionPerformed(ActionEvent evt) {
 		jLoadBreakpointButton.setEnabled(false);
-		LinkedList<Breakpoint> vector = setting.getBreakpoint();
+		LinkedList<Breakpoint> vector = Setting.getInstance().getBreakpoint();
 		try {
 			for (int x = 0; x < vector.size(); x++) {
 				boolean match = false;
@@ -2366,7 +2472,7 @@ public class Application extends javax.swing.JFrame {
 		if (jBochsCommandTextField.getText().equals("")) {
 			commandHistoryIndex = 0;
 		}
-		HashSet<String> vector = setting.getBochsCommandHistory();
+		HashSet<String> vector = Setting.getInstance().getBochsCommandHistory();
 		if (evt.getKeyCode() == 38) {
 			if (commandHistoryIndex < vector.size()) {
 				commandHistoryIndex++;
@@ -2507,23 +2613,23 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jFont14MenuItemActionPerformed(ActionEvent evt) {
-		setting.setFontsize(14);
-		initGlobalFontSetting(new Font(setting.getFontFamily(), Font.PLAIN, setting.getFontsize()));
+		Setting.getInstance().setFontsize(14);
+		initGlobalFontSetting(new Font(Setting.getInstance().getFontFamily(), Font.PLAIN, Setting.getInstance().getFontsize()));
 	}
 
 	private void jFont12MenuItemActionPerformed(ActionEvent evt) {
-		setting.setFontsize(12);
-		initGlobalFontSetting(new Font(setting.getFontFamily(), Font.PLAIN, setting.getFontsize()));
+		Setting.getInstance().setFontsize(12);
+		initGlobalFontSetting(new Font(Setting.getInstance().getFontFamily(), Font.PLAIN, Setting.getInstance().getFontsize()));
 	}
 
 	private void jFont10MenuItemActionPerformed(ActionEvent evt) {
-		setting.setFontsize(10);
-		initGlobalFontSetting(new Font(setting.getFontFamily(), Font.PLAIN, setting.getFontsize()));
+		Setting.getInstance().setFontsize(10);
+		initGlobalFontSetting(new Font(Setting.getInstance().getFontFamily(), Font.PLAIN, Setting.getInstance().getFontsize()));
 	}
 
 	private void jFont8MenuItemActionPerformed(ActionEvent evt) {
-		setting.setFontsize(8);
-		initGlobalFontSetting(new Font(setting.getFontFamily(), Font.PLAIN, setting.getFontsize()));
+		Setting.getInstance().setFontsize(8);
+		initGlobalFontSetting(new Font(Setting.getInstance().getFontFamily(), Font.PLAIN, Setting.getInstance().getFontsize()));
 	}
 
 	public void initGlobalFontSetting(Font fnt) {
@@ -2588,11 +2694,11 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jArialMenuItemActionPerformed(ActionEvent evt) {
-		setting.setFontFamily("Arial");
+		Setting.getInstance().setFontFamily("Arial");
 	}
 
 	private void jDialogMenuItemActionPerformed(ActionEvent evt) {
-		setting.setFontFamily("Dialog");
+		Setting.getInstance().setFontFamily("Dialog");
 	}
 
 	private JMenu getJMenu6() {
@@ -2662,8 +2768,8 @@ public class Application extends javax.swing.JFrame {
 	private void changeLanguage(String language) {
 		JOptionPane.showMessageDialog(this, "Please restart");
 
-		setting.setCurrentLanguage(language);
-		setting.save();
+		Setting.getInstance().setCurrentLanguage(language);
+		Setting.getInstance().save();
 	}
 
 	private JTable getJHistoryTable() {
@@ -3560,7 +3666,7 @@ public class Application extends javax.swing.JFrame {
 							});
 							new Thread() {
 								public void run() {
-									TreeSet<String> vector = setting.getMemoryCombo();
+									TreeSet<String> vector = Setting.getInstance().getMemoryCombo();
 									// for (int x = 0; x < vector.size(); x++) {
 									// addMemoryAddressComboBox(vector.get(x).toString());
 									// }
@@ -3796,10 +3902,10 @@ public class Application extends javax.swing.JFrame {
 			new Thread() {
 				public void run() {
 					URL url = getClass().getClassLoader().getResource("images/ajax-loader.gif");
-					if (setting.getCurrentLanguage().equals("zh_TW")) {
+					if (Setting.getInstance().getCurrentLanguage().equals("zh_TW")) {
 						jRunningLabel.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\"" + url
 								+ "\" /><br><br><a style=\"color: #ffffff;  text-decoration:none\" href=\"http://www.kingofcoders.com\">編程王網站  www.kingofcoders.com</a></center></html>");
-					} else if (setting.getCurrentLanguage().equals("zh_CN")) {
+					} else if (Setting.getInstance().getCurrentLanguage().equals("zh_CN")) {
 						jRunningLabel
 								.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\""
 										+ url
@@ -4481,7 +4587,7 @@ public class Application extends javax.swing.JFrame {
 	private void jOpenELFButtonActionPerformed(ActionEvent evt) {
 		final JFileChooser fc = new JFileChooser();
 		// load history
-		fc.setCurrentDirectory(new File(setting.getLastElfHistoryOpenDir()));
+		fc.setCurrentDirectory(new File(Setting.getInstance().getLastElfHistoryOpenDir()));
 
 		// end load history
 		int returnVal = fc.showOpenDialog(this);
@@ -4519,8 +4625,8 @@ public class Application extends javax.swing.JFrame {
 			model.updateBreakpoint();
 
 			// save history
-			setting.setLastElfHistoryOpenDir(file.getParentFile().getAbsolutePath());
-			setting.save();
+			Setting.getInstance().setLastElfHistoryOpenDir(file.getParentFile().getAbsolutePath());
+			Setting.getInstance().save();
 			// end save history
 		}
 	}
@@ -4824,7 +4930,7 @@ public class Application extends javax.swing.JFrame {
 	private void jButton16ActionPerformed(ActionEvent evt) {
 		final JFileChooser fc = new JFileChooser();
 		// load history
-		fc.setCurrentDirectory(new File(setting.getLastElfHistoryOpenDir2()));
+		fc.setCurrentDirectory(new File(Setting.getInstance().getLastElfHistoryOpenDir2()));
 
 		// end load history
 		int returnVal = fc.showOpenDialog(this);
@@ -4835,8 +4941,8 @@ public class Application extends javax.swing.JFrame {
 			parseELF(file);
 
 			// save history
-			setting.setLastElfHistoryOpenDir2(file.getParentFile().getAbsolutePath());
-			setting.save();
+			Setting.getInstance().setLastElfHistoryOpenDir2(file.getParentFile().getAbsolutePath());
+			Setting.getInstance().save();
 			// end save history
 		}
 	}
@@ -5279,8 +5385,8 @@ public class Application extends javax.swing.JFrame {
 		updateMemory(false);
 
 		addMemoryAddressComboBox(jMemoryAddressComboBox.getSelectedItem().toString());
-		setting.memoryCombo.add(jMemoryAddressComboBox.getSelectedItem().toString());
-		setting.save();
+		Setting.getInstance().memoryCombo.add(jMemoryAddressComboBox.getSelectedItem().toString());
+		Setting.getInstance().save();
 	}
 
 	private DiskPanel getDiskPanel() {
@@ -5748,13 +5854,6 @@ public class Application extends javax.swing.JFrame {
 					jStatusLabel.setText("");
 
 					enableAllButtons(true);
-
-					if (Global.loadBreakpoint) {
-						jLoadBreakpointButtonActionPerformed(null);
-						Global.loadBreakpoint = false; // since we only have to
-						// load
-						// once
-					}
 				}
 			};
 			updateThread.start();

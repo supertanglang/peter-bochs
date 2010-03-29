@@ -1,6 +1,5 @@
 package peter;
 
-import java.awt.Font;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -12,6 +11,8 @@ import org.apache.commons.betwixt.io.BeanReader;
 import org.apache.commons.betwixt.io.BeanWriter;
 
 public class Setting {
+	private static Setting setting = null;
+
 	LinkedHashSet<String> bochsCommandHistory = new LinkedHashSet<String>();
 	TreeSet<String> memoryCombo = new TreeSet<String>();
 	LinkedList<Breakpoint> breakpoint = new LinkedList<Breakpoint>();
@@ -25,6 +26,195 @@ public class Setting {
 	int height;
 	int divX;
 	int divY;
+
+	boolean loadBreakpointAtStartup;
+	boolean updateAfterBochsCommand;
+	boolean updateAfterBochsCommand_register;
+	boolean updateAfterBochsCommand_memory;
+	boolean updateAfterBochsCommand_instruction;
+	boolean updateAfterBochsCommand_breakpoint;
+	boolean updateAfterBochsCommand_gdt;
+	boolean updateAfterBochsCommand_ldt;
+	boolean updateAfterBochsCommand_idt;
+	boolean updateAfterBochsCommand_pageTable;
+	boolean updateAfterBochsCommand_stack;
+	boolean updateAfterBochsCommand_addressTranslate;
+	boolean updateAfterBochsCommand_history;
+
+	public boolean isUpdateAfterBochsCommand_history() {
+		return updateAfterBochsCommand_history;
+	}
+
+	public void setUpdateAfterBochsCommand_history(boolean updateAfterBochsCommandHistory) {
+		updateAfterBochsCommand_history = updateAfterBochsCommandHistory;
+	}
+
+	public boolean isUpdateAfterBochsCommand_pageTable() {
+		return updateAfterBochsCommand_pageTable;
+	}
+
+	public void setUpdateAfterBochsCommand_pageTable(boolean updateAfterBochsCommandPageTable) {
+		updateAfterBochsCommand_pageTable = updateAfterBochsCommandPageTable;
+	}
+
+	public boolean isUpdateAfterBochsCommand_stack() {
+		return updateAfterBochsCommand_stack;
+	}
+
+	public void setUpdateAfterBochsCommand_stack(boolean updateAfterBochsCommandStack) {
+		updateAfterBochsCommand_stack = updateAfterBochsCommandStack;
+	}
+
+	public boolean isUpdateAfterBochsCommand_addressTranslate() {
+		return updateAfterBochsCommand_addressTranslate;
+	}
+
+	public void setUpdateAfterBochsCommand_addressTranslate(boolean updateAfterBochsCommandAddressTranslate) {
+		updateAfterBochsCommand_addressTranslate = updateAfterBochsCommandAddressTranslate;
+	}
+
+	boolean updateFastStepCommand_register;
+	boolean updateFastStepCommand_memory;
+	boolean updateFastStepCommand_instruction;
+	boolean updateFastStepCommand_breakpoint;
+	boolean updateFastStepCommand_gdt;
+	boolean updateFastStepCommand_ldt;
+	boolean updateFastStepCommand_idt;
+
+	public boolean isUpdateFastStepCommand_register() {
+		return updateFastStepCommand_register;
+	}
+
+	public void setUpdateFastStepCommand_register(boolean updateFastStepCommandRegister) {
+		updateFastStepCommand_register = updateFastStepCommandRegister;
+	}
+
+	public boolean isUpdateFastStepCommand_memory() {
+		return updateFastStepCommand_memory;
+	}
+
+	public void setUpdateFastStepCommand_memory(boolean updateFastStepCommandMemory) {
+		updateFastStepCommand_memory = updateFastStepCommandMemory;
+	}
+
+	public boolean isUpdateFastStepCommand_instruction() {
+		return updateFastStepCommand_instruction;
+	}
+
+	public void setUpdateFastStepCommand_instruction(boolean updateFastStepCommandInstruction) {
+		updateFastStepCommand_instruction = updateFastStepCommandInstruction;
+	}
+
+	public boolean isUpdateFastStepCommand_breakpoint() {
+		return updateFastStepCommand_breakpoint;
+	}
+
+	public void setUpdateFastStepCommand_breakpoint(boolean updateFastStepCommandBreakpoint) {
+		updateFastStepCommand_breakpoint = updateFastStepCommandBreakpoint;
+	}
+
+	public boolean isUpdateFastStepCommand_gdt() {
+		return updateFastStepCommand_gdt;
+	}
+
+	public void setUpdateFastStepCommand_gdt(boolean updateFastStepCommandGdt) {
+		updateFastStepCommand_gdt = updateFastStepCommandGdt;
+	}
+
+	public boolean isUpdateFastStepCommand_ldt() {
+		return updateFastStepCommand_ldt;
+	}
+
+	public void setUpdateFastStepCommand_ldt(boolean updateFastStepCommandLdt) {
+		updateFastStepCommand_ldt = updateFastStepCommandLdt;
+	}
+
+	public boolean isUpdateFastStepCommand_idt() {
+		return updateFastStepCommand_idt;
+	}
+
+	public void setUpdateFastStepCommand_idt(boolean updateFastStepCommandIdt) {
+		updateFastStepCommand_idt = updateFastStepCommandIdt;
+	}
+
+	public boolean isUpdateAfterBochsCommand_register() {
+		return updateAfterBochsCommand_register;
+	}
+
+	public void setUpdateAfterBochsCommand_register(boolean updateAfterBochsCommandRegister) {
+		updateAfterBochsCommand_register = updateAfterBochsCommandRegister;
+	}
+
+	public boolean isUpdateAfterBochsCommand_memory() {
+		return updateAfterBochsCommand_memory;
+	}
+
+	public void setUpdateAfterBochsCommand_memory(boolean updateAfterBochsCommandMemory) {
+		updateAfterBochsCommand_memory = updateAfterBochsCommandMemory;
+	}
+
+	public boolean isUpdateAfterBochsCommand_instruction() {
+		return updateAfterBochsCommand_instruction;
+	}
+
+	public void setUpdateAfterBochsCommand_instruction(boolean updateAfterBochsCommandInstruction) {
+		updateAfterBochsCommand_instruction = updateAfterBochsCommandInstruction;
+	}
+
+	public boolean isUpdateAfterBochsCommand_breakpoint() {
+		return updateAfterBochsCommand_breakpoint;
+	}
+
+	public void setUpdateAfterBochsCommand_breakpoint(boolean updateAfterBochsCommandBreakpoint) {
+		updateAfterBochsCommand_breakpoint = updateAfterBochsCommandBreakpoint;
+	}
+
+	public boolean isUpdateAfterBochsCommand_gdt() {
+		return updateAfterBochsCommand_gdt;
+	}
+
+	public void setUpdateAfterBochsCommand_gdt(boolean updateAfterBochsCommandGdt) {
+		updateAfterBochsCommand_gdt = updateAfterBochsCommandGdt;
+	}
+
+	public boolean isUpdateAfterBochsCommand_ldt() {
+		return updateAfterBochsCommand_ldt;
+	}
+
+	public void setUpdateAfterBochsCommand_ldt(boolean updateAfterBochsCommandLdt) {
+		updateAfterBochsCommand_ldt = updateAfterBochsCommandLdt;
+	}
+
+	public boolean isUpdateAfterBochsCommand_idt() {
+		return updateAfterBochsCommand_idt;
+	}
+
+	public void setUpdateAfterBochsCommand_idt(boolean updateAfterBochsCommandIdt) {
+		updateAfterBochsCommand_idt = updateAfterBochsCommandIdt;
+	}
+
+	public boolean isUpdateAfterBochsCommand() {
+		return updateAfterBochsCommand;
+	}
+
+	public void setUpdateAfterBochsCommand(boolean updateAfterBochsCommand) {
+		this.updateAfterBochsCommand = updateAfterBochsCommand;
+	}
+
+	public static Setting getInstance() {
+		if (setting == null) {
+			setting = load();
+		}
+		return setting;
+	}
+
+	public boolean isLoadBreakpointAtStartup() {
+		return loadBreakpointAtStartup;
+	}
+
+	public void setLoadBreakpointAtStartup(boolean loadBreakpointAtStartup) {
+		this.loadBreakpointAtStartup = loadBreakpointAtStartup;
+	}
 
 	public Setting() {
 		currentLanguage = "en_US";
@@ -207,7 +397,7 @@ public class Setting {
 		}
 	}
 
-	public static Setting load() {
+	private static Setting load() {
 		try {
 			File file = new File("peter-bochs.xml");
 			if (!file.exists()) {
@@ -238,6 +428,6 @@ public class Setting {
 
 	public static void main(String args[]) {
 		// new Setting().save();
-		Setting setting = Setting.load();
+		Setting setting = Setting.getInstance();
 	}
 }
