@@ -414,11 +414,6 @@ public class Setting {
 
 			Setting setting = (Setting) beanReader.parse(reader);
 
-			if (Global.debug) {
-				System.out.println("breakpoint=" + setting.breakpoint.size());
-				System.out.println("getMemoryCombo=" + setting.getMemoryCombo().size());
-				System.out.println("peter=" + setting.getBreakpoint().size());
-			}
 			return setting;
 		} catch (Exception ex) {
 			ex.printStackTrace();
