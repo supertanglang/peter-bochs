@@ -9,9 +9,9 @@
 
 3 ）运行： 
 
-    在 Linux : java -jar peter-bochs-debugger.jar bochs -f bochxrc.bxrc
+    在 Linux : java -jar peter-bochs-debugger.jar bochs -f bochsrc.bxrc
 
-    在 windows : java -jar peter-bochs-debugger.jar c:\program files\bochs2.4.3\bochsdbg.exe -q -f bochxrc.bxrc
+    在 windows : java -jar peter-bochs-debugger.jar c:\program files\bochs2.4.3\bochsdbg.exe -q -f bochsrc.bxrc
 
     !!! 如果在 windows使用peter-bochs，你需要传递Bochs的exe文件的*完整路径*和-q的参数. (!!! 相對路徑是行不通的)
 
