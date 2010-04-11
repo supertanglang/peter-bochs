@@ -15,17 +15,11 @@ import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
 /**
-* This code was edited or generated using CloudGarden's Jigloo
-* SWT/Swing GUI Builder, which is free for non-commercial
-* use. If Jigloo is being used commercially (ie, by a corporation,
-* company or business for any purpose whatever) then you
-* should purchase a license for each developer using Jigloo.
-* Please visit www.cloudgarden.com for details.
-* Use of Jigloo implies acceptance of these licensing terms.
-* A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR
-* THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
-* LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
-*/
+ * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI Builder, which is free for non-commercial use. If Jigloo is being used commercially (ie, by a
+ * corporation, company or business for any purpose whatever) then you should purchase a license for each developer using Jigloo. Please visit www.cloudgarden.com for details. Use
+ * of Jigloo implies acceptance of these licensing terms. A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR ANY
+ * CORPORATE OR COMMERCIAL PURPOSE.
+ */
 public class JSettingDialog extends javax.swing.JDialog {
 	private JCheckBox jCheckBox1;
 	private JCheckBox jCheckBox2;
@@ -52,8 +46,8 @@ public class JSettingDialog extends javax.swing.JDialog {
 	private JPanel jPanel1;
 
 	/**
-	* Auto-generated main method to display this JDialog
-	*/
+	 * Auto-generated main method to display this JDialog
+	 */
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -105,7 +99,8 @@ public class JSettingDialog extends javax.swing.JDialog {
 			}
 			{
 				jPanel1 = new JPanel();
-				TableLayout jPanel1Layout = new TableLayout(new double[][] { { 34.0, TableLayout.FILL, TableLayout.FILL, TableLayout.PREFERRED }, { 15.0, 15.0, 15.0, TableLayout.PREFERRED } });
+				TableLayout jPanel1Layout = new TableLayout(new double[][] { { 34.0, TableLayout.FILL, TableLayout.FILL, TableLayout.PREFERRED },
+						{ 15.0, 15.0, 15.0, TableLayout.PREFERRED } });
 				jPanel1Layout.setHGap(10);
 				jPanel1Layout.setVGap(5);
 				jPanel1.setLayout(jPanel1Layout);
@@ -229,7 +224,8 @@ public class JSettingDialog extends javax.swing.JDialog {
 			{
 				jPanel2 = new JPanel();
 				getContentPane().add(jPanel2, "0, 4, 1, 4");
-				TableLayout jPanel2Layout = new TableLayout(new double[][] { { 34.0, TableLayout.FILL, TableLayout.FILL, TableLayout.PREFERRED }, { 15.0, 15.0, 15.0, TableLayout.FILL } });
+				TableLayout jPanel2Layout = new TableLayout(new double[][] { { 34.0, TableLayout.FILL, TableLayout.FILL, TableLayout.PREFERRED },
+						{ 15.0, 15.0, 15.0, TableLayout.FILL } });
 				jPanel2Layout.setHGap(10);
 				jPanel2Layout.setVGap(5);
 				jPanel2.setLayout(jPanel2Layout);
@@ -327,6 +323,15 @@ public class JSettingDialog extends javax.swing.JDialog {
 		jBochsAddressTranslateCheckBox.setSelected(Setting.getInstance().isUpdateAfterBochsCommand_addressTranslate());
 		jBochsStackCheckBox.setSelected(Setting.getInstance().isUpdateAfterBochsCommand_stack());
 		jBochsHistoryCheckBox.setSelected(Setting.getInstance().isUpdateAfterBochsCommand_history());
+
+		jFastStepIDTCheckBox.setSelected(Setting.getInstance().isUpdateFastStepCommand_idt());
+		jFastStepLDTCheckBox.setSelected(Setting.getInstance().isUpdateFastStepCommand_ldt());
+		jFastStepGDTCheckBox.setSelected(Setting.getInstance().isUpdateFastStepCommand_gdt());
+		jFastStepBreakpointCheckBox.setSelected(Setting.getInstance().isUpdateFastStepCommand_breakpoint());
+		jFastStepInstructionCheckBox.setSelected(Setting.getInstance().isUpdateFastStepCommand_instruction());
+		jFastStepMemoryCheckBox.setSelected(Setting.getInstance().isUpdateFastStepCommand_memory());
+		jFastStepRegisterCheckBox.setSelected(Setting.getInstance().isUpdateFastStepCommand_register());
+
 	}
 
 	private void jCheckBox1ActionPerformed(ActionEvent evt) {

@@ -2,6 +2,7 @@ package peter;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.util.HashMap;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -9,6 +10,11 @@ import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
 public class JInstructionTableCellRenderer extends JLabel implements TableCellRenderer {
+	private HashMap<Long, Boolean> breakpoint = new HashMap<Long, Boolean>();
+	ImageIcon breakpointHereIcon = new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/arrow_right_red.png"));
+	ImageIcon breakpointIcon = new ImageIcon(getClass().getClassLoader().getResource("images/breakpoint/breakpoint.png"));
+	ImageIcon breakpointDisableIcon = new ImageIcon(getClass().getClassLoader().getResource("images/breakpoint/breakpointDisable.png"));
+	
 	public JInstructionTableCellRenderer() {
 		this.setOpaque(true);
 	}
@@ -19,12 +25,14 @@ public class JInstructionTableCellRenderer extends JLabel implements TableCellRe
 		} else {
 			this.setBackground(Color.white);
 		}
-		if (value.toString().startsWith("-")) {
-			this.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/arrow_right_red.png")));
-			this.setText(value.toString().replaceAll("^-*", ""));
+		if (value.toString().equals("here")) {
+			this.setIcon(breakpointHereIcon);
+		} else if (value.toString().equals("O")) {
+			this.setIcon(breakpointIcon);
+		} else if (value.toString().equals("X")) {
+			this.setIcon(breakpointDisableIcon);
 		} else {
 			this.setIcon(null);
-			this.setText(value.toString());
 		}
 		return this;
 	}

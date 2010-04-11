@@ -48,6 +48,7 @@ import java.util.TreeSet;
 import java.util.Vector;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import javax.swing.BoxLayout;
 
 import javax.swing.ButtonGroup;
 import javax.swing.ComboBoxModel;
@@ -85,6 +86,9 @@ import javax.swing.event.ChangeListener;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Highlighter;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -218,7 +222,6 @@ public class Application extends javax.swing.JFrame {
 	private JPanel jPanel22;
 	private JPanel jPanel24;
 	private JToolBar jPanel26;
-	private JButton jObjdumpDSButton;
 	private JButton jSettingButton;
 	private JMenuItem jMenuItem2;
 	private JMenuItem jMenuItem1;
@@ -254,7 +257,7 @@ public class Application extends javax.swing.JFrame {
 	private JTable jELFHeaderTable;
 	private JScrollPane jELFHeaderScrollPane;
 	private JMaximizableTabbedPane jTabbedPane4;
-	private JButton jButton16;
+	private JButton jOpenELFDumpButton;
 	private JComboBox jELFComboBox;
 	private JPanel jELFDumpPanel;
 	private JLabel jLatestVersionLabel;
@@ -367,6 +370,25 @@ public class Application extends javax.swing.JFrame {
 	static boolean preventSetVisibleHang = true;
 
 	boolean breakpointLoadedOnce = false;
+	private JScrollPane jScrollPane17;
+	private JEditorPane jEditorPane1;
+	private JButton jSearchObjdumpButton;
+	private JTextField jTextField1;
+	private JToolBar jPanel27;
+	private JPanel Objdump;
+	private JButton jSearchRelPltButton;
+	private JTextField jSearchRelPltTextField;
+	private JToolBar jToolBar4;
+	private JEditorPane jSearchRelPltEditorPane;
+	private JScrollPane jScrollPane18;
+	private JPanel jPanel28;
+
+	private JEditorPane jSearchDynamicEditorPane;
+	private JScrollPane jScrollPane19;
+	private JButton jSearchDynamicButton;
+	private JTextField jSearchDynamicTextField;
+	private JToolBar jToolBar5;
+	private JPanel jPanel29;
 
 	/**
 	 * Auto-generated main method to display this JFrame
@@ -673,6 +695,7 @@ public class Application extends javax.swing.JFrame {
 
 	private void runBochs() {
 		try {
+			commandReceiver.clearBuffer();
 			sendCommand("c");
 			CardLayout cl = (CardLayout) (jMainPanel.getLayout());
 			cl.show(jMainPanel, "Running Label");
@@ -681,7 +704,6 @@ public class Application extends javax.swing.JFrame {
 
 			new Thread() {
 				public void run() {
-					commandReceiver.clearBuffer();
 					while (commandReceiver.getLinesLength() == 0) {
 						try {
 							Thread.currentThread().sleep(200);
@@ -1161,6 +1183,7 @@ public class Application extends javax.swing.JFrame {
 				if (Global.debug) {
 					System.out.println("updateBreakpointTableColor");
 				}
+				updateBreakpoint();
 				updateBreakpointTableColor();
 
 				jStatusLabel.setText("");
@@ -1169,7 +1192,8 @@ public class Application extends javax.swing.JFrame {
 
 				if (breakpointLoadedOnce == false && Setting.getInstance().loadBreakpointAtStartup) {
 					jLoadBreakpointButtonActionPerformed(null);
-					breakpointLoadedOnce = true; // since we only have to load once
+					breakpointLoadedOnce = true; // since we only have to load
+					// once
 				}
 			}
 		};
@@ -1276,7 +1300,8 @@ public class Application extends javax.swing.JFrame {
 
 				if (breakpointLoadedOnce == false && Setting.getInstance().loadBreakpointAtStartup) {
 					jLoadBreakpointButtonActionPerformed(null);
-					breakpointLoadedOnce = true; // since we only have to load once
+					breakpointLoadedOnce = true; // since we only have to load
+					// once
 				}
 			}
 		};
@@ -1293,6 +1318,18 @@ public class Application extends javax.swing.JFrame {
 	private void updateBreakpointTableColor() {
 		long eip = CommonLib.string2decimal(jRegisterPanel1.jEIPTextField.getText());
 		String eipStr = Long.toHexString(eip);
+
+		for (int x = 0; x < jInstructionTable.getRowCount(); x++) {
+			String value = jInstructionTable.getValueAt(x, 0).toString();
+			if (CommonLib.string2decimal("0x" + eipStr).equals(CommonLib.string2decimal("0x" + jInstructionTable.getValueAt(x, 1).toString()))) {
+				jInstructionTable.setValueAt("-" + value, x, 1);
+			} else {
+				if (value.startsWith("-")) {
+					jInstructionTable.setValueAt(value.substring(1), x, 1);
+				}
+			}
+		}
+
 		for (int x = 0; x < jBreakpointTable.getRowCount(); x++) {
 			String value = jBreakpointTable.getValueAt(x, 0).toString();
 			if (jBreakpointTable.getValueAt(x, 2).toString().contains(eipStr)) {
@@ -1302,17 +1339,6 @@ public class Application extends javax.swing.JFrame {
 			} else {
 				if (value.startsWith("-")) {
 					jBreakpointTable.setValueAt(value.substring(1), x, 0);
-				}
-			}
-		}
-
-		for (int x = 0; x < jInstructionTable.getRowCount(); x++) {
-			String value = jInstructionTable.getValueAt(x, 0).toString();
-			if (CommonLib.string2decimal("0x" + eipStr).equals(CommonLib.string2decimal("0x" + jInstructionTable.getValueAt(x, 0).toString()))) {
-				jInstructionTable.setValueAt("-" + value, x, 0);
-			} else {
-				if (value.startsWith("-")) {
-					jInstructionTable.setValueAt(value.substring(1), x, 0);
 				}
 			}
 		}
@@ -1737,10 +1763,8 @@ public class Application extends javax.swing.JFrame {
 					}
 				} catch (Exception ex) {
 				}
-				DefaultTableModel model = (DefaultTableModel) jInstructionTable.getModel();
-				while (model.getRowCount() > 0) {
-					model.removeRow(0);
-				}
+				JInstructionTableModel model = (JInstructionTableModel) jInstructionTable.getModel();
+				model.clearData();
 				jStatusProgressBar.setMaximum(lines.length - 1);
 				for (int x = 0; x < lines.length && x < maximumLine; x++) {
 					jStatusProgressBar.setValue(x);
@@ -1749,7 +1773,7 @@ public class Application extends javax.swing.JFrame {
 						// System.out.println(lines[x]);
 						String strs[] = lines[x].split(":");
 						int secondColon = lines[x].indexOf(":", lines[x].indexOf(":") + 1);
-						model.addRow(new String[] { strs[0].trim() + " " + strs[1].trim().replaceAll("\\( *\\)", ""),
+						model.addRow(new String[] { "", strs[0].trim() + " " + strs[1].trim().replaceAll("\\( *\\)", ""),
 								lines[x].substring(secondColon + 1).trim().split(";")[0].trim(), lines[x].split(";")[1] });
 					} catch (Exception ex) {
 						// System.out.println("error 1 : cannot parse"
@@ -2352,6 +2376,11 @@ public class Application extends javax.swing.JFrame {
 			}
 
 			this.jRefreshELFBreakpointButtonActionPerformed(null);
+
+			if (!jRegisterPanel1.jEIPTextField.getText().equals("")) {
+				((JSourceCodeTableModel) jELFTable.getModel()).updateBreakpoint(getRealEIP());
+				((JInstructionTableModel) jInstructionTable.getModel()).updateBreakpoint(getRealEIP());
+			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -3442,19 +3471,14 @@ public class Application extends javax.swing.JFrame {
 						jScrollPane5 = new JScrollPane();
 						jPanel10.add(jScrollPane5, BorderLayout.CENTER);
 						{
-							TableModel jInstructionTableModel = new DefaultTableModel(new String[][] {}, new String[] { MyLanguage.getString("Address"),
-									MyLanguage.getString("Instruction"), MyLanguage.getString("Bytes") }) {
-								public boolean isCellEditable(int row, int col) {
-									return false;
-								}
-							};
 							jInstructionTable = new JTable();
 							jScrollPane5.setViewportView(jInstructionTable);
-							jInstructionTable.setModel(jInstructionTableModel);
+							jInstructionTable.setModel(new JInstructionTableModel());
 							jInstructionTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
-							jInstructionTable.getColumnModel().getColumn(0).setPreferredWidth(40);
-							jInstructionTable.getColumnModel().getColumn(1).setPreferredWidth(200);
-							jInstructionTable.getColumnModel().getColumn(2).setPreferredWidth(40);
+							jInstructionTable.getColumnModel().getColumn(0).setMaxWidth(20);
+							jInstructionTable.getColumnModel().getColumn(1).setPreferredWidth(40);
+							jInstructionTable.getColumnModel().getColumn(2).setPreferredWidth(200);
+							jInstructionTable.getColumnModel().getColumn(3).setPreferredWidth(40);
 							jInstructionTable.getColumnModel().getColumn(0).setCellRenderer(new JInstructionTableCellRenderer());
 							jInstructionTable.addMouseListener(new MouseAdapter() {
 								public void mouseClicked(MouseEvent evt) {
@@ -4578,11 +4602,12 @@ public class Application extends javax.swing.JFrame {
 			jELFTable.setModel(new JSourceCodeTableModel());
 			jELFTable.getColumnModel().getColumn(0).setCellRenderer(new JSourceCodeCellRenderer());
 			jELFTable.getColumnModel().getColumn(3).setCellRenderer(new JSourceCodeCellRenderer());
-			jELFTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
-			jELFTable.getColumnModel().getColumn(0).setPreferredWidth(10);
-			jELFTable.getColumnModel().getColumn(1).setPreferredWidth(15);
-			jELFTable.getColumnModel().getColumn(2).setPreferredWidth(50);
+			jELFTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			jELFTable.getColumnModel().getColumn(0).setPreferredWidth(20);
+			jELFTable.getColumnModel().getColumn(1).setPreferredWidth(30);
+			jELFTable.getColumnModel().getColumn(2).setPreferredWidth(80);
 			jELFTable.getColumnModel().getColumn(3).setPreferredWidth(300);
+			getJELFTable().getTableHeader().setReorderingAllowed(false);
 			jELFTable.addMouseListener(new MouseAdapter() {
 				public void mouseClicked(MouseEvent evt) {
 					jELFTableMouseClicked(evt);
@@ -4594,49 +4619,50 @@ public class Application extends javax.swing.JFrame {
 
 	private void jOpenELFButtonActionPerformed(ActionEvent evt) {
 		final JFileChooser fc = new JFileChooser();
-		// load history
 		fc.setCurrentDirectory(new File(Setting.getInstance().getLastElfHistoryOpenDir()));
 
-		// end load history
 		int returnVal = fc.showOpenDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			File file = fc.getSelectedFile();
-
-			String lines = ElfUtil.getDebugLine(file);
-			String filenames[] = lines.split("\n")[0].split(",");
-			JSourceCodeTableModel model = (JSourceCodeTableModel) jELFTable.getModel();
-			model.setDebugLine(lines);
-
-			for (int x = 0; x < filenames.length; x++) {
-				// find source file
-				Collection<File> found = FileUtils.listFiles(file.getParentFile(), FileFilterUtils.nameFileFilter(filenames[x]), TrueFileFilter.INSTANCE);
-				if (found.size() == 0) {
-					this.jELFFileComboBox.addItem(file.getName() + " - " + filenames[x] + " (missing)");
-				} else {
-					File foundFile = (File) found.toArray()[0];
-
-					// read source code
-					try {
-						List<String> list = FileUtils.readLines(foundFile);
-						model.getSourceCodes().put(foundFile.getName(), list);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-
-					this.jELFFileComboBox.addItem(file.getName() + " - " + foundFile.getAbsolutePath().substring(file.getParent().length()));
-					// end read source code
-				}
-				// end find source file
-			}
-			jELFFileComboBoxActionPerformed(null);
-
-			model.updateBreakpoint();
-
-			// save history
-			Setting.getInstance().setLastElfHistoryOpenDir(file.getParentFile().getAbsolutePath());
-			Setting.getInstance().save();
-			// end save history
+			openELF(fc.getSelectedFile());
+			parseELF(fc.getSelectedFile());
 		}
+	}
+
+	private void openELF(File file) {
+		String lines = ElfUtil.getDebugLine(file);
+		String filenames[] = lines.split("\n")[0].split(",");
+		JSourceCodeTableModel model = (JSourceCodeTableModel) jELFTable.getModel();
+		model.setDebugLine(lines);
+
+		for (int x = 0; x < filenames.length; x++) {
+			// find source file
+			Collection<File> found = FileUtils.listFiles(file.getParentFile(), FileFilterUtils.nameFileFilter(filenames[x]), TrueFileFilter.INSTANCE);
+			if (found.size() == 0) {
+				this.jELFFileComboBox.addItem(file.getName() + " - " + filenames[x] + " (missing)");
+			} else {
+				File foundFile = (File) found.toArray()[0];
+
+				// read source code
+				try {
+					List<String> list = FileUtils.readLines(foundFile);
+					model.getSourceCodes().put(foundFile.getName(), list);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+				this.jELFFileComboBox.addItem(file.getName() + " - " + foundFile.getAbsolutePath().substring(file.getParent().length()));
+				// end read source code
+			}
+			// end find source file
+		}
+		jELFFileComboBoxActionPerformed(null);
+
+		model.updateBreakpoint(getRealEIP());
+
+		// save history
+		Setting.getInstance().setLastElfHistoryOpenDir(file.getParentFile().getAbsolutePath());
+		Setting.getInstance().save();
+		// end save history
 	}
 
 	private void jELFFileComboBoxActionPerformed(ActionEvent evt) {
@@ -4724,7 +4750,22 @@ public class Application extends javax.swing.JFrame {
 	private void jRefreshELFBreakpointButtonActionPerformed(ActionEvent evt) {
 		if (Global.debug) {
 			JSourceCodeTableModel model = (JSourceCodeTableModel) jELFTable.getModel();
-			model.updateBreakpoint();
+
+			model.updateBreakpoint(getRealEIP());
+		}
+	}
+
+	private long getRealEIP() {
+		try {
+			long eip;
+			if (CommonLib.getBit(CommonLib.string2decimal(jRegisterPanel1.jCR0TextField.getText()), 0) == 1) {
+				eip = CommonLib.string2decimal(jRegisterPanel1.jEIPTextField.getText());
+			} else {
+				eip = CommonLib.string2decimal(jRegisterPanel1.jCSTextField.getText()) * 16 + CommonLib.string2decimal(jRegisterPanel1.jEIPTextField.getText());
+			}
+			return eip;
+		} catch (Exception ex) {
+			return 0;
 		}
 	}
 
@@ -4738,7 +4779,7 @@ public class Application extends javax.swing.JFrame {
 				String breakpointNo = jBreakpointTable.getValueAt(x, 0).toString().trim().split(" ")[0];
 				sendCommand("bpe " + breakpointNo);
 
-				model.updateBreakpoint();
+				model.updateBreakpoint(getRealEIP());
 				this.updateBreakpoint();
 				return;
 			}
@@ -4755,7 +4796,7 @@ public class Application extends javax.swing.JFrame {
 				String breakpointNo = jBreakpointTable.getValueAt(x, 0).toString().trim().split(" ")[0];
 				sendCommand("bpd " + breakpointNo);
 
-				model.updateBreakpoint();
+				model.updateBreakpoint(getRealEIP());
 				this.updateBreakpoint();
 				return;
 			}
@@ -4774,11 +4815,11 @@ public class Application extends javax.swing.JFrame {
 		if (SwingUtilities.isRightMouseButton(evt)) {
 			// select
 			Point p = evt.getPoint();
-			int rowNumber = jInstructionTable.rowAtPoint(p);
-			int columnNumber = jInstructionTable.columnAtPoint(p);
-			ListSelectionModel model = jInstructionTable.getSelectionModel();
+			int rowNumber = jELFTable.rowAtPoint(p);
+			int columnNumber = jELFTable.columnAtPoint(p);
+			ListSelectionModel model = jELFTable.getSelectionModel();
 			model.setSelectionInterval(rowNumber, rowNumber);
-			jInstructionTable.getColumnModel().getSelectionModel().setSelectionInterval(columnNumber, columnNumber);
+			jELFTable.getColumnModel().getSelectionModel().setSelectionInterval(columnNumber, columnNumber);
 			// end select
 
 			getJELFTablePopupMenu().show(evt.getComponent(), evt.getX(), evt.getY());
@@ -4876,7 +4917,6 @@ public class Application extends javax.swing.JFrame {
 			jPanel26Layout.setAlignment(FlowLayout.LEFT);
 			jPanel26.add(getJELFComboBox());
 			jPanel26.add(getJButton16x());
-			jPanel26.add(getJObjdumpDSButton());
 		}
 		return jPanel26;
 	}
@@ -4897,16 +4937,16 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private JButton getJButton16x() {
-		if (jButton16 == null) {
-			jButton16 = new JButton();
-			jButton16.setText("Open ELF");
-			jButton16.addActionListener(new ActionListener() {
+		if (jOpenELFDumpButton == null) {
+			jOpenELFDumpButton = new JButton();
+			jOpenELFDumpButton.setText("Open ELF");
+			jOpenELFDumpButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
-					jButton16ActionPerformed(evt);
+					jOpenELFDumpButtonActionPerformed(evt);
 				}
 			});
 		}
-		return jButton16;
+		return jOpenELFDumpButton;
 	}
 
 	private JTabbedPane getJTabbedPane4() {
@@ -4915,6 +4955,9 @@ public class Application extends javax.swing.JFrame {
 			jTabbedPane4.addTab("Header", null, getJELFHeaderScrollPane(), null);
 			jTabbedPane4.addTab("Section", null, getJScrollPane15(), null);
 			jTabbedPane4.addTab("Program header", null, getJScrollPane16(), null);
+			jTabbedPane4.addTab("objdump", null, getObjdump(), null);
+			jTabbedPane4.addTab(".rel.plt", null, getJPanel28(), null);
+			jTabbedPane4.addTab(".dynamic", null, getJPanel29(), null);
 		}
 		return jTabbedPane4;
 	}
@@ -4936,7 +4979,7 @@ public class Application extends javax.swing.JFrame {
 		return jELFHeaderTable;
 	}
 
-	private void jButton16ActionPerformed(ActionEvent evt) {
+	private void jOpenELFDumpButtonActionPerformed(ActionEvent evt) {
 		final JFileChooser fc = new JFileChooser();
 		// load history
 		fc.setCurrentDirectory(new File(Setting.getInstance().getLastElfHistoryOpenDir2()));
@@ -4948,7 +4991,7 @@ public class Application extends javax.swing.JFrame {
 			this.jELFComboBox.addItem(file);
 
 			parseELF(file);
-
+			openELF(file);
 			// save history
 			Setting.getInstance().setLastElfHistoryOpenDir2(file.getParentFile().getAbsolutePath());
 			Setting.getInstance().save();
@@ -4979,6 +5022,7 @@ public class Application extends javax.swing.JFrame {
 				String bytesStr = "";
 
 				if (entry.getValue().getClass() == Short.class) {
+					jStatusLabel.setText("header " + Long.toHexString((Short) entry.getValue()));
 					bytesStr += "0x" + Long.toHexString((Short) entry.getValue());
 				} else if (entry.getValue().getClass() == Integer.class) {
 					bytesStr += "0x" + Long.toHexString((Integer) entry.getValue());
@@ -5011,6 +5055,7 @@ public class Application extends javax.swing.JFrame {
 
 					String bytesStr = "";
 					if (entry.getValue().getClass() == Short.class) {
+						jStatusLabel.setText("section " + Long.toHexString((Short) entry.getValue()));
 						bytesStr += "0x" + Long.toHexString((Short) entry.getValue());
 					} else if (entry.getValue().getClass() == Integer.class) {
 						bytesStr += "0x" + Long.toHexString((Integer) entry.getValue());
@@ -5047,6 +5092,7 @@ public class Application extends javax.swing.JFrame {
 
 					String bytesStr = "";
 					if (entry.getValue().getClass() == Short.class) {
+						jStatusLabel.setText("Program header " + Long.toHexString((Short) entry.getValue()));
 						bytesStr += "0x" + Long.toHexString((Short) entry.getValue());
 					} else if (entry.getValue().getClass() == Integer.class) {
 						bytesStr += "0x" + Long.toHexString((Integer) entry.getValue());
@@ -5077,6 +5123,7 @@ public class Application extends javax.swing.JFrame {
 				Vector<LinkedHashMap> v = (Vector<LinkedHashMap>) tempMap.get("vector");
 				for (int x = 0; x < v.size(); x++) {
 					Vector tempV = new Vector();
+					jStatusLabel.setText("Symbol table " + x);
 					tempV.add("0x" + Long.toHexString((Integer) v.get(x).get("No.")));
 					tempV.add(v.get(x).get("st_name"));
 					tempV.add("0x" + Long.toHexString((Long) v.get(x).get("st_value")));
@@ -5106,6 +5153,7 @@ public class Application extends javax.swing.JFrame {
 				Vector<LinkedHashMap> v = (Vector<LinkedHashMap>) tempMap.get("vector");
 				for (int x = 0; x < v.size(); x++) {
 					Vector tempV = new Vector();
+					jStatusLabel.setText("Note " + x);
 					tempV.add("0x" + Long.toHexString((Integer) v.get(x).get("No.")));
 					tempV.add("0x" + Long.toHexString((Long) v.get(x).get("namesz")));
 					tempV.add("0x" + Long.toHexString((Long) v.get(x).get("descsz")));
@@ -5124,6 +5172,43 @@ public class Application extends javax.swing.JFrame {
 				noteSectionNo++;
 			}
 			// end note
+		}
+
+		try {
+			jStatusLabel.setText("running objdump -DS");
+			Process process = Runtime.getRuntime().exec("objdump -DS " + elfFile.getAbsolutePath());
+			InputStream input = process.getInputStream();
+			String str = "";
+			byte b[] = new byte[102400];
+			int len;
+			while ((len = input.read(b)) > 0) {
+				str += new String(b, 0, len);
+			}
+			jEditorPane1.setText(str);
+
+			jStatusLabel.setText("readelf -r");
+			process = Runtime.getRuntime().exec("readelf -r " + elfFile.getAbsolutePath());
+			input = process.getInputStream();
+			str = "";
+			b = new byte[102400];
+			while ((len = input.read(b)) > 0) {
+				str += new String(b, 0, len);
+			}
+			jSearchRelPltEditorPane.setText(str);
+
+			jStatusLabel.setText("readelf -d");
+			process = Runtime.getRuntime().exec("readelf -d " + elfFile.getAbsolutePath());
+			input = process.getInputStream();
+			str = "";
+			b = new byte[102400];
+			while ((len = input.read(b)) > 0) {
+				str += new String(b, 0, len);
+			}
+			jSearchDynamicEditorPane.setText(str);
+
+			jStatusLabel.setText("");
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		// end symbol table
 	}
@@ -5515,12 +5600,12 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jMenuItem4ActionPerformed(ActionEvent evt) {
-		Application.sendCommand("pb 0x" + this.jInstructionTable.getValueAt(this.jInstructionTable.getSelectedRow(), 0));
+		Application.sendCommand("pb 0x" + this.jInstructionTable.getValueAt(this.jInstructionTable.getSelectedRow(), 1));
 		this.updateBreakpoint();
 	}
 
 	private void jMenuItem5ActionPerformed(ActionEvent evt) {
-		Application.sendCommand("lb 0x" + this.jInstructionTable.getValueAt(this.jInstructionTable.getSelectedRow(), 0));
+		Application.sendCommand("lb 0x" + this.jInstructionTable.getValueAt(this.jInstructionTable.getSelectedRow(), 1));
 		this.updateBreakpoint();
 	}
 
@@ -5682,49 +5767,8 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jInstructionUpButtonActionPerformed(ActionEvent evt) {
-		// String address[] = new String[20];
-		// for (int z = 0; z < 20; z++) {
-		// address[z] = this.jInstructionTable.getValueAt(z,
-		// 0).toString().replaceAll("^-*", "");
-		// }
-		// String firstAddress = this.jInstructionTable.getValueAt(0,
-		// 0).toString().replaceAll("^-*", "");
-		// String originalAddress =
-		// jInstructionComboBox.getSelectedItem().toString();
-		//
-		// for (int x = 10; x < 50; x++) {
-		// long newAddress = CommonLib.string2decimal("0x" + firstAddress) - x;
-		// this.jInstructionComboBox.setSelectedItem("0x" +
-		// Long.toHexString(newAddress));
-		// this.updateInstruction(newAddress);
-		// String midAddress[] = new String[20];
-		//
-		// for (int z = 0; z < 20; z++) {
-		// midAddress[z] = this.jInstructionTable.getValueAt(10 + z,
-		// 0).toString().replaceAll("^-*", "");
-		// }
-		//
-		// // compare
-		// boolean match = true;
-		// for (int z = 0; z < 20 && match; z++) {
-		// System.out.println(address[z] + "==" + midAddress[z]);
-		// if (!address[z].equals(midAddress[z])) {
-		// match = false;
-		// }
-		// }
-		// if (match) {
-		// return;
-		// }
-		// }
-		//
-		// // cannot find the correct address, restore it
-		// System.out.println("restore");
-		// this.jInstructionComboBox.setSelectedItem("0x" + firstAddress);
-		// this.updateInstruction(CommonLib.string2decimal("0x" +
-		// firstAddress));
-
 		if (this.jInstructionTable.getRowCount() > 0) {
-			String firstAddress = this.jInstructionTable.getValueAt(0, 0).toString().replaceAll("^-*", "");
+			String firstAddress = this.jInstructionTable.getValueAt(0, 1).toString().replaceAll("^-*", "");
 			firstAddress = Long.toHexString(CommonLib.string2decimal("0x" + firstAddress) - 1);
 
 			this.jInstructionComboBox.setSelectedItem("0x" + firstAddress);
@@ -5735,7 +5779,7 @@ public class Application extends javax.swing.JFrame {
 
 	private void jInstructionDownButtonActionPerformed(ActionEvent evt) {
 		if (this.jInstructionTable.getRowCount() > 10) {
-			String firstAddress = this.jInstructionTable.getValueAt(10, 0).toString().replaceAll("^-*", "");
+			String firstAddress = this.jInstructionTable.getValueAt(10, 1).toString().replaceAll("^-*", "");
 
 			this.jInstructionComboBox.setSelectedItem("0x" + firstAddress);
 			this.updateInstruction(CommonLib.string2decimal("0x" + firstAddress));
@@ -5757,7 +5801,7 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jInstructionUpTenButtonActionPerformed(ActionEvent evt) {
-		String firstAddress = this.jInstructionTable.getValueAt(0, 0).toString().replaceAll("^-*", "");
+		String firstAddress = this.jInstructionTable.getValueAt(0, 1).toString().replaceAll("^-*", "");
 		firstAddress = Long.toHexString(CommonLib.string2decimal("0x" + firstAddress) - 16);
 
 		this.jInstructionComboBox.setSelectedItem("0x" + firstAddress);
@@ -5839,7 +5883,9 @@ public class Application extends javax.swing.JFrame {
 					if (Global.debug) {
 						System.out.println("updateRegister");
 					}
-					updateRegister();
+					if (Setting.getInstance().updateFastStepCommand_register) {
+						updateRegister();
+					}
 
 					if (Global.debug) {
 						System.out.println("updateEFlag");
@@ -5849,17 +5895,24 @@ public class Application extends javax.swing.JFrame {
 					if (Global.debug) {
 						System.out.println("updateMemory");
 					}
-					updateMemory(true);
+					if (Setting.getInstance().updateFastStepCommand_memory) {
+						updateMemory(true);
+					}
 
 					if (Global.debug) {
 						System.out.println("updateInstruction");
 					}
-					updateInstruction(null);
+					if (Setting.getInstance().updateFastStepCommand_instruction) {
+						updateInstruction(null);
+					}
 
 					if (Global.debug) {
 						System.out.println("updateBreakpointTableColor");
 					}
-					updateBreakpointTableColor();
+					if (Setting.getInstance().updateFastStepCommand_breakpoint) {
+						updateBreakpoint();
+						updateBreakpointTableColor();
+					}
 
 					jStatusLabel.setText("");
 
@@ -5912,7 +5965,8 @@ public class Application extends javax.swing.JFrame {
 		Long address = model.getDebugLineInfo().get(model.getCurrentFile()).get(this.jELFTable.getSelectedRow());
 		if (address != null) {
 			sendCommand("lb 0x" + Long.toHexString(address));
-			model.updateBreakpoint();
+
+			model.updateBreakpoint(getRealEIP());
 			this.updateBreakpoint();
 		}
 	}
@@ -5922,7 +5976,8 @@ public class Application extends javax.swing.JFrame {
 		Long address = model.getDebugLineInfo().get(model.getCurrentFile()).get(this.jELFTable.getSelectedRow());
 		if (address != null) {
 			sendCommand("pb 0x" + Long.toHexString(address));
-			model.updateBreakpoint();
+
+			model.updateBreakpoint(getRealEIP());
 			this.updateBreakpoint();
 		}
 	}
@@ -5947,35 +6002,304 @@ public class Application extends javax.swing.JFrame {
 		jSettingDialog.setVisible(true);
 	}
 
-	private JButton getJObjdumpDSButton() {
-		if (jObjdumpDSButton == null) {
-			jObjdumpDSButton = new JButton();
-			jObjdumpDSButton.setText("Objdump -dS");
-			jObjdumpDSButton.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent evt) {
-					jObjdumpDSButtonActionPerformed(evt);
+	private void jObjdumpDSButtonActionPerformed(ActionEvent evt) {
+
+	}
+
+	private JPanel getObjdump() {
+		if (Objdump == null) {
+			Objdump = new JPanel();
+			BorderLayout ObjdumpLayout = new BorderLayout();
+			Objdump.setLayout(ObjdumpLayout);
+			Objdump.add(getJPanel27(), BorderLayout.NORTH);
+			Objdump.add(getJScrollPane17(), BorderLayout.CENTER);
+		}
+		return Objdump;
+	}
+
+	private JToolBar getJPanel27() {
+		if (jPanel27 == null) {
+			jPanel27 = new JToolBar();
+			FlowLayout jPanel27Layout = new FlowLayout();
+			jPanel27Layout.setAlignment(FlowLayout.LEFT);
+			jPanel27.add(getJTextField1x());
+			jPanel27.add(getJSearchObjdumpButton());
+		}
+		return jPanel27;
+	}
+
+	private JTextField getJTextField1x() {
+		if (jTextField1 == null) {
+			jTextField1 = new JTextField();
+			jTextField1.setMaximumSize(new java.awt.Dimension(100, 25));
+			jTextField1.addKeyListener(new KeyAdapter() {
+				public void keyTyped(KeyEvent evt) {
+					jTextField1KeyTyped(evt);
 				}
 			});
 		}
-		return jObjdumpDSButton;
+		return jTextField1;
 	}
 
-	private void jObjdumpDSButtonActionPerformed(ActionEvent evt) {
-
-		try {
-			Process process = Runtime.getRuntime().exec("objdump -dS " + jELFComboBox.getSelectedItem().toString());
-			InputStream input = process.getInputStream();
-			String str = "";
-			byte b[] = new byte[1024];
-			while (input.read(b) > 0) {
-				str += new String(b);
-			}
-
-			System.out.println(str);
-		} catch (IOException e) {
-			e.printStackTrace();
+	private void jTextField1KeyTyped(KeyEvent evt) {
+		if (evt.getKeyChar() == '\n') {
+			jSearchObjdumpButtonActionPerformed(null);
 		}
+	}
 
+	private JButton getJSearchObjdumpButton() {
+		if (jSearchObjdumpButton == null) {
+			jSearchObjdumpButton = new JButton();
+			jSearchObjdumpButton.setText("Search");
+			jSearchObjdumpButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jSearchObjdumpButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jSearchObjdumpButton;
+	}
+
+	final Highlighter hilit = new DefaultHighlighter();
+	final Highlighter.HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(Color.BLUE);
+
+	private void jSearchObjdumpButtonActionPerformed(ActionEvent evt) {
+		if (jTextField1.getText().length() > 0) {
+			Highlighter h = jEditorPane1.getHighlighter();
+			h.removeAllHighlights();
+			String text = jEditorPane1.getText().toLowerCase();
+
+			int nextPosition = -1;
+
+			for (int j = 0; j < text.length() - jTextField1.getText().length() + 1; j += 1) {
+				if (text.substring(j, j + jTextField1.getText().length()).equals(jTextField1.getText().toLowerCase())) {
+					try {
+						if (j >= jEditorPane1.getCaretPosition() && nextPosition == -1) {
+							h.addHighlight(j, j + jTextField1.getText().length(), new DefaultHighlighter.DefaultHighlightPainter(Color.red));
+							nextPosition = j + jTextField1.getText().length();
+						} else {
+							h.addHighlight(j, j + jTextField1.getText().length(), new DefaultHighlighter.DefaultHighlightPainter(Color.yellow));
+						}
+					} catch (BadLocationException ble) {
+					}
+				}
+			}
+			if (nextPosition != -1) {
+				jEditorPane1.setCaretPosition(nextPosition);
+			} else {
+				jEditorPane1.setCaretPosition(0);
+			}
+		}
+	}
+
+	private JEditorPane getJEditorPane1() {
+		if (jEditorPane1 == null) {
+			jEditorPane1 = new JEditorPane();
+		}
+		return jEditorPane1;
+	}
+
+	private JScrollPane getJScrollPane17() {
+		if (jScrollPane17 == null) {
+			jScrollPane17 = new JScrollPane();
+			jScrollPane17.setPreferredSize(new java.awt.Dimension(997, 512));
+			jScrollPane17.setViewportView(getJEditorPane1());
+		}
+		return jScrollPane17;
+	}
+
+	private JPanel getJPanel28() {
+		if (jPanel28 == null) {
+			jPanel28 = new JPanel();
+			BorderLayout jPanel28Layout = new BorderLayout();
+			jPanel28.setLayout(jPanel28Layout);
+			jPanel28.add(getJScrollPane18(), BorderLayout.CENTER);
+			jPanel28.add(getJToolBar4(), BorderLayout.NORTH);
+		}
+		return jPanel28;
+	}
+
+	private JScrollPane getJScrollPane18() {
+		if (jScrollPane18 == null) {
+			jScrollPane18 = new JScrollPane();
+			jScrollPane18.setPreferredSize(new java.awt.Dimension(993, 533));
+			jScrollPane18.setViewportView(getJEditorPane2());
+		}
+		return jScrollPane18;
+	}
+
+	private JEditorPane getJEditorPane2() {
+		if (jSearchRelPltEditorPane == null) {
+			jSearchRelPltEditorPane = new JEditorPane();
+		}
+		return jSearchRelPltEditorPane;
+	}
+
+	private JToolBar getJToolBar4() {
+		if (jToolBar4 == null) {
+			jToolBar4 = new JToolBar();
+			jToolBar4.add(getJTextField2());
+			jToolBar4.add(getJButton16xx());
+		}
+		return jToolBar4;
+	}
+
+	private JTextField getJTextField2() {
+		if (jSearchRelPltTextField == null) {
+			jSearchRelPltTextField = new JTextField();
+			jSearchRelPltTextField.setMaximumSize(new java.awt.Dimension(100, 25));
+			jSearchRelPltTextField.addKeyListener(new KeyAdapter() {
+				public void keyTyped(KeyEvent evt) {
+					jTextField2KeyTyped(evt);
+				}
+			});
+		}
+		return jSearchRelPltTextField;
+	}
+
+	private JButton getJButton16xx() {
+		if (jSearchRelPltButton == null) {
+			jSearchRelPltButton = new JButton();
+			jSearchRelPltButton.setText("Search");
+			jSearchRelPltButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jSearchRelPltButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jSearchRelPltButton;
+	}
+
+	private void jSearchRelPltButtonActionPerformed(ActionEvent evt) {
+		if (jSearchRelPltTextField.getText().length() > 0) {
+			Highlighter h = jSearchRelPltEditorPane.getHighlighter();
+			h.removeAllHighlights();
+			String text = jSearchRelPltEditorPane.getText().toLowerCase();
+
+			int nextPosition = -1;
+
+			for (int j = 0; j < text.length() - jSearchRelPltTextField.getText().length() + 1; j += 1) {
+				if (text.substring(j, j + jSearchRelPltTextField.getText().length()).equals(jSearchRelPltTextField.getText().toLowerCase())) {
+					try {
+						if (j >= jSearchRelPltEditorPane.getCaretPosition() && nextPosition == -1) {
+							h.addHighlight(j, j + jSearchRelPltTextField.getText().length(), new DefaultHighlighter.DefaultHighlightPainter(Color.red));
+							nextPosition = j + jSearchRelPltTextField.getText().length();
+						} else {
+							h.addHighlight(j, j + jSearchRelPltTextField.getText().length(), new DefaultHighlighter.DefaultHighlightPainter(Color.yellow));
+						}
+					} catch (BadLocationException ble) {
+					}
+				}
+			}
+			if (nextPosition != -1) {
+				jSearchRelPltEditorPane.setCaretPosition(nextPosition);
+			} else {
+				jSearchRelPltEditorPane.setCaretPosition(0);
+			}
+		}
+	}
+
+	private JPanel getJPanel29() {
+		if (jPanel29 == null) {
+			jPanel29 = new JPanel();
+			BorderLayout jPanel29Layout = new BorderLayout();
+			jPanel29.setLayout(jPanel29Layout);
+			jPanel29.add(getJToolBar5(), BorderLayout.NORTH);
+			jPanel29.add(getJScrollPane19(), BorderLayout.CENTER);
+			jPanel29.add(getJEditorPane3());
+		}
+		return jPanel29;
+	}
+
+	private JToolBar getJToolBar5() {
+		if (jToolBar5 == null) {
+			jToolBar5 = new JToolBar();
+			jToolBar5.add(getJTextField3());
+			jToolBar5.add(getJButton22x());
+		}
+		return jToolBar5;
+	}
+
+	private JTextField getJTextField3() {
+		if (jSearchDynamicTextField == null) {
+			jSearchDynamicTextField = new JTextField();
+			jSearchDynamicTextField.setMaximumSize(new java.awt.Dimension(100, 25));
+			jSearchDynamicTextField.addKeyListener(new KeyAdapter() {
+				public void keyTyped(KeyEvent evt) {
+					jTextField3KeyTyped(evt);
+				}
+			});
+		}
+		return jSearchDynamicTextField;
+	}
+
+	private JButton getJButton22x() {
+		if (jSearchDynamicButton == null) {
+			jSearchDynamicButton = new JButton();
+			jSearchDynamicButton.setText("Search");
+			jSearchDynamicButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jSearchDynamicButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jSearchDynamicButton;
+	}
+
+	private void jSearchDynamicButtonActionPerformed(ActionEvent evt) {
+		if (jSearchDynamicTextField.getText().length() > 0) {
+			Highlighter h = jSearchDynamicEditorPane.getHighlighter();
+			h.removeAllHighlights();
+			String text = jSearchDynamicEditorPane.getText().toLowerCase();
+
+			int nextPosition = -1;
+
+			for (int j = 0; j < text.length() - jSearchDynamicTextField.getText().length() + 1; j += 1) {
+				if (text.substring(j, j + jSearchDynamicTextField.getText().length()).equals(jSearchDynamicTextField.getText().toLowerCase())) {
+					try {
+						if (j >= jSearchDynamicEditorPane.getCaretPosition() && nextPosition == -1) {
+							h.addHighlight(j, j + jSearchDynamicTextField.getText().length(), new DefaultHighlighter.DefaultHighlightPainter(Color.red));
+							nextPosition = j + jSearchDynamicTextField.getText().length();
+						} else {
+							h.addHighlight(j, j + jSearchDynamicTextField.getText().length(), new DefaultHighlighter.DefaultHighlightPainter(Color.yellow));
+						}
+					} catch (BadLocationException ble) {
+					}
+				}
+			}
+			if (nextPosition != -1) {
+				jSearchDynamicEditorPane.setCaretPosition(nextPosition);
+			} else {
+				jSearchDynamicEditorPane.setCaretPosition(0);
+			}
+		}
+	}
+
+	private JScrollPane getJScrollPane19() {
+		if (jScrollPane19 == null) {
+			jScrollPane19 = new JScrollPane();
+			jScrollPane19.setPreferredSize(new java.awt.Dimension(993, 533));
+		}
+		return jScrollPane19;
+	}
+
+	private JEditorPane getJEditorPane3() {
+		if (jSearchDynamicEditorPane == null) {
+			jSearchDynamicEditorPane = new JEditorPane();
+		}
+		return jSearchDynamicEditorPane;
+	}
+
+	private void jTextField2KeyTyped(KeyEvent evt) {
+		if (evt.getKeyChar() == '\n') {
+			jSearchRelPltButtonActionPerformed(null);
+		}
+	}
+
+	private void jTextField3KeyTyped(KeyEvent evt) {
+		if (evt.getKeyChar() == '\n') {
+			jSearchDynamicButtonActionPerformed(null);
+		}
 	}
 
 }
