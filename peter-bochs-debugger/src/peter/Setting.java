@@ -41,6 +41,17 @@ public class Setting {
 	boolean updateAfterBochsCommand_addressTranslate;
 	boolean updateAfterBochsCommand_history;
 
+	boolean updateFastStepCommand_register;
+	boolean updateFastStepCommand_memory;
+	boolean updateFastStepCommand_instruction;
+	boolean updateFastStepCommand_breakpoint;
+	boolean updateFastStepCommand_gdt;
+	boolean updateFastStepCommand_ldt;
+	boolean updateFastStepCommand_idt;
+
+	String lastElfHistoryOpenDir = new File(".").getAbsolutePath();
+	String lastElfHistoryOpenDir2 = new File(".").getAbsolutePath();
+
 	public boolean isUpdateAfterBochsCommand_history() {
 		return updateAfterBochsCommand_history;
 	}
@@ -72,14 +83,6 @@ public class Setting {
 	public void setUpdateAfterBochsCommand_addressTranslate(boolean updateAfterBochsCommandAddressTranslate) {
 		updateAfterBochsCommand_addressTranslate = updateAfterBochsCommandAddressTranslate;
 	}
-
-	boolean updateFastStepCommand_register;
-	boolean updateFastStepCommand_memory;
-	boolean updateFastStepCommand_instruction;
-	boolean updateFastStepCommand_breakpoint;
-	boolean updateFastStepCommand_gdt;
-	boolean updateFastStepCommand_ldt;
-	boolean updateFastStepCommand_idt;
 
 	public boolean isUpdateFastStepCommand_register() {
 		return updateFastStepCommand_register;
@@ -224,6 +227,10 @@ public class Setting {
 		height = 600;
 		divX = 400;
 		divY = 200;
+
+		updateFastStepCommand_register = true;
+		updateFastStepCommand_memory = true;
+		updateFastStepCommand_instruction = true;
 	}
 
 	public int getDivX() {
@@ -305,9 +312,6 @@ public class Setting {
 	public void setBreakpoint(LinkedList<Breakpoint> breakpoint) {
 		this.breakpoint = breakpoint;
 	}
-
-	String lastElfHistoryOpenDir = new File(".").getAbsolutePath();
-	String lastElfHistoryOpenDir2 = new File(".").getAbsolutePath();
 
 	public String getLastElfHistoryOpenDir2() {
 		return lastElfHistoryOpenDir2;

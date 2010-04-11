@@ -1,17 +1,11 @@
 package peter;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
-import javax.swing.ImageIcon;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableModel;
-
-import org.apache.commons.io.FileUtils;
 
 public class JSourceCodeTableModel extends AbstractTableModel {
 	private String currentFile;
@@ -21,6 +15,7 @@ public class JSourceCodeTableModel extends AbstractTableModel {
 	private HashMap<String, HashMap<Integer, Long>> debugLineInfo = new HashMap<String, HashMap<Integer, Long>>();
 	private HashMap<Long, Boolean> breakpoint = new HashMap<Long, Boolean>();
 	private boolean isShowBytes = false;
+	long eip;
 
 	public HashMap<String, HashMap<Integer, Long>> getDebugLineInfo() {
 		return debugLineInfo;
@@ -33,7 +28,9 @@ public class JSourceCodeTableModel extends AbstractTableModel {
 	public Object getValueAt(int row, int column) {
 		try {
 			if (column == 0) {
-				if (breakpoint.containsKey(debugLineInfo.get(currentFile).get(new Integer(row)))) {
+				if (eip == debugLineInfo.get(currentFile).get(new Integer(row))) {
+					return "here";
+				} else if (breakpoint.containsKey(debugLineInfo.get(currentFile).get(new Integer(row)))) {
 					if (breakpoint.get(debugLineInfo.get(currentFile).get(new Integer(row)))) {
 						return "O";
 					} else {
@@ -111,7 +108,8 @@ public class JSourceCodeTableModel extends AbstractTableModel {
 		}
 	}
 
-	public void updateBreakpoint() {
+	public void updateBreakpoint(long eip) {
+		this.eip = eip;
 		try {
 			// commandReceiver.setCommandNoOfLine(-1);
 			Application.commandReceiver.clearBuffer();
@@ -147,5 +145,4 @@ public class JSourceCodeTableModel extends AbstractTableModel {
 		this.fireTableStructureChanged();
 	}
 
-	
 }

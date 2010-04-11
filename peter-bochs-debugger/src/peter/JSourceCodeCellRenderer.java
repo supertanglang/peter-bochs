@@ -9,8 +9,10 @@ import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
 public class JSourceCodeCellRenderer extends JLabel implements TableCellRenderer {
+	ImageIcon breakpointHereIcon = new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/arrow_right_red.png"));
 	ImageIcon breakpointIcon = new ImageIcon(getClass().getClassLoader().getResource("images/breakpoint/breakpoint.png"));
 	ImageIcon breakpointDisableIcon = new ImageIcon(getClass().getClassLoader().getResource("images/breakpoint/breakpointDisable.png"));
+	long eip;
 
 	public JSourceCodeCellRenderer() {
 		this.setOpaque(true);
@@ -24,7 +26,9 @@ public class JSourceCodeCellRenderer extends JLabel implements TableCellRenderer
 		}
 		if (column == 0) {
 			this.setHorizontalAlignment(JLabel.CENTER);
-			if (value.toString().equals("O")) {
+			if (value.toString().equals("here")) {
+				setIcon(breakpointHereIcon);
+			} else if (value.toString().equals("O")) {
 				setIcon(breakpointIcon);
 			} else if (value.toString().equals("X")) {
 				setIcon(breakpointDisableIcon);
