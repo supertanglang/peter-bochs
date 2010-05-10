@@ -18,4 +18,5 @@ What is OS debug information standard?
 
 ||Offset||Field||Example value||Size||Description||
 ||0-7||Magic bytes||PETER---||8||||
-||8-47||Your OS Name||Peter Operating System||40||The name of your os in english, no unicode||
+||8-47||Your OS Name||Peter Operating System||40||The english name of your os, no unicode, ascii only||
+||
