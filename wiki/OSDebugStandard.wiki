@@ -6,7 +6,7 @@ What is OS debug standard?
   * To display custom operating system debug information in peter-bochs. If you are developing your own operating system, you probably want to find a easy way to display the debug information out of the emulator. This document describe the data format of the OS debug information.
 
 
-= Details =
+= You must know =
 
   * The "OS debug information" is a continuous block of memory.
   * You can put this block of debug information anywhere in memory.
