@@ -1,4 +1,4 @@
-#OS Debug Information Standard.
+#summary OS Debug Information Standard.
 
 = Introduction =
 
