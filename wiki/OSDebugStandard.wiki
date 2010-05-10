@@ -16,5 +16,5 @@ What is OS debug information standard?
 
 = Date format =
 
-||Offset||Field||Description||
-||0-4||Magic bytes||PETER||
+||Offset||Field||Value||Description||
+||0-4||Magic bytes||PETER||||
