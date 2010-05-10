@@ -13,3 +13,7 @@ What is OS debug information standard?
   * The block size is not fix. It depends on how many information you want to display in peter-bochs
   * Peter-bochs debugger can display the os debug information.
   * When you start peter-bochs, it will search for the debug information block automatically, so zero config.
+
+= Date format =
+
+||12||34||
