@@ -7,7 +7,6 @@ This standard describe the data format of the OS debug information.
 
 = Details =
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
+  * The "OS debug information" is a continuous block of memory.
   * Headings, paragraphs, and lists
   * Automatic links to other wiki pages
