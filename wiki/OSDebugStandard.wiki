@@ -17,11 +17,13 @@ What is OS debug information standard?
 
 = Data format =
 
-||Offset||Field||Example value||Size||Description||
+||*Offset*||*Field*||*Example value*||*Size*||*Description*||
 ||0-7||Magic bytes||PETER---||8||All capital letter||
 ||8-11||Size of xml|| ||4||The size of the xml, the format of the xml is described below||
 
 == XML format ==
+
+<pre>
 <xml>
     <name>Peter operating system</name>
     <libraries>
@@ -31,3 +33,4 @@ What is OS debug information standard?
         </library>
     </libraries>
 </xml>
+</pre>
