@@ -23,7 +23,7 @@ What is OS debug information standard?
 
 == XML format ==
 
-<pre>
+<code>
 <xml>
     <name>Peter operating system</name>
     <libraries>
@@ -33,4 +33,4 @@ What is OS debug information standard?
         </library>
     </libraries>
 </xml>
-</pre>
+</code>
