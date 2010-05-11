@@ -26,7 +26,6 @@ What is OS debug information standard?
 
 <pre>
 <xml>
-
     <name>Peter operating system</name>
 
     <libraries>
