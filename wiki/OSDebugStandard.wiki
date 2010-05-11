@@ -24,13 +24,13 @@ What is OS debug information standard?
 == XML format ==
 
 <code>
-<xml>
-    <name>Peter operating system</name>
+`<xml>`
+    `<name>`Peter operating system`</name>`
     <libraries>
         <library>
             <name>libc.so</name>
             <status>loaded</status>
         </library>
     </libraries>
-</xml>
+`</xml>`
 </code>
