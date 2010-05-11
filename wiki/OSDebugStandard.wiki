@@ -14,9 +14,13 @@ What is OS debug information standard?
   * Peter-bochs debugger can display the os debug information.
   * When you start peter-bochs, it will search for the debug information block automatically, so zero config.
 
-= Date format =
+= Data format =
 
 ||Offset||Field||Example value||Size||Description||
-||0-7||Magic bytes||PETER---||8||||
-||8-47||Your OS Name||Peter Operating System||40||The english name of your os, no unicode, ascii only||
-||
+||0-7||Magic bytes||PETER---||8||All capital letter||
+||8-11||Size of xml||||4||The size of the xml, the format of the xml is described below||
+
+== XML format ==
+<xml>
+
+</xml>
