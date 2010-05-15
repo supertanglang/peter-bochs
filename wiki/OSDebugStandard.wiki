@@ -6,6 +6,7 @@
 What is OS debug information standard?
   * To display custom operating system debug information in peter-bochs. If you are developing your own operating system, you probably want to find a easy way to display the debug informations out of the emulator. This document describes the data format of it.
 
+[http://peter-bochs.googlecode.com/files/os_debug_information.png]
 
 = You must know =
 
