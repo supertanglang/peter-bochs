@@ -1,6 +1,12 @@
 #summary OS Debug Information Standard.
 #labels HowTo,Phase-Implementation
 
+<pre>
+<xml>
+<a />
+</xml>
+</pre>
+
 = Introduction =
 
 What is OS debug information standard?
