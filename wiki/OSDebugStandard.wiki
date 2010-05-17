@@ -3,7 +3,8 @@
 
 `<pre>`
 <xml>
-<a />
+    <a />
+    <b>peter</b>
 </xml>
 `</pre>`
 
