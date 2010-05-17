@@ -1,11 +1,11 @@
 #summary OS Debug Information Standard.
 #labels HowTo,Phase-Implementation
 
-<pre>
+`<pre>`
 <xml>
 <a />
 </xml>
-</pre>
+`</pre>`
 
 = Introduction =
 
