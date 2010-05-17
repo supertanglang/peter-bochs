@@ -26,16 +26,42 @@ What is OS debug information standard?
 
 {{{
 <xml>
-	<name>Peter operating system</name>
+	<os>
+		<name>Peter operating system</name>
+		<uptime>2010/4/22 12:13:45</uptime>
+		<release notes></release notes>
+	</os>
 	<kernel>
 		<name>SL</name>
 		<version>1</version>
+		<address>0x10000</address>
 		<modules>
 			<module>
 				<name>interruptEnginer</name>
 				<address>0x12345678</address>
 			</module>
 		</modules>
+		<interrupts>
+			<interrupt>
+				<no>1</no>
+				<address>0x2345</address>
+				<tssNo>3</tssNo>
+			</interrupt>
+		</interrupts>
+		<memory allocator>
+			<region>
+				<address>0x100</address>				
+				<length>0x200</length>
+			</region>
+			<allocated region>
+				<region>
+					<address>0x100</address>				
+					<length>0x200</length>
+					<virtual address>0x200</virtual address>
+					<name of process>program.elf</name of process>
+				</region>
+			</allocated region>
+		</memory allocator>
 	</kernel>
 	<libraries>
 		<library>
