@@ -25,9 +25,10 @@ What is OS debug information standard?
 == XML format ==
 
 {{{
-<pre>
 <xml>
     <name>Peter operating system</name>
+    <kernelName>SL</kernelName>
+    <kernelVersion>1</kernelVersion>
     <libraries>
         <library>
             <name>libc.so</name>
@@ -51,5 +52,4 @@ What is OS debug information standard?
         </process>
     </processes>
 </xml>
-/pre>
 }}}
