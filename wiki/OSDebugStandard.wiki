@@ -14,7 +14,7 @@ What is OS debug information standard?
   * You can put this block anywhere in memory.
   * The block size is not fix. It depends on how many information you want to display in peter-bochs
   * Peter-bochs debugger can display the os debug information.
-  * When you start peter-bochs, it will search for the debug information block automatically, so zero config.
+  * You can specify the memory of "debug info" by -osdebug, e.g. : -osdebug=0x100000 , peter-bochs will assume to read physical location 0x100000 everytime it got paused,
 
 = Data format =
 
