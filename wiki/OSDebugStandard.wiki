@@ -24,7 +24,7 @@ What is OS debug information standard?
 
 == XML format ==
 
-
+{{{
 <pre>
 <xml>
     <name>Peter operating system</name>
@@ -74,3 +74,4 @@ What is OS debug information standard?
 
 </xml>
 </pre>
+}}}
