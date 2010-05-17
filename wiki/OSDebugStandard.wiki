@@ -27,8 +27,16 @@ What is OS debug information standard?
 {{{
 <xml>
 	<name>Peter operating system</name>
-	<kernelName>SL</kernelName>
-	<kernelVersion>1</kernelVersion>
+	<kernel>
+		<name>SL</name>
+		<version>1</version>
+		<modules>
+			<module>
+				<name>interruptEnginer</name>
+				<address>0x12345678</address>
+			</module>
+		</modules>
+	</kernel>
 	<libraries>
 		<library>
 			<name>libc.so</name>
@@ -37,8 +45,19 @@ What is OS debug information standard?
 	</libraries>
 	<processes>
 		<process>
+			<PID>1</PID>
 			<name>test.elf</name>
 			<tssNo>12</tssNo>
+			<mmap>
+				<memory>
+					<type>physical</type>
+					<length>0x200</length>
+					<address>0x100</address>
+				</memory
+			</mmap>
+			<backlink>2</backlink>
+			<status>running</status>
+			<cmdline>XXX</cmdline>
 		</process>
 	</processes>
 </xml>
