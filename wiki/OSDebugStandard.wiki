@@ -36,7 +36,20 @@ Current status
 	<os>
 		<name>Peter operating system</name>
 		<uptime>2010/4/22 12:13:45</uptime>
-		<release notes></release notes>
+		<notes><![CDATA[
+		function matchwo(a,b)
+{
+if (a < b && a < 0) then
+  {
+  return 1;
+  }
+else
+  {
+  return 0;
+  }
+}
+]]>
+		</notes>
 	</os>
 	<kernel>
 		<name>SL</name>
@@ -55,20 +68,20 @@ Current status
 				<tssNo>3</tssNo>
 			</interrupt>
 		</interrupts>
-		<memory allocator>
+		<memoryAllocator>
 			<region>
-				<address>0x100</address>				
+				<address>0x100</address>
 				<length>0x200</length>
 			</region>
-			<allocated region>
+			<allocatedRegion>
 				<region>
-					<address>0x100</address>				
+					<address>0x100</address>
 					<length>0x200</length>
-					<virtual address>0x200</virtual address>
-					<name of process>program.elf</name of process>
+					<virtualAddress>0x200</virtualAddress>
+					<process>program.elf</process>
 				</region>
-			</allocated region>
-		</memory allocator>
+			</allocatedRegion>
+		</memoryAllocator>
 	</kernel>
 	<libraries>
 		<library>
@@ -86,7 +99,7 @@ Current status
 					<type>physical</type>
 					<length>0x200</length>
 					<address>0x100</address>
-				</memory
+				</memory>
 			</mmap>
 			<backlink>2</backlink>
 			<status>running</status>
