@@ -80,7 +80,7 @@ public class JSettingDialog extends javax.swing.JDialog {
 			{
 				jCheckBox1 = new JCheckBox();
 				getContentPane().add(jCheckBox1, "0, 0");
-				jCheckBox1.setText("Load breakpoint at startup");
+				jCheckBox1.setText(MyLanguage.getString("Load_breakpoint_at_startup"));
 				jCheckBox1.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent evt) {
 						jCheckBox1ActionPerformed(evt);
@@ -90,7 +90,7 @@ public class JSettingDialog extends javax.swing.JDialog {
 			{
 				jCheckBox2 = new JCheckBox();
 				getContentPane().add(jCheckBox2, "0, 1, 1, 1");
-				jCheckBox2.setText("Update status after bochs command");
+				jCheckBox2.setText(MyLanguage.getString("Update_status_after_bochs_command"));
 				jCheckBox2.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent evt) {
 						jCheckBox2ActionPerformed(evt);
@@ -108,7 +108,7 @@ public class JSettingDialog extends javax.swing.JDialog {
 				{
 					jBochsRegisterCheckBox = new JCheckBox();
 					jPanel1.add(jBochsRegisterCheckBox, "1, 0");
-					jBochsRegisterCheckBox.setText("Registers");
+					jBochsRegisterCheckBox.setText(MyLanguage.getString("Register"));
 					jBochsRegisterCheckBox.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
 							jCheckBox3ActionPerformed(evt);
@@ -118,7 +118,7 @@ public class JSettingDialog extends javax.swing.JDialog {
 				{
 					jBochsMemoryCheckBox = new JCheckBox();
 					jPanel1.add(jBochsMemoryCheckBox, "2, 0");
-					jBochsMemoryCheckBox.setText("Memory");
+					jBochsMemoryCheckBox.setText(MyLanguage.getString("Register"));
 					jBochsMemoryCheckBox.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
 							jCheckBox4ActionPerformed(evt);
@@ -128,7 +128,7 @@ public class JSettingDialog extends javax.swing.JDialog {
 				{
 					jBochsInstructionCheckBox = new JCheckBox();
 					jPanel1.add(jBochsInstructionCheckBox, "3, 0");
-					jBochsInstructionCheckBox.setText("Insturction table");
+					jBochsInstructionCheckBox.setText(MyLanguage.getString("Instruction"));
 					jBochsInstructionCheckBox.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
 							jCheckBox5ActionPerformed(evt);
@@ -138,7 +138,7 @@ public class JSettingDialog extends javax.swing.JDialog {
 				{
 					jBochsBreakpointCheckBox = new JCheckBox();
 					jPanel1.add(jBochsBreakpointCheckBox, "1, 1");
-					jBochsBreakpointCheckBox.setText("Breakpoint");
+					jBochsBreakpointCheckBox.setText(MyLanguage.getString("Breakpoint"));
 					jBochsBreakpointCheckBox.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
 							jCheckBox6ActionPerformed(evt);
@@ -148,7 +148,7 @@ public class JSettingDialog extends javax.swing.JDialog {
 				{
 					jBochsGDTCheckBox = new JCheckBox();
 					jPanel1.add(jBochsGDTCheckBox, "2, 1");
-					jBochsGDTCheckBox.setText("GDT");
+					jBochsGDTCheckBox.setText(MyLanguage.getString("GDT"));
 					jBochsGDTCheckBox.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
 							jCheckBox7ActionPerformed(evt);
@@ -158,7 +158,7 @@ public class JSettingDialog extends javax.swing.JDialog {
 				{
 					jBochsLDTCheckBox = new JCheckBox();
 					jPanel1.add(jBochsLDTCheckBox, "3, 1");
-					jBochsLDTCheckBox.setText("LDT");
+					jBochsLDTCheckBox.setText(MyLanguage.getString("LDT"));
 					jBochsLDTCheckBox.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
 							jCheckBox8ActionPerformed(evt);
@@ -168,7 +168,7 @@ public class JSettingDialog extends javax.swing.JDialog {
 				{
 					jBochsIDTCheckBox = new JCheckBox();
 					jPanel1.add(jBochsIDTCheckBox, "1, 2");
-					jBochsIDTCheckBox.setText("IDT");
+					jBochsIDTCheckBox.setText(MyLanguage.getString("IDT"));
 					jBochsIDTCheckBox.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
 							jCheckBox9ActionPerformed(evt);
@@ -178,7 +178,7 @@ public class JSettingDialog extends javax.swing.JDialog {
 				{
 					jBochsPageTableCheckBox = new JCheckBox();
 					jPanel1.add(jBochsPageTableCheckBox, "2, 2");
-					jBochsPageTableCheckBox.setText("Page Table");
+					jBochsPageTableCheckBox.setText(MyLanguage.getString("Page_table"));
 					jBochsPageTableCheckBox.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
 							jBochsPageTableCheckBoxActionPerformed(evt);
@@ -188,7 +188,7 @@ public class JSettingDialog extends javax.swing.JDialog {
 				{
 					jBochsStackCheckBox = new JCheckBox();
 					jPanel1.add(jBochsStackCheckBox, "3, 2");
-					jBochsStackCheckBox.setText("Stack");
+					jBochsStackCheckBox.setText(MyLanguage.getString("Stack"));
 					jBochsStackCheckBox.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
 							jBochsStackCheckBoxActionPerformed(evt);
@@ -198,7 +198,7 @@ public class JSettingDialog extends javax.swing.JDialog {
 				{
 					jBochsAddressTranslateCheckBox = new JCheckBox();
 					jPanel1.add(jBochsAddressTranslateCheckBox, "1, 3, 2, 3");
-					jBochsAddressTranslateCheckBox.setText("Address Translate");
+					jBochsAddressTranslateCheckBox.setText(MyLanguage.getString("Address_translate"));
 					jBochsAddressTranslateCheckBox.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
 							jBochsAddressTranslateCheckBoxActionPerformed(evt);
@@ -208,7 +208,7 @@ public class JSettingDialog extends javax.swing.JDialog {
 				{
 					jBochsHistoryCheckBox = new JCheckBox();
 					jPanel1.add(jBochsHistoryCheckBox, "3, 3");
-					jBochsHistoryCheckBox.setText("History");
+					jBochsHistoryCheckBox.setText(MyLanguage.getString("History"));
 					jBochsHistoryCheckBox.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
 							jBochsHistoryCheckBoxActionPerformed(evt);
@@ -219,7 +219,7 @@ public class JSettingDialog extends javax.swing.JDialog {
 			{
 				jLabel9 = new JLabel();
 				getContentPane().add(jLabel9, "0, 3, 1, 3");
-				jLabel9.setText("What panel will update after \"fast step\" button");
+				jLabel9.setText(MyLanguage.getString("What_panel_will_update_after_fast_step_button"));
 			}
 			{
 				jPanel2 = new JPanel();
@@ -232,7 +232,7 @@ public class JSettingDialog extends javax.swing.JDialog {
 				{
 					jFastStepRegisterCheckBox = new JCheckBox();
 					jPanel2.add(jFastStepRegisterCheckBox, "1, 0");
-					jFastStepRegisterCheckBox.setText("Registers");
+					jFastStepRegisterCheckBox.setText(MyLanguage.getString("Register"));
 					jFastStepRegisterCheckBox.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
 							jFastStepRegisterCheckBoxActionPerformed(evt);
@@ -242,7 +242,7 @@ public class JSettingDialog extends javax.swing.JDialog {
 				{
 					jFastStepMemoryCheckBox = new JCheckBox();
 					jPanel2.add(jFastStepMemoryCheckBox, "2, 0");
-					jFastStepMemoryCheckBox.setText("Memory");
+					jFastStepMemoryCheckBox.setText(MyLanguage.getString("Memory"));
 					jFastStepMemoryCheckBox.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
 							jFastStepMemoryCheckBoxActionPerformed(evt);
@@ -252,7 +252,7 @@ public class JSettingDialog extends javax.swing.JDialog {
 				{
 					jFastStepInstructionCheckBox = new JCheckBox();
 					jPanel2.add(jFastStepInstructionCheckBox, "3, 0");
-					jFastStepInstructionCheckBox.setText("Insturction table");
+					jFastStepInstructionCheckBox.setText(MyLanguage.getString("Instruction"));
 					jFastStepInstructionCheckBox.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
 							jFastStepInstructionCheckBoxActionPerformed(evt);
@@ -262,7 +262,7 @@ public class JSettingDialog extends javax.swing.JDialog {
 				{
 					jFastStepBreakpointCheckBox = new JCheckBox();
 					jPanel2.add(jFastStepBreakpointCheckBox, "1, 1");
-					jFastStepBreakpointCheckBox.setText("Breakpoint");
+					jFastStepBreakpointCheckBox.setText(MyLanguage.getString("Breakpoint"));
 					jFastStepBreakpointCheckBox.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
 							jFastStepBreakpointCheckBoxActionPerformed(evt);
@@ -272,7 +272,7 @@ public class JSettingDialog extends javax.swing.JDialog {
 				{
 					jFastStepGDTCheckBox = new JCheckBox();
 					jPanel2.add(jFastStepGDTCheckBox, "2, 1");
-					jFastStepGDTCheckBox.setText("GDT");
+					jFastStepGDTCheckBox.setText(MyLanguage.getString(MyLanguage.getString("GDT")));
 					jFastStepGDTCheckBox.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
 							jFastStepGDTCheckBoxActionPerformed(evt);
@@ -282,7 +282,7 @@ public class JSettingDialog extends javax.swing.JDialog {
 				{
 					jFastStepLDTCheckBox = new JCheckBox();
 					jPanel2.add(jFastStepLDTCheckBox, "3, 1");
-					jFastStepLDTCheckBox.setText("LDT");
+					jFastStepLDTCheckBox.setText(MyLanguage.getString(MyLanguage.getString("LDT")));
 					jFastStepLDTCheckBox.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
 							jFastStepLDTCheckBoxActionPerformed(evt);
@@ -292,7 +292,7 @@ public class JSettingDialog extends javax.swing.JDialog {
 				{
 					jFastStepIDTCheckBox = new JCheckBox();
 					jPanel2.add(jFastStepIDTCheckBox, "1, 2");
-					jFastStepIDTCheckBox.setText("IDT");
+					jFastStepIDTCheckBox.setText(MyLanguage.getString(MyLanguage.getString("IDT")));
 					jFastStepIDTCheckBox.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
 							jFastStepIDTCheckBoxActionPerformed(evt);

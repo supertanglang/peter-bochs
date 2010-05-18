@@ -1,0 +1,79 @@
+<xml>
+	<os>
+		<name>Peter operating system</name>
+		<uptime>2010/4/22 12:13:45</uptime>
+		<notes><![CDATA[
+		function matchwo(a,b)
+{
+if (a < b && a < 0) then
+  {
+  return 1;
+  }
+else
+  {
+  return 0;
+  }
+}
+]]>
+		</notes>
+	</os>
+	<kernel>
+		<name>SL</name>
+		<version>1</version>
+		<address>0x10000</address>
+		<modules>
+			<module>
+				<name>interrupt engine</name>
+				<address>0x12345678</address>
+			</module>
+			<module>
+				<name>keyboard engine</name>
+				<address>0xabcdef12</address>
+			</module>
+		</modules>
+		<interrupts>
+			<interrupt>
+				<no>1</no>
+				<address>0x2345</address>
+				<tssNo>3</tssNo>
+			</interrupt>
+		</interrupts>
+		<memoryAllocator>
+			<region>
+				<address>0x100</address>
+				<length>0x200</length>
+			</region>
+			<allocatedRegion>
+				<region>
+					<address>0x100</address>
+					<length>0x200</length>
+					<virtualAddress>0x200</virtualAddress>
+					<process>program.elf</process>
+				</region>
+			</allocatedRegion>
+		</memoryAllocator>
+	</kernel>
+	<libraries>
+		<library>
+			<name>libc.so</name>
+			<status>loaded</status>
+		</library>
+	</libraries>
+	<processes>
+		<process>
+			<PID>1</PID>
+			<name>test.elf</name>
+			<tssNo>12</tssNo>
+			<mmap>
+				<memory>
+					<type>physical</type>
+					<length>0x200</length>
+					<address>0x100</address>
+				</memory>
+			</mmap>
+			<backlink>2</backlink>
+			<status>running</status>
+			<cmdline>XXX</cmdline>
+		</process>
+	</processes>
+</xml>

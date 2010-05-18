@@ -6,14 +6,17 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,8 +48,6 @@ import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-
-import java.lang.reflect.Field;
 
 public class CommonLib {
 	public CommonLib() {
@@ -260,6 +261,26 @@ public class CommonLib {
 			ex.printStackTrace();
 			return null;
 		}
+	}
+
+	public static String readFile(String filepath) {
+		String str = "";
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(filepath));
+			String line;
+			while ((line = br.readLine()) != null) {
+				if (str.equals("")) {
+					str = line;
+				} else {
+					str += System.getProperty("line.separator") + line;
+				}
+			}
+			br.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return null;
+		}
+		return str;
 	}
 
 	public static int[] readFileUnsigned(File file, long offset, int size) {
