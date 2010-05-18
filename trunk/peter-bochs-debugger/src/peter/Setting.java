@@ -26,6 +26,16 @@ public class Setting {
 	int height;
 	int divX;
 	int divY;
+	
+	int osDebugSplitPane_DividerLocation;
+
+	public int getOsDebugSplitPane_DividerLocation() {
+		return osDebugSplitPane_DividerLocation;
+	}
+
+	public void setOsDebugSplitPane_DividerLocation(int osDebugSplitPaneDividerLocation) {
+		osDebugSplitPane_DividerLocation = osDebugSplitPaneDividerLocation;
+	}
 
 	boolean loadBreakpointAtStartup;
 	boolean updateAfterBochsCommand;
@@ -227,6 +237,7 @@ public class Setting {
 		height = 600;
 		divX = 400;
 		divY = 200;
+		osDebugSplitPane_DividerLocation=150;
 
 		updateFastStepCommand_register = true;
 		updateFastStepCommand_memory = true;

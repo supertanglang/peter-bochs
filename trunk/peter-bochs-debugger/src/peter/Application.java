@@ -24,6 +24,7 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -48,7 +49,6 @@ import java.util.TreeSet;
 import java.util.Vector;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import javax.swing.BoxLayout;
 
 import javax.swing.ButtonGroup;
 import javax.swing.ComboBoxModel;
@@ -89,6 +89,12 @@ import javax.swing.table.TableModel;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -110,12 +116,17 @@ import org.jgraph.graph.GraphLayoutCache;
 import org.jgraph.graph.GraphModel;
 import org.jgraph.graph.PortView;
 import org.jgraph.graph.VertexView;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import peter.architecture.IA32PageDirectory;
 import peter.architecture.IA32PageTable;
 import peter.elf.ElfUtil;
 import peter.graph.JButtonView;
 import peter.graph.PageDirectoryView;
+import peter.osdebuginformation.JOSDebugInformationPanel;
+import peter.osdebuginformation.OSDebugInfoHelper;
 
 import com.jgraph.layout.JGraphFacade;
 import com.jgraph.layout.JGraphLayout;
@@ -125,10 +136,14 @@ import com.petersoft.advancedswing.jmaximizabletabbedpane.JMaximizableTabbedPane
 import com.petersoft.advancedswing.jmaximizabletabbedpane.JMaximizableTabbedPane_BasePanel;
 
 /**
- * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI Builder, which is free for non-commercial use. If Jigloo is being used commercially (ie, by a
- * corporation, company or business for any purpose whatever) then you should purchase a license for each developer using Jigloo. Please visit www.cloudgarden.com for details. Use
- * of Jigloo implies acceptance of these licen sing terms. A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR ANY
- * CORPORATE OR COMMERCIAL PURPOSE.
+ * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
+ * Builder, which is free for non-commercial use. If Jigloo is being used
+ * commercially (ie, by a corporation, company or business for any purpose
+ * whatever) then you should purchase a license for each developer using Jigloo.
+ * Please visit www.cloudgarden.com for details. Use of Jigloo implies
+ * acceptance of these licen sing terms. A COMMERCIAL LICENSE HAS NOT BEEN
+ * PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR
+ * ANY CORPORATE OR COMMERCIAL PURPOSE.
  */
 public class Application extends javax.swing.JFrame {
 	private JMenuItem aboutUsMenuItem;
@@ -222,6 +237,10 @@ public class Application extends javax.swing.JFrame {
 	private JPanel jPanel22;
 	private JPanel jPanel24;
 	private JToolBar jPanel26;
+	private JOSDebugInformationPanel jOSDebugInformationPanel1;
+	private JLabel jOSDebugInfoErrorLabel;
+	private JTabbedPane jTabbedPane5;
+	private JPanel jOSDebugStandardPanel;
 	private JButton jSettingButton;
 	private JMenuItem jMenuItem2;
 	private JMenuItem jMenuItem1;
@@ -375,7 +394,7 @@ public class Application extends javax.swing.JFrame {
 	private JButton jSearchObjdumpButton;
 	private JTextField jTextField1;
 	private JToolBar jPanel27;
-	private JPanel Objdump;
+	private JPanel objdumpPanel;
 	private JButton jSearchRelPltButton;
 	private JTextField jSearchRelPltTextField;
 	private JToolBar jToolBar4;
@@ -477,6 +496,14 @@ public class Application extends javax.swing.JFrame {
 		if (ArrayUtils.contains(args, "-loadBreakpoint") || ArrayUtils.contains(args, "-loadbreakpoint")) {
 			Setting.getInstance().setLoadBreakpointAtStartup(true);
 			args = (String[]) ArrayUtils.removeElement(args, "-loadBreakpoint");
+		}
+
+		for (int x = 0; x < args.length; x++) {
+			if (args[x].toLowerCase().startsWith("-osdebug")) {
+				Global.osDebug = CommonLib.string2decimal(args[x].replaceAll("-.*=", ""));
+				args = (String[]) ArrayUtils.removeElement(args, args[x]);
+				break;
+			}
 		}
 
 		arguments = args;
@@ -637,8 +664,6 @@ public class Application extends javax.swing.JFrame {
 					break;
 				}
 			}
-
-			this.updateBreakpoint();
 		} catch (Exception ex) {
 			JOptionPane.showMessageDialog(this, MyLanguage.getString("Unable_to_start_bochs"));
 			ex.printStackTrace();
@@ -942,6 +967,8 @@ public class Application extends javax.swing.JFrame {
 
 			jSplitPane1.setDividerLocation(Setting.getInstance().getDivX());
 			jSplitPane2.setDividerLocation(Setting.getInstance().getDivY());
+
+			jOSDebugInformationPanel1.getjMainSplitPane().setDividerLocation(Setting.getInstance().getOsDebugSplitPane_DividerLocation());
 			// pack();
 
 			initChineseFont();
@@ -1186,6 +1213,11 @@ public class Application extends javax.swing.JFrame {
 				updateBreakpoint();
 				updateBreakpointTableColor();
 
+				if (Global.debug) {
+					System.out.println("update OS debug informations");
+				}
+				updateOSDebugInfo();
+
 				jStatusLabel.setText("");
 
 				enableAllButtons(true);
@@ -1205,6 +1237,24 @@ public class Application extends javax.swing.JFrame {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+		}
+	}
+
+	protected void updateOSDebugInfo() {
+		String magicByte = getMemoryStr(Global.osDebug, 8, true);
+		long size = CommonLib.getInt(getMemory(Global.osDebug + 8, 4, true), 0);
+		String xml = getMemoryStr(Global.osDebug + 12, (int) size, true).trim();
+		xml = CommonLib.readFile("test.xml");
+		OSDebugInfoHelper.jOSDebugInformationPanel = jOSDebugInformationPanel1;
+
+		CardLayout cl = (CardLayout) (jOSDebugStandardPanel.getLayout());
+
+		if (magicByte.equals("PETER---")) {
+			OSDebugInfoHelper.addData(magicByte, size, xml);
+			this.jOSDebugInformationPanel1.jXMLEditorPane.setText(xml);
+			cl.show(jOSDebugStandardPanel, "jOSDebugInformationPanel1");
+		} else {
+			cl.show(jOSDebugStandardPanel, "OS debug error label");
 		}
 	}
 
@@ -1749,7 +1799,7 @@ public class Application extends javax.swing.JFrame {
 			commandReceiver.clearBuffer();
 			commandReceiver.shouldShow = false;
 			sendCommand(command);
-			Thread.currentThread().sleep(100);
+			Thread.currentThread().sleep(200);
 			// commandReceiver.setCommandNoOfLine(15);
 			String result = commandReceiver.getCommandResultUntilEnd();
 			String lines[] = result.split("\n");
@@ -2225,6 +2275,7 @@ public class Application extends javax.swing.JFrame {
 		Setting.getInstance().setY(this.getLocation().y);
 		Setting.getInstance().setDivX(jSplitPane1.getDividerLocation());
 		Setting.getInstance().setDivY(jSplitPane2.getDividerLocation());
+		Setting.getInstance().setOsDebugSplitPane_DividerLocation(this.jOSDebugInformationPanel1.getjMainSplitPane().getDividerLocation());
 		Setting.getInstance().save();
 	}
 
@@ -2560,6 +2611,7 @@ public class Application extends javax.swing.JFrame {
 	private JScrollPane getJTableTranslateScrollPane() {
 		if (jTableTranslateScrollPane == null) {
 			jTableTranslateScrollPane = new JScrollPane();
+			jTableTranslateScrollPane.setViewportView(getJTabbedPane5());
 			jTableTranslateScrollPane.setViewportView(getJAddressTranslateTable());
 		}
 		return jTableTranslateScrollPane;
@@ -3916,6 +3968,8 @@ public class Application extends javax.swing.JFrame {
 						getJTableTranslateScrollPane(), null);
 				jTabbedPane2.addTab(MyLanguage.getString("ELF_dump"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/linux.png")),
 						getJELFDumpScrollPane(), null);
+				jTabbedPane2
+						.addTab("OS debug informations", new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/bug.png")), getJOSDebugStandardPanel(), null);
 				BorderLayout jPanel11Layout = new BorderLayout();
 				jPanel11.setLayout(jPanel11Layout);
 				jPanel11.add(getJSplitPane3(), BorderLayout.CENTER);
@@ -5461,6 +5515,15 @@ public class Application extends javax.swing.JFrame {
 		return bytes;
 	}
 
+	private static String getMemoryStr(long address, int totalByte, boolean isPhysicalAddress) {
+		int bytes[] = getMemory(address, totalByte, isPhysicalAddress);
+		String str = "";
+		for (int x = 0; x < bytes.length; x++) {
+			str += (char) bytes[x];
+		}
+		return str;
+	}
+
 	private JButton getJGoLinearButton() {
 		if (jGoLinearButton == null) {
 			jGoLinearButton = new JButton();
@@ -5861,7 +5924,7 @@ public class Application extends javax.swing.JFrame {
 		if (jFastStepBochsButton == null) {
 			jFastStepBochsButton = new JButton();
 			jFastStepBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/step.png")));
-			jFastStepBochsButton.setText("Fast " + MyLanguage.getString("Step"));
+			jFastStepBochsButton.setText(MyLanguage.getString("Fast_Step"));
 			jFastStepBochsButton
 					.setToolTipText("<html><body>A faster step<br><br>It will only update:<br>1) Memory panel<br>2) Insturction panel<br>3) Register panel</body></html>");
 			jFastStepBochsButton.addActionListener(new ActionListener() {
@@ -5880,10 +5943,10 @@ public class Application extends javax.swing.JFrame {
 				public void run() {
 					enableAllButtons(false);
 
-					if (Global.debug) {
-						System.out.println("updateRegister");
-					}
 					if (Setting.getInstance().updateFastStepCommand_register) {
+						if (Global.debug) {
+							System.out.println("updateRegister");
+						}
 						updateRegister();
 					}
 
@@ -5892,24 +5955,24 @@ public class Application extends javax.swing.JFrame {
 					}
 					updateEFlag();
 
-					if (Global.debug) {
-						System.out.println("updateMemory");
-					}
 					if (Setting.getInstance().updateFastStepCommand_memory) {
+						if (Global.debug) {
+							System.out.println("updateMemory");
+						}
 						updateMemory(true);
 					}
 
-					if (Global.debug) {
-						System.out.println("updateInstruction");
-					}
 					if (Setting.getInstance().updateFastStepCommand_instruction) {
+						if (Global.debug) {
+							System.out.println("updateInstruction");
+						}
 						updateInstruction(null);
 					}
 
-					if (Global.debug) {
-						System.out.println("updateBreakpointTableColor");
-					}
 					if (Setting.getInstance().updateFastStepCommand_breakpoint) {
+						if (Global.debug) {
+							System.out.println("updateBreakpointTableColor");
+						}
 						updateBreakpoint();
 						updateBreakpointTableColor();
 					}
@@ -6002,19 +6065,15 @@ public class Application extends javax.swing.JFrame {
 		jSettingDialog.setVisible(true);
 	}
 
-	private void jObjdumpDSButtonActionPerformed(ActionEvent evt) {
-
-	}
-
 	private JPanel getObjdump() {
-		if (Objdump == null) {
-			Objdump = new JPanel();
+		if (objdumpPanel == null) {
+			objdumpPanel = new JPanel();
 			BorderLayout ObjdumpLayout = new BorderLayout();
-			Objdump.setLayout(ObjdumpLayout);
-			Objdump.add(getJPanel27(), BorderLayout.NORTH);
-			Objdump.add(getJScrollPane17(), BorderLayout.CENTER);
+			objdumpPanel.setLayout(ObjdumpLayout);
+			objdumpPanel.add(getJPanel27(), BorderLayout.NORTH);
+			objdumpPanel.add(getJScrollPane17(), BorderLayout.CENTER);
 		}
-		return Objdump;
+		return objdumpPanel;
 	}
 
 	private JToolBar getJPanel27() {
@@ -6300,6 +6359,49 @@ public class Application extends javax.swing.JFrame {
 		if (evt.getKeyChar() == '\n') {
 			jSearchDynamicButtonActionPerformed(null);
 		}
+	}
+
+	private JPanel getJOSDebugStandardPanel() {
+		if (jOSDebugStandardPanel == null) {
+			jOSDebugStandardPanel = new JPanel();
+			CardLayout jOSDebugStandardPanelLayout = new CardLayout();
+			jOSDebugStandardPanel.setLayout(jOSDebugStandardPanelLayout);
+			jOSDebugStandardPanel.add(getJOSDebugInfoErrorLabel(), "OS debug error label");
+			jOSDebugStandardPanel.add(getJOSDebugInformationPanel1(), "jOSDebugInformationPanel1");
+		}
+		return jOSDebugStandardPanel;
+	}
+
+	private JTabbedPane getJTabbedPane5() {
+		if (jTabbedPane5 == null) {
+			jTabbedPane5 = new JTabbedPane();
+		}
+		return jTabbedPane5;
+	}
+
+	private JLabel getJOSDebugInfoErrorLabel() {
+		if (jOSDebugInfoErrorLabel == null) {
+			jOSDebugInfoErrorLabel = new JLabel();
+			if (Global.osDebug == -1) {
+				jOSDebugInfoErrorLabel.setText("Parameter -osdebug is not specified.");
+			} else {
+				jOSDebugInfoErrorLabel.setText("OS debug information not found - wrong magic bytes.");
+			}
+			jOSDebugInfoErrorLabel.setHorizontalAlignment(SwingConstants.CENTER);
+			jOSDebugInfoErrorLabel.setHorizontalTextPosition(SwingConstants.CENTER);
+			jOSDebugInfoErrorLabel.setFont(new java.awt.Font("Arial", 0, 20));
+			jOSDebugInfoErrorLabel.setForeground(Color.white);
+			jOSDebugInfoErrorLabel.setBackground(new Color(0, 0, 0, 180));
+			jOSDebugInfoErrorLabel.setOpaque(true);
+		}
+		return jOSDebugInfoErrorLabel;
+	}
+
+	private JOSDebugInformationPanel getJOSDebugInformationPanel1() {
+		if (jOSDebugInformationPanel1 == null) {
+			jOSDebugInformationPanel1 = new JOSDebugInformationPanel();
+		}
+		return jOSDebugInformationPanel1;
 	}
 
 }
