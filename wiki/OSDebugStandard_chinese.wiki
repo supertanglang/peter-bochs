@@ -29,9 +29,9 @@
 = 数据格式 =
 
 ||*偏移*||*字段*||*范例值*||*大小*||*说明*||
-||0-7||Magic bytes||PETER---||8||All capital letter||
-||8-11||Size of xml|| ||4||The size of the xml, the format of the xml is described below||
-||12-N||xml|| ||specified by "Size of xml"||<xml>....</xml>||The xml stored here
+||0-7||魔术字节||PETER---||8||所有字母大写||
+||8-11||XML的大小|| ||4||该XML的大小，下面会对XML有所说明||
+||12-N||xml|| ||有多大则有多大||<xml>....</xml>||XML放在這裏
 
 == XML格式 ==
 
