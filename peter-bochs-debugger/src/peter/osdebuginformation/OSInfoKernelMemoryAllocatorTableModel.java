@@ -1,11 +1,14 @@
 package peter.osdebuginformation;
 
+import java.awt.Component;
 import java.util.Vector;
 
+import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumn;
 
-public class OSInfoKernelInterruptTableModel extends AbstractTableModel {
-	String columnNames[] = { "Name", "Address", "TSS no." };
+public class OSInfoKernelMemoryAllocatorTableModel extends AbstractTableModel {
+	String columnNames[] = { "Type", "Value" };
 	Vector<Vector<String>> data = new Vector<Vector<String>>();
 
 	public Vector<Vector<String>> getData() {
@@ -31,12 +34,12 @@ public class OSInfoKernelInterruptTableModel extends AbstractTableModel {
 		return data.get(rowIndex).get(columnIndex);
 	}
 
-	public void addRow(String no, String address, String tssNo) {
+	public void addRow(String key, String field) {
 		Vector<String> v = new Vector<String>();
-		v.add(no);
-		v.add(address);
-		v.add(tssNo);
+		v.add(key);
+		v.add(field);
 		data.add(v);
 		this.fireTableDataChanged();
 	}
+
 }

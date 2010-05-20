@@ -54,7 +54,36 @@ public class JOSDebugInformationPanel extends JPanel {
 	OSInfoTableModel osInfoTableModel = new OSInfoTableModel();
 	OSInfoTableModel kernelInfoTableModel = new OSInfoTableModel();
 	OSInfoKernelModuleTableModel kernelModuleInfoTableModel = new OSInfoKernelModuleTableModel();
-	OSInfoTableModel kernelInterruptInfoTableModel = new OSInfoTableModel();
+	private JTable jLibraryTable;
+	private JScrollPane jScrollPane8;
+	private JPanel jLibraryPanel;
+	private JTable jMemoryTable;
+	private JScrollPane jScrollPane7;
+	private JPanel jMemoryPanel;
+	OSInfoKernelMemoryAllocatorTableModel kernelMemoryAllocatorTableModel = new OSInfoKernelMemoryAllocatorTableModel();
+
+	private JTable jOSInfoKernelMemoryAllocatorTable;
+
+	private JScrollPane jScrollPane6;
+	OSInfoKernelInterruptTableModel kernelInterruptInfoTableModel = new OSInfoKernelInterruptTableModel();
+
+	OSInfoLibraryTableModel osInfoLibraryTableModel = new OSInfoLibraryTableModel();
+
+	public OSInfoLibraryTableModel getOsInfoLibraryTableModel() {
+		return osInfoLibraryTableModel;
+	}
+
+	public void setOsInfoLibraryTableModel(OSInfoLibraryTableModel osInfoLibraryTableModel) {
+		this.osInfoLibraryTableModel = osInfoLibraryTableModel;
+	}
+
+	public OSInfoKernelMemoryAllocatorTableModel getKernelMemoryAllocatorTableModel() {
+		return kernelMemoryAllocatorTableModel;
+	}
+
+	public void setKernelMemoryAllocatorTableModel(OSInfoKernelMemoryAllocatorTableModel kernelMemoryAllocatorTableModel) {
+		this.kernelMemoryAllocatorTableModel = kernelMemoryAllocatorTableModel;
+	}
 
 	public JOSDebugInformationPanel() {
 		initGUI();
@@ -82,7 +111,8 @@ public class JOSDebugInformationPanel extends JPanel {
 					{
 						FunctionTreeNode root = new FunctionTreeNode("os", "os");
 						root.add(new FunctionTreeNode("kernel", "kernel"));
-						root.add(new FunctionTreeNode("ram", "ram"));
+						root.add(new FunctionTreeNode("memory", "memory"));
+						root.add(new FunctionTreeNode("library", "library"));
 						root.add(new FunctionTreeNode("process", "process"));
 						root.add(new FunctionTreeNode("device", "device"));
 						root.add(new FunctionTreeNode("fs", "fs"));
@@ -173,6 +203,49 @@ public class JOSDebugInformationPanel extends JPanel {
 									jKernelInterruptTable.setModel(kernelInterruptInfoTableModel);
 								}
 							}
+							{
+								jScrollPane6 = new JScrollPane();
+								jTabbedPane1.addTab("memory allocator", null, jScrollPane6, null);
+								{
+									jOSInfoKernelMemoryAllocatorTable = new JTable();
+									jScrollPane6.setViewportView(jOSInfoKernelMemoryAllocatorTable);
+									jOSInfoKernelMemoryAllocatorTable.setModel(kernelMemoryAllocatorTableModel);
+									jOSInfoKernelMemoryAllocatorTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+									jOSInfoKernelMemoryAllocatorTable.getColumnModel().getColumn(0).setPreferredWidth(150);
+									jOSInfoKernelMemoryAllocatorTable.getColumnModel().getColumn(1).setPreferredWidth(450);
+								}
+							}
+						}
+					}
+					{
+						jMemoryPanel = new JPanel();
+						BorderLayout jMemoryPanelLayout = new BorderLayout();
+						jMemoryPanel.setLayout(jMemoryPanelLayout);
+						jMainPanel.add(jMemoryPanel, "jPanel1");
+						{
+							jScrollPane7 = new JScrollPane();
+							jMemoryPanel.add(jScrollPane7, BorderLayout.CENTER);
+							{
+								TableModel jMemoryTableModel = new DefaultTableModel(new String[][] { { "One", "Two" }, { "Three", "Four" } }, new String[] { "Column 1", "Column 2" });
+								jMemoryTable = new JTable();
+								jScrollPane7.setViewportView(jMemoryTable);
+								jMemoryTable.setModel(jMemoryTableModel);
+							}
+						}
+					}
+					{
+						jLibraryPanel = new JPanel();
+						BorderLayout jLibraryPanelLayout = new BorderLayout();
+						jLibraryPanel.setLayout(jLibraryPanelLayout);
+						jMainPanel.add(jLibraryPanel, "jLibraryPanel");
+						{
+							jScrollPane8 = new JScrollPane();
+							jLibraryPanel.add(jScrollPane8, BorderLayout.CENTER);
+							{
+								jLibraryTable = new JTable();
+								jScrollPane8.setViewportView(jLibraryTable);
+								jLibraryTable.setModel(osInfoLibraryTableModel);
+							}
 						}
 					}
 				}
@@ -190,11 +263,11 @@ public class JOSDebugInformationPanel extends JPanel {
 		this.kernelModuleInfoTableModel = kernelModuleInfoTableModel;
 	}
 
-	public OSInfoTableModel getKernelInterruptInfoTableModel() {
+	public OSInfoKernelInterruptTableModel getKernelInterruptInfoTableModel() {
 		return kernelInterruptInfoTableModel;
 	}
 
-	public void setKernelInterruptInfoTableModel(OSInfoTableModel kernelInterruptInfoTableModel) {
+	public void setKernelInterruptInfoTableModel(OSInfoKernelInterruptTableModel kernelInterruptInfoTableModel) {
 		this.kernelInterruptInfoTableModel = kernelInterruptInfoTableModel;
 	}
 
@@ -232,6 +305,8 @@ public class JOSDebugInformationPanel extends JPanel {
 			cl.show(jMainPanel, "jXMLPanel");
 		} else if (node.toString().equals("kernel")) {
 			cl.show(jMainPanel, "jKernelPanel");
+		} else if (node.toString().equals("library")) {
+			cl.show(jMainPanel, "jLibraryPanel");
 		}
 	}
 

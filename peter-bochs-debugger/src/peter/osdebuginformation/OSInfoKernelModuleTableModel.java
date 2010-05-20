@@ -5,7 +5,7 @@ import java.util.Vector;
 import javax.swing.table.AbstractTableModel;
 
 public class OSInfoKernelModuleTableModel extends AbstractTableModel {
-	String columnNames[] = { "Name", "Address" };
+	String columnNames[] = { "No.", "Address" };
 	Vector<Vector<String>> data = new Vector<Vector<String>>();
 
 	public Vector<Vector<String>> getData() {

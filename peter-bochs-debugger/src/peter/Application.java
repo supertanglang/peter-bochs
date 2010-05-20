@@ -517,7 +517,7 @@ public class Application extends javax.swing.JFrame {
 						try {
 							Thread.currentThread().sleep(5000);
 							if (preventSetVisibleHang) {
-								System.out.println("setVisible(true) cause system hang, this probably a swing bug, so force exit");
+								System.out.println("setVisible(true) cause system hang, this probably a swing bug, so force exit, please restart");
 								System.exit(-1);
 							}
 						} catch (InterruptedException e) {

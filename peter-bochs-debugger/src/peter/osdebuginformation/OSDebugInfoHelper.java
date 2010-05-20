@@ -49,15 +49,46 @@ public class OSDebugInfoHelper {
 		jOSDebugInformationPanel.getKernelInfoTableModel().addRow("address", getXPath(xml, "//xml/kernel/address/text()"));
 
 		// modules
-		{
-			NodeList list = OSDebugInfoHelper.getXPathNodeList(xml, "//xml/kernel/modules/module");
-			for (int x = 0; x < list.getLength(); x++) {
-				String name = OSDebugInfoHelper.getXPath(xml, "//xml/kernel/modules/module[" + (x + 1) + "]/name/text()");
-				String address = OSDebugInfoHelper.getXPath(xml, "//xml/kernel/modules/module[" + (x + 1) + "]/address/text()");
-				jOSDebugInformationPanel.getKernelModuleInfoTableModel().addRow(name, address);
-			}
+		NodeList subList = OSDebugInfoHelper.getXPathNodeList(xml, "//xml/kernel/modules/module");
+		for (int x = 0; x < subList.getLength(); x++) {
+			String name = OSDebugInfoHelper.getXPath(xml, "//xml/kernel/modules/module[" + (x + 1) + "]/name/text()");
+			String address = OSDebugInfoHelper.getXPath(xml, "//xml/kernel/modules/module[" + (x + 1) + "]/address/text()");
+			jOSDebugInformationPanel.getKernelModuleInfoTableModel().addRow(name, address);
 		}
-		// end modules
+
+		// interrupts
+		subList = OSDebugInfoHelper.getXPathNodeList(xml, "//xml/kernel/interrupts/interrupt");
+		for (int x = 0; x < subList.getLength(); x++) {
+			String no = OSDebugInfoHelper.getXPath(xml, "//xml/kernel/interrupts/interrupt[" + (x + 1) + "]/no/text()");
+			String address = OSDebugInfoHelper.getXPath(xml, "//xml/kernel/interrupts/interrupt[" + (x + 1) + "]/address/text()");
+			String tssNo = OSDebugInfoHelper.getXPath(xml, "//xml/kernel/interrupts/interrupt[" + (x + 1) + "]/tssNo/text()");
+			jOSDebugInformationPanel.getKernelInterruptInfoTableModel().addRow(no, address, tssNo);
+		}
+
+		// memory allocator
+		subList = OSDebugInfoHelper.getXPathNodeList(xml, "//xml/kernel/memoryAllocator/region");
+		for (int x = 0; x < subList.getLength(); x++) {
+			String address = OSDebugInfoHelper.getXPath(xml, "//xml/kernel/memoryAllocator/region[" + (x + 1) + "]/address/text()");
+			String length = OSDebugInfoHelper.getXPath(xml, "//xml/kernel/memoryAllocator/region[" + (x + 1) + "]/length/text()");
+			jOSDebugInformationPanel.getKernelMemoryAllocatorTableModel().addRow("region", "address=" + address + ", length=" + length);
+		}
+		subList = OSDebugInfoHelper.getXPathNodeList(xml, "//xml/kernel/memoryAllocator/allocatedRegion/region");
+		for (int x = 0; x < subList.getLength(); x++) {
+			String address = OSDebugInfoHelper.getXPath(xml, "//xml/kernel/memoryAllocator/allocatedRegion/region[" + (x + 1) + "]/address/text()");
+			String length = OSDebugInfoHelper.getXPath(xml, "//xml/kernel/memoryAllocator/allocatedRegion/region[" + (x + 1) + "]/length/text()");
+			String virtualAddress = OSDebugInfoHelper.getXPath(xml, "//xml/kernel/memoryAllocator/allocatedRegion/region[" + (x + 1) + "]/virtualAddress/text()");
+			String process = OSDebugInfoHelper.getXPath(xml, "//xml/kernel/memoryAllocator/allocatedRegion/region[" + (x + 1) + "]/process/text()");
+			jOSDebugInformationPanel.getKernelMemoryAllocatorTableModel().addRow("allocated region",
+					"address=" + address + ", length=" + length + ", virtual address=" + virtualAddress + ", process=" + process);
+		}
+
+		// library
+		subList = OSDebugInfoHelper.getXPathNodeList(xml, "//xml/libraries/library");
+		for (int x = 0; x < subList.getLength(); x++) {
+			String name = OSDebugInfoHelper.getXPath(xml, "//xml/libraries/library[" + (x + 1) + "]/name/text()");
+			String status = OSDebugInfoHelper.getXPath(xml, "//xml/libraries/library[" + (x + 1) + "]/status/text()");
+			jOSDebugInformationPanel.getOsInfoLibraryTableModel().addRow(name, status);
+		}
 		// end parse xml
 		list.add(info);
 	}
