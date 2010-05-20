@@ -13,9 +13,10 @@ public class FunctionTreeNode extends DefaultMutableTreeNode {
 	Icon fs = new ImageIcon(getClass().getClassLoader().getResource("images/OSDebug/fs.png"));
 	Icon network = new ImageIcon(getClass().getClassLoader().getResource("images/OSDebug/network.png"));
 	Icon process = new ImageIcon(getClass().getClassLoader().getResource("images/OSDebug/process.png"));
-	Icon ram = new ImageIcon(getClass().getClassLoader().getResource("images/OSDebug/ram.png"));
+	Icon memory = new ImageIcon(getClass().getClassLoader().getResource("images/OSDebug/memory.png"));
 	Icon table = new ImageIcon(getClass().getClassLoader().getResource("images/OSDebug/table.png"));
 	Icon tag = new ImageIcon(getClass().getClassLoader().getResource("images/OSDebug/tag.png"));
+	Icon library = new ImageIcon(getClass().getClassLoader().getResource("images/OSDebug/library.png"));
 
 	public FunctionTreeNode(String text, String type) {
 		this.text = text;
@@ -51,12 +52,14 @@ public class FunctionTreeNode extends DefaultMutableTreeNode {
 			return network;
 		} else if (type.equals("process")) {
 			return process;
-		} else if (type.equals("ram")) {
-			return ram;
+		} else if (type.equals("memory")) {
+			return memory;
 		} else if (type.equals("table")) {
 			return table;
 		} else if (type.equals("xml")) {
 			return tag;
+		} else if (type.equals("library")) {
+			return library;
 		} else {
 			return null;
 		}

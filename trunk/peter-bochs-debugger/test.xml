@@ -33,22 +33,37 @@ else
 		</modules>
 		<interrupts>
 			<interrupt>
-				<no>1</no>
+				<no>0</no>
 				<address>0x2345</address>
 				<tssNo>3</tssNo>
 			</interrupt>
+			<interrupt>
+				<no>1</no>
+				<address>0x2112345</address>
+				<tssNo>0x12</tssNo>
+			</interrupt>			
 		</interrupts>
 		<memoryAllocator>
 			<region>
 				<address>0x100</address>
 				<length>0x200</length>
 			</region>
+			<region>
+				<address>0x300</address>
+				<length>0x400</length>
+			</region>
 			<allocatedRegion>
 				<region>
 					<address>0x100</address>
 					<length>0x200</length>
 					<virtualAddress>0x200</virtualAddress>
-					<process>program.elf</process>
+					<process>program1.elf</process>
+				</region>
+				<region>
+					<address>0xabc</address>
+					<length>0x210</length>
+					<virtualAddress>0x2af</virtualAddress>
+					<process>program2.elf</process>
 				</region>
 			</allocatedRegion>
 		</memoryAllocator>
@@ -58,6 +73,10 @@ else
 			<name>libc.so</name>
 			<status>loaded</status>
 		</library>
+		<library>
+			<name>libnet.so</name>
+			<status>unloaded</status>
+		</library>		
 	</libraries>
 	<processes>
 		<process>
@@ -75,5 +94,25 @@ else
 			<status>running</status>
 			<cmdline>XXX</cmdline>
 		</process>
+		<process>
+			<PID>2</PID>
+			<name>test2.elf</name>
+			<tssNo>34</tssNo>
+			<mmap>
+				<memory>
+					<type>physical</type>
+					<length>0x200</length>
+					<address>0x100</address>
+				</memory>
+				<memory>
+					<type>virtual</type>
+					<length>0x222</length>
+					<address>0x3333</address>
+				</memory>
+			</mmap>
+			<backlink>2</backlink>
+			<status>running</status>
+			<cmdline>XXX</cmdline>
+		</process>		
 	</processes>
 </xml>

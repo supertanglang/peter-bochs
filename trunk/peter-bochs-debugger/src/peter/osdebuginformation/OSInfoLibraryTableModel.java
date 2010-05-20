@@ -4,8 +4,8 @@ import java.util.Vector;
 
 import javax.swing.table.AbstractTableModel;
 
-public class OSInfoKernelInterruptTableModel extends AbstractTableModel {
-	String columnNames[] = { "Name", "Address", "TSS no." };
+public class OSInfoLibraryTableModel extends AbstractTableModel {
+	String columnNames[] = { "Name", "Status" };
 	Vector<Vector<String>> data = new Vector<Vector<String>>();
 
 	public Vector<Vector<String>> getData() {
@@ -31,11 +31,10 @@ public class OSInfoKernelInterruptTableModel extends AbstractTableModel {
 		return data.get(rowIndex).get(columnIndex);
 	}
 
-	public void addRow(String no, String address, String tssNo) {
+	public void addRow(String name, String status) {
 		Vector<String> v = new Vector<String>();
-		v.add(no);
-		v.add(address);
-		v.add(tssNo);
+		v.add(name);
+		v.add(status);
 		data.add(v);
 		this.fireTableDataChanged();
 	}
