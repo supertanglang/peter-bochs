@@ -10,6 +10,9 @@
   * 在操作系统开发的最开头时候, 开发者很难像linux一样有自己的procfs, 所以为了方便大家容易点去显示OS里的调试信易, 所以搞了这个协定出来, 只要你OS依从这个小小的协定, 你就能利用peter-bochs调试器去UI化地帮你显示debug资讯, 不需要太过依靠printf了.
   * 这个协定是中性的, 就是说任何操作系统都可以支持, 方便广大的操作系统开发爱好.
 
+现状
+  * 我仍然在发展这个东西，它会在peter-bochs的下一个版本公布。因此，当前版本不支持它。如果你想尝试最新的版本，请检查从SVN，自己在Eclipse编译。或者你可以发电邮给我要求最新的可执行jar文件 mcheung63@hotmail.com，谢谢。
+
 <a href="http://peter-bochs.googlecode.com/files/osDebugScreenDump1.png"><img src="http://peter-bochs.googlecode.com/files/osDebugScreenDump1.png" border="0" width=150  /></a>
 <a href="http://peter-bochs.googlecode.com/files/osDebugScreenDump2.png"><img src="http://peter-bochs.googlecode.com/files/osDebugScreenDump2.png" border="0" width=150  /></a>
 <a href="http://peter-bochs.googlecode.com/files/osDebugScreenDump3.png"><img src="http://peter-bochs.googlecode.com/files/osDebugScreenDump3.png" border="0" width=150  /></a>
