@@ -25,3 +25,101 @@
   * 协定的大小不是固定, 它是xml的, 视乎你想显示的信息多少, 所以大少不一.
   * Peter-bochs调试器支持这协定.
   * 执行peter-bochs时, 要在内存加入-osdebug来指定协定在内存的那个位置, 例子: -osdebug=0x100000 , peter-bochs于每次中途停止时在内存0x100000里读出这个协定所指的除错信息.
+
+= 数据格式 =
+
+||*偏移*||*字段*||*范例值*||*大小*||*说明*||
+||0-7||Magic bytes||PETER---||8||All capital letter||
+||8-11||Size of xml|| ||4||The size of the xml, the format of the xml is described below||
+||12-N||xml|| ||specified by "Size of xml"||<xml>....</xml>||The xml stored here
+
+== XML格式 ==
+
+{{{
+<xml>
+	<os>
+		<name>Peter operating system</name>
+		<uptime>2010/4/22 12:13:45</uptime>
+		<notes><![CDATA[
+		function matchwo(a,b)
+{
+if (a < b && a < 0) then
+  {
+  return 1;
+  }
+else
+  {
+  return 0;
+  }
+}
+]]>
+		</notes>
+	</os>
+	<kernel>
+		<name>SL</name>
+		<version>1</version>
+		<address>0x10000</address>
+		<modules>
+			<module>
+				<name>interruptEnginer</name>
+				<address>0x12345678</address>
+			</module>
+		</modules>
+		<interrupts>
+			<interrupt>
+				<no>1</no>
+				<address>0x2345</address>
+				<tssNo>3</tssNo>
+			</interrupt>
+		</interrupts>
+		<memoryAllocator>
+			<region>
+				<address>0x100</address>
+				<length>0x200</length>
+			</region>
+			<allocatedRegion>
+				<region>
+					<address>0x100</address>
+					<length>0x200</length>
+					<virtualAddress>0x200</virtualAddress>
+					<process>program.elf</process>
+				</region>
+			</allocatedRegion>
+		</memoryAllocator>
+	</kernel>
+	<libraries>
+		<library>
+			<name>libc.so</name>
+			<status>loaded</status>
+		</library>
+	</libraries>
+	<processes>
+		<process>
+			<PID>1</PID>
+			<name>test.elf</name>
+			<tssNo>12</tssNo>
+			<mmap>
+				<memory>
+					<type>physical</type>
+					<length>0x200</length>
+					<address>0x100</address>
+				</memory>
+			</mmap>
+			<backlink>2</backlink>
+			<status>running</status>
+			<cmdline>XXX</cmdline>
+		</process>
+	</processes>
+</xml>
+}}}
+
+<table border="0"><tr><td>
+[http://www.kingofcoders.com http://www.kingofcoders.com/images/KOC_logo2.jpg]
+</td>
+<td>
+</td>
+<td>
+[http://www.rmit.edu.au/compsci http://peter-bochs.googlecode.com/files/rmit.gif]
+</td>
+</tr>
+</table>
