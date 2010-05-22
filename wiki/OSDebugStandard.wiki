@@ -1,5 +1,5 @@
 #summary OS Debug Information Standard.
-#labels HowTo,Phase-Implementation
+#labels HowTo,Phase-Implementation,Featured
 
 = Introduction =
 
