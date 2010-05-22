@@ -13,6 +13,8 @@
 现状
   * 我仍然在开发这个东西，它会在peter-bochs的下一个版本公布。因此，当前版本不支持它。如果你想试用此功能，请从SVN检出源代码，自己在Eclipse编译。或者你可以发电邮给我要求最新的可执行jar文件 mcheung63@hotmail.com，谢谢。
 
+<font color=red>如果你认为这个标准仍然不能满足您的操作系统开发，请在下面添加评论/功能要求</font>
+
 <a href="http://peter-bochs.googlecode.com/files/osDebugScreenDump1.png"><img src="http://peter-bochs.googlecode.com/files/osDebugScreenDump1.png" border="0" width=150  /></a>
 <a href="http://peter-bochs.googlecode.com/files/osDebugScreenDump2.png"><img src="http://peter-bochs.googlecode.com/files/osDebugScreenDump2.png" border="0" width=150  /></a>
 <a href="http://peter-bochs.googlecode.com/files/osDebugScreenDump3.png"><img src="http://peter-bochs.googlecode.com/files/osDebugScreenDump3.png" border="0" width=150  /></a>
