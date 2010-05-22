@@ -35,7 +35,7 @@ Current status
 ||*Offset*||*Field*||*Example value*||*Size*||*Description*||
 ||0-7||Magic bytes||PETER---||8||All capital letter||
 ||8-11||Size of xml|| ||4||The size of the xml, the format of the xml is described below||
-||12-N||xml|| ||specified by "Size of xml"||<xml>....</xml>||The xml stored here
+||12-N||xml|| ||specified by "Size of xml"||<xml>....</xml>||The xml stored here||
 
 == XML format ==
 
