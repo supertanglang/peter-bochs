@@ -14,8 +14,6 @@ import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
-import peter.CommonLib;
-
 /*
  * Please read/write the os debug information using this class,
  * If you want to extends the functions, please add your functions here, thanks
@@ -49,6 +47,7 @@ public class OSDebugInfoHelper {
 		jOSDebugInformationPanel.getKernelInfoTableModel().addRow("address", getXPath(xml, "//xml/kernel/address/text()"));
 
 		// modules
+		jOSDebugInformationPanel.getKernelModuleInfoTableModel().getData().clear();
 		NodeList subList = OSDebugInfoHelper.getXPathNodeList(xml, "//xml/kernel/modules/module");
 		for (int x = 0; x < subList.getLength(); x++) {
 			String name = OSDebugInfoHelper.getXPath(xml, "//xml/kernel/modules/module[" + (x + 1) + "]/name/text()");
@@ -57,6 +56,7 @@ public class OSDebugInfoHelper {
 		}
 
 		// interrupts
+		jOSDebugInformationPanel.getKernelInterruptInfoTableModel().getData().clear();
 		subList = OSDebugInfoHelper.getXPathNodeList(xml, "//xml/kernel/interrupts/interrupt");
 		for (int x = 0; x < subList.getLength(); x++) {
 			String no = OSDebugInfoHelper.getXPath(xml, "//xml/kernel/interrupts/interrupt[" + (x + 1) + "]/no/text()");
@@ -66,6 +66,7 @@ public class OSDebugInfoHelper {
 		}
 
 		// memory allocator
+		jOSDebugInformationPanel.getKernelMemoryAllocatorTableModel().getData().clear();
 		subList = OSDebugInfoHelper.getXPathNodeList(xml, "//xml/kernel/memoryAllocator/region");
 		for (int x = 0; x < subList.getLength(); x++) {
 			String address = OSDebugInfoHelper.getXPath(xml, "//xml/kernel/memoryAllocator/region[" + (x + 1) + "]/address/text()");
@@ -83,11 +84,25 @@ public class OSDebugInfoHelper {
 		}
 
 		// library
+		jOSDebugInformationPanel.getOsInfoLibraryTableModel().getData().clear();
 		subList = OSDebugInfoHelper.getXPathNodeList(xml, "//xml/libraries/library");
 		for (int x = 0; x < subList.getLength(); x++) {
 			String name = OSDebugInfoHelper.getXPath(xml, "//xml/libraries/library[" + (x + 1) + "]/name/text()");
 			String status = OSDebugInfoHelper.getXPath(xml, "//xml/libraries/library[" + (x + 1) + "]/status/text()");
 			jOSDebugInformationPanel.getOsInfoLibraryTableModel().addRow(name, status);
+		}
+
+		// process
+		jOSDebugInformationPanel.getOsInfoProcessTableModel().getData().clear();
+		subList = OSDebugInfoHelper.getXPathNodeList(xml, "//xml/processes/process");
+		for (int x = 0; x < subList.getLength(); x++) {
+			String PID = OSDebugInfoHelper.getXPath(xml, "//xml/processes/process[" + (x + 1) + "]/PID/text()");
+			String name = OSDebugInfoHelper.getXPath(xml, "//xml/processes/process[" + (x + 1) + "]/name/text()");
+			String tssNo = OSDebugInfoHelper.getXPath(xml, "//xml/processes/process[" + (x + 1) + "]/tssNo/text()");
+			String backlink = OSDebugInfoHelper.getXPath(xml, "//xml/processes/process[" + (x + 1) + "]/backlink/text()");
+			String status = OSDebugInfoHelper.getXPath(xml, "//xml/processes/process[" + (x + 1) + "]/status/text()");
+			String cmdline = OSDebugInfoHelper.getXPath(xml, "//xml/processes/process[" + (x + 1) + "]/cmdline/text()");
+			jOSDebugInformationPanel.getOsInfoProcessTableModel().addRow(PID, name, tssNo, backlink, status, cmdline);
 		}
 		// end parse xml
 		list.add(info);

@@ -7,6 +7,8 @@ import java.util.Vector;
 
 import javax.swing.table.AbstractTableModel;
 
+import com.petersoft.CommonLib;
+
 public class JSourceCodeTableModel extends AbstractTableModel {
 	private String currentFile;
 	private String[] columnNames = { "", Application.language.getString("Line"), Application.language.getString("Address"), Application.language.getString("Source"),

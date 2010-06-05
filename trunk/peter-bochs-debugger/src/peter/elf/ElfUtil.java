@@ -1,7 +1,6 @@
 package peter.elf;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -9,7 +8,6 @@ import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
 
-import peter.Application;
 import peter.CommonLib;
 
 public class ElfUtil {

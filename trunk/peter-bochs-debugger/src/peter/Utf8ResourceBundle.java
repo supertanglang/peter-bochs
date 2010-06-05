@@ -1,6 +1,5 @@
 package peter;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.PropertyResourceBundle;

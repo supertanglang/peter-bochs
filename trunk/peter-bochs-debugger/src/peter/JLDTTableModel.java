@@ -1,7 +1,8 @@
 package peter;
 
-import javax.swing.table.AbstractTableModel;
 import java.util.Vector;
+
+import javax.swing.table.AbstractTableModel;
 
 public class JLDTTableModel extends AbstractTableModel {
 	private String[] columnNames = { "No", "Type" };

@@ -6,6 +6,8 @@ import java.util.Vector;
 
 import javax.swing.table.AbstractTableModel;
 
+import com.petersoft.CommonLib;
+
 public class JInstructionTableModel extends AbstractTableModel {
 	private String[] columnNames = { "", MyLanguage.getString("Address"), MyLanguage.getString("Instruction"), MyLanguage.getString("Bytes") };
 	private HashMap<Long, Boolean> breakpoint = new HashMap<Long, Boolean>();
