@@ -1,11 +1,8 @@
 package peter.osdebuginformation;
 
-import java.awt.Component;
 import java.util.Vector;
 
-import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableColumn;
 
 public class OSInfoKernelMemoryAllocatorTableModel extends AbstractTableModel {
 	String columnNames[] = { "Type", "Value" };

@@ -1,9 +1,6 @@
 package peter;
 
 import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 
 public class CommandSender implements Runnable {
 	Application application;

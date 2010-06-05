@@ -60,6 +60,9 @@ public class JOSDebugInformationPanel extends JPanel {
 	private JTable jMemoryTable;
 	private JScrollPane jScrollPane7;
 	private JPanel jMemoryPanel;
+	private JTable jProcessTable;
+	private JScrollPane jScrollPane9;
+	private JPanel jProcessPanel;
 	OSInfoKernelMemoryAllocatorTableModel kernelMemoryAllocatorTableModel = new OSInfoKernelMemoryAllocatorTableModel();
 
 	private JTable jOSInfoKernelMemoryAllocatorTable;
@@ -68,6 +71,15 @@ public class JOSDebugInformationPanel extends JPanel {
 	OSInfoKernelInterruptTableModel kernelInterruptInfoTableModel = new OSInfoKernelInterruptTableModel();
 
 	OSInfoLibraryTableModel osInfoLibraryTableModel = new OSInfoLibraryTableModel();
+	OSInfoProcessTableModel osInfoProcessTableModel = new OSInfoProcessTableModel();
+
+	public OSInfoProcessTableModel getOsInfoProcessTableModel() {
+		return osInfoProcessTableModel;
+	}
+
+	public void setOsInfoProcessTableModel(OSInfoProcessTableModel osInfoProcessTableModel) {
+		this.osInfoProcessTableModel = osInfoProcessTableModel;
+	}
 
 	public OSInfoLibraryTableModel getOsInfoLibraryTableModel() {
 		return osInfoLibraryTableModel;
@@ -248,6 +260,21 @@ public class JOSDebugInformationPanel extends JPanel {
 							}
 						}
 					}
+					{
+						jProcessPanel = new JPanel();
+						BorderLayout jProcessPanelLayout = new BorderLayout();
+						jProcessPanel.setLayout(jProcessPanelLayout);
+						jMainPanel.add(jProcessPanel, "jProcessPanel");
+						{
+							jScrollPane9 = new JScrollPane();
+							jProcessPanel.add(jScrollPane9, BorderLayout.CENTER);
+							{
+								jProcessTable = new JTable();
+								jScrollPane9.setViewportView(jProcessTable);
+								jProcessTable.setModel(osInfoProcessTableModel);
+							}
+						}
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -307,6 +334,8 @@ public class JOSDebugInformationPanel extends JPanel {
 			cl.show(jMainPanel, "jKernelPanel");
 		} else if (node.toString().equals("library")) {
 			cl.show(jMainPanel, "jLibraryPanel");
+		} else if (node.toString().equals("process")) {
+			cl.show(jMainPanel, "jProcessPanel");
 		}
 	}
 

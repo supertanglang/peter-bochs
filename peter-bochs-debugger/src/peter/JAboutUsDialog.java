@@ -5,7 +5,8 @@ import java.awt.BorderLayout;
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
-import javax.swing.WindowConstants;
+
+import com.petersoft.CommonLib;
 
 /**
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI

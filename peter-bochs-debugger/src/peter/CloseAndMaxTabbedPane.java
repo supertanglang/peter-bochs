@@ -60,7 +60,6 @@ import javax.swing.plaf.UIResource;
 import javax.swing.plaf.basic.BasicArrowButton;
 import javax.swing.plaf.basic.BasicGraphicsUtils;
 import javax.swing.plaf.basic.BasicHTML;
-import javax.swing.plaf.basic.BasicTabbedPaneUI;
 import javax.swing.text.View;
 
 import com.sun.java.swing.plaf.windows.WindowsIconFactory;

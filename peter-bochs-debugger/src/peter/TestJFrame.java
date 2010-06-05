@@ -1,16 +1,12 @@
 package peter;
 
-import com.jgoodies.forms.layout.CellConstraints;
-import com.jgoodies.forms.layout.FormLayout;
-import info.clearthought.layout.TableLayout;
 import java.awt.BorderLayout;
-import javax.swing.JButton;
+
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.UIManager;
-
-import javax.swing.WindowConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 
 /**
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
