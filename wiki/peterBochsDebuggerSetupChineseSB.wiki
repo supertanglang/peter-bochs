@@ -1,0 +1,29 @@
+#summary peter-bochs-debugger 安装 (SB教程)
+
+= Steps =
+
+1 ）下载最新的jar http://code.google.com/p/peter-bochs/downloads/list
+
+2 ）检查版本的： java -jar peter-bochs-debugger.jar -v
+
+3 ）运行： 
+
+    在 Linux : java -jar peter-bochs-debugger.jar bochs -f bochsrc.bxrc
+
+    在 windows : java -jar peter-bochs-debugger.jar c:\program files\bochs2.4.3\bochsdbg.exe -q -f bochsrc.bxrc
+
+    !!! 如果在 windows使用peter-bochs，你需要传递Bochs的exe文件的*完整路径*和-q的参数. (!!! 相對路徑是行不通的), 哥, 是绝对路径呀, 大侠, 是绝对路径呀, 给条路小弟走好吗？
+
+    !!! 执行前先输入dir, 看清楚peter-bochs-debugger.jar和bochsrc.bxrc这两个文件在不在, 不在的话请cd到你正确的目录, 吐血啦
+
+!!! _在paramter上加入-debug才能见到一些没完成的功能_
+
+备注：请把所有bochs的运行参数放置命令末端
+
+<table border="0"><tr><td>
+[http://www.kingofcoders.com http://www.kingofcoders.com/images/KOC_logo2.jpg]
+</td><td>
+[http://hk.kingofcoders.com http://hk.kingofcoders.com/images/logo/logo.png]
+</td>
+</tr>
+</table>
