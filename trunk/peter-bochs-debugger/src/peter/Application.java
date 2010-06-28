@@ -115,6 +115,8 @@ import peter.architecture.IA32PageTable;
 import peter.elf.ElfUtil;
 import peter.graph.JButtonView;
 import peter.graph.PageDirectoryView;
+import peter.instrument.InstrumentPanel;
+import peter.instrument.MemorySocketServerController;
 import peter.osdebuginformation.JOSDebugInformationPanel;
 import peter.osdebuginformation.OSDebugInfoHelper;
 
@@ -227,6 +229,7 @@ public class Application extends javax.swing.JFrame {
 	private JPanel jPanel22;
 	private JPanel jPanel24;
 	private JToolBar jPanel26;
+	private InstrumentPanel jInstrumentPanel;
 	private JOSDebugInformationPanel jOSDebugInformationPanel1;
 	private JLabel jOSDebugInfoErrorLabel;
 	private JTabbedPane jTabbedPane5;
@@ -452,7 +455,8 @@ public class Application extends javax.swing.JFrame {
 			System.out.println("Wrong number of argument");
 			System.out.println("In Linux : java -jar peter-bochs-debugger.jar bochs -f bochxrc.bxrc");
 			System.out.println("In windows : java -jar peter-bochs-debugger.jar c:\\program files\\bochs2.4.3\\bochsdbg.exe -q -f bochxrc.bxrc");
-			System.out.println("!!! if using peter-bochs in windows, you need to pass the full path of bochs exe and -q to the parameter. (!!! relative path of bochs exe will not work)");
+			System.out
+					.println("!!! if using peter-bochs in windows, you need to pass the full path of bochs exe and -q to the parameter. (!!! relative path of bochs exe will not work)");
 			System.out.println("!!! to use \"experimental feature\", please add \"-debug\" to the parameter list");
 			return;
 		} else {
@@ -564,6 +568,8 @@ public class Application extends javax.swing.JFrame {
 			System.out.println("end initGUI()");
 		}
 
+		MemorySocketServerController.start(1980, this.getJInstrumentPanel().getjSocketTextArea());
+
 		if (Global.debug) {
 			System.out.println("startBochs()");
 		}
@@ -579,8 +585,8 @@ public class Application extends javax.swing.JFrame {
 				}
 				if (map != null) {
 					if (map.get("latestVersion").compareTo(Global.version) > 0) {
-						jLatestVersionLabel.setText(MyLanguage.getString("Latest_version_available") + " : " + map.get("latestVersion") + "     " + MyLanguage.getString("Download_url") + " : "
-								+ map.get("downloadURL"));
+						jLatestVersionLabel.setText(MyLanguage.getString("Latest_version_available") + " : " + map.get("latestVersion") + "     "
+								+ MyLanguage.getString("Download_url") + " : " + map.get("downloadURL"));
 					} else {
 						jLatestVersionLabel.setText("");
 					}
@@ -654,7 +660,7 @@ public class Application extends javax.swing.JFrame {
 				}
 			}
 		} catch (Exception ex) {
-			JOptionPane.showMessageDialog(this, MyLanguage.getString("Unable_to_start_bochs"));
+			JOptionPane.showMessageDialog(this, MyLanguage.getString("Unable_to_start_bochs") + "\n" + MyLanguage.getString("Tips_you_specified_a_wrong_path_of_bochs"));
 			ex.printStackTrace();
 		}
 	}
@@ -1216,6 +1222,8 @@ public class Application extends javax.swing.JFrame {
 					breakpointLoadedOnce = true; // since we only have to load
 					// once
 				}
+
+				jInstrumentPanel.updateChart();
 			}
 		};
 
@@ -1237,7 +1245,7 @@ public class Application extends javax.swing.JFrame {
 			if (magicByte.equals("PETER---")) {
 				size = CommonLib.getInt(getMemory(Global.osDebug + 8, 4, true), 0);
 				String xml = getMemoryStr(Global.osDebug + 12, (int) size, true).trim();
-//				xml = CommonLib.readFile("test.xml");
+				// xml = CommonLib.readFile("test.xml");
 				OSDebugInfoHelper.jOSDebugInformationPanel = jOSDebugInformationPanel1;
 
 				OSDebugInfoHelper.addData(magicByte, size, xml);
@@ -1818,8 +1826,8 @@ public class Application extends javax.swing.JFrame {
 						// System.out.println(lines[x]);
 						String strs[] = lines[x].split(":");
 						int secondColon = lines[x].indexOf(":", lines[x].indexOf(":") + 1);
-						model.addRow(new String[] { "", strs[0].trim() + " " + strs[1].trim().replaceAll("\\( *\\)", ""), lines[x].substring(secondColon + 1).trim().split(";")[0].trim(),
-								lines[x].split(";")[1] });
+						model.addRow(new String[] { "", strs[0].trim() + " " + strs[1].trim().replaceAll("\\( *\\)", ""),
+								lines[x].substring(secondColon + 1).trim().split(";")[0].trim(), lines[x].split(";")[1] });
 					} catch (Exception ex) {
 						// System.out.println("error 1 : cannot parse"
 						// + lines[x]);
@@ -2441,8 +2449,8 @@ public class Application extends javax.swing.JFrame {
 
 	private void jAddBreakpointButtonActionPerformed(ActionEvent evt) {
 		jAddBreakpointButton.setEnabled(false);
-		String type = (String) JOptionPane.showInputDialog(this, null, "Add breakpoint", JOptionPane.QUESTION_MESSAGE, null, new Object[] { MyLanguage.getString("Physical_address"),
-				MyLanguage.getString("Linear_address") }, "Breakpoint");
+		String type = (String) JOptionPane.showInputDialog(this, null, "Add breakpoint", JOptionPane.QUESTION_MESSAGE, null, new Object[] {
+				MyLanguage.getString("Physical_address"), MyLanguage.getString("Linear_address") }, "Breakpoint");
 		if (type != null) {
 			String address = JOptionPane.showInputDialog(this, "Please input breakpoint address", "Add breakpoint", JOptionPane.QUESTION_MESSAGE);
 			if (address != null) {
@@ -3410,8 +3418,8 @@ public class Application extends javax.swing.JFrame {
 						+ Long.toHexString(CommonLib.string2decimal(this.jSearchMemoryFromComboBox.getSelectedItem().toString())
 								+ CommonLib.string2decimal(this.jSearchMemoryToComboBox.getSelectedItem().toString().substring(1))));
 			}
-			new SearchMemoryDialog(this, this.jSearchMemoryTable, this.jSearchMemoryTextField.getText(), CommonLib.string2decimal(this.jSearchMemoryFromComboBox.getSelectedItem().toString()),
-					CommonLib.string2decimal(this.jSearchMemoryToComboBox.getSelectedItem().toString())).setVisible(true);
+			new SearchMemoryDialog(this, this.jSearchMemoryTable, this.jSearchMemoryTextField.getText(), CommonLib.string2decimal(this.jSearchMemoryFromComboBox.getSelectedItem()
+					.toString()), CommonLib.string2decimal(this.jSearchMemoryToComboBox.getSelectedItem().toString())).setVisible(true);
 		} catch (Exception ex) {
 
 		}
@@ -3484,7 +3492,8 @@ public class Application extends javax.swing.JFrame {
 					jPanel10 = new JPanel();
 					BorderLayout jPanel10Layout = new BorderLayout();
 					jPanel10.setLayout(jPanel10Layout);
-					jTabbedPane1.addTab(MyLanguage.getString("Instruction"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/text_padding_top.png")), jPanel10, null);
+					jTabbedPane1.addTab(MyLanguage.getString("Instruction"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/text_padding_top.png")),
+							jPanel10, null);
 					jPanel10.setPreferredSize(new java.awt.Dimension(604, 452));
 					{
 						jInstructionControlPanel = new JPanel();
@@ -3543,8 +3552,8 @@ public class Application extends javax.swing.JFrame {
 						jScrollPane9 = new JScrollPane();
 						jPanel4.add(jScrollPane9, BorderLayout.CENTER);
 						{
-							TableModel jTable1Model = new DefaultTableModel(new String[][] {}, new String[] { MyLanguage.getString("No"), MyLanguage.getString("Address_type"), "Disp Enb Address",
-									MyLanguage.getString("Hit") }) {
+							TableModel jTable1Model = new DefaultTableModel(new String[][] {}, new String[] { MyLanguage.getString("No"), MyLanguage.getString("Address_type"),
+									"Disp Enb Address", MyLanguage.getString("Hit") }) {
 								public boolean isCellEditable(int row, int col) {
 									return false;
 								}
@@ -3637,11 +3646,13 @@ public class Application extends javax.swing.JFrame {
 				}
 				{
 					jPanel1 = new JPanel();
-					jTabbedPane1.addTab(MyLanguage.getString("Bochs"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/application_xp_terminal.png")), jPanel1, null);
+					jTabbedPane1.addTab(MyLanguage.getString("Bochs"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/application_xp_terminal.png")),
+							jPanel1, null);
 					jTabbedPane1.addTab("ELF", new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/linux.png")), getJELFBreakpointPanel(), null);
 					DiskPanel diskPanel = getDiskPanel();
 					if (diskPanel.getFile() != null) {
-						jTabbedPane1.addTab(diskPanel.getFile().getName(), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/package.png")), diskPanel, null);
+						jTabbedPane1.addTab(diskPanel.getFile().getName(), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/package.png")), diskPanel,
+								null);
 					}
 					BorderLayout jPanel1Layout = new BorderLayout();
 					jPanel1.setLayout(jPanel1Layout);
@@ -3883,7 +3894,10 @@ public class Application extends javax.swing.JFrame {
 					BorderLayout jPanel7Layout = new BorderLayout();
 					jPanel7.setLayout(jPanel7Layout);
 					jTabbedPane3.addTab(MyLanguage.getString("LDT"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/ldt.png")), jPanel7, null);
-					jTabbedPane3.addTab(MyLanguage.getString("Search_memory"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/memory.png")), getJPanel17(), null);
+					jTabbedPane3.addTab(MyLanguage.getString("Search_memory"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/memory.png")),
+							getJPanel17(), null);
+					jTabbedPane3.addTab(MyLanguage.getString("Instrument"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/chart_bar.png"), null),
+							getJInstrumentPanel());
 					{
 						jScrollPane11 = new JScrollPane();
 						jPanel7.add(jScrollPane11, BorderLayout.CENTER);
@@ -3925,7 +3939,8 @@ public class Application extends javax.swing.JFrame {
 			jSplitPane2.add(jTabbedPane2, JSplitPane.BOTTOM);
 			{
 				jScrollPane1 = new JScrollPane();
-				jTabbedPane2.addTab(MyLanguage.getString("Register"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/text_kerning.png")), jScrollPane1, null);
+				jTabbedPane2.addTab(MyLanguage.getString("Register"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/text_kerning.png")), jScrollPane1,
+						null);
 				{
 					jRegisterPanel1 = new JRegisterPanel(this);
 					jScrollPane1.setViewportView(jRegisterPanel1);
@@ -3933,7 +3948,8 @@ public class Application extends javax.swing.JFrame {
 			}
 			{
 				jPanel3 = new JPanel();
-				jTabbedPane2.addTab(MyLanguage.getString("History"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/book_addresses.png")), jPanel3, null);
+				jTabbedPane2
+						.addTab(MyLanguage.getString("History"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/book_addresses.png")), jPanel3, null);
 				BorderLayout jPanel3Layout = new BorderLayout();
 				jPanel3.setLayout(jPanel3Layout);
 				{
@@ -3946,17 +3962,19 @@ public class Application extends javax.swing.JFrame {
 			{
 				jPanel11 = new JPanel();
 				jTabbedPane2.addTab(MyLanguage.getString("Paging"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/page_copy.png")), jPanel11, null);
-				jTabbedPane2.addTab(MyLanguage.getString("Address_translate"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/page_go.png")), getJAddressTranslatePanel(),
-						null);
-				jTabbedPane2
-						.addTab("Page table graph (experimental)", new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/page_lightning.png")), getJPageTableGraphPanel(), null);
+				jTabbedPane2.addTab(MyLanguage.getString("Address_translate"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/page_go.png")),
+						getJAddressTranslatePanel(), null);
+				jTabbedPane2.addTab("Page table graph (experimental)", new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/page_lightning.png")),
+						getJPageTableGraphPanel(), null);
 				if (!Global.debug) {
 					jTabbedPane2.removeTabAt(jTabbedPane2.getTabCount() - 1);
 				}
 				jTabbedPane2.addTab(MyLanguage.getString("Table_translate"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/page_refresh.png")),
 						getJTableTranslateScrollPane(), null);
-				jTabbedPane2.addTab(MyLanguage.getString("ELF_dump"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/linux.png")), getJELFDumpScrollPane(), null);
-				jTabbedPane2.addTab("OS debug informations", new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/bug.png")), getJOSDebugStandardPanel(), null);
+				jTabbedPane2.addTab(MyLanguage.getString("ELF_dump"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/linux.png")),
+						getJELFDumpScrollPane(), null);
+				jTabbedPane2
+						.addTab("OS debug informations", new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/bug.png")), getJOSDebugStandardPanel(), null);
 				BorderLayout jPanel11Layout = new BorderLayout();
 				jPanel11.setLayout(jPanel11Layout);
 				jPanel11.add(getJSplitPane3(), BorderLayout.CENTER);
@@ -3974,8 +3992,10 @@ public class Application extends javax.swing.JFrame {
 				public void run() {
 					URL url = getClass().getClassLoader().getResource("images/ajax-loader.gif");
 					if (Setting.getInstance().getCurrentLanguage().equals("zh_TW")) {
-						jRunningLabel.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\"" + url
-								+ "\" /><br><br><a style=\"color: #ffffff;  text-decoration:none\" href=\"http://www.kingofcoders.com\">編程王網站  www.kingofcoders.com</a></center></html>");
+						jRunningLabel
+								.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\""
+										+ url
+										+ "\" /><br><br><a style=\"color: #ffffff;  text-decoration:none\" href=\"http://www.kingofcoders.com\">編程王網站  www.kingofcoders.com</a></center></html>");
 					} else if (Setting.getInstance().getCurrentLanguage().equals("zh_CN")) {
 						jRunningLabel
 								.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\""
@@ -4393,8 +4413,8 @@ public class Application extends javax.swing.JFrame {
 				model.segNo.set(x, model.searchSegSelector.get(x) >> 3);
 				model.virtualAddress.set(x, model.searchAddress.get(x));
 
-				long gdtBase = CommonLib.getPhysicalAddress(CommonLib.string2decimal(this.jRegisterPanel1.jCR3TextField.getText()), CommonLib.string2decimal(this.jRegisterPanel1.jGDTRTextField
-						.getText()));
+				long gdtBase = CommonLib.getPhysicalAddress(CommonLib.string2decimal(this.jRegisterPanel1.jCR3TextField.getText()), CommonLib
+						.string2decimal(this.jRegisterPanel1.jGDTRTextField.getText()));
 				System.out.println("gdtBase=" + Long.toHexString(gdtBase));
 				commandReceiver.clearBuffer();
 				gdtBase += model.segNo.get(x) * 8;
@@ -5276,8 +5296,8 @@ public class Application extends javax.swing.JFrame {
 
 	private JTable getJSectionTable() {
 		if (jELFSectionTable == null) {
-			TableModel jSectionTableModel = new DefaultTableModel(null, new String[] { "No.", "sh_name", "sh_type", "sh_flags", "sh_addr", "sh_offset", "sh_size", "sh_link", "sh_info",
-					"sh_addralign", "sh_entsize" });
+			TableModel jSectionTableModel = new DefaultTableModel(null, new String[] { "No.", "sh_name", "sh_type", "sh_flags", "sh_addr", "sh_offset", "sh_size", "sh_link",
+					"sh_info", "sh_addralign", "sh_entsize" });
 			jELFSectionTable = new JTable();
 			jELFSectionTable.setModel(jSectionTableModel);
 			jELFSectionTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -5917,7 +5937,8 @@ public class Application extends javax.swing.JFrame {
 			jFastStepBochsButton = new JButton();
 			jFastStepBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/step.png")));
 			jFastStepBochsButton.setText(MyLanguage.getString("Fast_Step"));
-			jFastStepBochsButton.setToolTipText("<html><body>A faster step<br><br>It will only update:<br>1) Memory panel<br>2) Insturction panel<br>3) Register panel</body></html>");
+			jFastStepBochsButton
+					.setToolTipText("<html><body>A faster step<br><br>It will only update:<br>1) Memory panel<br>2) Insturction panel<br>3) Register panel</body></html>");
 			jFastStepBochsButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jFastStepButtonActionPerformed(evt);
@@ -6393,6 +6414,13 @@ public class Application extends javax.swing.JFrame {
 			jOSDebugInformationPanel1 = new JOSDebugInformationPanel();
 		}
 		return jOSDebugInformationPanel1;
+	}
+
+	private InstrumentPanel getJInstrumentPanel() {
+		if (jInstrumentPanel == null) {
+			jInstrumentPanel = new InstrumentPanel();
+		}
+		return jInstrumentPanel;
 	}
 
 }
