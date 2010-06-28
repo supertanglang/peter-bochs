@@ -201,8 +201,8 @@ public class CommandReceiver implements Runnable {
 					});
 				}
 				synchronized (lines) {
-					lines.add(line);
 					// System.out.println(">>" + line);
+					lines.add(line);
 				}
 			}
 		} catch (IOException e) {
