@@ -1,6 +1,6 @@
 #summary 内存取样.
 
-= 介绍 =
+= 内存取样介绍 =
 
 [http://peter-bochs.googlecode.com/files/Peter-Bochs-Debugger-memorySampling20100702.png]
 
