@@ -19,3 +19,14 @@
 6) 把主图放大和缩小.
 
 7) 因为主图里的每一格均代表一系列的地址, 当你点击主图的一小格时, 它所代表的每一个内存地址和存取次数, 会在这个表里显示.
+
+<table border="0"><tr><td>
+[http://www.kingofcoders.com http://www.kingofcoders.com/images/KOC_logo2.jpg]
+</td>
+<td>
+</td>
+<td>
+[http://www.rmit.edu.au/compsci http://peter-bochs.googlecode.com/files/rmit.gif]
+</td>
+</tr>
+</table>
