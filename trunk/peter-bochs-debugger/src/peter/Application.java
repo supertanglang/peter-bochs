@@ -74,6 +74,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
@@ -117,6 +118,7 @@ import peter.graph.JButtonView;
 import peter.graph.PageDirectoryView;
 import peter.instrument.InstrumentPanel;
 import peter.instrument.MemorySocketServerController;
+import peter.logpanel.LogPanel;
 import peter.osdebuginformation.JOSDebugInformationPanel;
 import peter.osdebuginformation.OSDebugInfoHelper;
 
@@ -229,6 +231,10 @@ public class Application extends javax.swing.JFrame {
 	private JPanel jPanel22;
 	private JPanel jPanel24;
 	private JToolBar jPanel26;
+	private JToggleButton jRegisterToggleButton;
+	private LogPanel logPanel1;
+	private JToggleButton jLogToggleButton;
+	private JToggleButton jProfilerToggleButton;
 	private InstrumentPanel jInstrumentPanel;
 	private JOSDebugInformationPanel jOSDebugInformationPanel1;
 	private JLabel jOSDebugInfoErrorLabel;
@@ -328,7 +334,6 @@ public class Application extends javax.swing.JFrame {
 	private JButton jButton7;
 	private JButton jButton6;
 	private JPanel jPanel14;
-	private ButtonGroup buttonGroup2;
 	private JRadioButton jRadioButton2;
 	private JToolBar jPanel13;
 	private JRadioButton jRadioButton1;
@@ -401,6 +406,10 @@ public class Application extends javax.swing.JFrame {
 	private JTextField jSearchDynamicTextField;
 	private JToolBar jToolBar5;
 	private JPanel jPanel29;
+
+	private String currentPanel = "jMaximizableTabbedPane_BasePanel1";
+
+	private ButtonGroup buttonGroup2 = new ButtonGroup();
 
 	/**
 	 * Auto-generated main method to display this JFrame
@@ -493,7 +502,7 @@ public class Application extends javax.swing.JFrame {
 
 		for (int x = 0; x < args.length; x++) {
 			if (args[x].toLowerCase().startsWith("-osdebug")) {
-				Global.osDebug = CommonLib.string2decimal(args[x].replaceAll("-.*=", ""));
+				Global.osDebug = CommonLib.convertFilesize(args[x].replaceAll("-.*=", ""));
 				args = (String[]) ArrayUtils.removeElement(args, args[x]);
 				break;
 			}
@@ -673,6 +682,7 @@ public class Application extends javax.swing.JFrame {
 
 			CardLayout cl = (CardLayout) (jMainPanel.getLayout());
 			cl.show(jMainPanel, "jMaximizableTabbedPane_BasePanel1");
+			currentPanel = "jMaximizableTabbedPane_BasePanel1";
 
 			if (isLinux) {
 				ProcessBuilder pb = new ProcessBuilder("killall", "-9", "bochs");
@@ -702,7 +712,7 @@ public class Application extends javax.swing.JFrame {
 				updateBochsStatus();
 
 				CardLayout cl = (CardLayout) (jMainPanel.getLayout());
-				cl.show(jMainPanel, "jMaximizableTabbedPane_BasePanel1");
+				cl.show(jMainPanel, currentPanel);
 
 				jRunBochsButton.setText(MyLanguage.getString("Run_bochs"));
 				jRunBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/resultset_next.png")));
@@ -825,6 +835,9 @@ public class Application extends javax.swing.JFrame {
 					jToolBar1.add(jUpdateBochsButton);
 					jToolBar1.add(getJButton13());
 					jToolBar1.add(getJSettingButton());
+					jToolBar1.add(getJRegisterToggleButton());
+					jToolBar1.add(getJProfilerToggleButton());
+					jToolBar1.add(getJLogToggleButton());
 					jUpdateBochsButton.setEnabled(true);
 					jUpdateBochsButton.setText(MyLanguage.getString("Update"));
 					jUpdateBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/arrow_refresh.png")));
@@ -840,7 +853,7 @@ public class Application extends javax.swing.JFrame {
 				BorderLayout jStatusPanelLayout = new BorderLayout();
 				jStatusPanel.setLayout(jStatusPanelLayout);
 				getContentPane().add(jStatusPanel, BorderLayout.SOUTH);
-				getContentPane().add(getJMainPanel(), BorderLayout.CENTER);
+				getContentPane().add(getJMainPanel());
 				{
 					jStatusProgressBar = new JProgressBar();
 					jStatusPanel.add(jStatusProgressBar, BorderLayout.WEST);
@@ -1181,7 +1194,7 @@ public class Application extends javax.swing.JFrame {
 				if (Global.debug) {
 					System.out.println("updatePageTable");
 				}
-				updatePageTable(CommonLib.string2decimal(jRegisterPanel1.jCR3TextField.getText()));
+				updatePageTable(CommonLib.convertFilesize(jRegisterPanel1.jCR3TextField.getText()));
 
 				if (Global.debug) {
 					System.out.println("updateStack");
@@ -1316,7 +1329,7 @@ public class Application extends javax.swing.JFrame {
 					if (Global.debug) {
 						System.out.println("updatePageTable");
 					}
-					updatePageTable(CommonLib.string2decimal(jRegisterPanel1.jCR3TextField.getText()));
+					updatePageTable(CommonLib.convertFilesize(jRegisterPanel1.jCR3TextField.getText()));
 				}
 
 				if (Setting.getInstance().isUpdateAfterBochsCommand_stack()) {
@@ -1369,12 +1382,12 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void updateBreakpointTableColor() {
-		long eip = CommonLib.string2decimal(jRegisterPanel1.jEIPTextField.getText());
+		long eip = CommonLib.convertFilesize(jRegisterPanel1.jEIPTextField.getText());
 		String eipStr = Long.toHexString(eip);
 
 		for (int x = 0; x < jInstructionTable.getRowCount(); x++) {
 			String value = jInstructionTable.getValueAt(x, 0).toString();
-			if (CommonLib.string2decimal("0x" + eipStr).equals(CommonLib.string2decimal("0x" + jInstructionTable.getValueAt(x, 1).toString()))) {
+			if (CommonLib.convertFilesize("0x" + eipStr) == CommonLib.convertFilesize("0x" + jInstructionTable.getValueAt(x, 1))) {
 				jInstructionTable.setValueAt("-" + value, x, 1);
 			} else {
 				if (value.startsWith("-")) {
@@ -1945,7 +1958,7 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void changeText(JTextField jTextField, String value) {
-		Long l = CommonLib.string2decimal(value);
+		Long l = CommonLib.convertFilesize(value);
 		String newValue = "0x" + Long.toHexString(l);
 		if (jTextField.getText().equals(newValue)) {
 			jTextField.setForeground(Color.black);
@@ -2125,7 +2138,7 @@ public class Application extends javax.swing.JFrame {
 				if (line.matches(".*CR0=.*")) {
 					changeText(this.jRegisterPanel1.jCR0TextField, line.split(" ")[1].split("=")[1].replace(":", ""));
 
-					if (CommonLib.getBit(CommonLib.string2decimal(jRegisterPanel1.jCR0TextField.getText()), 0) == 1) {
+					if (CommonLib.getBit(CommonLib.convertFilesize(jRegisterPanel1.jCR0TextField.getText()), 0) == 1) {
 						jCPUModeLabel.setText(MyLanguage.getString("Protected_mode") + "     ");
 					} else {
 						jCPUModeLabel.setText(MyLanguage.getString("Real_mode") + "     ");
@@ -2194,12 +2207,12 @@ public class Application extends javax.swing.JFrame {
 		try {
 			if (this.jMemoryAddressComboBox.getSelectedItem() != null) {
 				commandReceiver.shouldShow = false;
-				currentMemoryWindowsAddress = CommonLib.string2decimal(this.jMemoryAddressComboBox.getSelectedItem().toString());
+				currentMemoryWindowsAddress = CommonLib.convertFilesize(this.jMemoryAddressComboBox.getSelectedItem().toString());
 				jStatusLabel.setText("Updating memory");
 				int totalByte = 200;
-				int bytes[] = this.getMemory(CommonLib.string2decimal(this.jMemoryAddressComboBox.getSelectedItem().toString()), totalByte, isPhysicalAddress);
+				int bytes[] = this.getMemory(CommonLib.convertFilesize(this.jMemoryAddressComboBox.getSelectedItem().toString()), totalByte, isPhysicalAddress);
 				jStatusLabel.setText("");
-				jHexTable1.getModel().setCurrentAddress(CommonLib.string2decimal(this.jMemoryAddressComboBox.getSelectedItem().toString()));
+				jHexTable1.getModel().setCurrentAddress(CommonLib.convertFilesize(this.jMemoryAddressComboBox.getSelectedItem().toString()));
 				jHexTable1.updateUI();
 				jHexTable1.getModel().set(bytes);
 
@@ -2217,7 +2230,7 @@ public class Application extends javax.swing.JFrame {
 				// String realStartAddressStr;
 				// String base =
 				// this.jMemoryAddressComboBox.getSelectedItem().toString();
-				// long realStartAddress = CommonLib.string2decimal(base);
+				// long realStartAddress = CommonLib.convertFilesize(base);
 				// realStartAddressStr = String.format("%08x",
 				// realStartAddress);
 				// long realEndAddress = realStartAddress + totalByte3 * 8;
@@ -2253,7 +2266,7 @@ public class Application extends javax.swing.JFrame {
 				// jStatusLabel.setText("");
 				// // System.out.println(lines.length);
 				//
-				// jHexTable1.getModel().setCurrentAddress(CommonLib.string2decimal(this.jMemoryAddressComboBox.getSelectedItem().toString()));
+				// jHexTable1.getModel().setCurrentAddress(CommonLib.convertFilesize(this.jMemoryAddressComboBox.getSelectedItem().toString()));
 				// jHexTable1.updateUI();
 			}
 			// }
@@ -3415,11 +3428,11 @@ public class Application extends javax.swing.JFrame {
 		try {
 			if (this.jSearchMemoryToComboBox.getSelectedItem().toString().trim().startsWith("+")) {
 				this.jSearchMemoryToComboBox.setSelectedItem("0x"
-						+ Long.toHexString(CommonLib.string2decimal(this.jSearchMemoryFromComboBox.getSelectedItem().toString())
-								+ CommonLib.string2decimal(this.jSearchMemoryToComboBox.getSelectedItem().toString().substring(1))));
+						+ Long.toHexString(CommonLib.convertFilesize(this.jSearchMemoryFromComboBox.getSelectedItem().toString())
+								+ CommonLib.convertFilesize(this.jSearchMemoryToComboBox.getSelectedItem().toString().substring(1))));
 			}
-			new SearchMemoryDialog(this, this.jSearchMemoryTable, this.jSearchMemoryTextField.getText(), CommonLib.string2decimal(this.jSearchMemoryFromComboBox.getSelectedItem()
-					.toString()), CommonLib.string2decimal(this.jSearchMemoryToComboBox.getSelectedItem().toString())).setVisible(true);
+			new SearchMemoryDialog(this, this.jSearchMemoryTable, this.jSearchMemoryTextField.getText(), CommonLib.convertFilesize(this.jSearchMemoryFromComboBox.getSelectedItem()
+					.toString()), CommonLib.convertFilesize(this.jSearchMemoryToComboBox.getSelectedItem().toString())).setVisible(true);
 		} catch (Exception ex) {
 
 		}
@@ -3441,7 +3454,7 @@ public class Application extends javax.swing.JFrame {
 	private void jButton14ActionPerformed(ActionEvent evt) {
 		this.addInstructionComboBox(this.jInstructionComboBox.getSelectedItem().toString());
 		jDisassembleButton.setEnabled(false);
-		updateInstruction(CommonLib.string2decimal(this.jInstructionComboBox.getSelectedItem().toString()));
+		updateInstruction(CommonLib.convertFilesize(this.jInstructionComboBox.getSelectedItem().toString()));
 		updateBreakpointTableColor();
 		jDisassembleButton.setEnabled(true);
 	}
@@ -3470,7 +3483,9 @@ public class Application extends javax.swing.JFrame {
 			jMainPanel.setLayout(jMainPanelLayout);
 			{
 				jMainPanel.add(getJMaximizableTabbedPane_BasePanel1(), "jMaximizableTabbedPane_BasePanel1");
+				jMainPanel.add(getJInstrumentPanel(), "jInstrumentPanel");
 				jMainPanel.add(getJRunningLabel(), "Running Label");
+				jMainPanel.add(getLogPanel1(), "logPanel1");
 			}
 		}
 		return jMainPanel;
@@ -3896,8 +3911,6 @@ public class Application extends javax.swing.JFrame {
 					jTabbedPane3.addTab(MyLanguage.getString("LDT"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/ldt.png")), jPanel7, null);
 					jTabbedPane3.addTab(MyLanguage.getString("Search_memory"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/memory.png")),
 							getJPanel17(), null);
-					jTabbedPane3.addTab(MyLanguage.getString("Instrument"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/chart_bar.png"), null),
-							getJInstrumentPanel());
 					{
 						jScrollPane11 = new JScrollPane();
 						jPanel7.add(jScrollPane11, BorderLayout.CENTER);
@@ -4284,8 +4297,8 @@ public class Application extends javax.swing.JFrame {
 				JOptionPane.showMessageDialog(this, "Error, please input <segment selector>:<offset>\n\ne.g. : 0x10:0x12345678", "Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-			Long segSelector = CommonLib.string2decimal(this.jAddressTextField.getText().split(":")[0]);
-			Long address = CommonLib.string2decimal(this.jAddressTextField.getText().split(":")[1]);
+			Long segSelector = CommonLib.convertFilesize(this.jAddressTextField.getText().split(":")[0]);
+			Long address = CommonLib.convertFilesize(this.jAddressTextField.getText().split(":")[1]);
 
 			// for (int x = 0; x < model.getRowCount(); x++) {
 			// if (model.searchType.get(x).equals(1) &&
@@ -4304,7 +4317,7 @@ public class Application extends javax.swing.JFrame {
 			model.segNo.add(segNo);
 
 			// read GDT descriptor
-			int descriptor[] = CommonLib.getMemoryFromBochs(CommonLib.string2decimal(this.jRegisterPanel1.jGDTRTextField.getText()) + (segNo * 8), 8);
+			int descriptor[] = CommonLib.getMemoryFromBochs(CommonLib.convertFilesize(this.jRegisterPanel1.jGDTRTextField.getText()) + (segNo * 8), 8);
 			long baseAddress = CommonLib.getLong(descriptor[2], descriptor[3], descriptor[4], descriptor[7], 0, 0, 0, 0);
 			long linearAddress = baseAddress + address;
 			model.baseAddress.add(baseAddress);
@@ -4312,7 +4325,7 @@ public class Application extends javax.swing.JFrame {
 
 			long pdNo = CommonLib.getValue(linearAddress, 31, 22);
 			model.pdNo.add(pdNo);
-			int pdeBytes[] = CommonLib.getMemoryFromBochs(CommonLib.string2decimal(this.jRegisterPanel1.jCR3TextField.getText()) + (pdNo * 4), 4);
+			int pdeBytes[] = CommonLib.getMemoryFromBochs(CommonLib.convertFilesize(this.jRegisterPanel1.jCR3TextField.getText()) + (pdNo * 4), 4);
 			long pde = CommonLib.getInt(pdeBytes, 0);
 			model.pde.add(pde);
 
@@ -4333,12 +4346,12 @@ public class Application extends javax.swing.JFrame {
 		} else if (jSearchAddressRadioButton2.isSelected()) {
 			// for (int x = 0; x < model.getRowCount(); x++) {
 			// if (model.searchType.get(x).equals(2) &&
-			// model.searchAddress.get(x).equals(CommonLib.string2decimal(this.jAddressTextField.getText())))
+			// model.searchAddress.get(x).equals(CommonLib.convertFilesize(this.jAddressTextField.getText())))
 			// {
 			// return;
 			// }
 			// }
-			Long address = CommonLib.string2decimal(this.jAddressTextField.getText());
+			Long address = CommonLib.convertFilesize(this.jAddressTextField.getText());
 
 			model.searchType.add(2);
 			model.searchAddress.add(address);
@@ -4350,7 +4363,7 @@ public class Application extends javax.swing.JFrame {
 
 			long pdNo = CommonLib.getValue(linearAddress, 31, 22);
 			model.pdNo.add(pdNo);
-			int pdeBytes[] = CommonLib.getMemoryFromBochs(CommonLib.string2decimal(this.jRegisterPanel1.jCR3TextField.getText()) + (pdNo * 4), 4);
+			int pdeBytes[] = CommonLib.getMemoryFromBochs(CommonLib.convertFilesize(this.jRegisterPanel1.jCR3TextField.getText()) + (pdNo * 4), 4);
 			long pde = CommonLib.getInt(pdeBytes, 0);
 			model.pde.add(pde);
 
@@ -4370,11 +4383,11 @@ public class Application extends javax.swing.JFrame {
 			model.fireTableDataChanged();
 		} else if (jSearchAddressRadioButton3.isSelected()) {
 			for (int x = 0; x < model.getRowCount(); x++) {
-				if (model.searchType.get(x).equals(3) && model.searchAddress.get(x).equals(CommonLib.string2decimal(this.jAddressTextField.getText()))) {
+				if (model.searchType.get(x).equals(3) && model.searchAddress.get(x).equals(CommonLib.convertFilesize(this.jAddressTextField.getText()))) {
 					return;
 				}
 			}
-			Long addr = CommonLib.string2decimal(this.jAddressTextField.getText());
+			Long addr = CommonLib.convertFilesize(this.jAddressTextField.getText());
 			model.searchType.add(3);
 			model.searchSegSelector.add(0L);
 			model.searchAddress.add(addr);
@@ -4413,8 +4426,8 @@ public class Application extends javax.swing.JFrame {
 				model.segNo.set(x, model.searchSegSelector.get(x) >> 3);
 				model.virtualAddress.set(x, model.searchAddress.get(x));
 
-				long gdtBase = CommonLib.getPhysicalAddress(CommonLib.string2decimal(this.jRegisterPanel1.jCR3TextField.getText()), CommonLib
-						.string2decimal(this.jRegisterPanel1.jGDTRTextField.getText()));
+				long gdtBase = CommonLib.getPhysicalAddress(CommonLib.convertFilesize(this.jRegisterPanel1.jCR3TextField.getText()), CommonLib
+						.convertFilesize(this.jRegisterPanel1.jGDTRTextField.getText()));
 				System.out.println("gdtBase=" + Long.toHexString(gdtBase));
 				commandReceiver.clearBuffer();
 				gdtBase += model.segNo.get(x) * 8;
@@ -4424,7 +4437,7 @@ public class Application extends javax.swing.JFrame {
 				int bytes[] = new int[8];
 				String[] b = result.replaceFirst("^.*:", "").split("\t");
 				for (int y = 1; y <= 8; y++) {
-					bytes[y - 1] = CommonLib.string2decimal(b[y]).intValue();
+					bytes[y - 1] = (int) CommonLib.convertFilesize(b[y]);
 				}
 
 				Long gdtDescriptor = CommonLib.getLong(bytes, 0);
@@ -4817,10 +4830,10 @@ public class Application extends javax.swing.JFrame {
 	private long getRealEIP() {
 		try {
 			long eip;
-			if (CommonLib.getBit(CommonLib.string2decimal(jRegisterPanel1.jCR0TextField.getText()), 0) == 1) {
-				eip = CommonLib.string2decimal(jRegisterPanel1.jEIPTextField.getText());
+			if (CommonLib.getBit(CommonLib.convertFilesize(jRegisterPanel1.jCR0TextField.getText()), 0) == 1) {
+				eip = CommonLib.convertFilesize(jRegisterPanel1.jEIPTextField.getText());
 			} else {
-				eip = CommonLib.string2decimal(jRegisterPanel1.jCSTextField.getText()) * 16 + CommonLib.string2decimal(jRegisterPanel1.jEIPTextField.getText());
+				eip = CommonLib.convertFilesize(jRegisterPanel1.jCSTextField.getText()) * 16 + CommonLib.convertFilesize(jRegisterPanel1.jEIPTextField.getText());
 			}
 			return eip;
 		} catch (Exception ex) {
@@ -4833,7 +4846,7 @@ public class Application extends javax.swing.JFrame {
 		long address = model.getDebugLineInfo().get(model.getCurrentFile()).get(this.jELFTable.getSelectedRow());
 
 		for (int x = 0; x < jBreakpointTable.getRowCount(); x++) {
-			long addr = CommonLib.string2decimal(jBreakpointTable.getValueAt(x, 2).toString());
+			long addr = CommonLib.convertFilesize(jBreakpointTable.getValueAt(x, 2).toString());
 			if (addr == address) {
 				String breakpointNo = jBreakpointTable.getValueAt(x, 0).toString().trim().split(" ")[0];
 				sendCommand("bpe " + breakpointNo);
@@ -4850,7 +4863,7 @@ public class Application extends javax.swing.JFrame {
 		long address = model.getDebugLineInfo().get(model.getCurrentFile()).get(this.jELFTable.getSelectedRow());
 
 		for (int x = 0; x < jBreakpointTable.getRowCount(); x++) {
-			long addr = CommonLib.string2decimal(jBreakpointTable.getValueAt(x, 2).toString());
+			long addr = CommonLib.convertFilesize(jBreakpointTable.getValueAt(x, 2).toString());
 			if (addr == address) {
 				String breakpointNo = jBreakpointTable.getValueAt(x, 0).toString().trim().split(" ")[0];
 				sendCommand("bpd " + breakpointNo);
@@ -5383,11 +5396,11 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jDumpCR3ButtonActionPerformed(ActionEvent evt) {
-		updatePageTable(CommonLib.string2decimal(jRegisterPanel1.jCR3TextField.getText()));
+		updatePageTable(CommonLib.convertFilesize(jRegisterPanel1.jCR3TextField.getText()));
 	}
 
 	private void jDumpPageTableAtAddressButtonActionPerformed(ActionEvent evt) {
-		updatePageTable(CommonLib.string2decimal(jDumpPageDirectoryAddressTextField.getText()));
+		updatePageTable(CommonLib.convertFilesize(jDumpPageDirectoryAddressTextField.getText()));
 	}
 
 	private JButton getJButton21x() {
@@ -5512,7 +5525,7 @@ public class Application extends javax.swing.JFrame {
 
 						for (int x = 1; x < b.length && offset < totalByte; x++) {
 							// System.out.println(offset + "==" + x);
-							bytes[offset] = CommonLib.string2decimal(b[x]).intValue();
+							bytes[offset] = (int) CommonLib.convertFilesize(b[x]);
 							offset++;
 						}
 					}
@@ -5844,10 +5857,10 @@ public class Application extends javax.swing.JFrame {
 	private void jInstructionUpButtonActionPerformed(ActionEvent evt) {
 		if (this.jInstructionTable.getRowCount() > 0) {
 			String firstAddress = this.jInstructionTable.getValueAt(0, 1).toString().replaceAll("^-*", "");
-			firstAddress = Long.toHexString(CommonLib.string2decimal("0x" + firstAddress) - 1);
+			firstAddress = Long.toHexString(CommonLib.convertFilesize("0x" + firstAddress) - 1);
 
 			this.jInstructionComboBox.setSelectedItem("0x" + firstAddress);
-			this.updateInstruction(CommonLib.string2decimal("0x" + firstAddress));
+			this.updateInstruction(CommonLib.convertFilesize("0x" + firstAddress));
 			this.updateBreakpointTableColor();
 		}
 	}
@@ -5857,7 +5870,7 @@ public class Application extends javax.swing.JFrame {
 			String firstAddress = this.jInstructionTable.getValueAt(10, 1).toString().replaceAll("^-*", "");
 
 			this.jInstructionComboBox.setSelectedItem("0x" + firstAddress);
-			this.updateInstruction(CommonLib.string2decimal("0x" + firstAddress));
+			this.updateInstruction(CommonLib.convertFilesize("0x" + firstAddress));
 			this.updateBreakpointTableColor();
 		}
 	}
@@ -5877,10 +5890,10 @@ public class Application extends javax.swing.JFrame {
 
 	private void jInstructionUpTenButtonActionPerformed(ActionEvent evt) {
 		String firstAddress = this.jInstructionTable.getValueAt(0, 1).toString().replaceAll("^-*", "");
-		firstAddress = Long.toHexString(CommonLib.string2decimal("0x" + firstAddress) - 16);
+		firstAddress = Long.toHexString(CommonLib.convertFilesize("0x" + firstAddress) - 16);
 
 		this.jInstructionComboBox.setSelectedItem("0x" + firstAddress);
-		this.updateInstruction(CommonLib.string2decimal("0x" + firstAddress));
+		this.updateInstruction(CommonLib.convertFilesize("0x" + firstAddress));
 		this.updateBreakpointTableColor();
 	}
 
@@ -6421,6 +6434,86 @@ public class Application extends javax.swing.JFrame {
 			jInstrumentPanel = new InstrumentPanel();
 		}
 		return jInstrumentPanel;
+	}
+
+	private JToggleButton getJProfilerToggleButton() {
+		if (jProfilerToggleButton == null) {
+			jProfilerToggleButton = new JToggleButton();
+			jProfilerToggleButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/chart_bar.png")));
+			jProfilerToggleButton.setText("Profile & Sampling");
+			buttonGroup2.add(jProfilerToggleButton);
+			jProfilerToggleButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jProfilerToggleButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jProfilerToggleButton;
+	}
+
+	private void jProfilerToggleButtonActionPerformed(ActionEvent evt) {
+		CardLayout cl = (CardLayout) (jMainPanel.getLayout());
+		if (jProfilerToggleButton.isSelected()) {
+			cl.show(jMainPanel, "jInstrumentPanel");
+			currentPanel = "jInstrumentPanel";
+		} else {
+			cl.show(jMainPanel, "jMaximizableTabbedPane_BasePanel1");
+			currentPanel = "jMaximizableTabbedPane_BasePanel1";
+		}
+	}
+
+	private JToggleButton getJLogToggleButton() {
+		if (jLogToggleButton == null) {
+			jLogToggleButton = new JToggleButton();
+			jLogToggleButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/script.png")));
+			jLogToggleButton.setText("Log");
+			buttonGroup2.add(jLogToggleButton);
+			jLogToggleButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jLogToggleButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jLogToggleButton;
+	}
+
+	private void jLogToggleButtonActionPerformed(ActionEvent evt) {
+		CardLayout cl = (CardLayout) (jMainPanel.getLayout());
+		if (jLogToggleButton.isSelected()) {
+			cl.show(jMainPanel, "logPanel1");
+			currentPanel = "logPanel1";
+		} else {
+			cl.show(jMainPanel, "jMaximizableTabbedPane_BasePanel1");
+			currentPanel = "jMaximizableTabbedPane_BasePanel1";
+		}
+	}
+	
+	private LogPanel getLogPanel1() {
+		if(logPanel1 == null) {
+			logPanel1 = new LogPanel();
+		}
+		return logPanel1;
+	}
+	
+	private JToggleButton getJRegisterToggleButton() {
+		if(jRegisterToggleButton == null) {
+			jRegisterToggleButton = new JToggleButton();
+			jRegisterToggleButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/chart_bar.png")));
+			buttonGroup2.add(jRegisterToggleButton);
+			jRegisterToggleButton.setSelected(true);
+			jRegisterToggleButton.setText("Reg");
+			jRegisterToggleButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jRegisterToggleButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jRegisterToggleButton;
+	}
+	
+	private void jRegisterToggleButtonActionPerformed(ActionEvent evt) {
+		System.out.println("jRegisterToggleButton.actionPerformed, event="+evt);
+		//TODO add your code for jRegisterToggleButton.actionPerformed
 	}
 
 }

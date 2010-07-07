@@ -2,16 +2,39 @@
     <bochsCommandHistory/>
     <breakpoint/>
     <currentLanguage>en_US</currentLanguage>
-    <divX>705</divX>
-    <divY>263</divY>
+    <divX>509</divX>
+    <divY>186</divY>
     <fontFamily>Dialog</fontFamily>
     <fontsize>12</fontsize>
-    <height>621</height>
+    <height>650</height>
     <lastElfHistoryOpenDir>/root/workspace/peter-bochs-debugger/.</lastElfHistoryOpenDir>
     <lastElfHistoryOpenDir2>/root/workspace/peter-bochs-debugger/.</lastElfHistoryOpenDir2>
     <loadBreakpointAtStartup>false</loadBreakpointAtStartup>
-    <memoryCombo/>
+    <memoryCombo>
+      <memoryCombo>0x10MB</memoryCombo>
+      <memoryCombo>0x123</memoryCombo>
+      <memoryCombo>10MB</memoryCombo>
+      <memoryCombo>1MB</memoryCombo>
+    </memoryCombo>
     <osDebugSplitPane_DividerLocation>150</osDebugSplitPane_DividerLocation>
+    <profileMemoryFromAddress>
+      <profileMemoryFromAddress>123</profileMemoryFromAddress>
+      <profileMemoryFromAddress>67</profileMemoryFromAddress>
+      <profileMemoryFromAddress>-1</profileMemoryFromAddress>
+      <profileMemoryFromAddress>12</profileMemoryFromAddress>
+      <profileMemoryFromAddress>5242880</profileMemoryFromAddress>
+      <profileMemoryFromAddress>67</profileMemoryFromAddress>
+      <profileMemoryFromAddress>23068672</profileMemoryFromAddress>
+    </profileMemoryFromAddress>
+    <profileMemoryToAddress>
+      <profileMemoryToAddress>456</profileMemoryToAddress>
+      <profileMemoryToAddress>345</profileMemoryToAddress>
+      <profileMemoryToAddress>-1</profileMemoryToAddress>
+      <profileMemoryToAddress>291</profileMemoryToAddress>
+      <profileMemoryToAddress>6291456</profileMemoryToAddress>
+      <profileMemoryToAddress>291</profileMemoryToAddress>
+      <profileMemoryToAddress>23396352</profileMemoryToAddress>
+    </profileMemoryToAddress>
     <updateAfterBochsCommand>false</updateAfterBochsCommand>
     <updateAfterBochsCommand_addressTranslate>false</updateAfterBochsCommand_addressTranslate>
     <updateAfterBochsCommand_breakpoint>false</updateAfterBochsCommand_breakpoint>
@@ -31,7 +54,7 @@
     <updateFastStepCommand_ldt>false</updateFastStepCommand_ldt>
     <updateFastStepCommand_memory>true</updateFastStepCommand_memory>
     <updateFastStepCommand_register>true</updateFastStepCommand_register>
-    <width>966</width>
-    <x>251</x>
-    <y>7</y>
+    <width>1021</width>
+    <x>105</x>
+    <y>0</y>
   </Setting>

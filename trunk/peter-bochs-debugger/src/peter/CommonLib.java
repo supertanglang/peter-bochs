@@ -317,65 +317,68 @@ public class CommonLib {
 	}
 
 	public static long convertFilesize(String filesize) {
+		filesize = filesize.trim().toLowerCase();
+
+		if (filesize == null) {
+			return 0;
+		}
+		int isHex = 10;
+		if (filesize.startsWith("0x")) {
+			filesize = filesize.substring(2);
+			isHex = 16;
+		}
+		long returnValue = -1;
 		if (filesize.length() == 0) {
 			return 0;
 		} else if (filesize.length() == 1) {
-			return Long.parseLong(filesize);
+			return Long.parseLong(filesize, isHex);
 		} else if (filesize.substring(filesize.length() - 1).toLowerCase().equals("t")) {
 			try {
-				return Long.parseLong(filesize.substring(0, filesize.length() - 1)) * 1024 * 1024 * 1024 * 1024;
+				return Long.parseLong(filesize.substring(0, filesize.length() - 1), isHex) * 1024 * 1024 * 1024 * 1024;
 			} catch (Exception ex) {
-				return -1;
 			}
 		} else if (filesize.substring(filesize.length() - 2).toLowerCase().equals("tb")) {
 			try {
-				return Long.parseLong(filesize.substring(0, filesize.length() - 2)) * 1024 * 1024 * 1024 * 1024;
+				return Long.parseLong(filesize.substring(0, filesize.length() - 2), isHex) * 1024 * 1024 * 1024 * 1024;
 			} catch (Exception ex) {
-				return -1;
 			}
 		} else if (filesize.substring(filesize.length() - 1).toLowerCase().equals("g")) {
 			try {
-				return Long.parseLong(filesize.substring(0, filesize.length() - 1)) * 1024 * 1024 * 1024;
+				return Long.parseLong(filesize.substring(0, filesize.length() - 1), isHex) * 1024 * 1024 * 1024;
 			} catch (Exception ex) {
-				return -1;
 			}
 		} else if (filesize.substring(filesize.length() - 2).toLowerCase().equals("gb")) {
 			try {
-				return Long.parseLong(filesize.substring(0, filesize.length() - 2)) * 1024 * 1024 * 1024;
+				return Long.parseLong(filesize.substring(0, filesize.length() - 2), isHex) * 1024 * 1024 * 1024;
 			} catch (Exception ex) {
-				return -1;
 			}
 		} else if (filesize.substring(filesize.length() - 1).toLowerCase().equals("m")) {
 			try {
-				return Long.parseLong(filesize.substring(0, filesize.length() - 1)) * 1024 * 1024;
+				return Long.parseLong(filesize.substring(0, filesize.length() - 1), isHex) * 1024 * 1024;
 			} catch (Exception ex) {
-				return -1;
 			}
 		} else if (filesize.substring(filesize.length() - 2).toLowerCase().equals("mb")) {
 			try {
-				return Long.parseLong(filesize.substring(0, filesize.length() - 2)) * 1024 * 1024;
+				return Long.parseLong(filesize.substring(0, filesize.length() - 2), isHex) * 1024 * 1024;
 			} catch (Exception ex) {
-				return -1;
 			}
 		} else if (filesize.substring(filesize.length() - 1).toLowerCase().equals("k")) {
 			try {
-				return Long.parseLong(filesize.substring(0, filesize.length() - 1)) * 1024;
+				return Long.parseLong(filesize.substring(0, filesize.length() - 1), isHex) * 1024;
 			} catch (Exception ex) {
-				return -1;
 			}
 		} else if (filesize.substring(filesize.length() - 2).toLowerCase().equals("kb")) {
 			try {
-				return Long.parseLong(filesize.substring(0, filesize.length() - 2)) * 1024;
+				return Long.parseLong(filesize.substring(0, filesize.length() - 2), isHex) * 1024;
 			} catch (Exception ex) {
-				return -1;
 			}
 		} else {
 			try {
-				return Long.parseLong(filesize);
+				return Long.parseLong(filesize, isHex);
 			} catch (Exception ex) {
-				return -1;
 			}
 		}
+		return returnValue;
 	}
 
 	public static String convertFilesize(long filesize) {

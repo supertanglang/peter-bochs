@@ -26,8 +26,35 @@ public class Setting {
 	int height;
 	int divX;
 	int divY;
-	
+
 	int osDebugSplitPane_DividerLocation;
+
+	LinkedList<Long> profileMemoryFromAddress = new LinkedList<Long>();
+	LinkedList<Long> profileMemoryToAddress = new LinkedList<Long>();
+
+	public LinkedList<Long> getProfileMemoryFromAddress() {
+		return profileMemoryFromAddress;
+	}
+
+	public void setProfileMemoryFromAddress(LinkedList<Long> profileMemoryFromAddress) {
+		this.profileMemoryFromAddress = profileMemoryFromAddress;
+	}
+
+	public void addProfileMemoryFromAddress(Long str) {
+		profileMemoryFromAddress.add(str);
+	}
+
+	public LinkedList<Long> getProfileMemoryToAddress() {
+		return profileMemoryToAddress;
+	}
+
+	public void setProfileMemoryToAddress(LinkedList<Long> profileMemoryToAddress) {
+		this.profileMemoryToAddress = profileMemoryToAddress;
+	}
+
+	public void addProfileMemoryToAddress(Long str) {
+		profileMemoryToAddress.add(str);
+	}
 
 	public int getOsDebugSplitPane_DividerLocation() {
 		return osDebugSplitPane_DividerLocation;
@@ -237,7 +264,7 @@ public class Setting {
 		height = 600;
 		divX = 400;
 		divY = 200;
-		osDebugSplitPane_DividerLocation=150;
+		osDebugSplitPane_DividerLocation = 150;
 
 		updateFastStepCommand_register = true;
 		updateFastStepCommand_memory = true;
