@@ -1,33 +1,76 @@
 package peter.instrument;
 
-import java.util.HashSet;
+import java.util.HashMap;
 
 public class Data {
-	final static int totalSize = 4 * 1024 * 1024;
-	final static int mbPerRow = 100 * 1024;
-	final static int blockSize = 1024;
-	final static int blockPerRow = mbPerRow / blockSize;
-	final static int totalColumn = blockPerRow;
-	final static int totalRow = totalSize / mbPerRow;
+	final static int minimumBlockSize = 4096;
+	private static int totalSizeInBlock = 1024 * 1024; // assume minimum block
 
-	private static int[] data = new int[totalColumn * totalRow];
+	public static ProfilingTableModel memoryProfilingZone;
 
-	public static int[] getData() {
-		return data;
+	private static int[] memory = new int[totalSizeInBlock];
+
+	public static int[] getMemory() {
+		return memory;
+	}
+
+	// public static long getTotalsize() {
+	// return totalSizeInBlock;
+	// }
+
+	private static long calculateNoOfBlock(long address, long endAddress, long blockSize) {
+		long total = endAddress - address;
+		long noOfBlock = total / blockSize;
+		if (total % blockSize != 0) {
+			noOfBlock++;
+		}
+		return noOfBlock;
+	}
+
+	public static long getColumnCount(long address, long endAddress, long blockSize) {
+		long noOfBlock = calculateNoOfBlock(address, endAddress, blockSize);
+		return (long) Math.ceil(Math.sqrt(noOfBlock));
+	}
+
+	public static long getRowCount(long address, long endAddress, long blockSize) {
+		long noOfBlock = calculateNoOfBlock(address, endAddress, blockSize);
+		return (long) Math.ceil((double) noOfBlock / getColumnCount(address, endAddress, blockSize));
 	}
 
 	public static synchronized void increaseMemoryReadCount(long address) {
-		if (address / blockSize < data.length) {
-			data[(int) (address / blockSize)]++;
-		}
+		memory[(int) (address / minimumBlockSize)]++;
 	}
 
-	public static synchronized Integer getMemoryReadCount(long address) {
-		if (address / blockSize < data.length) {
-			return data[(int) (address / blockSize)];
-		} else {
-			return 0;
+	public static int[] getChartData(long address, long endAddress, long blockSize) {
+		long noOfBlock = calculateNoOfBlock(address, endAddress, blockSize);
+		int chartData[] = new int[(int) noOfBlock];
+
+		int index = 0;
+		int addressCounter = 0;
+		for (long addr = address / minimumBlockSize; addr < endAddress / minimumBlockSize; addr++) {
+			chartData[index] += memory[(int) addr];
+
+			addressCounter += minimumBlockSize;
+			if (addressCounter >= blockSize) {
+				index++;
+				addressCounter = 0;
+			}
 		}
+
+		return chartData;
 	}
 
+	public static HashMap<String, Integer> getHotestAddressCount(Long address, long blockSize) {
+		HashMap<String, Integer> map = new HashMap<String, Integer>();
+		long endBlockNumber = address / blockSize;
+		long endAddress = (endBlockNumber + (blockSize / minimumBlockSize)) * blockSize;
+		for (long blockNo = address / minimumBlockSize; blockNo < endAddress / minimumBlockSize; blockNo++) {
+			if (blockNo * minimumBlockSize >= address && blockNo * minimumBlockSize < address + blockSize) {
+				if (memory[(int) blockNo] > 0) {
+					map.put("0x" + Long.toHexString(blockNo * minimumBlockSize) + "-0x" + Long.toHexString((blockNo + 1) * minimumBlockSize - 1), memory[(int) blockNo]);
+				}
+			}
+		}
+		return map;
+	}
 }
