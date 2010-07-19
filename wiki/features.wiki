@@ -1,6 +1,6 @@
 #summary feature
 
-<wiki:toc max_depth="1" />
+#sidebar TableOfContents
 
 = Export to excel /png =
 
