@@ -68,3 +68,6 @@ click on the page directory table on the left hand side, it will dump the corres
 Can dump the harddisk image now.
 
 [http://peter-bochs.googlecode.com/files/diskpanel20100118.png]
+
+= Profiling =
+== Memory profiling ==
