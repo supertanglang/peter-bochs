@@ -117,6 +117,7 @@ import peter.elf.ElfUtil;
 import peter.graph.JButtonView;
 import peter.graph.PageDirectoryView;
 import peter.instrument.InstrumentPanel;
+import peter.instrument.JmpSocketServerController;
 import peter.instrument.MemorySocketServerController;
 import peter.logpanel.LogPanel;
 import peter.osdebuginformation.JOSDebugInformationPanel;
@@ -577,8 +578,6 @@ public class Application extends javax.swing.JFrame {
 			System.out.println("end initGUI()");
 		}
 
-		MemorySocketServerController.start(1980, this.getJInstrumentPanel().getjSocketTextArea());
-
 		if (Global.debug) {
 			System.out.println("startBochs()");
 		}
@@ -665,7 +664,14 @@ public class Application extends javax.swing.JFrame {
 					version = line.trim();
 					System.out.println("v=" + version);
 					jBochsVersionLabel.setText(version + "     ");
-					break;
+				}
+				if (line.contains("Peter-bochs instrument")) {
+					if (Setting.getInstance().isMemoryProfiling()) {
+						MemorySocketServerController.start(1980, null);
+					}
+					if (Setting.getInstance().isJmpProfiling()) {
+						JmpSocketServerController.start(1981, jInstrumentPanel.getJmpTableModel());
+					}
 				}
 			}
 		} catch (Exception ex) {
@@ -690,6 +696,13 @@ public class Application extends javax.swing.JFrame {
 			} else {
 				ProcessBuilder pb = new ProcessBuilder("StopBochs.exe");
 				pb.start();
+			}
+			
+			if (Setting.getInstance().isMemoryProfiling()) {
+				MemorySocketServerController.stop();
+			}
+			if (Setting.getInstance().isJmpProfiling()) {
+				JmpSocketServerController.stop();
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -1093,7 +1106,6 @@ public class Application extends javax.swing.JFrame {
 			}
 			// }while();
 		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -2221,7 +2233,7 @@ public class Application extends javax.swing.JFrame {
 				// sendCommand("xp /" + totalByte + "bx " +
 				// this.jMemoryAddressComboBox.getSelectedItem().toString());
 
-				//				
+				//
 				// if (totalByte > 0) {
 				// float totalByte2 = totalByte - 1;
 				// totalByte2 = totalByte2 / 8;
@@ -2303,8 +2315,8 @@ public class Application extends javax.swing.JFrame {
 					return;
 				}
 			}
-			jTabbedPane2.addTabWithCloseButton("GDT " + String.format("0x%02x", jGDTTable.getSelectedRow() + 1), null, new GDTLDTPanel(this, 0, CommonLib
-					.hex2decimal(this.jRegisterPanel1.jGDTRTextField.getText()), jGDTTable.getSelectedRow() + 1), null);
+			jTabbedPane2.addTabWithCloseButton("GDT " + String.format("0x%02x", jGDTTable.getSelectedRow() + 1), null,
+					new GDTLDTPanel(this, 0, CommonLib.hex2decimal(this.jRegisterPanel1.jGDTRTextField.getText()), jGDTTable.getSelectedRow() + 1), null);
 			jTabbedPane2.setSelectedIndex(jTabbedPane2.getTabCount() - 1);
 		}
 	}
@@ -2462,8 +2474,8 @@ public class Application extends javax.swing.JFrame {
 
 	private void jAddBreakpointButtonActionPerformed(ActionEvent evt) {
 		jAddBreakpointButton.setEnabled(false);
-		String type = (String) JOptionPane.showInputDialog(this, null, "Add breakpoint", JOptionPane.QUESTION_MESSAGE, null, new Object[] {
-				MyLanguage.getString("Physical_address"), MyLanguage.getString("Linear_address") }, "Breakpoint");
+		String type = (String) JOptionPane.showInputDialog(this, null, "Add breakpoint", JOptionPane.QUESTION_MESSAGE, null,
+				new Object[] { MyLanguage.getString("Physical_address"), MyLanguage.getString("Linear_address") }, "Breakpoint");
 		if (type != null) {
 			String address = JOptionPane.showInputDialog(this, "Please input breakpoint address", "Add breakpoint", JOptionPane.QUESTION_MESSAGE);
 			if (address != null) {
@@ -4426,8 +4438,8 @@ public class Application extends javax.swing.JFrame {
 				model.segNo.set(x, model.searchSegSelector.get(x) >> 3);
 				model.virtualAddress.set(x, model.searchAddress.get(x));
 
-				long gdtBase = CommonLib.getPhysicalAddress(CommonLib.convertFilesize(this.jRegisterPanel1.jCR3TextField.getText()), CommonLib
-						.convertFilesize(this.jRegisterPanel1.jGDTRTextField.getText()));
+				long gdtBase = CommonLib.getPhysicalAddress(CommonLib.convertFilesize(this.jRegisterPanel1.jCR3TextField.getText()),
+						CommonLib.convertFilesize(this.jRegisterPanel1.jGDTRTextField.getText()));
 				System.out.println("gdtBase=" + Long.toHexString(gdtBase));
 				commandReceiver.clearBuffer();
 				gdtBase += model.segNo.get(x) * 8;
@@ -5939,8 +5951,8 @@ public class Application extends javax.swing.JFrame {
 					return;
 				}
 			}
-			jTabbedPane2.addTabWithCloseButton("IDT " + String.format("0x%02x", jIDTTable.getSelectedRow() + 1), null, new IDTDescriptorPanel(this, CommonLib
-					.hex2decimal(this.jRegisterPanel1.jIDTRTextField.getText()), jIDTTable.getSelectedRow() + 1), null);
+			jTabbedPane2.addTabWithCloseButton("IDT " + String.format("0x%02x", jIDTTable.getSelectedRow() + 1), null,
+					new IDTDescriptorPanel(this, CommonLib.hex2decimal(this.jRegisterPanel1.jIDTRTextField.getText()), jIDTTable.getSelectedRow() + 1), null);
 			jTabbedPane2.setSelectedIndex(jTabbedPane2.getTabCount() - 1);
 		}
 	}
@@ -6487,16 +6499,16 @@ public class Application extends javax.swing.JFrame {
 			currentPanel = "jMaximizableTabbedPane_BasePanel1";
 		}
 	}
-	
+
 	private LogPanel getLogPanel1() {
-		if(logPanel1 == null) {
+		if (logPanel1 == null) {
 			logPanel1 = new LogPanel();
 		}
 		return logPanel1;
 	}
-	
+
 	private JToggleButton getJRegisterToggleButton() {
-		if(jRegisterToggleButton == null) {
+		if (jRegisterToggleButton == null) {
 			jRegisterToggleButton = new JToggleButton();
 			jRegisterToggleButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/chart_bar.png")));
 			buttonGroup2.add(jRegisterToggleButton);
@@ -6510,10 +6522,16 @@ public class Application extends javax.swing.JFrame {
 		}
 		return jRegisterToggleButton;
 	}
-	
+
 	private void jRegisterToggleButtonActionPerformed(ActionEvent evt) {
-		System.out.println("jRegisterToggleButton.actionPerformed, event="+evt);
-		//TODO add your code for jRegisterToggleButton.actionPerformed
+		CardLayout cl = (CardLayout) (jMainPanel.getLayout());
+		if (jProfilerToggleButton.isSelected()) {
+			cl.show(jMainPanel, "jMaximizableTabbedPane_BasePanel1");
+			currentPanel = "jMaximizableTabbedPane_BasePanel1";
+		} else {
+			cl.show(jMainPanel, "jMaximizableTabbedPane_BasePanel1");
+			currentPanel = "jMaximizableTabbedPane_BasePanel1";
+		}
 	}
 
 }
