@@ -1,6 +1,6 @@
 #summary feature
 
-#sidebar TableOfContents
+#sidebar featureSlideBar
 
 = Export to excel /png =
 
