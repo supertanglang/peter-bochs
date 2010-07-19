@@ -1,5 +1,7 @@
 #summary feature
 
+<wiki:toc max_depth="1" />
+
 = Export to excel /png =
 
 Now, you can export all the registers, GDT table, IDT table, etc... into a png or in excel format.
