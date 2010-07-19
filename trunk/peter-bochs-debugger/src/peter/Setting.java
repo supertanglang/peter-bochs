@@ -85,6 +85,11 @@ public class Setting {
 	boolean updateFastStepCommand_gdt;
 	boolean updateFastStepCommand_ldt;
 	boolean updateFastStepCommand_idt;
+	boolean memoryProfiling;
+	boolean hitZone;
+	boolean customZone;
+	boolean jmpProfiling;
+	boolean profilingUpdateGraph;
 
 	String lastElfHistoryOpenDir = new File(".").getAbsolutePath();
 	String lastElfHistoryOpenDir2 = new File(".").getAbsolutePath();
@@ -463,8 +468,49 @@ public class Setting {
 		}
 	}
 
+	public boolean isMemoryProfiling() {
+		return memoryProfiling;
+	}
+
+	public void setMemoryProfiling(boolean memoryProfiling) {
+		this.memoryProfiling = memoryProfiling;
+	}
+
+	public boolean isHitZone() {
+		return hitZone;
+	}
+
+	public void setHitZone(boolean hitZone) {
+		this.hitZone = hitZone;
+	}
+
+	public boolean isCustomZone() {
+		return customZone;
+	}
+
+	public void setCustomZone(boolean customZone) {
+		this.customZone = customZone;
+	}
+
+	public boolean isJmpProfiling() {
+		return jmpProfiling;
+	}
+
+	public void setJmpProfiling(boolean jmpProfiling) {
+		this.jmpProfiling = jmpProfiling;
+	}
+
+	public boolean isProfilingUpdateGraph() {
+		return profilingUpdateGraph;
+	}
+
+	public void setProfilingUpdateGraph(boolean profilingUpdateGraph) {
+		this.profilingUpdateGraph = profilingUpdateGraph;
+	}
+
 	public static void main(String args[]) {
 		// new Setting().save();
 		Setting setting = Setting.getInstance();
 	}
+
 }

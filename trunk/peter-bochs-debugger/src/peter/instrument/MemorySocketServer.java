@@ -21,7 +21,7 @@ public class MemorySocketServer implements Runnable {
 	public void startServer(int port, JTextArea jTextArea) {
 		this.port = port;
 		this.jTextArea = jTextArea;
-		jTextArea.setText("");
+//		jTextArea.setText("");
 
 		shouldStop = false;
 		new Thread(this).start();
@@ -64,11 +64,6 @@ public class MemorySocketServer implements Runnable {
 				while (!shouldStop) {
 					// hit count
 					inputLine = in.readLine();
-					// jTextArea.append("hit count=" + inputLine +
-					// System.getProperty("line.separator"));
-					// System.out.println("hit count=" + inputLine +
-					// System.getProperty("line.separator"));
-
 					for (int z = 0; z < 80000; z += 8) {
 						try {
 							long address = Long.parseLong(inputLine.substring(z, z + 8).trim(), 16);
@@ -81,29 +76,32 @@ public class MemorySocketServer implements Runnable {
 
 					// zones
 					inputLine = in.readLine();
-					// jTextArea.append("zones=" + inputLine +
-					// System.getProperty("line.separator"));
-					// System.out.println("zones=" + inputLine +
-					// System.getProperty("line.separator"));
 					try {
 						int noOfZone = Integer.parseInt(inputLine.substring(0, 8).trim());
+						inputLine = inputLine.substring(8);
 						if (noOfZone > 0) {
-							inputLine = inputLine.substring(8);
+							
 							for (int offset = 0; offset < inputLine.length();) {
-								long zoneFrom = CommonLib.convertFilesize("0x" + inputLine.substring(offset, 8).trim());
+								long zoneFrom = CommonLib.convertFilesize("0x" + inputLine.substring(offset, offset + 8).trim());
 								offset += 8;
 								long zoneTo = CommonLib.convertFilesize("0x" + inputLine.substring(offset, offset + 8).trim());
 								offset += 8;
 								long zoneHitCount = CommonLib.convertFilesize("0x" + inputLine.substring(offset, offset + 8).trim());
 								offset += 8;
+								long noOfZoneHitAddress = CommonLib.convertFilesize("0x" + inputLine.substring(offset, offset + 8).trim());
+								offset += 8;
+
 								for (int y = 0; y < Data.memoryProfilingZone.getRowCount(); y++) {
 									long from = CommonLib.convertFilesize(Data.memoryProfilingZone.getValueAt(y, 0).toString());
 									long to = CommonLib.convertFilesize(Data.memoryProfilingZone.getValueAt(y, 1).toString());
-									// System.out.println(zoneFrom + "==" + from
-									// + "&&" + zoneTo + "==" + to + "," +
-									// zoneHitCount);
+
 									if (zoneFrom == from && zoneTo == to) {
 										Data.memoryProfilingZone.setValueAt(zoneHitCount, y, 2);
+										for (int index = 0; index < noOfZoneHitAddress; index++) {
+											long zoneHitAddress = CommonLib.convertFilesize("0x" + inputLine.substring(offset, offset + 8).trim());
+											offset += 8;
+											Data.memoryProfilingZone.addHitAddress(y, zoneHitAddress);
+										}
 									}
 								}
 							}

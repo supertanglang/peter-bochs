@@ -2,27 +2,43 @@ package peter;
 
 import info.clearthought.layout.TableLayout;
 
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import javax.swing.GroupLayout;
 
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.LayoutStyle;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
 /**
- * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI Builder, which is free for non-commercial use. If Jigloo is being used commercially (ie, by a
- * corporation, company or business for any purpose whatever) then you should purchase a license for each developer using Jigloo. Please visit www.cloudgarden.com for details. Use
- * of Jigloo implies acceptance of these licensing terms. A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR ANY
- * CORPORATE OR COMMERCIAL PURPOSE.
+ * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
+ * Builder, which is free for non-commercial use. If Jigloo is being used
+ * commercially (ie, by a corporation, company or business for any purpose
+ * whatever) then you should purchase a license for each developer using Jigloo.
+ * Please visit www.cloudgarden.com for details. Use of Jigloo implies
+ * acceptance of these licensing terms. A COMMERCIAL LICENSE HAS NOT BEEN
+ * PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR
+ * ANY CORPORATE OR COMMERCIAL PURPOSE.
  */
 public class JSettingDialog extends javax.swing.JDialog {
 	private JCheckBox jCheckBox1;
 	private JCheckBox jCheckBox2;
+	private JLabel jLabel1;
+	private JCheckBox jUpdateGraphCheckBox;
+	private JCheckBox jJmpProfilingCheckBox;
+	private JCheckBox jCustomZoneCheckBox;
+	private JCheckBox jHitZoneCheckBox;
+	private JCheckBox jMemoryProfilingCheckBox;
+	private JPanel jProfilingPanel;
 	private JCheckBox jFastStepIDTCheckBox;
 	private JCheckBox jFastStepLDTCheckBox;
 	private JCheckBox jFastStepGDTCheckBox;
@@ -35,6 +51,8 @@ public class JSettingDialog extends javax.swing.JDialog {
 	private JCheckBox jBochsIDTCheckBox;
 	private JCheckBox jBochsLDTCheckBox;
 	private JCheckBox jBochsGDTCheckBox;
+	private JTabbedPane jTabbedPane1;
+	private JPanel jPanel3;
 	private JCheckBox jBochsHistoryCheckBox;
 	private JCheckBox jBochsAddressTranslateCheckBox;
 	private JCheckBox jBochsStackCheckBox;
@@ -66,242 +84,341 @@ public class JSettingDialog extends javax.swing.JDialog {
 	private void initGUI() {
 		try {
 			this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-			TableLayout thisLayout = new TableLayout(new double[][] { { TableLayout.FILL, TableLayout.FILL },
-					{ TableLayout.PREFERRED, TableLayout.PREFERRED, TableLayout.PREFERRED, TableLayout.PREFERRED, TableLayout.PREFERRED, TableLayout.FILL } });
-			thisLayout.setHGap(5);
-			thisLayout.setVGap(5);
+			BorderLayout thisLayout = new BorderLayout();
 			getContentPane().setLayout(thisLayout);
 			this.setTitle("Setting");
+			{
+				jTabbedPane1 = new JTabbedPane();
+				getContentPane().add(jTabbedPane1, BorderLayout.CENTER);
+				{
+					jPanel3 = new JPanel();
+					TableLayout jPanel3Layout = new TableLayout(new double[][] { { TableLayout.FILL, TableLayout.FILL, TableLayout.FILL, TableLayout.FILL },
+							{ TableLayout.FILL, TableLayout.FILL, 99.0, TableLayout.FILL, 70.0 } });
+					jPanel3Layout.setHGap(5);
+					jPanel3Layout.setVGap(5);
+					jPanel3.setLayout(jPanel3Layout);
+					jTabbedPane1.addTab("General", null, jPanel3, null);
+					{
+						jCheckBox1 = new JCheckBox();
+						jPanel3.add(jCheckBox1, "0, 0, 3, 0");
+						jCheckBox1.setText(MyLanguage.getString("Load_breakpoint_at_startup"));
+						jCheckBox1.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent evt) {
+								jCheckBox1ActionPerformed(evt);
+							}
+						});
+					}
+					{
+						jCheckBox2 = new JCheckBox();
+						jPanel3.add(jCheckBox2, "0, 1, 3, 1");
+						jCheckBox2.setText(MyLanguage.getString("Update_status_after_bochs_command"));
+						jCheckBox2.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent evt) {
+								jCheckBox2ActionPerformed(evt);
+							}
+						});
+					}
+					{
+						jPanel1 = new JPanel();
+						jPanel3.add(jPanel1, "0, 2, 3, 2");
+						TableLayout jPanel1Layout = new TableLayout(new double[][] { { 34.0, TableLayout.FILL, TableLayout.FILL, TableLayout.PREFERRED },
+								{ 15.0, 15.0, 15.0, TableLayout.PREFERRED } });
+						jPanel1Layout.setHGap(10);
+						jPanel1Layout.setVGap(5);
+						jPanel1.setLayout(jPanel1Layout);
+						{
+							jBochsRegisterCheckBox = new JCheckBox();
+							jPanel1.add(jBochsRegisterCheckBox, "1, 0");
+							jBochsRegisterCheckBox.setText(MyLanguage.getString("Register"));
+							jBochsRegisterCheckBox.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jCheckBox3ActionPerformed(evt);
+								}
+							});
+						}
+						{
+							jBochsMemoryCheckBox = new JCheckBox();
+							jPanel1.add(jBochsMemoryCheckBox, "2, 0");
+							jBochsMemoryCheckBox.setText(MyLanguage.getString("Register"));
+							jBochsMemoryCheckBox.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jCheckBox4ActionPerformed(evt);
+								}
+							});
+						}
+						{
+							jBochsInstructionCheckBox = new JCheckBox();
+							jPanel1.add(jBochsInstructionCheckBox, "3, 0");
+							jBochsInstructionCheckBox.setText(MyLanguage.getString("Instruction"));
+							jBochsInstructionCheckBox.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jCheckBox5ActionPerformed(evt);
+								}
+							});
+						}
+						{
+							jBochsBreakpointCheckBox = new JCheckBox();
+							jPanel1.add(jBochsBreakpointCheckBox, "1, 1");
+							jBochsBreakpointCheckBox.setText(MyLanguage.getString("Breakpoint"));
+							jBochsBreakpointCheckBox.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jCheckBox6ActionPerformed(evt);
+								}
+							});
+						}
+						{
+							jBochsGDTCheckBox = new JCheckBox();
+							jPanel1.add(jBochsGDTCheckBox, "2, 1");
+							jBochsGDTCheckBox.setText(MyLanguage.getString("GDT"));
+							jBochsGDTCheckBox.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jCheckBox7ActionPerformed(evt);
+								}
+							});
+						}
+						{
+							jBochsLDTCheckBox = new JCheckBox();
+							jPanel1.add(jBochsLDTCheckBox, "3, 1");
+							jBochsLDTCheckBox.setText(MyLanguage.getString("LDT"));
+							jBochsLDTCheckBox.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jCheckBox8ActionPerformed(evt);
+								}
+							});
+						}
+						{
+							jBochsIDTCheckBox = new JCheckBox();
+							jPanel1.add(jBochsIDTCheckBox, "1, 2");
+							jBochsIDTCheckBox.setText(MyLanguage.getString("IDT"));
+							jBochsIDTCheckBox.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jCheckBox9ActionPerformed(evt);
+								}
+							});
+						}
+						{
+							jBochsPageTableCheckBox = new JCheckBox();
+							jPanel1.add(jBochsPageTableCheckBox, "2, 2");
+							jBochsPageTableCheckBox.setText(MyLanguage.getString("Page_table"));
+							jBochsPageTableCheckBox.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jBochsPageTableCheckBoxActionPerformed(evt);
+								}
+							});
+						}
+						{
+							jBochsStackCheckBox = new JCheckBox();
+							jPanel1.add(jBochsStackCheckBox, "3, 2");
+							jBochsStackCheckBox.setText(MyLanguage.getString("Stack"));
+							jBochsStackCheckBox.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jBochsStackCheckBoxActionPerformed(evt);
+								}
+							});
+						}
+						{
+							jBochsAddressTranslateCheckBox = new JCheckBox();
+							jPanel1.add(jBochsAddressTranslateCheckBox, "1, 3, 2, 3");
+							jBochsAddressTranslateCheckBox.setText(MyLanguage.getString("Address_translate"));
+							jBochsAddressTranslateCheckBox.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jBochsAddressTranslateCheckBoxActionPerformed(evt);
+								}
+							});
+						}
+						{
+							jBochsHistoryCheckBox = new JCheckBox();
+							jPanel1.add(jBochsHistoryCheckBox, "3, 3");
+							jBochsHistoryCheckBox.setText(MyLanguage.getString("History"));
+							jBochsHistoryCheckBox.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jBochsHistoryCheckBoxActionPerformed(evt);
+								}
+							});
+						}
+					}
+					{
+						jLabel9 = new JLabel();
+						jPanel3.add(jLabel9, "0, 3, 3, 3");
+						jLabel9.setText(MyLanguage.getString("What_panel_will_update_after_fast_step_button"));
+					}
+					{
+						jPanel2 = new JPanel();
+						jPanel3.add(jPanel2, "0, 4, 3, 4");
+						TableLayout jPanel2Layout = new TableLayout(new double[][] { { 34.0, TableLayout.FILL, TableLayout.FILL, TableLayout.PREFERRED },
+								{ 15.0, 15.0, 15.0, TableLayout.FILL } });
+						jPanel2Layout.setHGap(10);
+						jPanel2Layout.setVGap(5);
+						jPanel2.setLayout(jPanel2Layout);
+						{
+							jFastStepRegisterCheckBox = new JCheckBox();
+							jPanel2.add(jFastStepRegisterCheckBox, "1, 0");
+							jFastStepRegisterCheckBox.setText(MyLanguage.getString("Register"));
+							jFastStepRegisterCheckBox.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jFastStepRegisterCheckBoxActionPerformed(evt);
+								}
+							});
+						}
+						{
+							jFastStepMemoryCheckBox = new JCheckBox();
+							jPanel2.add(jFastStepMemoryCheckBox, "2, 0");
+							jFastStepMemoryCheckBox.setText(MyLanguage.getString("Memory"));
+							jFastStepMemoryCheckBox.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jFastStepMemoryCheckBoxActionPerformed(evt);
+								}
+							});
+						}
+						{
+							jFastStepInstructionCheckBox = new JCheckBox();
+							jPanel2.add(jFastStepInstructionCheckBox, "3, 0");
+							jFastStepInstructionCheckBox.setText(MyLanguage.getString("Instruction"));
+							jFastStepInstructionCheckBox.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jFastStepInstructionCheckBoxActionPerformed(evt);
+								}
+							});
+						}
+						{
+							jFastStepBreakpointCheckBox = new JCheckBox();
+							jPanel2.add(jFastStepBreakpointCheckBox, "1, 1");
+							jFastStepBreakpointCheckBox.setText(MyLanguage.getString("Breakpoint"));
+							jFastStepBreakpointCheckBox.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jFastStepBreakpointCheckBoxActionPerformed(evt);
+								}
+							});
+						}
+						{
+							jFastStepGDTCheckBox = new JCheckBox();
+							jPanel2.add(jFastStepGDTCheckBox, "2, 1");
+							jFastStepGDTCheckBox.setText(MyLanguage.getString(MyLanguage.getString("GDT")));
+							jFastStepGDTCheckBox.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jFastStepGDTCheckBoxActionPerformed(evt);
+								}
+							});
+						}
+						{
+							jFastStepLDTCheckBox = new JCheckBox();
+							jPanel2.add(jFastStepLDTCheckBox, "3, 1");
+							jFastStepLDTCheckBox.setText(MyLanguage.getString(MyLanguage.getString("LDT")));
+							jFastStepLDTCheckBox.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jFastStepLDTCheckBoxActionPerformed(evt);
+								}
+							});
+						}
+						{
+							jFastStepIDTCheckBox = new JCheckBox();
+							jPanel2.add(jFastStepIDTCheckBox, "1, 2");
+							jFastStepIDTCheckBox.setText(MyLanguage.getString(MyLanguage.getString("IDT")));
+							jFastStepIDTCheckBox.addActionListener(new ActionListener() {
+								public void actionPerformed(ActionEvent evt) {
+									jFastStepIDTCheckBoxActionPerformed(evt);
+								}
+							});
+						}
+					}
+				}
+				{
+					jProfilingPanel = new JPanel();
+					GroupLayout jProfilingPanelLayout = new GroupLayout((JComponent) jProfilingPanel);
+					jProfilingPanel.setLayout(jProfilingPanelLayout);
+					jTabbedPane1.addTab("Profiling", null, jProfilingPanel, null);
+					{
+						jMemoryProfilingCheckBox = new JCheckBox();
+						jMemoryProfilingCheckBox.setText("Memory profiling");
+						jMemoryProfilingCheckBox.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent evt) {
+								jMemoryProfilingCheckBoxActionPerformed(evt);
+							}
+						});
+					}
+					{
+						jLabel1 = new JLabel();
+						jLabel1.setText("You need to restart peter-bochs if you change the following settings");
+						jLabel1.setForeground(new java.awt.Color(255,0,0));
+					}
+					{
+						jJmpProfilingCheckBox = new JCheckBox();
+						jJmpProfilingCheckBox.setText("Jmp profiling");
+						jJmpProfilingCheckBox.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent evt) {
+								jJmpProfilingCheckBoxActionPerformed(evt);
+							}
+						});
+					}
+					{
+						jUpdateGraphCheckBox = new JCheckBox();
+						jUpdateGraphCheckBox.setText("Update graph");
+						jUpdateGraphCheckBox.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent evt) {
+								jUpdateGraphCheckBoxActionPerformed(evt);
+							}
+						});
+					}
+					{
+						jHitZoneCheckBox = new JCheckBox();
+						jHitZoneCheckBox.setText("Hit zone");
+						jHitZoneCheckBox.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent evt) {
+								jHitZoneCheckBoxActionPerformed(evt);
+							}
+						});
+					}
+					{
+						jCustomZoneCheckBox = new JCheckBox();
+						jCustomZoneCheckBox.setText("Custom zone");
+						jCustomZoneCheckBox.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent evt) {
+								jCustomZoneCheckBoxActionPerformed(evt);
+							}
+						});
+					}
+					jProfilingPanelLayout.setHorizontalGroup(jProfilingPanelLayout.createSequentialGroup()
+						.addContainerGap()
+						.addGroup(jProfilingPanelLayout.createParallelGroup()
+						    .addGroup(GroupLayout.Alignment.LEADING, jProfilingPanelLayout.createSequentialGroup()
+						        .addComponent(jUpdateGraphCheckBox, GroupLayout.PREFERRED_SIZE, 130, GroupLayout.PREFERRED_SIZE)
+						        .addGap(0, 231, Short.MAX_VALUE))
+						    .addGroup(GroupLayout.Alignment.LEADING, jProfilingPanelLayout.createSequentialGroup()
+						        .addComponent(jJmpProfilingCheckBox, GroupLayout.PREFERRED_SIZE, 130, GroupLayout.PREFERRED_SIZE)
+						        .addGap(0, 231, Short.MAX_VALUE))
+						    .addGroup(GroupLayout.Alignment.LEADING, jProfilingPanelLayout.createSequentialGroup()
+						        .addComponent(jMemoryProfilingCheckBox, GroupLayout.PREFERRED_SIZE, 136, GroupLayout.PREFERRED_SIZE)
+						        .addGap(0, 225, Short.MAX_VALUE))
+						    .addComponent(jLabel1, GroupLayout.Alignment.LEADING, 0, 361, Short.MAX_VALUE)
+						    .addGroup(GroupLayout.Alignment.LEADING, jProfilingPanelLayout.createSequentialGroup()
+						        .addGap(19)
+						        .addComponent(jHitZoneCheckBox, GroupLayout.PREFERRED_SIZE, 73, GroupLayout.PREFERRED_SIZE)
+						        .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+						        .addComponent(jCustomZoneCheckBox, GroupLayout.PREFERRED_SIZE, 110, GroupLayout.PREFERRED_SIZE)
+						        .addGap(0, 148, Short.MAX_VALUE)))
+						.addContainerGap());
+					jProfilingPanelLayout.setVerticalGroup(jProfilingPanelLayout.createSequentialGroup()
+						.addContainerGap()
+						.addComponent(jLabel1, GroupLayout.PREFERRED_SIZE, 15, GroupLayout.PREFERRED_SIZE)
+						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+						.addComponent(jMemoryProfilingCheckBox, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+						.addGroup(jProfilingPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+						    .addComponent(jHitZoneCheckBox, GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+						    .addComponent(jCustomZoneCheckBox, GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+						.addComponent(jJmpProfilingCheckBox, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+						.addComponent(jUpdateGraphCheckBox, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addContainerGap(115, Short.MAX_VALUE));
+				}
+			}
 			this.addWindowListener(new WindowAdapter() {
 				public void windowClosing(WindowEvent evt) {
 					thisWindowClosing(evt);
 				}
 			});
-			{
-				jCheckBox1 = new JCheckBox();
-				getContentPane().add(jCheckBox1, "0, 0");
-				jCheckBox1.setText(MyLanguage.getString("Load_breakpoint_at_startup"));
-				jCheckBox1.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
-						jCheckBox1ActionPerformed(evt);
-					}
-				});
-			}
-			{
-				jCheckBox2 = new JCheckBox();
-				getContentPane().add(jCheckBox2, "0, 1, 1, 1");
-				jCheckBox2.setText(MyLanguage.getString("Update_status_after_bochs_command"));
-				jCheckBox2.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent evt) {
-						jCheckBox2ActionPerformed(evt);
-					}
-				});
-			}
-			{
-				jPanel1 = new JPanel();
-				TableLayout jPanel1Layout = new TableLayout(new double[][] { { 34.0, TableLayout.FILL, TableLayout.FILL, TableLayout.PREFERRED },
-						{ 15.0, 15.0, 15.0, TableLayout.PREFERRED } });
-				jPanel1Layout.setHGap(10);
-				jPanel1Layout.setVGap(5);
-				jPanel1.setLayout(jPanel1Layout);
-				getContentPane().add(jPanel1, "0, 2, 1, 2");
-				{
-					jBochsRegisterCheckBox = new JCheckBox();
-					jPanel1.add(jBochsRegisterCheckBox, "1, 0");
-					jBochsRegisterCheckBox.setText(MyLanguage.getString("Register"));
-					jBochsRegisterCheckBox.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent evt) {
-							jCheckBox3ActionPerformed(evt);
-						}
-					});
-				}
-				{
-					jBochsMemoryCheckBox = new JCheckBox();
-					jPanel1.add(jBochsMemoryCheckBox, "2, 0");
-					jBochsMemoryCheckBox.setText(MyLanguage.getString("Register"));
-					jBochsMemoryCheckBox.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent evt) {
-							jCheckBox4ActionPerformed(evt);
-						}
-					});
-				}
-				{
-					jBochsInstructionCheckBox = new JCheckBox();
-					jPanel1.add(jBochsInstructionCheckBox, "3, 0");
-					jBochsInstructionCheckBox.setText(MyLanguage.getString("Instruction"));
-					jBochsInstructionCheckBox.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent evt) {
-							jCheckBox5ActionPerformed(evt);
-						}
-					});
-				}
-				{
-					jBochsBreakpointCheckBox = new JCheckBox();
-					jPanel1.add(jBochsBreakpointCheckBox, "1, 1");
-					jBochsBreakpointCheckBox.setText(MyLanguage.getString("Breakpoint"));
-					jBochsBreakpointCheckBox.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent evt) {
-							jCheckBox6ActionPerformed(evt);
-						}
-					});
-				}
-				{
-					jBochsGDTCheckBox = new JCheckBox();
-					jPanel1.add(jBochsGDTCheckBox, "2, 1");
-					jBochsGDTCheckBox.setText(MyLanguage.getString("GDT"));
-					jBochsGDTCheckBox.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent evt) {
-							jCheckBox7ActionPerformed(evt);
-						}
-					});
-				}
-				{
-					jBochsLDTCheckBox = new JCheckBox();
-					jPanel1.add(jBochsLDTCheckBox, "3, 1");
-					jBochsLDTCheckBox.setText(MyLanguage.getString("LDT"));
-					jBochsLDTCheckBox.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent evt) {
-							jCheckBox8ActionPerformed(evt);
-						}
-					});
-				}
-				{
-					jBochsIDTCheckBox = new JCheckBox();
-					jPanel1.add(jBochsIDTCheckBox, "1, 2");
-					jBochsIDTCheckBox.setText(MyLanguage.getString("IDT"));
-					jBochsIDTCheckBox.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent evt) {
-							jCheckBox9ActionPerformed(evt);
-						}
-					});
-				}
-				{
-					jBochsPageTableCheckBox = new JCheckBox();
-					jPanel1.add(jBochsPageTableCheckBox, "2, 2");
-					jBochsPageTableCheckBox.setText(MyLanguage.getString("Page_table"));
-					jBochsPageTableCheckBox.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent evt) {
-							jBochsPageTableCheckBoxActionPerformed(evt);
-						}
-					});
-				}
-				{
-					jBochsStackCheckBox = new JCheckBox();
-					jPanel1.add(jBochsStackCheckBox, "3, 2");
-					jBochsStackCheckBox.setText(MyLanguage.getString("Stack"));
-					jBochsStackCheckBox.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent evt) {
-							jBochsStackCheckBoxActionPerformed(evt);
-						}
-					});
-				}
-				{
-					jBochsAddressTranslateCheckBox = new JCheckBox();
-					jPanel1.add(jBochsAddressTranslateCheckBox, "1, 3, 2, 3");
-					jBochsAddressTranslateCheckBox.setText(MyLanguage.getString("Address_translate"));
-					jBochsAddressTranslateCheckBox.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent evt) {
-							jBochsAddressTranslateCheckBoxActionPerformed(evt);
-						}
-					});
-				}
-				{
-					jBochsHistoryCheckBox = new JCheckBox();
-					jPanel1.add(jBochsHistoryCheckBox, "3, 3");
-					jBochsHistoryCheckBox.setText(MyLanguage.getString("History"));
-					jBochsHistoryCheckBox.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent evt) {
-							jBochsHistoryCheckBoxActionPerformed(evt);
-						}
-					});
-				}
-			}
-			{
-				jLabel9 = new JLabel();
-				getContentPane().add(jLabel9, "0, 3, 1, 3");
-				jLabel9.setText(MyLanguage.getString("What_panel_will_update_after_fast_step_button"));
-			}
-			{
-				jPanel2 = new JPanel();
-				getContentPane().add(jPanel2, "0, 4, 1, 4");
-				TableLayout jPanel2Layout = new TableLayout(new double[][] { { 34.0, TableLayout.FILL, TableLayout.FILL, TableLayout.PREFERRED },
-						{ 15.0, 15.0, 15.0, TableLayout.FILL } });
-				jPanel2Layout.setHGap(10);
-				jPanel2Layout.setVGap(5);
-				jPanel2.setLayout(jPanel2Layout);
-				{
-					jFastStepRegisterCheckBox = new JCheckBox();
-					jPanel2.add(jFastStepRegisterCheckBox, "1, 0");
-					jFastStepRegisterCheckBox.setText(MyLanguage.getString("Register"));
-					jFastStepRegisterCheckBox.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent evt) {
-							jFastStepRegisterCheckBoxActionPerformed(evt);
-						}
-					});
-				}
-				{
-					jFastStepMemoryCheckBox = new JCheckBox();
-					jPanel2.add(jFastStepMemoryCheckBox, "2, 0");
-					jFastStepMemoryCheckBox.setText(MyLanguage.getString("Memory"));
-					jFastStepMemoryCheckBox.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent evt) {
-							jFastStepMemoryCheckBoxActionPerformed(evt);
-						}
-					});
-				}
-				{
-					jFastStepInstructionCheckBox = new JCheckBox();
-					jPanel2.add(jFastStepInstructionCheckBox, "3, 0");
-					jFastStepInstructionCheckBox.setText(MyLanguage.getString("Instruction"));
-					jFastStepInstructionCheckBox.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent evt) {
-							jFastStepInstructionCheckBoxActionPerformed(evt);
-						}
-					});
-				}
-				{
-					jFastStepBreakpointCheckBox = new JCheckBox();
-					jPanel2.add(jFastStepBreakpointCheckBox, "1, 1");
-					jFastStepBreakpointCheckBox.setText(MyLanguage.getString("Breakpoint"));
-					jFastStepBreakpointCheckBox.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent evt) {
-							jFastStepBreakpointCheckBoxActionPerformed(evt);
-						}
-					});
-				}
-				{
-					jFastStepGDTCheckBox = new JCheckBox();
-					jPanel2.add(jFastStepGDTCheckBox, "2, 1");
-					jFastStepGDTCheckBox.setText(MyLanguage.getString(MyLanguage.getString("GDT")));
-					jFastStepGDTCheckBox.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent evt) {
-							jFastStepGDTCheckBoxActionPerformed(evt);
-						}
-					});
-				}
-				{
-					jFastStepLDTCheckBox = new JCheckBox();
-					jPanel2.add(jFastStepLDTCheckBox, "3, 1");
-					jFastStepLDTCheckBox.setText(MyLanguage.getString(MyLanguage.getString("LDT")));
-					jFastStepLDTCheckBox.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent evt) {
-							jFastStepLDTCheckBoxActionPerformed(evt);
-						}
-					});
-				}
-				{
-					jFastStepIDTCheckBox = new JCheckBox();
-					jPanel2.add(jFastStepIDTCheckBox, "1, 2");
-					jFastStepIDTCheckBox.setText(MyLanguage.getString(MyLanguage.getString("IDT")));
-					jFastStepIDTCheckBox.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent evt) {
-							jFastStepIDTCheckBoxActionPerformed(evt);
-						}
-					});
-				}
-			}
-			setSize(400, 300);
-			pack();
+			setSize(450, 300);
 			initValue();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -332,6 +449,11 @@ public class JSettingDialog extends javax.swing.JDialog {
 		jFastStepMemoryCheckBox.setSelected(Setting.getInstance().isUpdateFastStepCommand_memory());
 		jFastStepRegisterCheckBox.setSelected(Setting.getInstance().isUpdateFastStepCommand_register());
 
+		jMemoryProfilingCheckBox.setSelected(Setting.getInstance().isMemoryProfiling());
+		jHitZoneCheckBox.setSelected(Setting.getInstance().isHitZone());
+		jCustomZoneCheckBox.setSelected(Setting.getInstance().isCustomZone());
+		jJmpProfilingCheckBox.setSelected(Setting.getInstance().isJmpProfiling());
+		jUpdateGraphCheckBox.setSelected(Setting.getInstance().isProfilingUpdateGraph());
 	}
 
 	private void jCheckBox1ActionPerformed(ActionEvent evt) {
@@ -416,6 +538,26 @@ public class JSettingDialog extends javax.swing.JDialog {
 
 	private void jFastStepIDTCheckBoxActionPerformed(ActionEvent evt) {
 		Setting.getInstance().setUpdateFastStepCommand_idt(jFastStepIDTCheckBox.isSelected());
+	}
+
+	private void jMemoryProfilingCheckBoxActionPerformed(ActionEvent evt) {
+		Setting.getInstance().setMemoryProfiling(jMemoryProfilingCheckBox.isSelected());
+	}
+
+	private void jHitZoneCheckBoxActionPerformed(ActionEvent evt) {
+		Setting.getInstance().setHitZone(jHitZoneCheckBox.isSelected());
+	}
+
+	private void jCustomZoneCheckBoxActionPerformed(ActionEvent evt) {
+		Setting.getInstance().setCustomZone(jCustomZoneCheckBox.isSelected());
+	}
+
+	private void jJmpProfilingCheckBoxActionPerformed(ActionEvent evt) {
+		Setting.getInstance().setJmpProfiling(jJmpProfilingCheckBox.isSelected());
+	}
+
+	private void jUpdateGraphCheckBoxActionPerformed(ActionEvent evt) {
+		Setting.getInstance().setProfilingUpdateGraph(jUpdateGraphCheckBox.isSelected());
 	}
 
 }

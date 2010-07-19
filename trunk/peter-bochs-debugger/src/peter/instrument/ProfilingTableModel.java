@@ -1,16 +1,18 @@
 package peter.instrument;
 
+import java.text.DecimalFormat;
 import java.util.TreeSet;
 import java.util.Vector;
 
 import javax.swing.table.DefaultTableModel;
 
 public class ProfilingTableModel extends DefaultTableModel {
-	String columnNames[] = { "From", "To", "Hit", "Address" };
+	String columnNames[] = { "From", "To", "Hit", "No of addr", "Address" };
 	Vector<Long> fromAddresses = new Vector<Long>();
 	Vector<Long> toAddresses = new Vector<Long>();
 	Vector<Long> hitCounts = new Vector<Long>();
 	Vector<TreeSet<Long>> hitAddresses = new Vector<TreeSet<Long>>();
+	DecimalFormat decimalFormatter = new DecimalFormat("###,###,###,###");
 
 	boolean needToTellBochsToUpdateZone = false;
 
@@ -52,6 +54,7 @@ public class ProfilingTableModel extends DefaultTableModel {
 		} else if (column == 3) {
 			hitAddresses.set(row, (TreeSet<Long>) aValue);
 		}
+		this.fireTableDataChanged();
 	}
 
 	public Object getValueAt(int row, int column) {
@@ -60,11 +63,13 @@ public class ProfilingTableModel extends DefaultTableModel {
 		} else if (column == 1) {
 			return "0x" + Long.toHexString(toAddresses.get(row));
 		} else if (column == 2) {
-			return "0x" + Long.toHexString(hitCounts.get(row));
+			return decimalFormatter.format(hitCounts.get(row));
 		} else if (column == 3) {
+			return hitAddresses.get(row).size();
+		} else if (column == 4) {
 			String str = "";
-			for (Long l : hitAddresses.get(row)) {
-				str += "0x" + Long.toHexString(l) + ":";
+			for (int x = 0; x < hitAddresses.get(row).size() && x < 6; x++) {
+				str += "0x" + Long.toHexString((Long) hitAddresses.get(row).toArray()[x]) + ":";
 			}
 			return str;
 		} else {
@@ -74,6 +79,7 @@ public class ProfilingTableModel extends DefaultTableModel {
 
 	public void addHitAddress(int row, long address) {
 		hitAddresses.get(row).add(address);
+		this.fireTableDataChanged();
 	}
 
 	public boolean isCellEditable(int row, int column) {
