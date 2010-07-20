@@ -1,0 +1,5 @@
+#summary Jmp Profiling
+
+= Introduction =
+
+[http://code.google.com/p/peter-bochs/downloads/detail?name=Screenshot-Peter-Bochs%20Debugger-jmp.png]
