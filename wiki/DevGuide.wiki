@@ -22,4 +22,4 @@ Please download [http://www.eclipse.org eclipse] and [http://java.sun.com java].
 
 To build/test peter-bochs in eclipse, you need to download [http://code.google.com/p/petersoft-java-style-2/ petersoft-java-style-2]. petersoft-java-style-2 is a Swing Look & feel, I use it to make peter-bochs look better.
 
-Please checkout the source from [http://code.google.com/p/petersoft-java-style-2/source/checkout here] and import the source to eclipse like [this]
+Please checkout the source from [http://code.google.com/p/petersoft-java-style-2/source/checkout here] and import the source to eclipse like [http://peter-bochs.googlecode.com/files/dev_p1.png this]
