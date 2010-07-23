@@ -1,5 +1,7 @@
 #summary Peter-bochs development guide.
 
+<wiki:toc max_depth="1" />
+
 = Introduction =
 
 If you want to enhance peter-bochs, here is the development guide
