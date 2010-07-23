@@ -20,4 +20,6 @@ Please download [http://www.eclipse.org eclipse] and [http://java.sun.com java].
 
 == Step 2 , checkout dependence project from svn ==
 
-To build/test peter-bochs in eclipse, you need to download [http://code.google.com/p/petersoft-java-style-2/ petersoft-java-style-2]. 
+To build/test peter-bochs in eclipse, you need to download [http://code.google.com/p/petersoft-java-style-2/ petersoft-java-style-2]. petersoft-java-style-2 is a Swing Look & feel, I use it to make peter-bochs look better.
+
+Please checkout the source from [http://code.google.com/p/petersoft-java-style-2/source/checkout here] and import the source to eclipse like [this]
