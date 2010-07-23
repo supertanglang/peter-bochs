@@ -1,6 +1,8 @@
 #summary Peter-bochs development guide.
 
-<wiki:toc max_depth="1" />
+Table of content
+
+<wiki:toc max_depth="3" />
 
 = Introduction =
 
