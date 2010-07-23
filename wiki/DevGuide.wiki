@@ -8,5 +8,4 @@ If you want to enhance peter-bochs, here is the development guide
 
 My primary development environment is Fedora 13 + JDK 1.6.x. You can develop peter-bochs in windows too, but if you are enhancing "peter-bochs instrument", you have to do it in linux because "peter-bochs instrument" only work in linux at the moment.
 
-! "peter-bochs instrument" is a profiling/sampling module, you can use it to profile your assembly program. please take a look [http://code.google.com/p/peter-bochs/wiki/JmpProfiling this]
-
+! "peter-bochs instrument" is a profiling/sampling module, you can use it to profile your assembly program. please take a look [http://code.google.com/p/peter-bochs/wiki/JmpProfiling this] and [http://code.google.com/p/peter-bochs/wiki/MemorySampling_ChineseIntroduction this].
