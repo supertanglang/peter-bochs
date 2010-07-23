@@ -1,6 +1,6 @@
 #summary Peter-bochs development guide.
 
-Table of content
+= Table of content =
 
 <wiki:toc max_depth="3" />
 
