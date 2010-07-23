@@ -37,3 +37,10 @@ Please checkout from here [http://code.google.com/p/peter-bochs/source/checkout]
 In eclipse, you have to add "petersoft-java-style-2" to "peter-bochs" project's dependency
 
 [http://peter-bochs.googlecode.com/files/dev_p2.png]
+
+== Step 4, install Jigloo and Fatjar ==
+
+I use these two plugins
+
+Jigloo - Swing graphical editor
+Fatjar - I use this to pack the whole project into a single jar file, that jar file is the one you find in the dowload page
