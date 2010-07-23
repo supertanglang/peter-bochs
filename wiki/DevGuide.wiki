@@ -29,3 +29,7 @@ Please checkout the source from [http://code.google.com/p/petersoft-java-style-2
 == Step 3 , checkout peter-bochs source ==
 
 Please checkout from here [http://code.google.com/p/peter-bochs/source/checkout]
+
+In eclipse, you have to add "petersoft-java-style-2" to "peter-bochs" project's dependency
+
+[http://peter-bochs.googlecode.com/files/dev_p2.png]
