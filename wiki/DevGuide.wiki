@@ -42,5 +42,12 @@ In eclipse, you have to add "petersoft-java-style-2" to "peter-bochs" project's 
 
 I use these two plugins
 
-Jigloo - Swing graphical editor
-Fatjar - I use this to pack the whole project into a single jar file, that jar file is the one you find in the dowload page
+[http://www.cloudgarden.com/jigloo/ Jigloo] - Swing graphical editor
+
+[http://fjep.sourceforge.net/ Fatjar] - I use this to pack the whole project into a single jar file, that jar file is the one you find in the dowload page.
+
+== Step 5 , edit using Jigloo ==
+
+After you installed Jigloo to eclipse, try to open "Application.java" by "Form editor", you will see the following screen and edit every components on peter-bochs.
+
+[http://peter-bochs.googlecode.com/files/dev_p3.png]
