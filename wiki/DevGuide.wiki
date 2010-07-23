@@ -38,7 +38,7 @@ In eclipse, you have to add "petersoft-java-style-2" to "peter-bochs" project's 
 
 [http://peter-bochs.googlecode.com/files/dev_p2.png]
 
-== Step 4, install Jigloo and Fatjar ==
+== Step 4 , install Jigloo and Fatjar ==
 
 I use these two plugins
 
