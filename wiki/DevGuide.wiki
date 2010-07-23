@@ -51,3 +51,13 @@ I use these two plugins
 After you installed Jigloo to eclipse, try to open "Application.java" by "Form editor", you will see the following screen and edit every components on peter-bochs.
 
 [http://peter-bochs.googlecode.com/files/dev_p3.png]
+
+== Step 6 , run/debug peter-bochs ==
+
+The main method is in Application.java, so right click Application.java -> "run as" -> "Java application". The first time you run will produce the following error because you didn't give it the parameter.
+
+[http://peter-bochs.googlecode.com/files/dev_p4.png]
+
+To prevent the above error, please goto "Run configuration" window and add the programs argument.
+
+[http://peter-bochs.googlecode.com/files/dev_p5.png]
