@@ -32,6 +32,7 @@ import javax.swing.WindowConstants;
 public class JSettingDialog extends javax.swing.JDialog {
 	private JCheckBox jCheckBox1;
 	private JCheckBox jCheckBox2;
+	private JLabel jProfileInfoLabel;
 	private JLabel jLabel1;
 	private JCheckBox jUpdateGraphCheckBox;
 	private JCheckBox jJmpProfilingCheckBox;
@@ -339,7 +340,10 @@ public class JSettingDialog extends javax.swing.JDialog {
 					{
 						jLabel1 = new JLabel();
 						jLabel1.setText("You need to restart peter-bochs if you change the following settings");
-						jLabel1.setForeground(new java.awt.Color(255,0,0));
+						jLabel1.setForeground(new java.awt.Color(255, 0, 0));
+					}
+					{
+						jProfileInfoLabel = new JLabel();
 					}
 					{
 						jJmpProfilingCheckBox = new JCheckBox();
@@ -377,40 +381,56 @@ public class JSettingDialog extends javax.swing.JDialog {
 							}
 						});
 					}
-					jProfilingPanelLayout.setHorizontalGroup(jProfilingPanelLayout.createSequentialGroup()
-						.addContainerGap()
-						.addGroup(jProfilingPanelLayout.createParallelGroup()
-						    .addGroup(GroupLayout.Alignment.LEADING, jProfilingPanelLayout.createSequentialGroup()
-						        .addComponent(jUpdateGraphCheckBox, GroupLayout.PREFERRED_SIZE, 130, GroupLayout.PREFERRED_SIZE)
-						        .addGap(0, 231, Short.MAX_VALUE))
-						    .addGroup(GroupLayout.Alignment.LEADING, jProfilingPanelLayout.createSequentialGroup()
-						        .addComponent(jJmpProfilingCheckBox, GroupLayout.PREFERRED_SIZE, 130, GroupLayout.PREFERRED_SIZE)
-						        .addGap(0, 231, Short.MAX_VALUE))
-						    .addGroup(GroupLayout.Alignment.LEADING, jProfilingPanelLayout.createSequentialGroup()
-						        .addComponent(jMemoryProfilingCheckBox, GroupLayout.PREFERRED_SIZE, 136, GroupLayout.PREFERRED_SIZE)
-						        .addGap(0, 225, Short.MAX_VALUE))
-						    .addComponent(jLabel1, GroupLayout.Alignment.LEADING, 0, 361, Short.MAX_VALUE)
-						    .addGroup(GroupLayout.Alignment.LEADING, jProfilingPanelLayout.createSequentialGroup()
-						        .addGap(19)
-						        .addComponent(jHitZoneCheckBox, GroupLayout.PREFERRED_SIZE, 73, GroupLayout.PREFERRED_SIZE)
-						        .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-						        .addComponent(jCustomZoneCheckBox, GroupLayout.PREFERRED_SIZE, 110, GroupLayout.PREFERRED_SIZE)
-						        .addGap(0, 148, Short.MAX_VALUE)))
-						.addContainerGap());
-					jProfilingPanelLayout.setVerticalGroup(jProfilingPanelLayout.createSequentialGroup()
-						.addContainerGap()
-						.addComponent(jLabel1, GroupLayout.PREFERRED_SIZE, 15, GroupLayout.PREFERRED_SIZE)
-						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-						.addComponent(jMemoryProfilingCheckBox, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-						.addGroup(jProfilingPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-						    .addComponent(jHitZoneCheckBox, GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
-						    .addComponent(jCustomZoneCheckBox, GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE))
-						.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-						.addComponent(jJmpProfilingCheckBox, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-						.addComponent(jUpdateGraphCheckBox, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addContainerGap(115, Short.MAX_VALUE));
+					jProfilingPanelLayout.setHorizontalGroup(jProfilingPanelLayout
+							.createSequentialGroup()
+							.addContainerGap()
+							.addGroup(
+									jProfilingPanelLayout
+											.createParallelGroup()
+											.addGroup(
+													GroupLayout.Alignment.LEADING,
+													jProfilingPanelLayout.createSequentialGroup()
+															.addComponent(jUpdateGraphCheckBox, GroupLayout.PREFERRED_SIZE, 130, GroupLayout.PREFERRED_SIZE)
+															.addGap(0, 281, Short.MAX_VALUE))
+											.addGroup(
+													GroupLayout.Alignment.LEADING,
+													jProfilingPanelLayout.createSequentialGroup()
+															.addComponent(jJmpProfilingCheckBox, GroupLayout.PREFERRED_SIZE, 130, GroupLayout.PREFERRED_SIZE)
+															.addGap(0, 281, Short.MAX_VALUE))
+											.addGroup(
+													GroupLayout.Alignment.LEADING,
+													jProfilingPanelLayout.createSequentialGroup()
+															.addComponent(jMemoryProfilingCheckBox, GroupLayout.PREFERRED_SIZE, 136, GroupLayout.PREFERRED_SIZE)
+															.addGap(0, 275, Short.MAX_VALUE))
+											.addComponent(jLabel1, GroupLayout.Alignment.LEADING, 0, 411, Short.MAX_VALUE)
+											.addComponent(jProfileInfoLabel, GroupLayout.Alignment.LEADING, 0, 411, Short.MAX_VALUE)
+											.addGroup(
+													GroupLayout.Alignment.LEADING,
+													jProfilingPanelLayout.createSequentialGroup().addGap(19)
+															.addComponent(jHitZoneCheckBox, GroupLayout.PREFERRED_SIZE, 73, GroupLayout.PREFERRED_SIZE)
+															.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+															.addComponent(jCustomZoneCheckBox, GroupLayout.PREFERRED_SIZE, 110, GroupLayout.PREFERRED_SIZE)
+															.addGap(0, 198, Short.MAX_VALUE))).addContainerGap());
+					jProfilingPanelLayout.setVerticalGroup(jProfilingPanelLayout
+							.createSequentialGroup()
+							.addContainerGap()
+							.addComponent(jProfileInfoLabel, GroupLayout.PREFERRED_SIZE, 15, GroupLayout.PREFERRED_SIZE)
+							.addGap(24)
+							.addComponent(jLabel1, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+							.addComponent(jMemoryProfilingCheckBox, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+							.addGroup(
+									jProfilingPanelLayout
+											.createParallelGroup(GroupLayout.Alignment.BASELINE)
+											.addComponent(jHitZoneCheckBox, GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,
+													GroupLayout.PREFERRED_SIZE)
+											.addComponent(jCustomZoneCheckBox, GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,
+													GroupLayout.PREFERRED_SIZE)).addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+							.addComponent(jJmpProfilingCheckBox, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+							.addComponent(jUpdateGraphCheckBox, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addContainerGap(76, Short.MAX_VALUE));
 				}
 			}
 			this.addWindowListener(new WindowAdapter() {
@@ -418,6 +438,7 @@ public class JSettingDialog extends javax.swing.JDialog {
 					thisWindowClosing(evt);
 				}
 			});
+			jProfileInfoLabel.setText("Memory profile port : " + Global.profilingMemoryPort + " , jmp profile port : " + Global.profilingJmpPort);
 			setSize(450, 300);
 			initValue();
 		} catch (Exception e) {

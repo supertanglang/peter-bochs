@@ -2,10 +2,8 @@ package peter.architecture;
 
 import java.io.Serializable;
 
-import org.jgraph.graph.DefaultGraphCell;
-
 @SuppressWarnings("serial")
-public class IA32PageTable extends DefaultGraphCell implements Serializable {
+public class IA32PageTable implements Serializable {
 	// @Override
 	// public String toString() {
 	// return "base=" + base + ", a=" + a + ", avl=" + avl + ", d=" + d + ", g="

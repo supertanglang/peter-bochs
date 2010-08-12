@@ -1,12 +1,14 @@
 package peter.instrument;
 
-import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.TreeSet;
 
+import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 
 import peter.CommonLib;
@@ -17,24 +19,25 @@ public class MemorySocketServer implements Runnable {
 	JTextArea jTextArea;
 	boolean shouldStop;
 	ServerSocket serverSocket;
+	final int MAX_MEMORY_PROFILING_BUFFER = 500 * 4;
 
 	public void startServer(int port, JTextArea jTextArea) {
 		this.port = port;
 		this.jTextArea = jTextArea;
-//		jTextArea.setText("");
+		// jTextArea.setText("");
 
 		shouldStop = false;
 		new Thread(this).start();
 
-		while (serverSocket == null) {
-			try {
-				Thread.currentThread().sleep(500);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
+		// while (serverSocket == null) {
+		// try {
+		// Thread.currentThread().sleep(500);
+		// } catch (InterruptedException e) {
+		// e.printStackTrace();
+		// }
+		// }
 
-		while (!serverSocket.isBound()) {
+		while (serverSocket != null && !serverSocket.isBound()) {
 			try {
 				Thread.currentThread().sleep(500);
 			} catch (InterruptedException e) {
@@ -45,6 +48,10 @@ public class MemorySocketServer implements Runnable {
 
 	public void stopServer() {
 		shouldStop = true;
+		try {
+			serverSocket.close();
+		} catch (IOException e) {
+		}
 	}
 
 	@Override
@@ -57,16 +64,18 @@ public class MemorySocketServer implements Runnable {
 			serverSocket = new ServerSocket(port);
 			while (!shouldStop) {
 				Socket clientSocket = serverSocket.accept();
-				PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-				BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-				String inputLine;
+				// clientSocket.setTcpNoDelay(true);
+				DataInputStream in = new DataInputStream(clientSocket.getInputStream());
+				DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
 
 				while (!shouldStop) {
 					// hit count
-					inputLine = in.readLine();
-					for (int z = 0; z < 80000; z += 8) {
+					byte bytes[] = new byte[MAX_MEMORY_PROFILING_BUFFER];
+					in.readFully(bytes, 0, bytes.length);
+
+					for (int z = 0; z <= MAX_MEMORY_PROFILING_BUFFER - 4; z += 4) {
 						try {
-							long address = Long.parseLong(inputLine.substring(z, z + 8).trim(), 16);
+							long address = bytes[z] + (bytes[z + 1] << 8) + (bytes[z + 2] << 16) + (bytes[z + 3] << 24);
 							Data.increaseMemoryReadCount(address);
 						} catch (Exception ex) {
 
@@ -75,34 +84,36 @@ public class MemorySocketServer implements Runnable {
 					// end hit count
 
 					// zones
-					inputLine = in.readLine();
 					try {
-						int noOfZone = Integer.parseInt(inputLine.substring(0, 8).trim());
-						inputLine = inputLine.substring(8);
-						if (noOfZone > 0) {
-							
-							for (int offset = 0; offset < inputLine.length();) {
-								long zoneFrom = CommonLib.convertFilesize("0x" + inputLine.substring(offset, offset + 8).trim());
-								offset += 8;
-								long zoneTo = CommonLib.convertFilesize("0x" + inputLine.substring(offset, offset + 8).trim());
-								offset += 8;
-								long zoneHitCount = CommonLib.convertFilesize("0x" + inputLine.substring(offset, offset + 8).trim());
-								offset += 8;
-								long noOfZoneHitAddress = CommonLib.convertFilesize("0x" + inputLine.substring(offset, offset + 8).trim());
-								offset += 8;
+						// hit count
+						int noOfZone = in.readUnsignedByte() + (in.readUnsignedByte() << 8) + (in.readUnsignedByte() << 16) + (in.readUnsignedByte() << 24);
 
-								for (int y = 0; y < Data.memoryProfilingZone.getRowCount(); y++) {
-									long from = CommonLib.convertFilesize(Data.memoryProfilingZone.getValueAt(y, 0).toString());
-									long to = CommonLib.convertFilesize(Data.memoryProfilingZone.getValueAt(y, 1).toString());
+						for (int offset = 0; offset < noOfZone; offset++) {
+							long zoneFrom = in.readUnsignedByte() + (in.readUnsignedByte() << 8) + (in.readUnsignedByte() << 16) + (in.readUnsignedByte() << 24);
+							long zoneTo = in.readUnsignedByte() + (in.readUnsignedByte() << 8) + (in.readUnsignedByte() << 16) + (in.readUnsignedByte() << 24);
+							long zoneHitCount = in.readUnsignedByte() + (in.readUnsignedByte() << 8) + (in.readUnsignedByte() << 16) + (in.readUnsignedByte() << 24);
+							long noOfZoneHitAddress = in.readUnsignedByte() + (in.readUnsignedByte() << 8) + (in.readUnsignedByte() << 16) + (in.readUnsignedByte() << 24);
+							if (Global.bits.equals("32bits")) {
+								zoneFrom &= 0xffffffffL;
+								zoneTo &= 0xffffffffL;
+								zoneHitCount &= 0xffffffffL;
+								noOfZoneHitAddress &= 0xffffffffL;
+							}
 
-									if (zoneFrom == from && zoneTo == to) {
-										Data.memoryProfilingZone.setValueAt(zoneHitCount, y, 2);
-										for (int index = 0; index < noOfZoneHitAddress; index++) {
-											long zoneHitAddress = CommonLib.convertFilesize("0x" + inputLine.substring(offset, offset + 8).trim());
-											offset += 8;
-											Data.memoryProfilingZone.addHitAddress(y, zoneHitAddress);
-										}
-									}
+							TreeSet<Long> treeset = new TreeSet<Long>();
+							for (int index = 0; index < noOfZoneHitAddress; index++) {
+								long zoneHitAddress = in.readUnsignedByte() + (in.readUnsignedByte() << 8) + (in.readUnsignedByte() << 16) + (in.readUnsignedByte() << 24);
+								treeset.add(zoneHitAddress);
+							}
+
+							//System.out.println(Long.toHexString(zoneFrom) + "-" + Long.toHexString(zoneTo));
+							for (int y = 0; y < Data.memoryProfilingZone.getRowCount(); y++) {
+								long from = CommonLib.convertFilesize(Data.memoryProfilingZone.getValueAt(y, 0).toString());
+								long to = CommonLib.convertFilesize(Data.memoryProfilingZone.getValueAt(y, 1).toString());
+								if (zoneFrom == from && zoneTo == to) {
+									Data.memoryProfilingZone.setValueAt(zoneHitCount, y, 2);
+									Data.memoryProfilingZone.setValueAt(treeset, y, 4);
+									break;
 								}
 							}
 						}
@@ -112,29 +123,34 @@ public class MemorySocketServer implements Runnable {
 					// end zones
 
 					if (Data.memoryProfilingZone.needToTellBochsToUpdateZone) {
-						String header = String.format("Z%04d", Data.memoryProfilingZone.getRowCount());
-						out.print(header);
+						out.writeByte(2);
+						out.writeInt(Data.memoryProfilingZone.getRowCount());
 
 						for (int y = 0; y < Data.memoryProfilingZone.getRowCount(); y++) {
-							String from = String.format("%08x", CommonLib.convertFilesize(Data.memoryProfilingZone.getValueAt(y, 0).toString()));
-							String to = String.format("%08x", CommonLib.convertFilesize(Data.memoryProfilingZone.getValueAt(y, 1).toString()));
-							out.print(from);
-							out.print(to);
+							//							System.out.println((int) CommonLib.convertFilesize(Data.memoryProfilingZone.getValueAt(y, 0).toString()) + "---"
+							//									+ (int) CommonLib.convertFilesize(Data.memoryProfilingZone.getValueAt(y, 1).toString()));
+							out.writeInt((int) CommonLib.convertFilesize(Data.memoryProfilingZone.getValueAt(y, 0).toString()));
+							out.writeInt((int) CommonLib.convertFilesize(Data.memoryProfilingZone.getValueAt(y, 1).toString()));
 						}
 
 						Data.memoryProfilingZone.needToTellBochsToUpdateZone = false;
 					} else {
-						out.print("-");
+						out.writeByte(1);
 					}
 					out.flush();
+
 				}
 				out.close();
 				in.close();
 				clientSocket.close();
 			}
 			serverSocket.close();
-		} catch (IOException e) {
-			jTextArea.append("Could not listen on port: " + port);
+		} catch (BindException ex) {
+			JOptionPane.showMessageDialog(null, "You have turn on the profiling feature but the port " + port + " is not available. Program exit", "Error",
+					JOptionPane.ERROR_MESSAGE);
+			System.exit(-1);
+		} catch (IOException ex2) {
+
 		}
 	}
 }

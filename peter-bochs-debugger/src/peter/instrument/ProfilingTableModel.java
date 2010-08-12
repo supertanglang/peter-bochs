@@ -14,10 +14,10 @@ public class ProfilingTableModel extends DefaultTableModel {
 	Vector<TreeSet<Long>> hitAddresses = new Vector<TreeSet<Long>>();
 	DecimalFormat decimalFormatter = new DecimalFormat("###,###,###,###");
 
-	boolean needToTellBochsToUpdateZone = false;
+	public boolean needToTellBochsToUpdateZone = false;
 
 	public void addZone(long fromAddress, long toAddress) {
-		if (fromAddress > 0 && toAddress > 0) {
+		if (fromAddress >= 0 && toAddress >= 0) {
 			fromAddresses.add(fromAddress);
 			toAddresses.add(toAddress);
 			hitCounts.add(0l);
@@ -52,6 +52,7 @@ public class ProfilingTableModel extends DefaultTableModel {
 		} else if (column == 2) {
 			hitCounts.set(row, (Long) aValue);
 		} else if (column == 3) {
+		} else if (column == 4) {
 			hitAddresses.set(row, (TreeSet<Long>) aValue);
 		}
 		this.fireTableDataChanged();
@@ -68,7 +69,7 @@ public class ProfilingTableModel extends DefaultTableModel {
 			return hitAddresses.get(row).size();
 		} else if (column == 4) {
 			String str = "";
-			for (int x = 0; x < hitAddresses.get(row).size() && x < 6; x++) {
+			for (int x = 0; x < hitAddresses.get(row).size(); x++) {
 				str += "0x" + Long.toHexString((Long) hitAddresses.get(row).toArray()[x]) + ":";
 			}
 			return str;
@@ -84,5 +85,13 @@ public class ProfilingTableModel extends DefaultTableModel {
 
 	public boolean isCellEditable(int row, int column) {
 		return false;
+	}
+
+	public void removeAll() {
+		fromAddresses.removeAllElements();
+		toAddresses.removeAllElements();
+		hitCounts.removeAllElements();
+		hitAddresses.removeAllElements();
+		this.fireTableDataChanged();
 	}
 }

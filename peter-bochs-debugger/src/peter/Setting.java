@@ -41,6 +41,9 @@ public class Setting {
 	}
 
 	public void addProfileMemoryFromAddress(Long str) {
+		if (Global.bits.equals("32bits")) {
+			str &= 0xffffffffL;
+		}
 		profileMemoryFromAddress.add(str);
 	}
 
@@ -53,6 +56,9 @@ public class Setting {
 	}
 
 	public void addProfileMemoryToAddress(Long str) {
+		if (Global.bits.equals("32bits")) {
+			str &= 0xffffffffL;
+		}
 		profileMemoryToAddress.add(str);
 	}
 

@@ -1,14 +1,16 @@
 package peter.instrument;
 
-import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedHashSet;
+
+import javax.swing.JOptionPane;
 
 import peter.Global;
 
@@ -19,6 +21,8 @@ public class JmpSocketServer implements Runnable {
 	private ServerSocket serverSocket;
 	private SimpleDateFormat dateformat1 = new SimpleDateFormat("HH:mm:ss.S");
 	FileWriter fstream;
+
+	public static LinkedHashSet<String> segments = new LinkedHashSet<String>();
 
 	public void startServer(int port, JmpTableModel jmpTableModel) {
 		this.port = port;
@@ -32,15 +36,15 @@ public class JmpSocketServer implements Runnable {
 		shouldStop = false;
 		new Thread(this).start();
 
-		while (serverSocket == null) {
-			try {
-				Thread.currentThread().sleep(500);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
+		// while (serverSocket == null) {
+		// try {
+		// Thread.currentThread().sleep(500);
+		// } catch (InterruptedException e) {
+		// e.printStackTrace();
+		// }
+		// }
 
-		while (!serverSocket.isBound()) {
+		while (serverSocket != null && !serverSocket.isBound()) {
 			try {
 				Thread.currentThread().sleep(500);
 			} catch (InterruptedException e) {
@@ -51,6 +55,10 @@ public class JmpSocketServer implements Runnable {
 
 	public void stopServer() {
 		shouldStop = true;
+		try {
+			serverSocket.close();
+		} catch (IOException e) {
+		}
 	}
 
 	@Override
@@ -63,43 +71,39 @@ public class JmpSocketServer implements Runnable {
 			serverSocket = new ServerSocket(port);
 			while (!shouldStop) {
 				Socket clientSocket = serverSocket.accept();
-				PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-				// BufferedReader in = new BufferedReader(new
-				// InputStreamReader(clientSocket.getInputStream()));
 				DataInputStream in = new DataInputStream(clientSocket.getInputStream());
 
-				// int x = 0;
 				int lineNo = 1;
+
 				while (!shouldStop) {
-					long address = in.readUnsignedByte() + (in.readUnsignedByte() << 8) + (in.readUnsignedByte() << 16) + (in.readUnsignedByte() << 24);
-
-					fstream.write(lineNo + "-" + dateformat1.format(new Date()) + "-" + String.valueOf(address) + "-fuck\n");
-
-					jmpTableModel.addData(String.valueOf(lineNo), dateformat1.format(new Date()), address, address + 1);
-
-					// fstream.flush();
-
-					// if (!isGroup || lastAddress != address) {
-					// new Thread(new BottomThread(x, address)).start();
-
-					// jTextArea.append(lineNo + " - " +
-					// dateformat1.format(new Date()) + " - 0x" +
-					// Long.toHexString(address) +
-					// System.getProperty("line.separator"));
-					// jTextArea.setCaretPosition(jTextArea.getText().length());
-					// lastAddress = address;
-					// x++;
-					lineNo++;
-					// }
+					int head = in.readUnsignedByte();
+					if (head == 1) {
+						long fromAddress = in.readUnsignedByte() + (in.readUnsignedByte() << 8) + (in.readUnsignedByte() << 16) + (in.readUnsignedByte() << 24);
+						long toAddress = in.readUnsignedByte() + (in.readUnsignedByte() << 8) + (in.readUnsignedByte() << 16) + (in.readUnsignedByte() << 24);
+						fromAddress &= 0xffffffffL;
+						toAddress &= 0xffffffffL;
+						fstream.write(lineNo + "-" + dateformat1.format(new Date()) + "-" + fromAddress + "-" + toAddress + "\n");
+						jmpTableModel.addData(String.valueOf(lineNo), dateformat1.format(new Date()), fromAddress, toAddress);
+						lineNo++;
+					} else if (head == 2) {
+						long segmentBegin = in.readUnsignedByte() + (in.readUnsignedByte() << 8) + (in.readUnsignedByte() << 16) + (in.readUnsignedByte() << 24);
+						long segmentEnd = in.readUnsignedByte() + (in.readUnsignedByte() << 8) + (in.readUnsignedByte() << 16) + (in.readUnsignedByte() << 24);
+						segmentBegin &= 0xffffffffL;
+						segmentEnd &= 0xffffffffL;
+						segments.add(segmentBegin + "-" + segmentEnd);
+					}
 				}
 
-				// out.close();
-				// in.close();
-				// clientSocket.close();
+				in.close();
+				clientSocket.close();
 			}
 			serverSocket.close();
-		} catch (IOException ex) {
-			ex.printStackTrace();
+		} catch (BindException ex) {
+			JOptionPane.showMessageDialog(null, "You have turn on the profiling feature but the port " + port + " is not available. Program exit", "Error",
+					JOptionPane.ERROR_MESSAGE);
+			System.exit(-1);
+		} catch (IOException ex2) {
+
 		}
 	}
 }

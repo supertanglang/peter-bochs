@@ -57,7 +57,7 @@ public class JmpTableModel extends DefaultTableModel implements Runnable {
 		} else if (column == 2) {
 			return "0x" + Long.toHexString(from.get(row));
 		} else if (column == 3) {
-			return to.get(row);
+			return "0x" + Long.toHexString(to.get(row));
 		} else {
 			return "";
 		}
