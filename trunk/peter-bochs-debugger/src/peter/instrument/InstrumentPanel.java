@@ -12,16 +12,15 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
+import java.util.Vector;
 
-import javax.media.opengl.GLCapabilities;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
@@ -33,24 +32,16 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JToolBar;
 import javax.swing.LayoutStyle;
 import javax.swing.SwingConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
-
-import net.masagroup.jzy3d.chart.Chart;
-import net.masagroup.jzy3d.chart.controllers.ControllerEvent;
-import net.masagroup.jzy3d.chart.controllers.ControllerEventListener;
-import net.masagroup.jzy3d.chart.controllers.ControllerType;
-import net.masagroup.jzy3d.chart.controllers.mouse.ChartMouseController;
-import net.masagroup.jzy3d.colors.ColorMapper;
-import net.masagroup.jzy3d.colors.colormaps.ColorMapRainbow;
-import net.masagroup.jzy3d.maths.Coord3d;
-import net.masagroup.jzy3d.plot3d.builder.Builder;
-import net.masagroup.jzy3d.plot3d.primitives.Drawable;
-import net.masagroup.jzy3d.plot3d.primitives.Shape;
-import net.masagroup.jzy3d.plot3d.rendering.canvas.Quality;
+import javax.swing.table.TableModel;
 
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
@@ -72,7 +63,17 @@ import peter.Setting;
 import peter.instrument.jfreechart.MyXYBlockRenderer;
 import peter.instrument.jfreechart.MyXYToolTipGenerator;
 
+import com.mxgraph.layout.mxCircleLayout;
+import com.mxgraph.layout.mxCompactTreeLayout;
+import com.mxgraph.layout.mxOrganicLayout;
+import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
+import com.mxgraph.model.mxCell;
+import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.util.mxConstants;
+import com.mxgraph.view.mxGraph;
+import com.mxgraph.view.mxStylesheet;
 import com.petersoft.advancedswing.searchtextfield.JSearchTextField;
+import info.clearthought.layout.TableLayout;
 
 /**
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
@@ -87,6 +88,20 @@ import com.petersoft.advancedswing.searchtextfield.JSearchTextField;
 public class InstrumentPanel extends JPanel implements ChartChangeListener, ChartMouseListener {
 	private JTabbedPane jTabbedPane1;
 	private JPanel jMemoryPanel;
+	private JTable jCallGraphTable;
+	private JScrollPane jScrollPane1;
+	private JPanel jCallGraphTablePanel;
+	private JTabbedPane jTabbedPane3;
+	private JSlider jCallGraphSlider;
+	private JButton jLayoutHierarchicalButton;
+	private JButton jLayoutOrganicButton;
+	private JButton jLayoutCircleButton;
+	private JButton jLayoutTreeButton;
+	private JButton jRefreshCallGraphButton;
+	private JScrollPane jCallGraphScrollPane;
+	private JButton jSaveGraphButton;
+	private JToolBar jToolBar1;
+	private JPanel jCallGraphPanel;
 	private JTable jTable1;
 	private JCheckBox jGroupCheckBox;
 	private JLabel jLabel10;
@@ -127,8 +142,10 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 	private JLabel jLabel6;
 	private JPanel jPanel1;
 	Color background = new Color(250, 250, 250);
-	static Chart chart;
+	//	static Chart chart;
 	JmpTableModel jmpTableModel = new JmpTableModel();
+	mxGraph graph;
+	mxGraphComponent graphComponent;
 
 	public InstrumentPanel() {
 		initGUI();
@@ -152,6 +169,7 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 						jTabbedPane1.addTab("Memory", null, jMemoryPanel, null);
 						jTabbedPane1.addTab("Profiling", null, getJMemoryProfilingPanel(), null);
 						jTabbedPane1.addTab("Jmp", null, getJmpPanel(), null);
+						jTabbedPane1.addTab("jTabbedPane3", null, getJTabbedPane3(), null);
 						jMemoryPanelLayout.setVerticalGroup(jMemoryPanelLayout
 								.createSequentialGroup()
 								.addContainerGap()
@@ -474,43 +492,43 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 	}
 
 	public void update3DChart() {
-		try {
-			long rowCount = Data.getRowCount(CommonLib.convertFilesize((String) jFromComboBox.getSelectedItem()),
-					CommonLib.convertFilesize((String) jToComboBox.getSelectedItem()), CommonLib.convertFilesize((String) jBlockSizeComboBox.getSelectedItem()));
-			long columnCount = Data.getColumnCount(CommonLib.convertFilesize((String) jFromComboBox.getSelectedItem()),
-					CommonLib.convertFilesize((String) jToComboBox.getSelectedItem()), CommonLib.convertFilesize((String) jBlockSizeComboBox.getSelectedItem()));
-
-			List<Coord3d> coords = new ArrayList<Coord3d>();// SphereScatterGenerator.generate(new
-			int dataB[] = Data.getChartData(CommonLib.convertFilesize((String) jFromComboBox.getSelectedItem()), CommonLib.convertFilesize((String) jToComboBox.getSelectedItem()),
-					CommonLib.convertFilesize((String) jBlockSizeComboBox.getSelectedItem()));
-
-			// Random r = new Random();
-			for (int x = 0; x < columnCount; x++) {
-				for (int y = 0; y < rowCount; y++) {
-					int index = (int) (x + y * columnCount);
-					if (index < dataB.length) {
-						coords.add(new Coord3d(x, y, dataB[index]));
-					}
-					// coords.add(new Coord3d(x, y, r.nextInt(100)));
-				}
-			}
-
-			// Create the object to represent the function over the given range.
-			final Shape surface = (Shape) Builder.buildDelaunay(coords);
-			surface.setColorMapper(new ColorMapper(new ColorMapRainbow(), surface.getBounds().getZmin(), surface.getBounds().getZmax(), new net.masagroup.jzy3d.colors.Color(1, 1,
-					1, .5f)));
-			surface.setFaceDisplayed(true);
-			surface.setWireframeDisplayed(true);
-			surface.setWireframeColor(net.masagroup.jzy3d.colors.Color.BLACK);
-
-			for (Iterator<Drawable> it = chart.getScene().getGraph().getAll().iterator(); it.hasNext();) {
-				it.next();
-				it.remove();
-			}
-			chart.getScene().getGraph().add(surface);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
+		/*
+		 * try { long rowCount =
+		 * Data.getRowCount(CommonLib.convertFilesize((String)
+		 * jFromComboBox.getSelectedItem()), CommonLib.convertFilesize((String)
+		 * jToComboBox.getSelectedItem()), CommonLib.convertFilesize((String)
+		 * jBlockSizeComboBox.getSelectedItem())); long columnCount =
+		 * Data.getColumnCount(CommonLib.convertFilesize((String)
+		 * jFromComboBox.getSelectedItem()), CommonLib.convertFilesize((String)
+		 * jToComboBox.getSelectedItem()), CommonLib.convertFilesize((String)
+		 * jBlockSizeComboBox.getSelectedItem()));
+		 * 
+		 * List<Coord3d> coords = new ArrayList<Coord3d>();//
+		 * SphereScatterGenerator.generate(new int dataB[] =
+		 * Data.getChartData(CommonLib.convertFilesize((String)
+		 * jFromComboBox.getSelectedItem()), CommonLib.convertFilesize((String)
+		 * jToComboBox.getSelectedItem()), CommonLib.convertFilesize((String)
+		 * jBlockSizeComboBox.getSelectedItem()));
+		 * 
+		 * // Random r = new Random(); for (int x = 0; x < columnCount; x++) {
+		 * for (int y = 0; y < rowCount; y++) { int index = (int) (x + y *
+		 * columnCount); if (index < dataB.length) { coords.add(new Coord3d(x,
+		 * y, dataB[index])); } // coords.add(new Coord3d(x, y,
+		 * r.nextInt(100))); } }
+		 * 
+		 * // Create the object to represent the function over the given range.
+		 * final Shape surface = (Shape) Builder.buildDelaunay(coords);
+		 * surface.setColorMapper(new ColorMapper(new ColorMapRainbow(),
+		 * surface.getBounds().getZmin(), surface.getBounds().getZmax(), new
+		 * net.masagroup.jzy3d.colors.Color(1, 1, 1, .5f)));
+		 * surface.setFaceDisplayed(true); surface.setWireframeDisplayed(true);
+		 * surface.setWireframeColor(net.masagroup.jzy3d.colors.Color.BLACK);
+		 * 
+		 * for (Iterator<Drawable> it =
+		 * chart.getScene().getGraph().getAll().iterator(); it.hasNext();) {
+		 * it.next(); it.remove(); } chart.getScene().getGraph().add(surface); }
+		 * catch (Exception ex) { ex.printStackTrace(); }
+		 */
 	}
 
 	public ArrayList<Color> allColors() {
@@ -563,45 +581,39 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 		}
 	}
 
-	private JPanel getJMemory3DPanel() {
-		if (jMemory3DPanel == null) {
-			jMemory3DPanel = new JPanel();
-			GroupLayout jMemory3DPanelLayout = new GroupLayout((JComponent) jMemory3DPanel);
-			jMemory3DPanel.setLayout(jMemory3DPanelLayout);
-			jMemory3DPanel.setPreferredSize(new java.awt.Dimension(890, 242));
+	/*
+	 * private JPanel getJMemory3DPanel() { if (jMemory3DPanel == null) {
+	 * jMemory3DPanel = new JPanel(); GroupLayout jMemory3DPanelLayout = new
+	 * GroupLayout((JComponent) jMemory3DPanel);
+	 * jMemory3DPanel.setLayout(jMemory3DPanelLayout);
+	 * jMemory3DPanel.setPreferredSize(new java.awt.Dimension(890, 242));
+	 * 
+	 * try { Chart chart = createEmptyMemory3DChart(); ChartMouseController
+	 * mouse = new ChartMouseController(); mouse.addControllerEventListener(new
+	 * ControllerEventListener() { public void
+	 * controllerEventFired(ControllerEvent e) { if (e.getType() ==
+	 * ControllerType.ROTATE) { // System.out.println("Mouse[ROTATE]:" + //
+	 * (Coord3d)e.getValue()); } } }); chart.addController(mouse);
+	 * 
+	 * jMemory3DPanelLayout.setHorizontalGroup(jMemory3DPanelLayout.
+	 * createSequentialGroup().addContainerGap() .addComponent((Component)
+	 * chart.getCanvas(), 0, 220, Short.MAX_VALUE).addContainerGap());
+	 * jMemory3DPanelLayout
+	 * .setVerticalGroup(jMemory3DPanelLayout.createSequentialGroup
+	 * ().addContainerGap() .addComponent((Component) chart.getCanvas(), 0, 116,
+	 * Short.MAX_VALUE).addContainerGap());
+	 * 
+	 * GLCapabilities glCapabilities = new GLCapabilities();
+	 * glCapabilities.setHardwareAccelerated(true); } catch (IOException e1) {
+	 * e1.printStackTrace(); }
+	 * 
+	 * } return jMemory3DPanel; }
+	 */
 
-			try {
-				Chart chart = createEmptyMemory3DChart();
-				ChartMouseController mouse = new ChartMouseController();
-				mouse.addControllerEventListener(new ControllerEventListener() {
-					public void controllerEventFired(ControllerEvent e) {
-						if (e.getType() == ControllerType.ROTATE) {
-							// System.out.println("Mouse[ROTATE]:" +
-							// (Coord3d)e.getValue());
-						}
-					}
-				});
-				chart.addController(mouse);
-
-				jMemory3DPanelLayout.setHorizontalGroup(jMemory3DPanelLayout.createSequentialGroup().addContainerGap()
-						.addComponent((Component) chart.getCanvas(), 0, 220, Short.MAX_VALUE).addContainerGap());
-				jMemory3DPanelLayout.setVerticalGroup(jMemory3DPanelLayout.createSequentialGroup().addContainerGap()
-						.addComponent((Component) chart.getCanvas(), 0, 116, Short.MAX_VALUE).addContainerGap());
-
-				GLCapabilities glCapabilities = new GLCapabilities();
-				glCapabilities.setHardwareAccelerated(true);
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-
-		}
-		return jMemory3DPanel;
-	}
-
-	public static Chart createEmptyMemory3DChart() throws IOException {
-		chart = new Chart(Quality.Fastest);
-		return chart;
-	}
+	/*
+	 * public static Chart createEmptyMemory3DChart() throws IOException { chart
+	 * = new Chart(Quality.Fastest); return chart; }
+	 */
 
 	private JButton getJZoomOutButton() {
 		if (jZoomOutButton == null) {
@@ -923,7 +935,7 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 				jfcMemory = createEmptyChart(createEmptyDataset());
 				jMemoryChartPanel = new ChartPanel(jfcMemory);
 				jTabbedPane2.addTab("Chart", null, jMemoryChartPanel, null);
-				jTabbedPane2.addTab("Memory 3D", null, getJMemory3DPanel(), null);
+				//				jTabbedPane2.addTab("Memory 3D", null, getJMemory3DPanel(), null);
 				jMemoryChartPanel.setDisplayToolTips(true);
 				jfcMemory.addChangeListener(this);
 				jMemoryChartPanel.addChartMouseListener(this);
@@ -1136,6 +1148,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			Setting.getInstance().getProfileMemoryFromAddress().add(from);
 			Setting.getInstance().getProfileMemoryToAddress().add(to);
 			Setting.getInstance().save();
+
+			Data.memoryProfilingZone.needToTellBochsToUpdateZone = true;
 		} catch (Exception ex) {
 
 		}
@@ -1173,8 +1187,18 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 	}
 
 	private void jDeleteZoneButtonActionPerformed(ActionEvent evt) {
-		System.out.println("jDeleteZoneButton.actionPerformed, event=" + evt);
-		// TODO add your code for jDeleteZoneButton.actionPerformed
+		Setting.getInstance().getProfileMemoryToAddress().remove(jProfilingTable.getSelectedRow());
+		Setting.getInstance().getProfileMemoryFromAddress().remove(jProfilingTable.getSelectedRow());
+
+		((ProfilingTableModel) this.jProfilingTable.getModel()).removeAll();
+
+		LinkedList<Long> fromVector = Setting.getInstance().getProfileMemoryFromAddress();
+		LinkedList<Long> toVector = Setting.getInstance().getProfileMemoryToAddress();
+		Iterator<Long> fromIterator = fromVector.iterator();
+		Iterator<Long> toIterator = toVector.iterator();
+		while (fromIterator.hasNext()) {
+			((ProfilingTableModel) this.jProfilingTable.getModel()).addZone(fromIterator.next(), toIterator.next());
+		}
 	}
 
 	private JPanel getJmpPanel() {
@@ -1264,6 +1288,310 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 
 	public JmpTableModel getJmpTableModel() {
 		return jmpTableModel;
+	}
+
+	private JPanel getJCallGraphPanel() {
+		if (jCallGraphPanel == null) {
+			jCallGraphPanel = new JPanel();
+			BorderLayout jCallGraphPanelLayout = new BorderLayout();
+			jCallGraphPanel.setLayout(jCallGraphPanelLayout);
+			jCallGraphPanel.add(getJToolBar1(), BorderLayout.NORTH);
+			jCallGraphPanel.add(getJScrollPane1(), BorderLayout.CENTER);
+		}
+		return jCallGraphPanel;
+	}
+
+	private JToolBar getJToolBar1() {
+		if (jToolBar1 == null) {
+			jToolBar1 = new JToolBar();
+			jToolBar1.add(getJSaveGraphButton());
+			jToolBar1.add(getJRefreshCallGraphButton());
+			jToolBar1.add(getJLayoutTreeButton());
+			jToolBar1.add(getJLayoutCircleButton());
+			jToolBar1.add(getJLayoutOrganicButton());
+			jToolBar1.add(getJLayoutHierarchicalButton());
+			jToolBar1.add(getJCallGraphSlider());
+		}
+		return jToolBar1;
+	}
+
+	private JButton getJSaveGraphButton() {
+		if (jSaveGraphButton == null) {
+			jSaveGraphButton = new JButton();
+			jSaveGraphButton.setText("Save");
+		}
+		return jSaveGraphButton;
+	}
+
+	private JScrollPane getJScrollPane1() {
+		if (jCallGraphScrollPane == null) {
+			jCallGraphScrollPane = new JScrollPane();
+		}
+		return jCallGraphScrollPane;
+	}
+
+	public void generateGraph() {
+		graph = new mxGraph();
+		graphComponent = new mxGraphComponent(graph);
+
+		mxStylesheet stylesheet = graph.getStylesheet();
+		Hashtable<String, Object> style = new Hashtable<String, Object>();
+		style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_RECTANGLE);
+		style.put(mxConstants.STYLE_OPACITY, 20);
+		style.put(mxConstants.STYLE_FONTCOLOR, "#774400");
+		stylesheet.putCellStyle("ROUNDED", style);
+
+		Object parent = graph.getDefaultParent();
+
+		graph.getModel().beginUpdate();
+		try {
+			Object segments[] = JmpSocketServer.segments.toArray();
+			mxCell last = null;
+			for (int x = 0; x < segments.length; x++) {
+				String s[] = segments[x].toString().split("-");
+				long segmentBegin = Long.parseLong(s[0]);
+				long segmentEnd = Long.parseLong(s[1]);
+
+				((CallGraphTableModel) this.jCallGraphTable.getModel()).addRow(segmentBegin, segmentEnd);
+				boolean insertNewVertex = true;
+				if (last != null) {
+					Vector<Object> cells = getAllCells(parent);
+
+					Iterator<Object> i = cells.iterator();
+					while (i.hasNext()) {
+						mxCell cell = (mxCell) i.next();
+						String s2[] = cell.getValue().toString().split("-");
+						long segmentBegin2 = CommonLib.string2decimal(s2[0].split(" ")[1]);
+						long segmentEnd2 = CommonLib.string2decimal(s2[1]);
+						System.out.println("\t" + Long.toHexString(segmentBegin2) + "<=" + Long.toHexString(segmentBegin) + "<=" + Long.toHexString(segmentEnd2));
+						if (segmentBegin2 <= segmentBegin && segmentBegin <= segmentEnd2) {
+							graph.insertEdge(parent, null, "", cell, cell);
+							insertNewVertex = false;
+							System.out.println("\t\tbingo");
+							break;
+						}
+					}
+				}
+				if (insertNewVertex) {
+					System.out.println("add>" + Long.toHexString(segmentBegin) + "==" + Long.toHexString(segmentEnd));
+					mxCell v1 = (mxCell) graph.insertVertex(parent, null, x + " 0x" + Long.toHexString(segmentBegin) + "-0x" + Long.toHexString(segmentEnd), 20, 20, 145, 30);
+					mxCell edge = (mxCell) graph.insertEdge(parent, null, "", last, v1);
+					last = v1;
+				} else {
+					System.out.println("end");
+				}
+			}
+			System.out.println("end");
+
+			// Object group = graph.groupCells(null, 3, new Object[] { v1, v2
+			// });
+			graph.foldCells(true);
+		} finally {
+			graph.getModel().endUpdate();
+		}
+		graph.setCellsDisconnectable(false);
+
+		//
+		// mxGraphComponent graphComponent = new mxGraphComponent(graph) {
+		// private static final long serialVersionUID = 4683716829748931448L;
+		//
+		// public mxInteractiveCanvas createCanvas() {
+		// return new PeterSwingCanvas(this);
+		// }
+		// };
+
+		mxCompactTreeLayout layout = new mxCompactTreeLayout(graph);
+		if (layout != null) {
+			Object cell = graphComponent.getGraph().getSelectionCell();
+			if (cell == null || graphComponent.getGraph().getModel().getChildCount(cell) == 0) {
+				cell = graphComponent.getGraph().getDefaultParent();
+			}
+			layout.execute(cell);
+		}
+		jCallGraphScrollPane.setViewportView(graphComponent);
+		jCallGraphScrollPane.updateUI();
+	}
+
+	public Vector<Object> getAllCells(Object parent) {
+		Vector<Object> vector = new Vector<Object>();
+		for (int x = 0; x < graph.getModel().getChildCount(parent); x++) {
+			mxCell cell = (mxCell) graph.getModel().getChildAt(parent, x);
+			if (cell.isVertex()) {
+				vector.add(cell);
+			}
+		}
+		return vector;
+	}
+
+	private JButton getJRefreshCallGraphButton() {
+		if (jRefreshCallGraphButton == null) {
+			jRefreshCallGraphButton = new JButton();
+			jRefreshCallGraphButton.setText("Refresh");
+			jRefreshCallGraphButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jRefreshCallGraphButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jRefreshCallGraphButton;
+	}
+
+	private void jRefreshCallGraphButtonActionPerformed(ActionEvent evt) {
+		this.generateGraph();
+	}
+
+	private JButton getJLayoutTreeButton() {
+		if (jLayoutTreeButton == null) {
+			jLayoutTreeButton = new JButton();
+			jLayoutTreeButton.setText("Tree");
+			jLayoutTreeButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jLayoutTreeButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jLayoutTreeButton;
+	}
+
+	private JButton getJLayoutCircleButton() {
+		if (jLayoutCircleButton == null) {
+			jLayoutCircleButton = new JButton();
+			jLayoutCircleButton.setText("Circle");
+			jLayoutCircleButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jLayoutCircleButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jLayoutCircleButton;
+	}
+
+	private JButton getJLayoutOrganicButton() {
+		if (jLayoutOrganicButton == null) {
+			jLayoutOrganicButton = new JButton();
+			jLayoutOrganicButton.setText("Organic");
+			jLayoutOrganicButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jLayoutOrganicButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jLayoutOrganicButton;
+	}
+
+	private JButton getJLayoutHierarchicalButton() {
+		if (jLayoutHierarchicalButton == null) {
+			jLayoutHierarchicalButton = new JButton();
+			jLayoutHierarchicalButton.setText("Hierarchical");
+			jLayoutHierarchicalButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jLayoutHierarchicalButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jLayoutHierarchicalButton;
+	}
+
+	private void jLayoutTreeButtonActionPerformed(ActionEvent evt) {
+		mxCompactTreeLayout layout = new mxCompactTreeLayout(graph);
+		if (layout != null) {
+			Object cell = graphComponent.getGraph().getSelectionCell();
+			if (cell == null || graphComponent.getGraph().getModel().getChildCount(cell) == 0) {
+				cell = graphComponent.getGraph().getDefaultParent();
+			}
+			layout.execute(cell);
+			jCallGraphScrollPane.updateUI();
+		}
+	}
+
+	private void jLayoutCircleButtonActionPerformed(ActionEvent evt) {
+		mxCircleLayout layout = new mxCircleLayout(graph);
+		if (layout != null) {
+			Object cell = graphComponent.getGraph().getSelectionCell();
+			if (cell == null || graphComponent.getGraph().getModel().getChildCount(cell) == 0) {
+				cell = graphComponent.getGraph().getDefaultParent();
+			}
+			layout.execute(cell);
+			jCallGraphScrollPane.updateUI();
+		}
+	}
+
+	private void jLayoutOrganicButtonActionPerformed(ActionEvent evt) {
+		mxOrganicLayout layout = new mxOrganicLayout(graph);
+		if (layout != null) {
+			Object cell = graphComponent.getGraph().getSelectionCell();
+			if (cell == null || graphComponent.getGraph().getModel().getChildCount(cell) == 0) {
+				cell = graphComponent.getGraph().getDefaultParent();
+			}
+			layout.execute(cell);
+			jCallGraphScrollPane.updateUI();
+		}
+	}
+
+	private void jLayoutHierarchicalButtonActionPerformed(ActionEvent evt) {
+		mxHierarchicalLayout layout = new mxHierarchicalLayout(graph);
+		if (layout != null) {
+			Object cell = graphComponent.getGraph().getSelectionCell();
+			if (cell == null || graphComponent.getGraph().getModel().getChildCount(cell) == 0) {
+				cell = graphComponent.getGraph().getDefaultParent();
+			}
+			layout.execute(cell);
+			jCallGraphScrollPane.updateUI();
+		}
+	}
+
+	private JSlider getJCallGraphSlider() {
+		if (jCallGraphSlider == null) {
+			jCallGraphSlider = new JSlider();
+			jCallGraphSlider.setMinimum(1);
+			jCallGraphSlider.setMaximum(150);
+			jCallGraphSlider.addChangeListener(new ChangeListener() {
+				public void stateChanged(ChangeEvent evt) {
+					jCallGraphSliderStateChanged(evt);
+				}
+			});
+		}
+		return jCallGraphSlider;
+	}
+
+	private void jCallGraphSliderStateChanged(ChangeEvent evt) {
+		graphComponent.zoomTo(((double) jCallGraphSlider.getValue()) / 100, true);
+	}
+
+	private JTabbedPane getJTabbedPane3() {
+		if (jTabbedPane3 == null) {
+			jTabbedPane3 = new JTabbedPane();
+			jTabbedPane3.setPreferredSize(new java.awt.Dimension(730, 443));
+			jTabbedPane3.addTab("jCallGraphPanel", null, getJCallGraphPanel(), null);
+			jTabbedPane3.addTab("Table", null, getJCallGraphTablePanel(), null);
+		}
+		return jTabbedPane3;
+	}
+
+	private JPanel getJCallGraphTablePanel() {
+		if (jCallGraphTablePanel == null) {
+			jCallGraphTablePanel = new JPanel();
+			BorderLayout jCallGraphTablePanelLayout = new BorderLayout();
+			jCallGraphTablePanel.setLayout(jCallGraphTablePanelLayout);
+			jCallGraphTablePanel.add(getJScrollPane1x(), BorderLayout.CENTER);
+		}
+		return jCallGraphTablePanel;
+	}
+
+	private JScrollPane getJScrollPane1x() {
+		if (jScrollPane1 == null) {
+			jScrollPane1 = new JScrollPane();
+			jScrollPane1.setViewportView(getJCallGraphTable());
+		}
+		return jScrollPane1;
+	}
+
+	private JTable getJCallGraphTable() {
+		if (jCallGraphTable == null) {
+			jCallGraphTable = new JTable();
+			jCallGraphTable.setModel(new CallGraphTableModel());
+		}
+		return jCallGraphTable;
 	}
 
 }

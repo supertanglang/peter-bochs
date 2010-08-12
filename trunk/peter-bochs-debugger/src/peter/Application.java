@@ -21,7 +21,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.geom.Rectangle2D;
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -97,25 +96,10 @@ import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.jgraph.JGraph;
-import org.jgraph.graph.CellView;
-import org.jgraph.graph.DefaultCellViewFactory;
-import org.jgraph.graph.DefaultEdge;
-import org.jgraph.graph.DefaultGraphCell;
-import org.jgraph.graph.DefaultGraphModel;
-import org.jgraph.graph.DefaultPort;
-import org.jgraph.graph.EdgeView;
-import org.jgraph.graph.GraphConstants;
-import org.jgraph.graph.GraphLayoutCache;
-import org.jgraph.graph.GraphModel;
-import org.jgraph.graph.PortView;
-import org.jgraph.graph.VertexView;
 
 import peter.architecture.IA32PageDirectory;
-import peter.architecture.IA32PageTable;
 import peter.elf.ElfUtil;
-import peter.graph.JButtonView;
-import peter.graph.PageDirectoryView;
+import peter.instrument.Data;
 import peter.instrument.InstrumentPanel;
 import peter.instrument.JmpSocketServerController;
 import peter.instrument.MemorySocketServerController;
@@ -123,9 +107,6 @@ import peter.logpanel.LogPanel;
 import peter.osdebuginformation.JOSDebugInformationPanel;
 import peter.osdebuginformation.OSDebugInfoHelper;
 
-import com.jgraph.layout.JGraphFacade;
-import com.jgraph.layout.JGraphLayout;
-import com.jgraph.layout.tree.JGraphTreeLayout;
 import com.petersoft.advancedswing.diskpanel.DiskPanel;
 import com.petersoft.advancedswing.jmaximizabletabbedpane.JMaximizableTabbedPane;
 import com.petersoft.advancedswing.jmaximizabletabbedpane.JMaximizableTabbedPane_BasePanel;
@@ -505,7 +486,15 @@ public class Application extends javax.swing.JFrame {
 			if (args[x].toLowerCase().startsWith("-osdebug")) {
 				Global.osDebug = CommonLib.convertFilesize(args[x].replaceAll("-.*=", ""));
 				args = (String[]) ArrayUtils.removeElement(args, args[x]);
-				break;
+				x = -1;
+			} else if (args[x].toLowerCase().startsWith("-profilingmemoryport")) {
+				Global.profilingMemoryPort = (int) CommonLib.convertFilesize(args[x].replaceAll("-.*=", ""));
+				args = (String[]) ArrayUtils.removeElement(args, args[x]);
+				x = -1;
+			} else if (args[x].toLowerCase().startsWith("-profilingjmpport")) {
+				Global.profilingJmpPort = (int) CommonLib.convertFilesize(args[x].replaceAll("-.*=", ""));
+				args = (String[]) ArrayUtils.removeElement(args, args[x]);
+				x = -1;
 			}
 		}
 
@@ -514,7 +503,6 @@ public class Application extends javax.swing.JFrame {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				Application inst = new Application();
-
 				new Thread() {
 					public void run() {
 						try {
@@ -657,7 +645,6 @@ public class Application extends javax.swing.JFrame {
 					break;
 				}
 			}
-
 			String versionLines[] = commandReceiver.getCommandResultUntilEnd().split("\n");
 			for (String line : versionLines) {
 				if (line.contains("Bochs x86 Emulator")) {
@@ -667,10 +654,10 @@ public class Application extends javax.swing.JFrame {
 				}
 				if (line.contains("Peter-bochs instrument")) {
 					if (Setting.getInstance().isMemoryProfiling()) {
-						MemorySocketServerController.start(1980, null);
+						MemorySocketServerController.start(Global.profilingMemoryPort, null);
 					}
 					if (Setting.getInstance().isJmpProfiling()) {
-						JmpSocketServerController.start(1981, jInstrumentPanel.getJmpTableModel());
+						JmpSocketServerController.start(Global.profilingJmpPort, jInstrumentPanel.getJmpTableModel());
 					}
 				}
 			}
@@ -686,9 +673,11 @@ public class Application extends javax.swing.JFrame {
 			jRunBochsButton.setText(MyLanguage.getString("Run_bochs"));
 			jRunBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/resultset_next.png")));
 
-			CardLayout cl = (CardLayout) (jMainPanel.getLayout());
-			cl.show(jMainPanel, "jMaximizableTabbedPane_BasePanel1");
-			currentPanel = "jMaximizableTabbedPane_BasePanel1";
+			if (currentPanel.equals("jMaximizableTabbedPane_BasePanel1")) {
+				CardLayout cl = (CardLayout) (jMainPanel.getLayout());
+				cl.show(jMainPanel, "jMaximizableTabbedPane_BasePanel1");
+				currentPanel = "jMaximizableTabbedPane_BasePanel1";
+			}
 
 			if (isLinux) {
 				ProcessBuilder pb = new ProcessBuilder("killall", "-9", "bochs");
@@ -697,13 +686,9 @@ public class Application extends javax.swing.JFrame {
 				ProcessBuilder pb = new ProcessBuilder("StopBochs.exe");
 				pb.start();
 			}
-			
-			if (Setting.getInstance().isMemoryProfiling()) {
-				MemorySocketServerController.stop();
-			}
-			if (Setting.getInstance().isJmpProfiling()) {
-				JmpSocketServerController.stop();
-			}
+
+			MemorySocketServerController.stop();
+			JmpSocketServerController.stop();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -738,10 +723,13 @@ public class Application extends javax.swing.JFrame {
 
 	private void runBochs() {
 		try {
+			Data.memoryProfilingZone.needToTellBochsToUpdateZone = true;
 			commandReceiver.clearBuffer();
 			sendCommand("c");
-			CardLayout cl = (CardLayout) (jMainPanel.getLayout());
-			cl.show(jMainPanel, "Running Label");
+			if (currentPanel.equals("jMaximizableTabbedPane_BasePanel1")) {
+				CardLayout cl = (CardLayout) (jMainPanel.getLayout());
+				cl.show(jMainPanel, "Running Label");
+			}
 			jRunBochsButton.setText(MyLanguage.getString("Pause_bochs"));
 			jRunBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/pause.png")));
 
@@ -754,7 +742,6 @@ public class Application extends javax.swing.JFrame {
 							e.printStackTrace();
 						}
 					}
-
 					pauseBochs();
 				}
 			}.start();
@@ -1237,6 +1224,11 @@ public class Application extends javax.swing.JFrame {
 					System.out.println("update OS debug informations");
 				}
 				updateOSDebugInfo();
+				
+				if (Global.debug){
+					System.out.println("update call graph");
+				}
+				jInstrumentPanel.generateGraph();
 
 				jStatusLabel.setText("");
 
@@ -1595,158 +1587,138 @@ public class Application extends javax.swing.JFrame {
 			ex.printStackTrace();
 		}
 
-		if (false && Global.debug && jAutoRefreshPageTableGraphCheckBox.isSelected()) {
-			GraphModel model = new DefaultGraphModel();
-			GraphLayoutCache view = new GraphLayoutCache(model, new DefaultCellViewFactory() {
-				public CellView createView(GraphModel model, Object cell) {
-					CellView view = null;
-					if (model.isPort(cell)) {
-						view = new PortView(cell);
-					} else if (model.isEdge(cell)) {
-						view = new EdgeView(cell);
-					} else {
-						if (cell instanceof IA32PageDirectory) {
-							view = new PageDirectoryView(cell);
-						} else if (cell instanceof IA32PageTable) {
-							view = new JButtonView(cell, 1);
-						} else {
-							view = new VertexView(cell);
-						}
-					}
-					return view;
-				}
-			});
-			JGraph graph = new JGraph(model, view);
-
-			// add cells
-
-			// DefaultGraphCell[] cells = new
-			// DefaultGraphCell[ia32_pageDirectories.size() + 1];
-			Vector<DefaultGraphCell> cells = new Vector<DefaultGraphCell>();
-			DefaultGraphCell root = new DefaultGraphCell("cr3 " + jRegisterPanel1.jCR3TextField.getText());
-			GraphConstants.setGradientColor(root.getAttributes(), Color.red);
-			GraphConstants.setOpaque(root.getAttributes(), true);
-			GraphConstants.setBounds(root.getAttributes(), new Rectangle2D.Double(0, 0, 140, 20));
-			root.add(new DefaultPort());
-			cells.add(root);
-
-			Vector<IA32PageDirectory> pageDirectoryCells = new Vector<IA32PageDirectory>();
-			for (int x = 0; x < ia32_pageDirectories.size(); x++) {
-				IA32PageDirectory cell = ia32_pageDirectories.get(x);
-				GraphConstants.setGradientColor(cell.getAttributes(), Color.orange);
-				GraphConstants.setOpaque(cell.getAttributes(), true);
-				GraphConstants.setBounds(cell.getAttributes(), new Rectangle2D.Double(0, x * 20, 140, 20));
-				cell.add(new DefaultPort());
-				pageDirectoryCells.add(cell);
-
-				// page table
-				String pageTableAddress = ia32_pageDirectories.get(x).base;
-				sendCommand("xp /4096bx " + pageTableAddress);
-
-				float totalByte2 = 4096 - 1;
-				totalByte2 = totalByte2 / 8;
-				int totalByte3 = (int) Math.floor(totalByte2);
-				String realEndAddressStr;
-				String realStartAddressStr;
-				String baseAddress = pageTableAddress;
-				long realStartAddress = CommonLib.hex2decimal(baseAddress);
-
-				realStartAddressStr = String.format("%08x", realStartAddress);
-				long realEndAddress = realStartAddress + totalByte3 * 8;
-				realEndAddressStr = String.format("%08x", realEndAddress);
-
-				String result = commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr);
-				String[] lines = result.split("\n");
-
-				Vector<DefaultGraphCell> pageTables = new Vector<DefaultGraphCell>();
-				for (int y = 1; y < 4; y++) {
-					String[] b = lines[y].replaceFirst("			cell.add(new DefaultPort());^.*:", "").trim().split("\t");
-
-					for (int z = 0; z < 2; z++) {
-						try {
-							int bytes[] = new int[4];
-							for (int x2 = 0; x2 < 4; x2++) {
-								bytes[x2] = CommonLib.hex2decimal(b[x2 + z * 4].substring(2).trim()).intValue();
-							}
-							long value = CommonLib.getInt(bytes, 0);
-
-							String base = Long.toHexString(value & 0xfffff000);
-							String avl = String.valueOf((value >> 9) & 3);
-							String g = String.valueOf((value >> 8) & 1);
-							String d = String.valueOf((value >> 6) & 1);
-							String a = String.valueOf((value >> 5) & 1);
-							String pcd = String.valueOf((value >> 4) & 1);
-							String pwt = String.valueOf((value >> 3) & 1);
-							String us = String.valueOf((value >> 2) & 1);
-							String wr = String.valueOf((value >> 1) & 1);
-							String p = String.valueOf((value >> 0) & 1);
-							IA32PageTable pageTableCell = new IA32PageTable(base, avl, g, d, a, pcd, pwt, us, wr, p);
-							GraphConstants.setGradientColor(pageTableCell.getAttributes(), Color.orange);
-							GraphConstants.setOpaque(pageTableCell.getAttributes(), true);
-							GraphConstants.setBounds(pageTableCell.getAttributes(), new Rectangle2D.Double(0, (z + y) * 20, 140, 20));
-							pageTableCell.add(new DefaultPort());
-							pageTables.add(pageTableCell);
-						} catch (Exception ex) {
-						}
-					}
-				}
-
-				// group it and link it
-				DefaultGraphCell pt[] = pageTables.toArray(new DefaultGraphCell[] {});
-				DefaultGraphCell vertex1 = new DefaultGraphCell(new String("page table" + x), null, pt);
-				vertex1.add(new DefaultPort());
-				cells.add(vertex1);
-
-				DefaultEdge edge = new DefaultEdge();
-				edge.setSource(cell.getChildAt(0));
-				edge.setTarget(vertex1.getLastChild());
-
-				GraphConstants.setLineStyle(edge.getAttributes(), GraphConstants.STYLE_ORTHOGONAL);
-				GraphConstants.setRouting(edge.getAttributes(), GraphConstants.ROUTING_DEFAULT);
-				int arrow = GraphConstants.ARROW_CLASSIC;
-				GraphConstants.setLineEnd(edge.getAttributes(), arrow);
-				GraphConstants.setEndFill(edge.getAttributes(), true);
-
-				cells.add(edge);
-			}
-
-			if (pageDirectoryCells.toArray().length > 0) {
-				IA32PageDirectory pt[] = pageDirectoryCells.toArray(new IA32PageDirectory[] {});
-				DefaultGraphCell vertex1 = new DefaultGraphCell(new String("Vertex1"), null, pt);
-				vertex1.add(new DefaultPort());
-				cells.add(vertex1);
-
-				DefaultEdge edge = new DefaultEdge();
-				edge.setSource(root.getChildAt(0));
-				edge.setTarget(vertex1.getLastChild());
-				int arrow = GraphConstants.ARROW_CLASSIC;
-				GraphConstants.setLineEnd(edge.getAttributes(), arrow);
-				GraphConstants.setEndFill(edge.getAttributes(), true);
-
-				// lastObj = cells[index];
-				cells.add(edge);
-			}
-
-			graph.getGraphLayoutCache().insert(cells.toArray());
-			graph.setDisconnectable(false);
-
-			JGraphFacade facade = new JGraphFacade(graph);
-			JGraphLayout layout = new JGraphTreeLayout();
-			((JGraphTreeLayout) layout).setOrientation(SwingConstants.WEST);
-			// ((JGraphHierarchicalLayout) layout).setNodeDistance(100);
-			layout.run(facade);
-			Map nested = facade.createNestedMap(true, true);
-			graph.getGraphLayoutCache().edit(nested);
-
-			// JGraphFacade facade = new JGraphFacade(graph);
-			// JGraphLayout layout = new JGraphFastOrganicLayout();
-			// layout.run(facade);
-			// Map nested = facade.createNestedMap(true, true);
-			// graph.getGraphLayoutCache().edit(nested);
-
-			jPageTableGraphPanel.removeAll();
-			jPageTableGraphPanel.add(new JScrollPane(graph), BorderLayout.CENTER);
-		}
+		/*
+		 * if (false && Global.debug &&
+		 * jAutoRefreshPageTableGraphCheckBox.isSelected()) {
+		 * System.out.println("aa"); GraphModel model = new DefaultGraphModel();
+		 * GraphLayoutCache view = new GraphLayoutCache(model, new
+		 * DefaultCellViewFactory() { public CellView createView(GraphModel
+		 * model, Object cell) { CellView view = null; if (model.isPort(cell)) {
+		 * view = new PortView(cell); } else if (model.isEdge(cell)) { view =
+		 * new EdgeView(cell); } else { if (cell instanceof IA32PageDirectory) {
+		 * view = new PageDirectoryView(cell); } else if (cell instanceof
+		 * IA32PageTable) { view = new JButtonView(cell, 1); } else { view = new
+		 * VertexView(cell); } } return view; } }); JGraph graph = new
+		 * JGraph(model, view);
+		 * 
+		 * // add cells
+		 * 
+		 * // DefaultGraphCell[] cells = new //
+		 * DefaultGraphCell[ia32_pageDirectories.size() + 1];
+		 * Vector<DefaultGraphCell> cells = new Vector<DefaultGraphCell>();
+		 * DefaultGraphCell root = new DefaultGraphCell("cr3 " +
+		 * jRegisterPanel1.jCR3TextField.getText());
+		 * GraphConstants.setGradientColor(root.getAttributes(), Color.red);
+		 * GraphConstants.setOpaque(root.getAttributes(), true);
+		 * GraphConstants.setBounds(root.getAttributes(), new
+		 * Rectangle2D.Double(0, 0, 140, 20)); root.add(new DefaultPort());
+		 * cells.add(root);
+		 * 
+		 * Vector<IA32PageDirectory> pageDirectoryCells = new
+		 * Vector<IA32PageDirectory>(); for (int x = 0; x <
+		 * ia32_pageDirectories.size(); x++) { IA32PageDirectory cell =
+		 * ia32_pageDirectories.get(x);
+		 * GraphConstants.setGradientColor(cell.getAttributes(), Color.orange);
+		 * GraphConstants.setOpaque(cell.getAttributes(), true);
+		 * GraphConstants.setBounds(cell.getAttributes(), new
+		 * Rectangle2D.Double(0, x * 20, 140, 20)); cell.add(new DefaultPort());
+		 * pageDirectoryCells.add(cell);
+		 * 
+		 * // page table String pageTableAddress =
+		 * ia32_pageDirectories.get(x).base; sendCommand("xp /4096bx " +
+		 * pageTableAddress);
+		 * 
+		 * float totalByte2 = 4096 - 1; totalByte2 = totalByte2 / 8; int
+		 * totalByte3 = (int) Math.floor(totalByte2); String realEndAddressStr;
+		 * String realStartAddressStr; String baseAddress = pageTableAddress;
+		 * long realStartAddress = CommonLib.hex2decimal(baseAddress);
+		 * 
+		 * realStartAddressStr = String.format("%08x", realStartAddress); long
+		 * realEndAddress = realStartAddress + totalByte3 * 8; realEndAddressStr
+		 * = String.format("%08x", realEndAddress);
+		 * 
+		 * String result = commandReceiver.getCommandResult(realStartAddressStr,
+		 * realEndAddressStr); String[] lines = result.split("\n");
+		 * 
+		 * Vector<DefaultGraphCell> pageTables = new Vector<DefaultGraphCell>();
+		 * for (int y = 1; y < 4; y++) { String[] b =
+		 * lines[y].replaceFirst("			cell.add(new DefaultPort());^.*:",
+		 * "").trim().split("\t");
+		 * 
+		 * for (int z = 0; z < 2; z++) { try { int bytes[] = new int[4]; for
+		 * (int x2 = 0; x2 < 4; x2++) { bytes[x2] = CommonLib.hex2decimal(b[x2 +
+		 * z * 4].substring(2).trim()).intValue(); } long value =
+		 * CommonLib.getInt(bytes, 0);
+		 * 
+		 * String base = Long.toHexString(value & 0xfffff000); String avl =
+		 * String.valueOf((value >> 9) & 3); String g = String.valueOf((value >>
+		 * 8) & 1); String d = String.valueOf((value >> 6) & 1); String a =
+		 * String.valueOf((value >> 5) & 1); String pcd = String.valueOf((value
+		 * >> 4) & 1); String pwt = String.valueOf((value >> 3) & 1); String us
+		 * = String.valueOf((value >> 2) & 1); String wr = String.valueOf((value
+		 * >> 1) & 1); String p = String.valueOf((value >> 0) & 1);
+		 * IA32PageTable pageTableCell = new IA32PageTable(base, avl, g, d, a,
+		 * pcd, pwt, us, wr, p);
+		 * GraphConstants.setGradientColor(pageTableCell.getAttributes(),
+		 * Color.orange);
+		 * GraphConstants.setOpaque(pageTableCell.getAttributes(), true);
+		 * GraphConstants.setBounds(pageTableCell.getAttributes(), new
+		 * Rectangle2D.Double(0, (z + y) * 20, 140, 20)); pageTableCell.add(new
+		 * DefaultPort()); pageTables.add(pageTableCell); } catch (Exception ex)
+		 * { } } }
+		 * 
+		 * // group it and link it DefaultGraphCell pt[] =
+		 * pageTables.toArray(new DefaultGraphCell[] {}); DefaultGraphCell
+		 * vertex1 = new DefaultGraphCell(new String("page table" + x), null,
+		 * pt); vertex1.add(new DefaultPort()); cells.add(vertex1);
+		 * 
+		 * DefaultEdge edge = new DefaultEdge();
+		 * edge.setSource(cell.getChildAt(0));
+		 * edge.setTarget(vertex1.getLastChild());
+		 * 
+		 * GraphConstants.setLineStyle(edge.getAttributes(),
+		 * GraphConstants.STYLE_ORTHOGONAL);
+		 * GraphConstants.setRouting(edge.getAttributes(),
+		 * GraphConstants.ROUTING_DEFAULT); int arrow =
+		 * GraphConstants.ARROW_CLASSIC;
+		 * GraphConstants.setLineEnd(edge.getAttributes(), arrow);
+		 * GraphConstants.setEndFill(edge.getAttributes(), true);
+		 * 
+		 * cells.add(edge); }
+		 * 
+		 * if (pageDirectoryCells.toArray().length > 0) { IA32PageDirectory pt[]
+		 * = pageDirectoryCells.toArray(new IA32PageDirectory[] {});
+		 * DefaultGraphCell vertex1 = new DefaultGraphCell(new
+		 * String("Vertex1"), null, pt); vertex1.add(new DefaultPort());
+		 * cells.add(vertex1);
+		 * 
+		 * DefaultEdge edge = new DefaultEdge();
+		 * edge.setSource(root.getChildAt(0));
+		 * edge.setTarget(vertex1.getLastChild()); int arrow =
+		 * GraphConstants.ARROW_CLASSIC;
+		 * GraphConstants.setLineEnd(edge.getAttributes(), arrow);
+		 * GraphConstants.setEndFill(edge.getAttributes(), true);
+		 * 
+		 * // lastObj = cells[index]; cells.add(edge); }
+		 * 
+		 * graph.getGraphLayoutCache().insert(cells.toArray());
+		 * graph.setDisconnectable(false);
+		 * 
+		 * JGraphFacade facade = new JGraphFacade(graph); JGraphLayout layout =
+		 * new JGraphTreeLayout(); ((JGraphTreeLayout)
+		 * layout).setOrientation(SwingConstants.WEST); //
+		 * ((JGraphHierarchicalLayout) layout).setNodeDistance(100);
+		 * layout.run(facade); Map nested = facade.createNestedMap(true, true);
+		 * graph.getGraphLayoutCache().edit(nested);
+		 * 
+		 * // JGraphFacade facade = new JGraphFacade(graph); // JGraphLayout
+		 * layout = new JGraphFastOrganicLayout(); // layout.run(facade); // Map
+		 * nested = facade.createNestedMap(true, true); //
+		 * graph.getGraphLayoutCache().edit(nested);
+		 * 
+		 * jPageTableGraphPanel.removeAll(); jPageTableGraphPanel.add(new
+		 * JScrollPane(graph), BorderLayout.CENTER); }
+		 */
 
 	}
 
@@ -6451,7 +6423,7 @@ public class Application extends javax.swing.JFrame {
 	private JToggleButton getJProfilerToggleButton() {
 		if (jProfilerToggleButton == null) {
 			jProfilerToggleButton = new JToggleButton();
-			jProfilerToggleButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/chart_bar.png")));
+			jProfilerToggleButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/chart_organisation.png")));
 			jProfilerToggleButton.setText("Profile & Sampling");
 			buttonGroup2.add(jProfilerToggleButton);
 			jProfilerToggleButton.addActionListener(new ActionListener() {
@@ -6524,13 +6496,20 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jRegisterToggleButtonActionPerformed(ActionEvent evt) {
-		CardLayout cl = (CardLayout) (jMainPanel.getLayout());
+		final CardLayout cl = (CardLayout) (jMainPanel.getLayout());
 		if (jProfilerToggleButton.isSelected()) {
-			cl.show(jMainPanel, "jMaximizableTabbedPane_BasePanel1");
-			currentPanel = "jMaximizableTabbedPane_BasePanel1";
+			cl.show(jMainPanel, "jInstrumentPanel");
+			currentPanel = "jInstrumentPanel";
 		} else {
 			cl.show(jMainPanel, "jMaximizableTabbedPane_BasePanel1");
 			currentPanel = "jMaximizableTabbedPane_BasePanel1";
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					if (jRunBochsButton.getText().equals(MyLanguage.getString("Pause_bochs"))) {
+						cl.show(jMainPanel, "Running Label");
+					}
+				}
+			});
 		}
 	}
 
