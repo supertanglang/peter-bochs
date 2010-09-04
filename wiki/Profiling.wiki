@@ -40,4 +40,8 @@ Please click "Setting" on the toolbar, go to "Profiling tab", check all checkbox
 
 [http://peter-bochs.googlecode.com/files/profiling_memory_rw_count.png]
 
+== Feature 2, you can know the r/w count of a specified memory region
+
+[http://peter-bochs.googlecode.com/files/profiling_jmp_count.png]
+
 * To be continue, still writing *
