@@ -47,3 +47,15 @@ Please click "Setting" on the toolbar, go to "Profiling tab", check all checkbox
 == Feature 3, you can see the last jumps, and the registers value after a jump ==
 
 [http://peter-bochs.googlecode.com/files/profiling_jmp_table.png]
+
+
+<table border="0"><tr><td>
+[http://www.kingofcoders.com http://www.kingofcoders.com/images/KOC_logo2.jpg]
+</td>
+<td>
+</td>
+<td>
+[http://www.rmit.edu.au/compsci http://peter-bochs.googlecode.com/files/rmit.gif]
+</td>
+</tr>
+</table>
