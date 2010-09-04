@@ -1,6 +1,10 @@
 #summary Peter-bochs profiling feature.
 #labels HowTo
 
+= Table of content =
+
+<wiki:toc max_depth="3" />
+
 = Introduction =
 
 Peter-bochs provides profiling feature, you can use it to understand the running behaviour of your hobby os.
