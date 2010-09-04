@@ -27,3 +27,13 @@ $./configure --enable-disasm --enable-debugger --enable-vbe --enable-instrumenta
 $make
 
 $make install
+
+= How to use profiling =
+
+== Start peter-bochs with profiling ==
+
+Please click "Setting" on the toolbar, go to "Profiling tab", check all checkboxs. After that, restart the bochs by clicking "Stop bochs" and "Start bochs" button on the toolbar.
+
+[http://peter-bochs.googlecode.com/files/enable_profiling.png]
+
+== Feature 1, you can know which memory has the highest r/w frequency ==
