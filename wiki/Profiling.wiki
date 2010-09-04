@@ -39,3 +39,5 @@ Please click "Setting" on the toolbar, go to "Profiling tab", check all checkbox
 == Feature 1, you can know which memory has the highest r/w frequency ==
 
 [http://peter-bochs.googlecode.com/files/profiling_memory_rw_count.png]
+
+* To be continue, still writing *
