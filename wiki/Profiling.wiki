@@ -36,11 +36,11 @@ Please click "Setting" on the toolbar, go to "Profiling tab", check all checkbox
 
 [http://peter-bochs.googlecode.com/files/enable_profiling.png]
 
-== Feature 1, you can know which memory has the highest r/w frequency, and what address had accesses those memory blocks ==
+== Feature 1, you can view which memory has the highest r/w frequency ==
 
 [http://peter-bochs.googlecode.com/files/profiling_memory_rw_count.png]
 
-== Feature 2, you can know the r/w count of a specified memory region ==
+== Feature 2, you can view the r/w count of a specified memory region and what address had accessed those regions ==
 
 [http://peter-bochs.googlecode.com/files/profiling_jmp_count.png]
 
