@@ -14,6 +14,15 @@ Peter-bochs provides profiling feature, you can use it to understand the running
 
 To add profiling supprot, you need to compile bochs with instrument feature, please follow the steps
 
+Something you should know:
+1) peter-bochs debugger can work with a normal bochs or a bochs with peter-bochs instrument, if your bochs is not compiled with peter-bochs instrument stub, the profiling feature will be disable automatically.
+
+2) if you compile your bochs with peter-bochs instrument, the performance of bochs will around 10% slow (based on my core 2 cuo 2.4 GHz notebook).
+
+3) peter-bochs instrument will not eat much memory, but instead, it will use port 1980 and 1981 to communicate with peter-bochs debugger, make sure these two ports are available.
+
+4) feature request page is here [http://code.google.com/p/peter-bochs/wiki/feature]
+
 == Step 1, download peter-bochs instrument stub and put it inside the bochs source directory ==
 
 [http://peter-bochs.googlecode.com/files/peter-bochs-instrument20100904.tar.bz2]
