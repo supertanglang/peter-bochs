@@ -44,4 +44,6 @@ Please click "Setting" on the toolbar, go to "Profiling tab", check all checkbox
 
 [http://peter-bochs.googlecode.com/files/profiling_jmp_count.png]
 
-* To be continue, still writing *
+== Feature 3, you can see the last jumps, and the registers value after a jump ==
+
+[http://peter-bochs.googlecode.com/files/profiling_jmp_table.png]
