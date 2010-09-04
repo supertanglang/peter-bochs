@@ -6,11 +6,11 @@
 Peter-bochs provides profiling feature, you can use it to understand the running behaviour of your hobby os.
 
 
-= Step =
+= Installation =
 
 To add profiling supprot, you need to compile bochs with instrument feature, please follow the steps
 
-== Step 1, download peter-bochs instrument stub and put it inside the bochs source directory
+== Step 1, download peter-bochs instrument stub and put it inside the bochs source directory ==
 
 [http://peter-bochs.googlecode.com/files/peter-bochs-instrument20100904.tar.bz2]
 
