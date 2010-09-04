@@ -19,5 +19,7 @@ To add profiling supprot, you need to compile bochs with instrument feature, ple
 == Step 2, compile bochs with peter-bochs instrument
 
 $./configure --prefix=/root/bochs-2.4.5/ --enable-disasm --enable-debugger --enable-vbe --enable-instrumentation=instrument/peter-bochs
+
 $make
+
 $make install
