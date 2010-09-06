@@ -8,6 +8,7 @@ import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -1041,5 +1042,17 @@ public class CommonLib {
 			buffer.append("}");
 		}
 		return buffer.toString();
+	}
+
+	public static long readLongFromInputStream(DataInputStream in) throws IOException {
+		long l = in.readUnsignedByte() + (in.readUnsignedByte() << 8) + (in.readUnsignedByte() << 16) + (in.readUnsignedByte() << 24);
+		l &= 0xffffffffL;
+		return l;
+	}
+
+	public static long readShortFromInputStream(DataInputStream in) throws IOException {
+		long l = in.readUnsignedByte() + (in.readUnsignedByte() << 8);
+		l &= 0xffffffffL;
+		return l;
 	}
 }

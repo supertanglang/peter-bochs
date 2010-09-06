@@ -9,10 +9,13 @@ import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashSet;
+import java.util.Vector;
 
 import javax.swing.JOptionPane;
 
+import peter.CommonLib;
 import peter.Global;
+import peter.instrument.callgraph.JmpData;
 
 public class JmpSocketServer implements Runnable {
 	private int port;
@@ -22,7 +25,8 @@ public class JmpSocketServer implements Runnable {
 	private SimpleDateFormat dateformat1 = new SimpleDateFormat("HH:mm:ss.S");
 	FileWriter fstream;
 
-	public static LinkedHashSet<String> segments = new LinkedHashSet<String>();
+	//	public static LinkedHashSet<String> segments = new LinkedHashSet<String>();
+	public static Vector<JmpData> jmpDataVector = new Vector<JmpData>();
 
 	public void startServer(int port, JmpTableModel jmpTableModel) {
 		this.port = port;
@@ -35,14 +39,6 @@ public class JmpSocketServer implements Runnable {
 
 		shouldStop = false;
 		new Thread(this).start();
-
-		// while (serverSocket == null) {
-		// try {
-		// Thread.currentThread().sleep(500);
-		// } catch (InterruptedException e) {
-		// e.printStackTrace();
-		// }
-		// }
 
 		while (serverSocket != null && !serverSocket.isBound()) {
 			try {
@@ -76,22 +72,33 @@ public class JmpSocketServer implements Runnable {
 				int lineNo = 1;
 
 				while (!shouldStop) {
-					int head = in.readUnsignedByte();
-					if (head == 1) {
-						long fromAddress = in.readUnsignedByte() + (in.readUnsignedByte() << 8) + (in.readUnsignedByte() << 16) + (in.readUnsignedByte() << 24);
-						long toAddress = in.readUnsignedByte() + (in.readUnsignedByte() << 8) + (in.readUnsignedByte() << 16) + (in.readUnsignedByte() << 24);
-						fromAddress &= 0xffffffffL;
-						toAddress &= 0xffffffffL;
-						fstream.write(lineNo + "-" + dateformat1.format(new Date()) + "-" + fromAddress + "-" + toAddress + "\n");
-						jmpTableModel.addData(String.valueOf(lineNo), dateformat1.format(new Date()), fromAddress, toAddress);
-						lineNo++;
-					} else if (head == 2) {
-						long segmentBegin = in.readUnsignedByte() + (in.readUnsignedByte() << 8) + (in.readUnsignedByte() << 16) + (in.readUnsignedByte() << 24);
-						long segmentEnd = in.readUnsignedByte() + (in.readUnsignedByte() << 8) + (in.readUnsignedByte() << 16) + (in.readUnsignedByte() << 24);
-						segmentBegin &= 0xffffffffL;
-						segmentEnd &= 0xffffffffL;
-						segments.add(segmentBegin + "-" + segmentEnd);
-					}
+					long fromAddress = CommonLib.readLongFromInputStream(in);
+					long toAddress = CommonLib.readLongFromInputStream(in);
+					long segmentStart = CommonLib.readLongFromInputStream(in);
+					long segmentEnd = CommonLib.readLongFromInputStream(in);
+
+					long eax = CommonLib.readLongFromInputStream(in);
+					long ecx = CommonLib.readLongFromInputStream(in);
+					long edx = CommonLib.readLongFromInputStream(in);
+					long ebx = CommonLib.readLongFromInputStream(in);
+					long esp = CommonLib.readLongFromInputStream(in);
+					long ebp = CommonLib.readLongFromInputStream(in);
+					long esi = CommonLib.readLongFromInputStream(in);
+					long edi = CommonLib.readLongFromInputStream(in);
+
+					long es = CommonLib.readShortFromInputStream(in);
+					long cs = CommonLib.readShortFromInputStream(in);
+					long ss = CommonLib.readShortFromInputStream(in);
+					long ds = CommonLib.readShortFromInputStream(in);
+					long fs = CommonLib.readShortFromInputStream(in);
+					long gs = CommonLib.readShortFromInputStream(in);
+
+					jmpTableModel.addData(String.valueOf(lineNo), dateformat1.format(new Date()), fromAddress, toAddress, segmentStart, segmentEnd, eax, ecx, edx, ebx, esp, ebp,
+							esi, edi, es, cs, ss, ds, fs, gs);
+					lineNo++;
+					jmpDataVector.add(new JmpData(segmentStart, segmentEnd, fromAddress, toAddress));
+
+					fstream.write(lineNo + "-" + dateformat1.format(new Date()) + "-" + fromAddress + "-" + toAddress + "-" + segmentStart + "-" + segmentEnd + "\n");
 				}
 
 				in.close();

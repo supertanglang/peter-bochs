@@ -42,10 +42,14 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 /**
- * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI Builder, which is free for non-commercial use. If Jigloo is being used commercially (ie, by a
- * corporation, company or business for any purpose whatever) then you should purchase a license for each developer using Jigloo. Please visit www.cloudgarden.com for details. Use
- * of Jigloo implies acceptance of these licensing terms. A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR ANY
- * CORPORATE OR COMMERCIAL PURPOSE.
+ * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
+ * Builder, which is free for non-commercial use. If Jigloo is being used
+ * commercially (ie, by a corporation, company or business for any purpose
+ * whatever) then you should purchase a license for each developer using Jigloo.
+ * Please visit www.cloudgarden.com for details. Use of Jigloo implies
+ * acceptance of these licensing terms. A COMMERCIAL LICENSE HAS NOT BEEN
+ * PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR
+ * ANY CORPORATE OR COMMERCIAL PURPOSE.
  */
 public class TSSPanel extends JPanel {
 	private JTable jTable1;
@@ -123,7 +127,8 @@ public class TSSPanel extends JPanel {
 						jSplitPane1.add(jScrollPane2, JSplitPane.LEFT);
 						jScrollPane2.setPreferredSize(new java.awt.Dimension(449, 600));
 						{
-							TableModel jTable2Model = new DefaultTableModel(new String[][] {}, new String[] { Application.language.getString("Field"), Application.language.getString("Value") });
+							TableModel jTable2Model = new DefaultTableModel(new String[][] {}, new String[] { Application.language.getString("Field"),
+									Application.language.getString("Value") });
 							jTable2 = new JTable();
 							jScrollPane2.setViewportView(jTable2);
 							jTable2.setModel(jTable2Model);
@@ -134,8 +139,8 @@ public class TSSPanel extends JPanel {
 						jSplitPane1.add(jScrollPane3, JSplitPane.RIGHT);
 						jScrollPane3.setPreferredSize(new java.awt.Dimension(457, 600));
 						{
-							TableModel jTSSTableModel = new DefaultTableModel(new String[][] {}, new String[] { Application.language.getString("Offset"), Application.language.getString("Field"),
-									Application.language.getString("Value"), "" });
+							TableModel jTSSTableModel = new DefaultTableModel(new String[][] {}, new String[] { Application.language.getString("Offset"),
+									Application.language.getString("Field"), Application.language.getString("Value"), "" });
 							jTSSTable = new JTable();
 							jScrollPane3.setViewportView(jTSSTable);
 							jTSSTable.setModel(jTSSTableModel);
@@ -205,13 +210,6 @@ public class TSSPanel extends JPanel {
 							jSplitPane2.add(jScrollPane4, JSplitPane.LEFT);
 							jScrollPane4.setPreferredSize(new java.awt.Dimension(399, 573));
 							{
-								// TableModel jPageDirectoryTableModel = new DefaultTableModel(new String[][] {}, new String[] { "No.",
-								// "PT base", "AVL", "G", "D", "A", "PCD",
-								// "PWT", "U/S", "W/R", "P" }) {
-								// public boolean isCellEditable(int row, int column) {
-								// return false;
-								// }
-								// };
 								PageDirectoryTableModel jPageDirectoryTableModel = new PageDirectoryTableModel();
 								jPageDirectoryTable = new JTable();
 								jScrollPane4.setViewportView(jPageDirectoryTable);
@@ -229,13 +227,6 @@ public class TSSPanel extends JPanel {
 							jSplitPane2.add(jScrollPane5, JSplitPane.RIGHT);
 							jScrollPane5.setPreferredSize(new java.awt.Dimension(507, 573));
 							{
-								// TableModel jPageTableTableModel = new DefaultTableModel(new String[][] {}, new String[] { "No.",
-								// Application.language.getString("Physical_address"), "AVL", "G", "PAT",
-								// "D", "A", "PCD", "PWT", "U/S", "W/R", "P" }) {
-								// public boolean isCellEditable(int row, int column) {
-								// return false;
-								// }
-								// };
 								PageTableTableModel jPageTableTableModel = new PageTableTableModel();
 								jPageTableTable = new JTable();
 								jScrollPane5.setViewportView(jPageTableTable);
@@ -366,77 +357,66 @@ public class TSSPanel extends JPanel {
 					}
 				}
 			}
-			// Application.commandReceiver.setCommandNoOfLine(2);
+
 			String result;
-			if (type == 0) {
-				Application.sendCommand("info gdt " + gdtNo);
-				String gdtNoHex = String.format("0x%02x", gdtNo);
-				result = Application.commandReceiver.getCommandResult("GDT[" + gdtNoHex + "]");
-			} else if (type == 1) {
-				Application.sendCommand("info ldt " + gdtNo);
-				String gdtNoHex = String.format("0x%02x", gdtNo);
-				result = Application.commandReceiver.getCommandResult("LDT[" + gdtNoHex + "]");
-			} else if (type == 2) {
-				Application.sendCommand("info idt " + gdtNo);
-				String gdtNoHex = String.format("0x%02x", gdtNo);
-				result = Application.commandReceiver.getCommandResult("IDT[" + gdtNoHex + "]");
-				System.out.println(result);
+			if (Application.commandReceiver != null) {
+				if (type == 0) {
+					Application.sendCommand("info gdt " + gdtNo);
+					String gdtNoHex = String.format("0x%02x", gdtNo);
+					result = Application.commandReceiver.getCommandResult("GDT[" + gdtNoHex + "]");
+				} else if (type == 1) {
+					Application.sendCommand("info ldt " + gdtNo);
+					String gdtNoHex = String.format("0x%02x", gdtNo);
+					result = Application.commandReceiver.getCommandResult("LDT[" + gdtNoHex + "]");
+				} else if (type == 2) {
+					Application.sendCommand("info idt " + gdtNo);
+					String gdtNoHex = String.format("0x%02x", gdtNo);
+					result = Application.commandReceiver.getCommandResult("IDT[" + gdtNoHex + "]");
+					System.out.println(result);
+				}
+
+				Application.commandReceiver.clearBuffer();
+				Application.sendCommand("x /8bx " + String.format("0x%08x", gdtAddress + (gdtNo * 8)));
+				result = Application.commandReceiver.getCommandResult(String.format("%08x", gdtAddress + (gdtNo * 8)));
+				String lines[] = result.split("\n");
+
+				String byteStr[] = lines[0].replaceFirst("^.*>:\t", "").split("\t");
+				for (int x = 0; x < 8; x++) {
+					b[x] = (byte) Long.parseLong(byteStr[x].substring(2), 16);
+				}
+
+				value = CommonLib.getLong(b, 0);
+
+				for (int x = 0; x < 64; x++) {
+					bit[x] = CommonLib.getBit(value, x);
+				}
+
+				for (int x = 0; x < 32; x++) {
+					jTable1.setValueAt(value >> x & 1, 1, 31 - x);
+				}
+
+				for (int x = 32; x < 64; x++) {
+					jTable1.setValueAt(value >> x & 1, 0, 63 - x);
+					jTable1.setPreferredSize(new java.awt.Dimension(669, 32));
+				}
+
+				// parse descriptor
+				if (bit[44] == 1 && bit[43] == 1) {
+					jTypeLabel.setText("Type : Code descriptor, value=0x" + Long.toHexString(value));
+					parseCodeDescriptor();
+				} else if (bit[44] == 1 && bit[43] == 0) {
+					jTypeLabel.setText("Type : Data descriptor, value=0x" + Long.toHexString(value));
+					parseDataDescriptor();
+				} else if (bit[44] == 0 && bit[43] == 0 && bit[42] == 0 && bit[41] == 1 && bit[40] == 0) {
+					jTypeLabel.setText("Type : LDT descriptor, value=0x" + Long.toHexString(value) + ", base=0x" + Long.toHexString(CommonLib.getInt(b[2], b[3], b[4], b[7]))
+							+ ", limit=0x" + Long.toHexString(CommonLib.getShort(b[0], b[1])));
+					parseLDT();
+				} else if (bit[44] == 0 && bit[42] == 0 && bit[40] == 1) {
+					jTypeLabel.setText("Type : TSS descriptor, value=0x" + Long.toHexString(value));
+					parseTSSDescriptor();
+				}
+				// end parse descriptor
 			}
-
-			// String lines[] =
-			// result.split("\n");
-			// System.out.println(lines[0]);
-			// long address = Long.parseLong(lines[0].replaceFirst("^.*base=0x",
-			// "").replaceFirst(",.*$", ""), 16);
-
-			// get bytes
-			// Application.commandReceiver.setCommandNoOfLine(2);
-			// String dumpAddress = String.format("0x%08x", gdtAddress + (gdtNo
-			// * 8));
-			// String dumpEndAddress = String.format("0x%08x", gdtAddress +
-			// ((gdtNo + 1) * 8));
-			Application.commandReceiver.clearBuffer();
-			Application.sendCommand("x /8bx " + String.format("0x%08x", gdtAddress + (gdtNo * 8)));
-			// System.out.println("xp /8bx " + dumpAddress);
-			result = Application.commandReceiver.getCommandResult(String.format("%08x", gdtAddress + (gdtNo * 8)));
-			String lines[] = result.split("\n");
-
-			String byteStr[] = lines[0].replaceFirst("^.*>:\t", "").split("\t");
-			for (int x = 0; x < 8; x++) {
-				b[x] = (byte) Long.parseLong(byteStr[x].substring(2), 16);
-			}
-
-			value = CommonLib.getLong(b, 0);
-
-			for (int x = 0; x < 64; x++) {
-				bit[x] = CommonLib.getBit(value, x);
-			}
-
-			for (int x = 0; x < 32; x++) {
-				jTable1.setValueAt(value >> x & 1, 1, 31 - x);
-			}
-
-			for (int x = 32; x < 64; x++) {
-				jTable1.setValueAt(value >> x & 1, 0, 63 - x);
-				jTable1.setPreferredSize(new java.awt.Dimension(669, 32));
-			}
-
-			// parse descriptor
-			if (bit[44] == 1 && bit[43] == 1) {
-				jTypeLabel.setText("Type : Code descriptor, value=0x" + Long.toHexString(value));
-				parseCodeDescriptor();
-			} else if (bit[44] == 1 && bit[43] == 0) {
-				jTypeLabel.setText("Type : Data descriptor, value=0x" + Long.toHexString(value));
-				parseDataDescriptor();
-			} else if (bit[44] == 0 && bit[43] == 0 && bit[42] == 0 && bit[41] == 1 && bit[40] == 0) {
-				jTypeLabel.setText("Type : LDT descriptor, value=0x" + Long.toHexString(value) + ", base=0x" + Long.toHexString(CommonLib.getInt(b[2], b[3], b[4], b[7])) + ", limit=0x"
-						+ Long.toHexString(CommonLib.getShort(b[0], b[1])));
-				parseLDT();
-			} else if (bit[44] == 0 && bit[42] == 0 && bit[40] == 1) {
-				jTypeLabel.setText("Type : TSS descriptor, value=0x" + Long.toHexString(value));
-				parseTSSDescriptor();
-			}
-			// end parse descriptor
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

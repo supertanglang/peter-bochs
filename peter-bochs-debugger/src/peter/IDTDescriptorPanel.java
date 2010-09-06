@@ -95,7 +95,8 @@ public class IDTDescriptorPanel extends JPanel {
 						jScrollPane2 = new JScrollPane();
 						jPanel3.add(jScrollPane2, BorderLayout.CENTER);
 						{
-							TableModel jTable2Model = new DefaultTableModel(new String[][] {}, new String[] { Application.language.getString("Field"), Application.language.getString("Value") });
+							TableModel jTable2Model = new DefaultTableModel(new String[][] {}, new String[] { Application.language.getString("Field"),
+									Application.language.getString("Value") });
 							jFieldTable = new JTable();
 							jScrollPane2.setViewportView(jFieldTable);
 							jFieldTable.setModel(jTable2Model);
@@ -141,8 +142,8 @@ public class IDTDescriptorPanel extends JPanel {
 				jTypeLabel.setText("Type : Task gate descriptor, value=0x" + Long.toHexString(value));
 				parseTaskGateDescriptor();
 			} else if (bit[44] == 0 && bit[43] == 0 && bit[42] == 0 && bit[41] == 1 && bit[40] == 0) {
-				jTypeLabel.setText("Type : LDT descriptor, value=0x" + Long.toHexString(value) + ", base=0x" + Long.toHexString(CommonLib.getInt(b[2], b[3], b[4], b[7])) + ", limit=0x"
-						+ Long.toHexString(CommonLib.getShort(b[0], b[1])));
+				jTypeLabel.setText("Type : LDT descriptor, value=0x" + Long.toHexString(value) + ", base=0x" + Long.toHexString(CommonLib.getInt(b[2], b[3], b[4], b[7]))
+						+ ", limit=0x" + Long.toHexString(CommonLib.getShort(b[0], b[1])));
 				parseLDT();
 			} else if (bit[44] == 0 && bit[42] == 0 && bit[40] == 1) {
 				jTypeLabel.setText("Type : TSS descriptor, value=0x" + Long.toHexString(value));
@@ -208,7 +209,8 @@ public class IDTDescriptorPanel extends JPanel {
 			JScrollPane pane = new JScrollPane();
 			jTabbedPane1.addTab(Application.language.getString("Descriptor"), null, pane, null);
 			JTable table = new JTable();
-			DefaultTableModel model2 = new DefaultTableModel(new String[][] {}, new String[] { "No.", "Type", "Value", "Base", "Limit", "A", "R/W", "C/E", "X", "S", "DPL", "P", "AVL", "D/B", "G" });
+			DefaultTableModel model2 = new DefaultTableModel(new String[][] {}, new String[] { "No.", "Type", "Value", "Base", "Limit", "A", "R/W", "C/E", "X", "S", "DPL", "P",
+					"AVL", "D/B", "G" });
 
 			if (limit > 1000) {
 				limit = 1000;
@@ -218,8 +220,8 @@ public class IDTDescriptorPanel extends JPanel {
 			for (int x = 0; x < limit; x += 8) {
 				long value = CommonLib.getLong(bytes, x);
 				LinkedHashMap<String, String> hm = DescriptorParser.parseDescriptor(value);
-				model2.addRow(new String[] { String.valueOf(x), hm.get("Type"), hm.get("Value"), hm.get("Base"), hm.get("Limit"), hm.get("A"), hm.get("R/W"), hm.get("C/E"), hm.get("X"), hm.get("S"),
-						hm.get("DPL"), hm.get("P"), hm.get("AVL"), hm.get("D/B"), hm.get("G") });
+				model2.addRow(new String[] { String.valueOf(x), hm.get("Type"), hm.get("Value"), hm.get("Base"), hm.get("Limit"), hm.get("A"), hm.get("R/W"), hm.get("C/E"),
+						hm.get("X"), hm.get("S"), hm.get("DPL"), hm.get("P"), hm.get("AVL"), hm.get("D/B"), hm.get("G") });
 			}
 			table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 			table.setModel(model2);

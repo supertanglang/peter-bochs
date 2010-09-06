@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.TreeSet;
+import java.util.Vector;
 
 import org.apache.commons.betwixt.io.BeanReader;
 import org.apache.commons.betwixt.io.BeanWriter;
@@ -31,6 +32,112 @@ public class Setting {
 
 	LinkedList<Long> profileMemoryFromAddress = new LinkedList<Long>();
 	LinkedList<Long> profileMemoryToAddress = new LinkedList<Long>();
+
+	private Vector<Long> physicalAddress = new Vector<Long>();
+
+	public Vector<Long> getPhysicalAddress() {
+		return physicalAddress;
+	}
+
+	public void setPhysicalAddress(Vector<Long> physicalAddress) {
+		this.physicalAddress = physicalAddress;
+	}
+
+	public void addPhysicalAddress(long physicalAddress) {
+		this.physicalAddress.add(physicalAddress);
+	}
+
+	public Vector<Boolean> getTss() {
+		return tss;
+	}
+
+	public void setTss(Vector<Boolean> tss) {
+		this.tss = tss;
+	}
+
+	public void addTss(Boolean tss) {
+		this.tss.add(tss);
+	}
+
+	public Vector<Boolean> getMemoryStart() {
+		return memoryStart;
+	}
+
+	public void setMemoryStart(Vector<Boolean> memoryStart) {
+		this.memoryStart = memoryStart;
+	}
+
+	public void addMemoryStart(Boolean memoryStart) {
+		this.memoryStart.add(memoryStart);
+	}
+
+	public Vector<Boolean> getMemoryEnd() {
+		return memoryEnd;
+	}
+
+	public void setMemoryEnd(Vector<Boolean> memoryEnd) {
+		this.memoryEnd = memoryEnd;
+	}
+
+	public void addMemoryEnd(Boolean memoryEnd) {
+		this.memoryEnd.add(memoryEnd);
+	}
+
+	public Vector<Boolean> getRegister() {
+		return register;
+	}
+
+	public void setRegister(Vector<Boolean> register) {
+		this.register = register;
+	}
+
+	public void addRegister(Boolean register) {
+		this.register.add(register);
+	}
+
+	public Vector<Boolean> getGdt() {
+		return gdt;
+	}
+
+	public void setGdt(Vector<Boolean> gdt) {
+		this.gdt = gdt;
+	}
+
+	public void addGdt(Boolean gdt) {
+		this.gdt.add(gdt);
+	}
+
+	public Vector<Boolean> getIdt() {
+		return idt;
+	}
+
+	public void setIdt(Vector<Boolean> idt) {
+		this.idt = idt;
+	}
+
+	public void addIdt(Boolean idt) {
+		this.idt.add(idt);
+	}
+
+	public Vector<Boolean> getLdt() {
+		return ldt;
+	}
+
+	public void setLdt(Vector<Boolean> ldt) {
+		this.ldt = ldt;
+	}
+
+	public void addLdt(Boolean ldt) {
+		this.ldt.add(ldt);
+	}
+
+	private Vector<Boolean> tss = new Vector<Boolean>();
+	private Vector<Boolean> memoryStart = new Vector<Boolean>();
+	private Vector<Boolean> memoryEnd = new Vector<Boolean>();
+	private Vector<Boolean> register = new Vector<Boolean>();
+	private Vector<Boolean> gdt = new Vector<Boolean>();
+	private Vector<Boolean> idt = new Vector<Boolean>();
+	private Vector<Boolean> ldt = new Vector<Boolean>();
 
 	public LinkedList<Long> getProfileMemoryFromAddress() {
 		return profileMemoryFromAddress;
