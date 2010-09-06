@@ -1,9 +1,15 @@
 package peter;
 
 import java.awt.BorderLayout;
+import javax.swing.GroupLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.LayoutStyle;
 import javax.swing.SwingUtilities;
 
 import com.petersoft.CommonLib;
@@ -20,6 +26,8 @@ import com.petersoft.CommonLib;
  */
 public class JAboutUsDialog extends javax.swing.JDialog {
 	private JTextArea jTextArea1;
+	private JLabel jLabel1;
+	private JScrollPane jScrollPane1;
 
 	/**
 	 * Auto-generated main method to display this JDialog
@@ -42,22 +50,37 @@ public class JAboutUsDialog extends javax.swing.JDialog {
 	private void initGUI() {
 		try {
 			{
+				getContentPane().setLayout(null);
 				this.setTitle("About us");
+				getContentPane().setBackground(new java.awt.Color(255, 255, 255));
+				this.setResizable(false);
+				{
+					jScrollPane1 = new JScrollPane();
+					getContentPane().add(jScrollPane1);
+					jScrollPane1.setBounds(7, 263, 370, 95);
+					{
+						jTextArea1 = new JTextArea();
+						jScrollPane1.setViewportView(jTextArea1);
+						String str = "";
+						str += "Website : http://code.google.com/p/peter-bochs\n";
+						str += "Forum : http://groups.google.com/group/peter-bochs\n";
+						str += "Contact : Peter (mcheung63@hotmail.com)\n";
+						str += "Version: " + Global.version;
+						jTextArea1.setText(str);
+						jTextArea1.setEditable(false);
+						jTextArea1.setMargin(new java.awt.Insets(20, 20, 20, 20));
+						jTextArea1.setBackground(new java.awt.Color(255, 255, 255));
+					}
+				}
 			}
 			{
-				jTextArea1 = new JTextArea();
-				getContentPane().add(jTextArea1, BorderLayout.CENTER);
-				String str = "";
-				str += "\n\nWebsite : http://code.google.com/p/peter-bochs\n\n";
-				str += "Forum : http://groups.google.com/group/peter-bochs\n\n";
-				str += "Contact : Peter (mcheung63@hotmail.com)\n\n";
-				str += "Version: " + Global.version;
-				jTextArea1.setText(str);
-				jTextArea1.setEditable(false);
-				jTextArea1.setMargin(new java.awt.Insets(20, 20, 20, 20));
-				jTextArea1.setBackground(new java.awt.Color(255,255,255));
+				jLabel1 = new JLabel();
+				getContentPane().add(jLabel1);
+				jTextArea1.setBounds(12, 263, 360, 95);
+				jLabel1.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/peter-bochs-aboutbox.png")));
+				jLabel1.setBounds(0, 12, 384, 356);
 			}
-			setSize(400, 300);
+			this.setSize(400, 400);
 			CommonLib.centerDialog(this);
 		} catch (Exception e) {
 			e.printStackTrace();

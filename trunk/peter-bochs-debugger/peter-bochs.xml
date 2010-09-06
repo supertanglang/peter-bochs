@@ -1,50 +1,106 @@
 <?xml version='1.0' ?>  <Setting>
-    <bochsCommandHistory>
-      <bochsCommandHistory>s</bochsCommandHistory>
-      <bochsCommandHistory>z</bochsCommandHistory>
-      <bochsCommandHistory>r</bochsCommandHistory>
-    </bochsCommandHistory>
+    <bochsCommandHistory/>
     <breakpoint/>
     <currentLanguage>en_US</currentLanguage>
     <customZone>true</customZone>
     <divX>509</divX>
-    <divY>183</divY>
+    <divY>248</divY>
     <fontFamily>Dialog</fontFamily>
     <fontsize>12</fontsize>
-    <height>543</height>
+    <gdt>
+      <gdt>true</gdt>
+      <gdt>false</gdt>
+      <gdt>false</gdt>
+      <gdt>false</gdt>
+      <gdt>false</gdt>
+      <gdt>false</gdt>
+    </gdt>
+    <height>632</height>
     <hitZone>true</hitZone>
+    <idt>
+      <idt>false</idt>
+      <idt>true</idt>
+      <idt>false</idt>
+      <idt>false</idt>
+      <idt>false</idt>
+      <idt>false</idt>
+    </idt>
     <jmpProfiling>true</jmpProfiling>
     <lastElfHistoryOpenDir>/root/workspace/peter-bochs-debugger/.</lastElfHistoryOpenDir>
     <lastElfHistoryOpenDir2>/root/workspace/peter-bochs-debugger/.</lastElfHistoryOpenDir2>
-    <loadBreakpointAtStartup>true</loadBreakpointAtStartup>
+    <ldt>
+      <ldt>false</ldt>
+      <ldt>false</ldt>
+      <ldt>true</ldt>
+      <ldt>false</ldt>
+      <ldt>false</ldt>
+      <ldt>false</ldt>
+    </ldt>
+    <loadBreakpointAtStartup>false</loadBreakpointAtStartup>
     <memoryCombo/>
-    <memoryProfiling>true</memoryProfiling>
+    <memoryEnd>
+      <memoryEnd>true</memoryEnd>
+      <memoryEnd>false</memoryEnd>
+      <memoryEnd>true</memoryEnd>
+      <memoryEnd>true</memoryEnd>
+      <memoryEnd>false</memoryEnd>
+      <memoryEnd>true</memoryEnd>
+    </memoryEnd>
+    <memoryProfiling>false</memoryProfiling>
+    <memoryStart>
+      <memoryStart>true</memoryStart>
+      <memoryStart>true</memoryStart>
+      <memoryStart>true</memoryStart>
+      <memoryStart>false</memoryStart>
+      <memoryStart>true</memoryStart>
+      <memoryStart>false</memoryStart>
+    </memoryStart>
     <osDebugSplitPane_DividerLocation>150</osDebugSplitPane_DividerLocation>
+    <physicalAddress>
+      <physicalAddress>120</physicalAddress>
+      <physicalAddress>34</physicalAddress>
+      <physicalAddress>0</physicalAddress>
+      <physicalAddress>0</physicalAddress>
+      <physicalAddress>0</physicalAddress>
+      <physicalAddress>0</physicalAddress>
+    </physicalAddress>
     <profileMemoryFromAddress>
-      <profileMemoryFromAddress>36864</profileMemoryFromAddress>
-      <profileMemoryFromAddress>36865</profileMemoryFromAddress>
-      <profileMemoryFromAddress>36864</profileMemoryFromAddress>
-      <profileMemoryFromAddress>36866</profileMemoryFromAddress>
+      <profileMemoryFromAddress>23068672</profileMemoryFromAddress>
+      <profileMemoryFromAddress>31744</profileMemoryFromAddress>
     </profileMemoryFromAddress>
     <profileMemoryToAddress>
-      <profileMemoryToAddress>36864</profileMemoryToAddress>
-      <profileMemoryToAddress>36865</profileMemoryToAddress>
-      <profileMemoryToAddress>589858</profileMemoryToAddress>
-      <profileMemoryToAddress>36866</profileMemoryToAddress>
+      <profileMemoryToAddress>24117247</profileMemoryToAddress>
+      <profileMemoryToAddress>507904</profileMemoryToAddress>
     </profileMemoryToAddress>
-    <profilingUpdateGraph>true</profilingUpdateGraph>
-    <updateAfterBochsCommand>true</updateAfterBochsCommand>
-    <updateAfterBochsCommand_addressTranslate>true</updateAfterBochsCommand_addressTranslate>
-    <updateAfterBochsCommand_breakpoint>true</updateAfterBochsCommand_breakpoint>
-    <updateAfterBochsCommand_gdt>true</updateAfterBochsCommand_gdt>
-    <updateAfterBochsCommand_history>true</updateAfterBochsCommand_history>
-    <updateAfterBochsCommand_idt>true</updateAfterBochsCommand_idt>
-    <updateAfterBochsCommand_instruction>true</updateAfterBochsCommand_instruction>
-    <updateAfterBochsCommand_ldt>true</updateAfterBochsCommand_ldt>
-    <updateAfterBochsCommand_memory>true</updateAfterBochsCommand_memory>
-    <updateAfterBochsCommand_pageTable>true</updateAfterBochsCommand_pageTable>
-    <updateAfterBochsCommand_register>true</updateAfterBochsCommand_register>
-    <updateAfterBochsCommand_stack>true</updateAfterBochsCommand_stack>
+    <profilingUpdateGraph>false</profilingUpdateGraph>
+    <register>
+      <register>true</register>
+      <register>true</register>
+      <register>false</register>
+      <register>true</register>
+      <register>true</register>
+      <register>false</register>
+    </register>
+    <tss>
+      <tss>false</tss>
+      <tss>true</tss>
+      <tss>true</tss>
+      <tss>false</tss>
+      <tss>true</tss>
+      <tss>false</tss>
+    </tss>
+    <updateAfterBochsCommand>false</updateAfterBochsCommand>
+    <updateAfterBochsCommand_addressTranslate>false</updateAfterBochsCommand_addressTranslate>
+    <updateAfterBochsCommand_breakpoint>false</updateAfterBochsCommand_breakpoint>
+    <updateAfterBochsCommand_gdt>false</updateAfterBochsCommand_gdt>
+    <updateAfterBochsCommand_history>false</updateAfterBochsCommand_history>
+    <updateAfterBochsCommand_idt>false</updateAfterBochsCommand_idt>
+    <updateAfterBochsCommand_instruction>false</updateAfterBochsCommand_instruction>
+    <updateAfterBochsCommand_ldt>false</updateAfterBochsCommand_ldt>
+    <updateAfterBochsCommand_memory>false</updateAfterBochsCommand_memory>
+    <updateAfterBochsCommand_pageTable>false</updateAfterBochsCommand_pageTable>
+    <updateAfterBochsCommand_register>false</updateAfterBochsCommand_register>
+    <updateAfterBochsCommand_stack>false</updateAfterBochsCommand_stack>
     <updateFastStepCommand_breakpoint>false</updateFastStepCommand_breakpoint>
     <updateFastStepCommand_gdt>false</updateFastStepCommand_gdt>
     <updateFastStepCommand_idt>false</updateFastStepCommand_idt>
@@ -52,7 +108,7 @@
     <updateFastStepCommand_ldt>false</updateFastStepCommand_ldt>
     <updateFastStepCommand_memory>true</updateFastStepCommand_memory>
     <updateFastStepCommand_register>true</updateFastStepCommand_register>
-    <width>974</width>
-    <x>230</x>
-    <y>35</y>
+    <width>978</width>
+    <x>151</x>
+    <y>25</y>
   </Setting>

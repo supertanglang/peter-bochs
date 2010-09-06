@@ -1,8 +1,5 @@
 package peter.instrument;
 
-import java.io.IOException;
-
-import javax.swing.JTextArea;
 
 public class JmpSocketServerController {
 	static JmpSocketServer server = new JmpSocketServer();

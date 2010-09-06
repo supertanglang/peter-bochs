@@ -9,15 +9,37 @@ import peter.Global;
 import peter.ReverseFileReader;
 
 public class JmpTableModel extends DefaultTableModel implements Runnable {
-	String columnNames[] = { "No.", "Date", "From", "To" };
+	String columnNames[] = { "No.", "Date", "From", "To", "Segment start", "Segment End", "eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi", "es", "cs", "ss", "ds", "fs",
+			"gs" };
 	int rowCount = 20;
 	boolean isGroup;
 	File log = new File(Global.jmpLog);
 
 	Vector<String> no = new Vector<String>();
 	Vector<String> date = new Vector<String>();
+
 	Vector<Long> from = new Vector<Long>();
 	Vector<Long> to = new Vector<Long>();
+	Vector<Long> segmentStart = new Vector<Long>();
+	Vector<Long> segmentEnd = new Vector<Long>();
+
+	Vector<Long> eax = new Vector<Long>();
+	Vector<Long> ecx = new Vector<Long>();
+	Vector<Long> edx = new Vector<Long>();
+	Vector<Long> ebx = new Vector<Long>();
+	Vector<Long> esp = new Vector<Long>();
+	Vector<Long> ebp = new Vector<Long>();
+	Vector<Long> esi = new Vector<Long>();
+	Vector<Long> edi = new Vector<Long>();
+
+	Vector<Long> es = new Vector<Long>();
+	Vector<Long> cs = new Vector<Long>();
+	Vector<Long> ss = new Vector<Long>();
+	Vector<Long> ds = new Vector<Long>();
+	Vector<Long> fs = new Vector<Long>();
+	Vector<Long> gs = new Vector<Long>();
+
+	Vector allData[] = { no, date, from, to, segmentStart, segmentEnd, eax, ecx, edx, ebx, esp, ebp, esi, edi, es, cs, ss, ds, fs, gs };
 
 	// LogFileTailer tailer = new LogFileTailer(new File("jmp.log"), 1000,
 	// false);
@@ -45,20 +67,19 @@ public class JmpTableModel extends DefaultTableModel implements Runnable {
 	}
 
 	public void setValueAt(Object aValue, int row, int column) {
-
 		this.fireTableDataChanged();
 	}
 
 	public Object getValueAt(int row, int column) {
-		if (column == 0) {
-			return no.get(row);
-		} else if (column == 1) {
-			return date.get(row);
-		} else if (column == 2) {
-			return "0x" + Long.toHexString(from.get(row));
-		} else if (column == 3) {
-			return "0x" + Long.toHexString(to.get(row));
-		} else {
+		try {
+			if (allData[column].get(0) instanceof String) {
+				return allData[column].get(row);
+			} else if (allData[column].get(0) instanceof Long) {
+				return "0x" + Long.toHexString((Long) allData[column].get(row));
+			} else {
+				return "";
+			}
+		} catch (Exception ex) {
 			return "";
 		}
 	}
@@ -66,14 +87,6 @@ public class JmpTableModel extends DefaultTableModel implements Runnable {
 	public boolean isCellEditable(int row, int column) {
 		return false;
 	}
-
-	/*
-	 * @Override public void newLogFileLine(String line) { String strs[] =
-	 * line.split("-"); No.add(strs[0]); Date.add(strs[1]); From.add(strs[2]);
-	 * To.add(strs[3]); if (No.size() > getRowCount()) { No.remove(0);
-	 * Date.remove(0); From.remove(0); To.remove(0); }
-	 * this.fireTableDataChanged(); }
-	 */
 
 	public boolean isGroup() {
 		return isGroup;
@@ -83,16 +96,33 @@ public class JmpTableModel extends DefaultTableModel implements Runnable {
 		this.isGroup = isGroup;
 	}
 
-	public void addData(String no, String date, Long from, Long to) {
+	public void addData(String no, String date, Long from, Long to, Long segmentStart, Long segmentEnd, Long eax, Long ecx, Long edx, Long ebx, Long esp, Long ebp, Long esi,
+			Long edi, Long es, Long cs, Long ss, Long ds, Long fs, Long gs) {
 		this.no.add(no);
 		this.date.add(date);
 		this.from.add(from);
 		this.to.add(to);
+		this.segmentStart.add(segmentStart);
+		this.segmentEnd.add(segmentEnd);
+
+		this.eax.add(eax);
+		this.ecx.add(ecx);
+		this.edx.add(edx);
+		this.ebx.add(ebx);
+		this.esp.add(esp);
+		this.ebp.add(ebp);
+		this.esi.add(esi);
+		this.edi.add(edi);
+
+		this.es.add(es);
+		this.cs.add(cs);
+		this.ss.add(ss);
+		this.ds.add(ds);
+		this.fs.add(fs);
+		this.gs.add(gs);
+
 		if (this.no.size() > getRowCount()) {
-			this.no.remove(0);
-			this.date.remove(0);
-			this.from.remove(0);
-			this.to.remove(0);
+			removeFirstRow();
 		}
 		this.fireTableDataChanged();
 	}
@@ -111,17 +141,16 @@ public class JmpTableModel extends DefaultTableModel implements Runnable {
 						String s = reader.readLine();
 						if (s != null) {
 							String strs[] = s.split("-");
-							if (strs.length == 4) {
-								// System.out.println("s=" + s);
+							if (strs.length == 6) {
 								no.add(strs[0]);
 								date.add(strs[1]);
 								from.add(Long.parseLong(strs[2]));
-								to.add(Long.parseLong(strs[2]));
+								to.add(Long.parseLong(strs[3]));
+								segmentStart.add(Long.parseLong(strs[4]));
+								segmentEnd.add(Long.parseLong(strs[5]));
+
 								if (no.size() > getRowCount()) {
-									no.remove(0);
-									date.remove(0);
-									from.remove(0);
-									to.remove(0);
+									removeFirstRow();
 								}
 							}
 						}
@@ -136,5 +165,15 @@ public class JmpTableModel extends DefaultTableModel implements Runnable {
 			}
 		}
 
+	}
+
+	private void removeFirstRow() {
+		for (int x = 0; x < allData.length; x++) {
+			if (allData[x].size() > 0) {
+				allData[x].remove(0);
+			} else {
+				System.out.println("fuck =" + x);
+			}
+		}
 	}
 }

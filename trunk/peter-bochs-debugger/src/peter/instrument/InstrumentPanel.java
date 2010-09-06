@@ -3,23 +3,31 @@ package peter.instrument;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeSet;
-import java.util.Vector;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
@@ -29,19 +37,21 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
-import javax.swing.JSlider;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.LayoutStyle;
 import javax.swing.SwingConstants;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
@@ -59,21 +69,36 @@ import org.jfree.data.xy.DefaultXYZDataset;
 import org.jfree.data.xy.XYZDataset;
 
 import peter.CommonLib;
+import peter.JRegisterPanel;
 import peter.Setting;
+import peter.TSSPanel;
+import peter.instrument.callgraph.CallGraphConfigTableCellEditor;
+import peter.instrument.callgraph.CallGraphConfigTableCellRenderer;
+import peter.instrument.callgraph.CallGraphConfigTableModel;
+import peter.instrument.callgraph.CallGraphRawTableModel;
+import peter.instrument.callgraph.JmpData;
 import peter.instrument.jfreechart.MyXYBlockRenderer;
 import peter.instrument.jfreechart.MyXYToolTipGenerator;
 
+import com.mxgraph.canvas.mxICanvas;
+import com.mxgraph.io.mxCodec;
 import com.mxgraph.layout.mxCircleLayout;
 import com.mxgraph.layout.mxCompactTreeLayout;
 import com.mxgraph.layout.mxOrganicLayout;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.model.mxCell;
+import com.mxgraph.model.mxGeometry;
 import com.mxgraph.swing.mxGraphComponent;
-import com.mxgraph.util.mxConstants;
+import com.mxgraph.swing.mxGraphOutline;
+import com.mxgraph.util.mxCellRenderer;
+import com.mxgraph.util.mxPoint;
+import com.mxgraph.util.mxResources;
+import com.mxgraph.util.mxUtils;
+import com.mxgraph.util.png.mxPngEncodeParam;
+import com.mxgraph.util.png.mxPngImageEncoder;
+import com.mxgraph.view.mxCellState;
 import com.mxgraph.view.mxGraph;
-import com.mxgraph.view.mxStylesheet;
 import com.petersoft.advancedswing.searchtextfield.JSearchTextField;
-import info.clearthought.layout.TableLayout;
 
 /**
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
@@ -88,17 +113,49 @@ import info.clearthought.layout.TableLayout;
 public class InstrumentPanel extends JPanel implements ChartChangeListener, ChartMouseListener {
 	private JTabbedPane jTabbedPane1;
 	private JPanel jMemoryPanel;
-	private JTable jCallGraphTable;
+	private JLabel jLabel12;
+	private JLabel jLabel11;
+	private JScrollPane jScrollPane5;
+	private JRegisterPanel jCallGraphRegisterPanel;
+	private JPanel jPanel10;
+	private JPanel jPanel9;
+	private JPanel jPanel8;
+	private JPanel jPanel7;
+	private JPanel jPanel6;
+	private JTabbedPane jTabbedPane4;
+	private JTextField jCallGraphScaleTextField;
+	private JComboBox jTrackDistanceComboBox;
+	private JComboBox jTrackUnitComboBox;
+	private JButton jCallGraphZoomOutButton;
+	private JButton jCallGraphZoomInButton;
+	private JButton jDeleteButton;
+	private JButton jAddCallGraphButton;
+	private JPanel jPanel5;
+	private JTable jCallGraphConfigTable;
+	private JScrollPane jScrollPane4;
+	private JPanel jCallGraphConfigPanel;
+	private JTextField jSegmentToTextField;
+	private JTextField jSegmentFromTextField;
+	private JTextField jSegmentEndTextField;
+	private JTextField jSegmentStartTextField;
+	private JPanel jPanel4;
+	private JLabel jSegmentToLabel;
+	private JLabel jSegmentFromLabel;
+	private JLabel jSegmentEndLabel;
+	private JLabel jSegmentStartLabel;
+	private JPanel jCallGraphPreviewPanel;
+	private JSplitPane jCallGraphSplitPane;
+	private JPanel jCallGraphDetailPanel;
+	private JPanel jPanel3;
+	private JTable jCallGraphRawTable;
 	private JScrollPane jScrollPane1;
 	private JPanel jCallGraphTablePanel;
 	private JTabbedPane jTabbedPane3;
-	private JSlider jCallGraphSlider;
 	private JButton jLayoutHierarchicalButton;
 	private JButton jLayoutOrganicButton;
 	private JButton jLayoutCircleButton;
 	private JButton jLayoutTreeButton;
 	private JButton jRefreshCallGraphButton;
-	private JScrollPane jCallGraphScrollPane;
 	private JButton jSaveGraphButton;
 	private JToolBar jToolBar1;
 	private JPanel jCallGraphPanel;
@@ -142,10 +199,16 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 	private JLabel jLabel6;
 	private JPanel jPanel1;
 	Color background = new Color(250, 250, 250);
-	//	static Chart chart;
+	// static Chart chart;
 	JmpTableModel jmpTableModel = new JmpTableModel();
 	mxGraph graph;
-	mxGraphComponent graphComponent;
+	PeterGraphComponent graphComponent;
+	CallGraphConfigTableModel callGraphConfigTableModel = new CallGraphConfigTableModel();
+	mxGraphOutline graphOutline;
+	private final int MAX_NUMBER_OF_VERTEX = 100;
+	JProgressBar jStatusProgressBar;
+	JLabel jStatusLabel;
+	CallGraphRawTableModel callGraphRawTableModel = new CallGraphRawTableModel();
 
 	public InstrumentPanel() {
 		initGUI();
@@ -156,7 +219,7 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			{
 				BorderLayout thisLayout = new BorderLayout();
 				this.setLayout(thisLayout);
-				this.setPreferredSize(new java.awt.Dimension(808, 448));
+				this.setPreferredSize(new java.awt.Dimension(845, 555));
 				{
 					jTabbedPane1 = new JTabbedPane();
 					this.add(jTabbedPane1, BorderLayout.CENTER);
@@ -169,7 +232,7 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 						jTabbedPane1.addTab("Memory", null, jMemoryPanel, null);
 						jTabbedPane1.addTab("Profiling", null, getJMemoryProfilingPanel(), null);
 						jTabbedPane1.addTab("Jmp", null, getJmpPanel(), null);
-						jTabbedPane1.addTab("jTabbedPane3", null, getJTabbedPane3(), null);
+						jTabbedPane1.addTab("Call graph", null, getJTabbedPane3(), null);
 						jMemoryPanelLayout.setVerticalGroup(jMemoryPanelLayout
 								.createSequentialGroup()
 								.addContainerGap()
@@ -935,7 +998,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 				jfcMemory = createEmptyChart(createEmptyDataset());
 				jMemoryChartPanel = new ChartPanel(jfcMemory);
 				jTabbedPane2.addTab("Chart", null, jMemoryChartPanel, null);
-				//				jTabbedPane2.addTab("Memory 3D", null, getJMemory3DPanel(), null);
+				// jTabbedPane2.addTab("Memory 3D", null, getJMemory3DPanel(),
+				// null);
 				jMemoryChartPanel.setDisplayToolTips(true);
 				jfcMemory.addChangeListener(this);
 				jMemoryChartPanel.addChartMouseListener(this);
@@ -1094,6 +1158,7 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			jProfilingTable.setModel(profilingTableModel);
 			jProfilingTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 			jProfilingTable.getColumnModel().getColumn(4).setPreferredWidth(500);
+			jProfilingTable.getTableHeader().setReorderingAllowed(false);
 			Data.memoryProfilingZone = profilingTableModel;
 
 			try {
@@ -1282,6 +1347,11 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 		if (jTable1 == null) {
 			jTable1 = new JTable();
 			jTable1.setModel(jmpTableModel);
+			jTable1.getTableHeader().setReorderingAllowed(false);
+			jTable1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			for (int x = 0; x < jTable1.getColumnCount(); x++) {
+				jTable1.getColumnModel().getColumn(x).setPreferredWidth(100);
+			}
 		}
 		return jTable1;
 	}
@@ -1296,7 +1366,7 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			BorderLayout jCallGraphPanelLayout = new BorderLayout();
 			jCallGraphPanel.setLayout(jCallGraphPanelLayout);
 			jCallGraphPanel.add(getJToolBar1(), BorderLayout.NORTH);
-			jCallGraphPanel.add(getJScrollPane1(), BorderLayout.CENTER);
+			jCallGraphPanel.add(getJCallGraphSplitPane(), BorderLayout.CENTER);
 		}
 		return jCallGraphPanel;
 	}
@@ -1310,7 +1380,13 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			jToolBar1.add(getJLayoutCircleButton());
 			jToolBar1.add(getJLayoutOrganicButton());
 			jToolBar1.add(getJLayoutHierarchicalButton());
-			jToolBar1.add(getJCallGraphSlider());
+			jToolBar1.add(getJCallGraphZoomInButton());
+			jToolBar1.add(getJCallGraphScaleTextField());
+			jToolBar1.add(getJCallGraphZoomOutButton());
+			jToolBar1.add(getJLabel11());
+			jToolBar1.add(getJTrackUnitComboBox());
+			jToolBar1.add(getJLabel12());
+			jToolBar1.add(getJTrackDistanceComboBox());
 		}
 		return jToolBar1;
 	}
@@ -1319,109 +1395,187 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 		if (jSaveGraphButton == null) {
 			jSaveGraphButton = new JButton();
 			jSaveGraphButton.setText("Save");
+			jSaveGraphButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jSaveGraphButtonActionPerformed(evt);
+				}
+			});
 		}
 		return jSaveGraphButton;
 	}
 
-	private JScrollPane getJScrollPane1() {
-		if (jCallGraphScrollPane == null) {
-			jCallGraphScrollPane = new JScrollPane();
-		}
-		return jCallGraphScrollPane;
-	}
-
-	public void generateGraph() {
-		graph = new mxGraph();
-		graphComponent = new mxGraphComponent(graph);
-
-		mxStylesheet stylesheet = graph.getStylesheet();
-		Hashtable<String, Object> style = new Hashtable<String, Object>();
-		style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_RECTANGLE);
-		style.put(mxConstants.STYLE_OPACITY, 20);
-		style.put(mxConstants.STYLE_FONTCOLOR, "#774400");
-		stylesheet.putCellStyle("ROUNDED", style);
-
-		Object parent = graph.getDefaultParent();
-
-		graph.getModel().beginUpdate();
-		try {
-			Object segments[] = JmpSocketServer.segments.toArray();
-			mxCell last = null;
-			for (int x = 0; x < segments.length; x++) {
-				String s[] = segments[x].toString().split("-");
-				long segmentBegin = Long.parseLong(s[0]);
-				long segmentEnd = Long.parseLong(s[1]);
-
-				((CallGraphTableModel) this.jCallGraphTable.getModel()).addRow(segmentBegin, segmentEnd);
-				boolean insertNewVertex = true;
-				if (last != null) {
-					Vector<Object> cells = getAllCells(parent);
-
-					Iterator<Object> i = cells.iterator();
-					while (i.hasNext()) {
-						mxCell cell = (mxCell) i.next();
-						String s2[] = cell.getValue().toString().split("-");
-						long segmentBegin2 = CommonLib.string2decimal(s2[0].split(" ")[1]);
-						long segmentEnd2 = CommonLib.string2decimal(s2[1]);
-						System.out.println("\t" + Long.toHexString(segmentBegin2) + "<=" + Long.toHexString(segmentBegin) + "<=" + Long.toHexString(segmentEnd2));
-						if (segmentBegin2 <= segmentBegin && segmentBegin <= segmentEnd2) {
-							graph.insertEdge(parent, null, "", cell, cell);
-							insertNewVertex = false;
-							System.out.println("\t\tbingo");
-							break;
-						}
-					}
-				}
-				if (insertNewVertex) {
-					System.out.println("add>" + Long.toHexString(segmentBegin) + "==" + Long.toHexString(segmentEnd));
-					mxCell v1 = (mxCell) graph.insertVertex(parent, null, x + " 0x" + Long.toHexString(segmentBegin) + "-0x" + Long.toHexString(segmentEnd), 20, 20, 145, 30);
-					mxCell edge = (mxCell) graph.insertEdge(parent, null, "", last, v1);
-					last = v1;
+	public void updateCallGraph() {
+		graph = new mxGraph() {
+			public void drawState(mxICanvas canvas, mxCellState state, String label) {
+				if (getModel().isVertex(state.getCell()) && canvas instanceof PeterSwingCanvas) {
+					PeterSwingCanvas c = (PeterSwingCanvas) canvas;
+					c.drawVertex(state, label);
 				} else {
-					System.out.println("end");
+					// draw edge, at least
+					super.drawState(canvas, state, label);
 				}
 			}
-			System.out.println("end");
 
-			// Object group = graph.groupCells(null, 3, new Object[] { v1, v2
-			// });
-			graph.foldCells(true);
+			// Ports are not used as terminals for edges, they are
+			// only used to compute the graphical connection point
+
+			public boolean isPort(Object cell) {
+				mxGeometry geo = getCellGeometry(cell);
+
+				return (geo != null) ? geo.isRelative() : false;
+			}
+
+			// Implements a tooltip that shows the actual
+			// source and target of an edge
+			public String getToolTipForCell(Object cell) {
+				if (model.isEdge(cell)) {
+					return convertValueToString(model.getTerminal(cell, true)) + " -> " + convertValueToString(model.getTerminal(cell, false));
+				}
+
+				return super.getToolTipForCell(cell);
+			}
+
+			public boolean isCellFoldable(Object cell, boolean collapse) {
+				return false;
+			}
+		};
+		graphComponent = new PeterGraphComponent(graph);
+		Object parent = graph.getDefaultParent();
+
+		addCells(parent);
+		graph.setCellsDisconnectable(false);
+
+		graphComponent.setGridVisible(true);
+		graphComponent.setGridColor(Color.lightGray);
+		graphComponent.setBackground(Color.white);
+		graphComponent.getViewport().setOpaque(false);
+		graphComponent.setBackground(Color.WHITE);
+		graphComponent.setConnectable(false);
+		graphComponent.getGraphControl().addMouseListener(new MouseAdapter() {
+			public void mouseReleased(MouseEvent e) {
+				Object cell = graphComponent.getCellAt(e.getX(), e.getY());
+
+				if (cell != null) {
+					String label = graph.getLabel(cell);
+					if (label.contains("->")) {
+						cellClientEvent(label);
+					}
+				}
+			}
+		});
+
+		graph.setCellsResizable(false);
+		graph.setCellsMovable(false);
+		graph.setCellsEditable(false);
+		graph.foldCells(false);
+		graph.setGridSize(10);
+		jPanel3.removeAll();
+		jPanel3.add(graphComponent, BorderLayout.CENTER);
+
+		graphOutline = new mxGraphOutline(graphComponent);
+		graphOutline.setBackground(Color.white);
+		graphOutline.setBorder(new LineBorder(Color.LIGHT_GRAY));
+		jCallGraphPreviewPanel.removeAll();
+		jCallGraphPreviewPanel.add(graphOutline, BorderLayout.CENTER);
+		jCallGraphPreviewPanel.setPreferredSize(new Dimension(100, 100));
+	}
+
+	private void cellClientEvent(String label) {
+		String str[] = label.split("->");
+		this.jSegmentStartTextField.setText(str[0]);
+		this.jSegmentEndTextField.setText(str[1]);
+	}
+
+	private void setMarkerMaxAndMinSize() {
+		long smallestSegmentStart = Long.MAX_VALUE;
+		long largestSegmentEnd = Long.MIN_VALUE;
+		for (int x = JmpSocketServer.jmpDataVector.size() - 1, counter = 0; x >= 0 && counter <= MAX_NUMBER_OF_VERTEX; x--, counter++) {
+			JmpData jumpData = JmpSocketServer.jmpDataVector.get(x);
+			if (jumpData.segmentStart < smallestSegmentStart) {
+				smallestSegmentStart = jumpData.segmentStart;
+			}
+			if (jumpData.segmentEnd > largestSegmentEnd) {
+				largestSegmentEnd = jumpData.segmentEnd;
+			}
+		}
+		graphComponent.markerOffset = smallestSegmentStart;
+		graphComponent.markerEnd = largestSegmentEnd;
+	}
+
+	private void addCells(Object parent) {
+		setMarkerMaxAndMinSize();
+
+		final int minX = 50;
+		final int minY = 20;
+		final int cellHeight = 20;
+
+		int count = graph.getModel().getChildCount(parent);
+		for (int x = 0; x < count; x++) {
+			graph.getModel().remove(graph.getModel().getChildAt(parent, 0));
+		}
+		callGraphRawTableModel.removeAll();
+		graph.getModel().beginUpdate();
+		try {
+			mxCell lastPort = null;
+			jStatusProgressBar.setMaximum(MAX_NUMBER_OF_VERTEX);
+			for (int x = JmpSocketServer.jmpDataVector.size() - 1, counter = 0; x >= 0 && counter <= MAX_NUMBER_OF_VERTEX; x--, counter++) {
+				jStatusLabel.setText("Updating call graph " + x + "/" + JmpSocketServer.jmpDataVector.size());
+				jStatusProgressBar.setValue(x);
+				JmpData jumpData = JmpSocketServer.jmpDataVector.get(x);
+				callGraphRawTableModel.add(jumpData);
+				int positionX = (int) ((jumpData.segmentStart - graphComponent.markerOffset) / graphComponent.addressPerPixel);
+				positionX += minX;
+				mxCell node = (mxCell) graph.insertVertex(parent, null, "0x" + Long.toHexString(jumpData.segmentStart) + " -> " + "0x" + Long.toHexString(jumpData.segmentEnd),
+						positionX, minY + (counter * 30), (jumpData.segmentEnd - jumpData.segmentStart) / graphComponent.addressPerPixel, cellHeight);
+
+				mxCell ports[] = addPort(node);
+
+				if (lastPort != null) {
+					// graph.insertEdge(parent, null, x, lastPort, ports[0],
+					// "edgeStyle=elbowEdgeStyle;elbow=horizontal;"
+					// +
+					// "exitX=1;exitY=0.5;exitPerimeter=1;entryX=0;entryY=0;entryPerimeter=1;");
+					graph.insertEdge(parent, null, "", lastPort, ports[0], "edgeStyle=entityRelationEdgeStyle;");
+				}
+				lastPort = ports[1];
+			}
 		} finally {
 			graph.getModel().endUpdate();
 		}
-		graph.setCellsDisconnectable(false);
-
-		//
-		// mxGraphComponent graphComponent = new mxGraphComponent(graph) {
-		// private static final long serialVersionUID = 4683716829748931448L;
-		//
-		// public mxInteractiveCanvas createCanvas() {
-		// return new PeterSwingCanvas(this);
-		// }
-		// };
-
-		mxCompactTreeLayout layout = new mxCompactTreeLayout(graph);
-		if (layout != null) {
-			Object cell = graphComponent.getGraph().getSelectionCell();
-			if (cell == null || graphComponent.getGraph().getModel().getChildCount(cell) == 0) {
-				cell = graphComponent.getGraph().getDefaultParent();
-			}
-			layout.execute(cell);
-		}
-		jCallGraphScrollPane.setViewportView(graphComponent);
-		jCallGraphScrollPane.updateUI();
 	}
 
-	public Vector<Object> getAllCells(Object parent) {
-		Vector<Object> vector = new Vector<Object>();
-		for (int x = 0; x < graph.getModel().getChildCount(parent); x++) {
-			mxCell cell = (mxCell) graph.getModel().getChildAt(parent, x);
-			if (cell.isVertex()) {
-				vector.add(cell);
-			}
-		}
-		return vector;
+	private mxCell[] addPort(mxCell node) {
+		final int PORT_DIAMETER = 0;
+		final int PORT_RADIUS = PORT_DIAMETER / 2;
+
+		mxGeometry geo1 = new mxGeometry(0, 0.5, PORT_DIAMETER, PORT_DIAMETER);
+		geo1.setOffset(new mxPoint(-PORT_RADIUS, -PORT_RADIUS));
+		geo1.setRelative(true);
+
+		mxCell port1 = new mxCell(null, geo1, "shape=ellipse;perimter=ellipsePerimeter");
+		port1.setVertex(true);
+		graph.addCell(port1, node);
+
+		mxGeometry geo2 = new mxGeometry(1, 0.5, PORT_DIAMETER, PORT_DIAMETER);
+		geo2.setOffset(new mxPoint(-PORT_RADIUS, -PORT_RADIUS));
+		geo2.setRelative(true);
+
+		mxCell port2 = new mxCell(null, geo2, "shape=ellipse;perimter=ellipsePerimeter");
+		port2.setVertex(true);
+		graph.addCell(port2, node);
+		return new mxCell[] { port1, port2 };
 	}
+
+	// public Vector<Object> getAllCells(Object parent) {
+	// Vector<Object> vector = new Vector<Object>();
+	// for (int x = 0; x < graph.getModel().getChildCount(parent); x++) {
+	// mxCell cell = (mxCell) graph.getModel().getChildAt(parent, x);
+	// if (cell.isVertex()) {
+	// vector.add(cell);
+	// }
+	// }
+	// return vector;
+	// }
 
 	private JButton getJRefreshCallGraphButton() {
 		if (jRefreshCallGraphButton == null) {
@@ -1437,13 +1591,14 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 	}
 
 	private void jRefreshCallGraphButtonActionPerformed(ActionEvent evt) {
-		this.generateGraph();
+		this.updateCallGraph();
 	}
 
 	private JButton getJLayoutTreeButton() {
 		if (jLayoutTreeButton == null) {
 			jLayoutTreeButton = new JButton();
 			jLayoutTreeButton.setText("Tree");
+			jLayoutTreeButton.setVisible(false);
 			jLayoutTreeButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jLayoutTreeButtonActionPerformed(evt);
@@ -1457,6 +1612,7 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 		if (jLayoutCircleButton == null) {
 			jLayoutCircleButton = new JButton();
 			jLayoutCircleButton.setText("Circle");
+			jLayoutCircleButton.setVisible(false);
 			jLayoutCircleButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jLayoutCircleButtonActionPerformed(evt);
@@ -1470,6 +1626,7 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 		if (jLayoutOrganicButton == null) {
 			jLayoutOrganicButton = new JButton();
 			jLayoutOrganicButton.setText("Organic");
+			jLayoutOrganicButton.setVisible(false);
 			jLayoutOrganicButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jLayoutOrganicButtonActionPerformed(evt);
@@ -1483,6 +1640,7 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 		if (jLayoutHierarchicalButton == null) {
 			jLayoutHierarchicalButton = new JButton();
 			jLayoutHierarchicalButton.setText("Hierarchical");
+			jLayoutHierarchicalButton.setVisible(false);
 			jLayoutHierarchicalButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jLayoutHierarchicalButtonActionPerformed(evt);
@@ -1500,7 +1658,6 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 				cell = graphComponent.getGraph().getDefaultParent();
 			}
 			layout.execute(cell);
-			jCallGraphScrollPane.updateUI();
 		}
 	}
 
@@ -1512,7 +1669,6 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 				cell = graphComponent.getGraph().getDefaultParent();
 			}
 			layout.execute(cell);
-			jCallGraphScrollPane.updateUI();
 		}
 	}
 
@@ -1524,7 +1680,6 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 				cell = graphComponent.getGraph().getDefaultParent();
 			}
 			layout.execute(cell);
-			jCallGraphScrollPane.updateUI();
 		}
 	}
 
@@ -1536,34 +1691,16 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 				cell = graphComponent.getGraph().getDefaultParent();
 			}
 			layout.execute(cell);
-			jCallGraphScrollPane.updateUI();
 		}
-	}
-
-	private JSlider getJCallGraphSlider() {
-		if (jCallGraphSlider == null) {
-			jCallGraphSlider = new JSlider();
-			jCallGraphSlider.setMinimum(1);
-			jCallGraphSlider.setMaximum(150);
-			jCallGraphSlider.addChangeListener(new ChangeListener() {
-				public void stateChanged(ChangeEvent evt) {
-					jCallGraphSliderStateChanged(evt);
-				}
-			});
-		}
-		return jCallGraphSlider;
-	}
-
-	private void jCallGraphSliderStateChanged(ChangeEvent evt) {
-		graphComponent.zoomTo(((double) jCallGraphSlider.getValue()) / 100, true);
 	}
 
 	private JTabbedPane getJTabbedPane3() {
 		if (jTabbedPane3 == null) {
 			jTabbedPane3 = new JTabbedPane();
 			jTabbedPane3.setPreferredSize(new java.awt.Dimension(730, 443));
-			jTabbedPane3.addTab("jCallGraphPanel", null, getJCallGraphPanel(), null);
-			jTabbedPane3.addTab("Table", null, getJCallGraphTablePanel(), null);
+			jTabbedPane3.addTab("Config", null, getJCallGraphConfigPanel(), null);
+			jTabbedPane3.addTab("Call graph", null, getJCallGraphPanel(), null);
+			jTabbedPane3.addTab("Raw data", null, getJCallGraphTablePanel(), null);
 		}
 		return jTabbedPane3;
 	}
@@ -1581,17 +1718,490 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 	private JScrollPane getJScrollPane1x() {
 		if (jScrollPane1 == null) {
 			jScrollPane1 = new JScrollPane();
-			jScrollPane1.setViewportView(getJCallGraphTable());
+			jScrollPane1.setViewportView(getJCallGraphRawTable());
 		}
 		return jScrollPane1;
 	}
 
-	private JTable getJCallGraphTable() {
-		if (jCallGraphTable == null) {
-			jCallGraphTable = new JTable();
-			jCallGraphTable.setModel(new CallGraphTableModel());
+	private JTable getJCallGraphRawTable() {
+		if (jCallGraphRawTable == null) {
+			jCallGraphRawTable = new JTable();
+			jCallGraphRawTable.setModel(callGraphRawTableModel);
+			jCallGraphRawTable.getTableHeader().setReorderingAllowed(false);
+			jCallGraphRawTable.getTableHeader().setReorderingAllowed(false);
 		}
-		return jCallGraphTable;
+		return jCallGraphRawTable;
+	}
+
+	private JPanel getJPanel3() {
+		if (jPanel3 == null) {
+			jPanel3 = new JPanel();
+			BorderLayout jPanel3Layout = new BorderLayout();
+			jPanel3.setLayout(jPanel3Layout);
+		}
+		return jPanel3;
+	}
+
+	private JPanel getJCallGraphDetailPanel() {
+		if (jCallGraphDetailPanel == null) {
+			jCallGraphDetailPanel = new JPanel();
+			BorderLayout jCallGraphDetailPanelLayout = new BorderLayout();
+			jCallGraphDetailPanel.setLayout(jCallGraphDetailPanelLayout);
+			jCallGraphDetailPanel.setPreferredSize(new java.awt.Dimension(760, 184));
+			jCallGraphDetailPanel.add(getJCallGraphPreviewPanel(), BorderLayout.WEST);
+			jCallGraphDetailPanel.add(getJTabbedPane4(), BorderLayout.CENTER);
+		}
+		return jCallGraphDetailPanel;
+	}
+
+	private JSplitPane getJCallGraphSplitPane() {
+		if (jCallGraphSplitPane == null) {
+			jCallGraphSplitPane = new JSplitPane();
+			jCallGraphSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+			jCallGraphSplitPane.setDividerLocation(300);
+			jCallGraphSplitPane.add(getJPanel3(), JSplitPane.TOP);
+			jCallGraphSplitPane.add(getJCallGraphDetailPanel(), JSplitPane.BOTTOM);
+		}
+		return jCallGraphSplitPane;
+	}
+
+	private JPanel getJCallGraphPreviewPanel() {
+		if (jCallGraphPreviewPanel == null) {
+			jCallGraphPreviewPanel = new JPanel();
+			BorderLayout jCallGraphPreviewPanelLayout = new BorderLayout();
+			jCallGraphPreviewPanel.setLayout(jCallGraphPreviewPanelLayout);
+		}
+		return jCallGraphPreviewPanel;
+	}
+
+	private JLabel getJSegmentStartLabel() {
+		if (jSegmentStartLabel == null) {
+			jSegmentStartLabel = new JLabel();
+			jSegmentStartLabel.setText("Segment start");
+			jSegmentStartLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+		}
+		return jSegmentStartLabel;
+	}
+
+	private JLabel getJSegmentEndLabel() {
+		if (jSegmentEndLabel == null) {
+			jSegmentEndLabel = new JLabel();
+			jSegmentEndLabel.setText("Segment end");
+			jSegmentEndLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+		}
+		return jSegmentEndLabel;
+	}
+
+	private JLabel getJSegmentFromLabel() {
+		if (jSegmentFromLabel == null) {
+			jSegmentFromLabel = new JLabel();
+			jSegmentFromLabel.setText("Segment jump from");
+			jSegmentFromLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+		}
+		return jSegmentFromLabel;
+	}
+
+	private JLabel getJSegmentToLabel() {
+		if (jSegmentToLabel == null) {
+			jSegmentToLabel = new JLabel();
+			jSegmentToLabel.setText("Segment jump to");
+			jSegmentToLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+		}
+		return jSegmentToLabel;
+	}
+
+	private JPanel getJPanel4() {
+		if (jPanel4 == null) {
+			jPanel4 = new JPanel();
+			GroupLayout jPanel4Layout = new GroupLayout((JComponent) jPanel4);
+			jPanel4.setLayout(jPanel4Layout);
+			jPanel4Layout.setHorizontalGroup(jPanel4Layout
+					.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(
+							jPanel4Layout.createParallelGroup()
+									.addComponent(getJSegmentStartLabel(), GroupLayout.Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 149, GroupLayout.PREFERRED_SIZE)
+									.addComponent(getJSegmentEndLabel(), GroupLayout.Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 149, GroupLayout.PREFERRED_SIZE)
+									.addComponent(getJSegmentFromLabel(), GroupLayout.Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 149, GroupLayout.PREFERRED_SIZE)
+									.addComponent(getJSegmentToLabel(), GroupLayout.Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 149, GroupLayout.PREFERRED_SIZE))
+					.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+					.addGroup(
+							jPanel4Layout
+									.createParallelGroup()
+									.addGroup(
+											jPanel4Layout.createSequentialGroup().addComponent(getJSegmentStartTextField(), GroupLayout.PREFERRED_SIZE, 158,
+													GroupLayout.PREFERRED_SIZE))
+									.addGroup(
+											jPanel4Layout.createSequentialGroup().addComponent(getJSegmentEndTextField(), GroupLayout.PREFERRED_SIZE, 158,
+													GroupLayout.PREFERRED_SIZE))
+									.addGroup(
+											jPanel4Layout.createSequentialGroup().addComponent(getJSegmentFromTextField(), GroupLayout.PREFERRED_SIZE, 158,
+													GroupLayout.PREFERRED_SIZE))
+									.addGroup(
+											jPanel4Layout.createSequentialGroup().addComponent(getJSegmentToTextField(), GroupLayout.PREFERRED_SIZE, 158,
+													GroupLayout.PREFERRED_SIZE))).addContainerGap(324, Short.MAX_VALUE));
+			jPanel4Layout.setVerticalGroup(jPanel4Layout
+					.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(
+							jPanel4Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+									.addComponent(getJSegmentStartTextField(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
+									.addComponent(getJSegmentStartLabel(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE))
+					.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+					.addGroup(
+							jPanel4Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+									.addComponent(getJSegmentEndTextField(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
+									.addComponent(getJSegmentEndLabel(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE))
+					.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+					.addGroup(
+							jPanel4Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+									.addComponent(getJSegmentFromTextField(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 27, GroupLayout.PREFERRED_SIZE)
+									.addComponent(getJSegmentFromLabel(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 22, GroupLayout.PREFERRED_SIZE))
+					.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+					.addGroup(
+							jPanel4Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+									.addComponent(getJSegmentToTextField(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 27, GroupLayout.PREFERRED_SIZE)
+									.addComponent(getJSegmentToLabel(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 22, GroupLayout.PREFERRED_SIZE))
+					.addContainerGap(21, 21));
+		}
+		return jPanel4;
+	}
+
+	private JTextField getJSegmentStartTextField() {
+		if (jSegmentStartTextField == null) {
+			jSegmentStartTextField = new JTextField();
+		}
+		return jSegmentStartTextField;
+	}
+
+	private JTextField getJSegmentEndTextField() {
+		if (jSegmentEndTextField == null) {
+			jSegmentEndTextField = new JTextField();
+		}
+		return jSegmentEndTextField;
+	}
+
+	private JTextField getJSegmentFromTextField() {
+		if (jSegmentFromTextField == null) {
+			jSegmentFromTextField = new JTextField();
+		}
+		return jSegmentFromTextField;
+	}
+
+	private JTextField getJSegmentToTextField() {
+		if (jSegmentToTextField == null) {
+			jSegmentToTextField = new JTextField();
+		}
+		return jSegmentToTextField;
+	}
+
+	private void jSaveGraphButtonActionPerformed(ActionEvent evt) {
+		JFileChooser chooser = new JFileChooser();
+		chooser.showSaveDialog(this);
+
+		File file = chooser.getSelectedFile();
+		if (file != null && !file.getPath().equals("")) {
+			try {
+				saveXmlPng(graphComponent, file, Color.white);
+			} catch (IOException e) {
+				JOptionPane.showMessageDialog(this, "Cannot save file");
+			}
+		}
+	}
+
+	protected void saveXmlPng(mxGraphComponent graphComponent, File file, Color bg) throws IOException {
+		mxGraph graph = graphComponent.getGraph();
+
+		// Creates the image for the PNG file
+		BufferedImage image = mxCellRenderer.createBufferedImage(graph, null, 1, bg, graphComponent.isAntiAlias(), null, graphComponent.getCanvas());
+
+		// Creates the URL-encoded XML data
+		mxCodec codec = new mxCodec();
+		String xml = URLEncoder.encode(mxUtils.getXml(codec.encode(graph.getModel())), "UTF-8");
+		mxPngEncodeParam param = mxPngEncodeParam.getDefaultEncodeParam(image);
+		param.setCompressedText(new String[] { "mxGraphModel", xml });
+
+		// Saves as a PNG file
+		FileOutputStream outputStream = new FileOutputStream(file);
+		try {
+			mxPngImageEncoder encoder = new mxPngImageEncoder(outputStream, param);
+
+			if (image != null) {
+				encoder.encode(image);
+			} else {
+				JOptionPane.showMessageDialog(graphComponent, mxResources.get("noImageData"));
+			}
+		} finally {
+			outputStream.close();
+		}
+	}
+
+	public void setThing(JProgressBar jStatusProgressBar, JLabel jStatusLabel) {
+		this.jStatusProgressBar = jStatusProgressBar;
+		this.jStatusLabel = jStatusLabel;
+	}
+
+	private JPanel getJCallGraphConfigPanel() {
+		if (jCallGraphConfigPanel == null) {
+			jCallGraphConfigPanel = new JPanel();
+			BorderLayout jCallGraphConfigPanelLayout = new BorderLayout();
+			jCallGraphConfigPanel.setLayout(jCallGraphConfigPanelLayout);
+			jCallGraphConfigPanel.add(getJScrollPane4(), BorderLayout.CENTER);
+			jCallGraphConfigPanel.add(getJPanel5(), BorderLayout.SOUTH);
+		}
+		return jCallGraphConfigPanel;
+	}
+
+	private JScrollPane getJScrollPane4() {
+		if (jScrollPane4 == null) {
+			jScrollPane4 = new JScrollPane();
+			jScrollPane4.setViewportView(getJCallGraphConfigTable());
+		}
+		return jScrollPane4;
+	}
+
+	private JTable getJCallGraphConfigTable() {
+		if (jCallGraphConfigTable == null) {
+			jCallGraphConfigTable = new JTable();
+			jCallGraphConfigTable.setModel(callGraphConfigTableModel);
+			jCallGraphConfigTable.getTableHeader().setReorderingAllowed(false);
+			jCallGraphConfigTable.getTableHeader().setReorderingAllowed(false);
+			jCallGraphConfigTable.setDefaultRenderer(Boolean.class, new CallGraphConfigTableCellRenderer());
+			jCallGraphConfigTable.setDefaultEditor(Boolean.class, new CallGraphConfigTableCellEditor());
+		}
+		return jCallGraphConfigTable;
+	}
+
+	private JPanel getJPanel5() {
+		if (jPanel5 == null) {
+			jPanel5 = new JPanel();
+			FlowLayout jPanel5Layout = new FlowLayout();
+			jPanel5Layout.setAlignment(FlowLayout.LEFT);
+			jPanel5.setLayout(jPanel5Layout);
+			jPanel5.add(getJAddCallGraphButton());
+			jPanel5.add(getJDeleteButton());
+		}
+		return jPanel5;
+	}
+
+	private JButton getJAddCallGraphButton() {
+		if (jAddCallGraphButton == null) {
+			jAddCallGraphButton = new JButton();
+			jAddCallGraphButton.setText("Add");
+		}
+		return jAddCallGraphButton;
+	}
+
+	private JButton getJDeleteButton() {
+		if (jDeleteButton == null) {
+			jDeleteButton = new JButton();
+			jDeleteButton.setText("Delete");
+		}
+		return jDeleteButton;
+	}
+
+	private JButton getJCallGraphZoomInButton() {
+		if (jCallGraphZoomInButton == null) {
+			jCallGraphZoomInButton = new JButton();
+			jCallGraphZoomInButton.setText("+");
+			jCallGraphZoomInButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jCallGraphZoomInButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jCallGraphZoomInButton;
+	}
+
+	private JButton getJCallGraphZoomOutButton() {
+		if (jCallGraphZoomOutButton == null) {
+			jCallGraphZoomOutButton = new JButton();
+			jCallGraphZoomOutButton.setText("-");
+			jCallGraphZoomOutButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jCallGraphZoomOutButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jCallGraphZoomOutButton;
+	}
+
+	private JComboBox getJTrackUnitComboBox() {
+		if (jTrackUnitComboBox == null) {
+			ComboBoxModel jTrackUnitComboBoxModel = new DefaultComboBoxModel(new String[] { "1", "2", "4", "8", "0x10", "0x20", "0x40", "0x80", "0x100", "0x200", "0x400", "0x800",
+					"0x1000", "0x2000", "0x4000", "0x8000" });
+			jTrackUnitComboBox = new JComboBox();
+			jTrackUnitComboBox.setModel(jTrackUnitComboBoxModel);
+			jTrackUnitComboBox.setMaximumSize(new java.awt.Dimension(100, 25));
+			jTrackUnitComboBox.setEditable(true);
+			jTrackUnitComboBox.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jTrackUnitComboBoxActionPerformed(evt);
+				}
+			});
+		}
+		return jTrackUnitComboBox;
+	}
+
+	private JComboBox getJTrackDistanceComboBox() {
+		if (jTrackDistanceComboBox == null) {
+			ComboBoxModel jTrackDistanceComboBoxModel = new DefaultComboBoxModel(new String[] { "10", "20", "40", "80", "100", "200", "400", "800" });
+			jTrackDistanceComboBox = new JComboBox();
+			jTrackDistanceComboBox.setModel(jTrackDistanceComboBoxModel);
+			jTrackDistanceComboBox.setPreferredSize(new java.awt.Dimension(30, 22));
+			jTrackDistanceComboBox.setMaximumSize(new java.awt.Dimension(100, 25));
+			jTrackDistanceComboBox.setEditable(true);
+			jTrackDistanceComboBox.setSelectedItem(100);
+			jTrackDistanceComboBox.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jTrackDistanceComboBoxActionPerformed(evt);
+				}
+			});
+		}
+		return jTrackDistanceComboBox;
+	}
+
+	private void jCallGraphZoomInButtonActionPerformed(ActionEvent evt) {
+		int scale = Integer.parseInt(jCallGraphScaleTextField.getText().replaceAll("%", ""));
+		scale += 20;
+		graphComponent.zoomTo((double) scale / 100, true);
+		jCallGraphScaleTextField.setText(scale + "%");
+	}
+
+	private void jCallGraphZoomOutButtonActionPerformed(ActionEvent evt) {
+		int scale = Integer.parseInt(jCallGraphScaleTextField.getText().replaceAll("%", ""));
+		scale -= 20;
+		graphComponent.zoomTo((double) scale / 100, true);
+		jCallGraphScaleTextField.setText(scale + "%");
+	}
+
+	private void jTrackUnitComboBoxActionPerformed(ActionEvent evt) {
+		graphComponent.addressPerPixel = CommonLib.string2decimal(jTrackUnitComboBox.getSelectedItem().toString());
+		addCells(graph.getDefaultParent());
+		graphComponent.repaint();
+	}
+
+	private void jTrackDistanceComboBoxActionPerformed(ActionEvent evt) {
+		graphComponent.pixelPerMarker = CommonLib.string2decimal(jTrackDistanceComboBox.getSelectedItem().toString()).intValue();
+		addCells(graph.getDefaultParent());
+		graphComponent.repaint();
+	}
+
+	private JTextField getJCallGraphScaleTextField() {
+		if (jCallGraphScaleTextField == null) {
+			jCallGraphScaleTextField = new JTextField();
+			jCallGraphScaleTextField.setText("100%");
+			jCallGraphScaleTextField.setMaximumSize(new java.awt.Dimension(50, 25));
+			jCallGraphScaleTextField.addFocusListener(new FocusAdapter() {
+				public void focusLost(FocusEvent evt) {
+					jCallGraphScaleTextFieldFocusLost(evt);
+				}
+			});
+			jCallGraphScaleTextField.addKeyListener(new KeyAdapter() {
+				public void keyPressed(KeyEvent evt) {
+					jCallGraphScaleTextFieldKeyPressed(evt);
+				}
+			});
+		}
+		return jCallGraphScaleTextField;
+	}
+
+	private void jCallGraphScaleTextFieldKeyPressed(KeyEvent evt) {
+		if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+			jCallGraphScaleTextFieldFocusLost(null);
+		}
+	}
+
+	private void jCallGraphScaleTextFieldFocusLost(FocusEvent evt) {
+		int scale = Integer.parseInt(jCallGraphScaleTextField.getText().replaceAll("%", ""));
+		graphComponent.zoomTo((double) scale / 100, true);
+	}
+
+	private JTabbedPane getJTabbedPane4() {
+		if (jTabbedPane4 == null) {
+			jTabbedPane4 = new JTabbedPane();
+			jTabbedPane4.setPreferredSize(new java.awt.Dimension(660, 184));
+			jTabbedPane4.addTab("Information", null, getJPanel4(), null);
+			jTabbedPane4.addTab("Register", null, getJPanel6(), null);
+			jTabbedPane4.addTab("TSS", null, getJPanel7(), null);
+			jTabbedPane4.addTab("GDT", null, getJPanel8(), null);
+			jTabbedPane4.addTab("IDT", null, getJPanel9(), null);
+			jTabbedPane4.addTab("LDT", null, getJPanel10(), null);
+		}
+		return jTabbedPane4;
+	}
+
+	private JPanel getJPanel6() {
+		if (jPanel6 == null) {
+			jPanel6 = new JPanel();
+			BorderLayout jPanel6Layout = new BorderLayout();
+			jPanel6.setLayout(jPanel6Layout);
+			jPanel6.add(getJScrollPane5(), BorderLayout.CENTER);
+		}
+		return jPanel6;
+	}
+
+	private JPanel getJPanel7() {
+		if (jPanel7 == null) {
+			jPanel7 = new JPanel();
+			BorderLayout jPanel7Layout = new BorderLayout();
+			jPanel7.setLayout(jPanel7Layout);
+			jPanel7.add(new TSSPanel(null, 0, 0, 0), BorderLayout.CENTER);
+		}
+		return jPanel7;
+	}
+
+	private JPanel getJPanel8() {
+		if (jPanel8 == null) {
+			jPanel8 = new JPanel();
+		}
+		return jPanel8;
+	}
+
+	private JPanel getJPanel9() {
+		if (jPanel9 == null) {
+			jPanel9 = new JPanel();
+		}
+		return jPanel9;
+	}
+
+	private JPanel getJPanel10() {
+		if (jPanel10 == null) {
+			jPanel10 = new JPanel();
+		}
+		return jPanel10;
+	}
+
+	private JRegisterPanel getJCallGraphRegisterPanel() {
+		if (jCallGraphRegisterPanel == null) {
+			jCallGraphRegisterPanel = new JRegisterPanel();
+		}
+		return jCallGraphRegisterPanel;
+	}
+
+	private JScrollPane getJScrollPane5() {
+		if (jScrollPane5 == null) {
+			jScrollPane5 = new JScrollPane();
+			jScrollPane5.setPreferredSize(new java.awt.Dimension(655, 157));
+			jScrollPane5.setViewportView(getJCallGraphRegisterPanel());
+		}
+		return jScrollPane5;
+	}
+
+	private JLabel getJLabel11() {
+		if (jLabel11 == null) {
+			jLabel11 = new JLabel();
+			jLabel11.setText(" Unit : ");
+		}
+		return jLabel11;
+	}
+
+	private JLabel getJLabel12() {
+		if (jLabel12 == null) {
+			jLabel12 = new JLabel();
+			jLabel12.setText(" Track distance");
+		}
+		return jLabel12;
 	}
 
 }
