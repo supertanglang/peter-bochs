@@ -231,6 +231,13 @@ int kprintf(const char* args, ...) {
 }
 }}}
 
+= My simple I/O routines =
+{{{
+void outport(unsigned short portNumber, unsigned char outputByte) {
+	__asm__ __volatile__
+	("outb  %%al,%%dx\n"::"a"(outputByte), "d"(portNumber));
+}
+}}}
 
 <table border="0"><tr><td>
 [http://www.kingofcoders.com http://www.kingofcoders.com/images/KOC_logo2.jpg]
