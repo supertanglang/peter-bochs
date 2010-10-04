@@ -3,12 +3,8 @@
 
 = Introduction =
 
-Add your content here.
+Forward port 0xffff to a log file
 
+= Description =
 
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+By using peter-bochs instrument, if you write any value to port 0xffff, it will forward the value to a log file "os.log". You can use this feature and write kprintf, so that it will log your message.
