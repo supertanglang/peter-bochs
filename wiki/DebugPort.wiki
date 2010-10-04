@@ -8,3 +8,16 @@ Forward port 0xffff to a log file
 = Description =
 
 By using peter-bochs instrument, if you write any value to port 0xffff, it will forward the value to a log file "os.log". You can use this feature and write kprintf, so that it will log your message.
+
+[http://peter-bochs.googlecode.com/files/oslog.png]
+
+<table border="0"><tr><td>
+[http://www.kingofcoders.com http://www.kingofcoders.com/images/KOC_logo2.jpg]
+</td>
+<td>
+</td>
+<td>
+[http://www.rmit.edu.au/compsci http://peter-bochs.googlecode.com/files/rmit.gif]
+</td>
+</tr>
+</table>
