@@ -1520,7 +1520,7 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			jStatusProgressBar.setMaximum(MAX_NUMBER_OF_VERTEX);
 			for (int x = JmpSocketServer.jmpDataVector.size() - 1, counter = 0; x >= 0 && counter <= MAX_NUMBER_OF_VERTEX; x--, counter++) {
 				jStatusLabel.setText("Updating call graph " + x + "/" + JmpSocketServer.jmpDataVector.size());
-				jStatusProgressBar.setValue(x);
+				jStatusProgressBar.setValue(counter);
 				JmpData jumpData = JmpSocketServer.jmpDataVector.get(x);
 				callGraphRawTableModel.add(jumpData);
 				int positionX = (int) ((jumpData.segmentStart - graphComponent.markerOffset) / graphComponent.addressPerPixel);
@@ -1539,6 +1539,7 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 				}
 				lastPort = ports[1];
 			}
+			jStatusProgressBar.setValue(jStatusProgressBar.getMaximum());
 		} finally {
 			graph.getModel().endUpdate();
 		}

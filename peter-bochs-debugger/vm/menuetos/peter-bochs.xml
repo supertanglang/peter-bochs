@@ -1,23 +1,19 @@
 <?xml version='1.0' ?>  <Setting>
-    <bochsCommandHistory>
-      <bochsCommandHistory>r</bochsCommandHistory>
-      <bochsCommandHistory>cregs</bochsCommandHistory>
-      <bochsCommandHistory>creg</bochsCommandHistory>
-    </bochsCommandHistory>
+    <bochsCommandHistory/>
     <breakpoint/>
     <currentLanguage>en_US</currentLanguage>
     <customZone>false</customZone>
-    <divX>509</divX>
-    <divY>327</divY>
+    <divX>499</divX>
+    <divY>200</divY>
     <fontFamily>Dialog</fontFamily>
     <fontsize>12</fontsize>
     <gdt/>
-    <height>753</height>
+    <height>701</height>
     <hitZone>false</hitZone>
     <idt/>
     <jmpProfiling>false</jmpProfiling>
-    <lastElfHistoryOpenDir>/root/Desktop/workspace/peter-bochs-debugger/vm/menuetos/.</lastElfHistoryOpenDir>
-    <lastElfHistoryOpenDir2>/root/Desktop/workspace/peter-bochs-debugger/vm/menuetos/.</lastElfHistoryOpenDir2>
+    <lastElfHistoryOpenDir>C:\peter2\projects\peter-bochs-debugger\vm\menuetos\.</lastElfHistoryOpenDir>
+    <lastElfHistoryOpenDir2>C:\peter2\projects\peter-bochs-debugger\vm\menuetos\.</lastElfHistoryOpenDir2>
     <ldt/>
     <loadBreakpointAtStartup>false</loadBreakpointAtStartup>
     <memoryCombo/>
@@ -50,7 +46,7 @@
     <updateFastStepCommand_ldt>false</updateFastStepCommand_ldt>
     <updateFastStepCommand_memory>true</updateFastStepCommand_memory>
     <updateFastStepCommand_register>true</updateFastStepCommand_register>
-    <width>1108</width>
-    <x>161</x>
-    <y>25</y>
+    <width>1135</width>
+    <x>228</x>
+    <y>108</y>
   </Setting>
