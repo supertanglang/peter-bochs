@@ -100,6 +100,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 
 import peter.architecture.IA32PageDirectory;
 import peter.elf.ElfUtil;
+import peter.helprequest.HelpRequestDialog;
 import peter.instrument.Data;
 import peter.instrument.InstrumentPanel;
 import peter.instrument.JmpSocketServerController;
@@ -215,6 +216,7 @@ public class Application extends javax.swing.JFrame {
 	private JPanel jPanel22;
 	private JPanel jPanel24;
 	private JToolBar jPanel26;
+	private JMenuItem jHelpRequestMenuItem;
 	private EnhancedTextArea osLogPanel1;
 	private JToggleButton jOSLogToggleButton;
 	private JToggleButton jRegisterToggleButton;
@@ -962,6 +964,7 @@ public class Application extends javax.swing.JFrame {
 					{
 						aboutUsMenuItem = new JMenuItem();
 						jMenu5.add(aboutUsMenuItem);
+						jMenu5.add(getJHelpRequestMenuItem());
 						aboutUsMenuItem.setText(MyLanguage.getString("About_us"));
 						aboutUsMenuItem.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent evt) {
@@ -1250,7 +1253,6 @@ public class Application extends javax.swing.JFrame {
 					breakpointLoadedOnce = true; // since we only have to load
 					// once
 				}
-
 			}
 		};
 
@@ -1755,6 +1757,7 @@ public class Application extends javax.swing.JFrame {
 				} catch (Exception ex2) {
 				}
 			}
+
 			jRegisterPanel1.jStackList.setModel(model);
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -2364,8 +2367,9 @@ public class Application extends javax.swing.JFrame {
 			while (model.getRowCount() > 0) {
 				model.removeRow(0);
 			}
+			jStatusProgressBar.setMaximum(lines.length - 1);
 			for (int y = 0; y < lines.length; y++) {
-				jStatusProgressBar.setValue(y * 100 / lines.length);
+				jStatusProgressBar.setValue(y);
 				String[] b = lines[y].replaceFirst("^.*:", "").trim().split("\t");
 
 				for (int z = 0; z < 2; z++) {
@@ -6572,6 +6576,25 @@ public class Application extends javax.swing.JFrame {
 			osLogPanel1.addTrailListener(new File("os.log"));
 		}
 		return osLogPanel1;
+	}
+
+	private JMenuItem getJHelpRequestMenuItem() {
+		if (jHelpRequestMenuItem == null) {
+			jHelpRequestMenuItem = new JMenuItem();
+			jHelpRequestMenuItem.setText("Help request");
+			jHelpRequestMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jHelpRequestMenuItemActionPerformed(evt);
+				}
+			});
+		}
+		return jHelpRequestMenuItem;
+	}
+
+	private void jHelpRequestMenuItemActionPerformed(ActionEvent evt) {
+		HelpRequestDialog helpRequestDialog = new HelpRequestDialog(this, commandReceiver);
+		CommonLib.centerDialog(helpRequestDialog);
+		helpRequestDialog.setVisible(true);
 	}
 
 }
