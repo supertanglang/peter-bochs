@@ -17,6 +17,13 @@
 
 !!! _to use "experimental feature", please add "-debug" to the parameter list_
 
+!!! you have to set the following values to "ignore", if you set it to "ask" or "report", peter-bochs won't run
+{{{
+error: action=ignore
+info: action=ignore
+debug: action=ignore
+}}}
+
 remarks: please put all the bochs original running parameters at the end of the command
 
 <table border="0"><tr><td>
