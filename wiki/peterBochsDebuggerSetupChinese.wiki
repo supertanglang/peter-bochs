@@ -24,7 +24,7 @@ info: action=ignore
 debug: action=ignore
 }}}
 
-!!! _如果你在windows下跑peter-bochs, 请安装.net framework 4.0, 因为peter-bochs是呼叫pauseBochs.exe去弄停bochs的, 而这个exe是.net 4写成_
+!!! _如果你在windows下跑peter-bochs, 请安装.net framework 3.5, 因为peter-bochs是呼叫pauseBochs.exe去弄停bochs的, 而这个exe是.net 4写成_
 
 备注：请把所有bochs的运行参数放置命令末端
 
