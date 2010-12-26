@@ -25,7 +25,7 @@ debug: action=ignore
 }}}
 
 
-!!! _If you are running peter-bochs in windows, please install .net framework 4.0, it is because peter-bochs execute pauseBochs.exe to pause bochs and that exe is written in .net 4._
+!!! _If you are running peter-bochs in windows, please install .net framework 3.5, it is because peter-bochs execute pauseBochs.exe to pause bochs and that exe is written in .net 3.5._
 
 remarks: please put all the bochs original running parameters at the end of the command
 
