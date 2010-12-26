@@ -17,10 +17,12 @@
 
 !!! _在parameter上加入-debug才能见到一些没完成的功能_
 
-!!! 在你的bochs设定文件里, 把以下三个值设ignore, 如果设成ask或report, peter-bochs会跑不起来
+!!! _在你的bochs设定文件里, 把以下三个值设ignore, 如果设成ask或report, peter-bochs会跑不起来_
+{{{
 error: action=ignore
 info: action=ignore
 debug: action=ignore
+}}}
 
 备注：请把所有bochs的运行参数放置命令末端
 
