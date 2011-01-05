@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/PetersoftJavaStyle2"/>
 	<classpathentry kind="lib" path="lib/forms-1.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/poi-3.5-FINAL-20090928.jar"/>
@@ -17,13 +16,14 @@
 	<classpathentry kind="lib" path="lib/JFreeChart/jcommon-1.0.16.jar"/>
 	<classpathentry kind="lib" path="lib/JFreeChart/jfreechart-1.0.13.jar" sourcepath="/root/Desktop/jfreechart-1.0.13"/>
 	<classpathentry kind="lib" path="lib/jzy3d/opencsv-2.1.jar"/>
-	<classpathentry kind="lib" path="lib/jzy3d/org.convexhull.jar"/>
-	<classpathentry kind="lib" path="lib/jogl-1.1.1-linux-i586/lib/gluegen-rt.jar"/>
 	<classpathentry kind="lib" path="lib/jgraphx.jar" sourcepath="/root/workspace/TestJGraph"/>
+	<classpathentry kind="lib" path="lib/axis-1_4/lib/commons-discovery-0.2.jar"/>
+	<classpathentry kind="lib" path="lib/axis-1_4/lib/wsdl4j-1.5.1.jar"/>
 	<classpathentry kind="lib" path="lib/axis-1_4/lib/axis.jar"/>
 	<classpathentry kind="lib" path="lib/axis-1_4/lib/jaxrpc.jar"/>
-	<classpathentry kind="lib" path="lib/axis-1_4/lib/commons-discovery-0.2.jar"/>
-	<classpathentry kind="lib" path="lib/javamail-1.4.3/lib/mailapi.jar"/>
-	<classpathentry kind="lib" path="lib/axis-1_4/lib/wsdl4j-1.5.1.jar"/>
+	<classpathentry kind="lib" path="lib/jzy3d/org.jzy3d-0.8.jar"/>
+	<classpathentry kind="lib" path="lib/jogl/jogl-1.1.1-rc8-linux-i586/lib/jogl.jar"/>
+	<classpathentry kind="lib" path="lib/jogl/jogl-1.1.1-rc8-linux-i586/lib/gluegen-rt.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

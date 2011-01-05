@@ -30,21 +30,21 @@
 00000000000i[     ]   SB16 support: yes
 00000000000i[     ]   USB support: yes
 00000000000i[     ]   VGA extension support: vbe cirrus
-00000000000i[MEM0 ] allocated memory at 02F30020. after alignment, vector=02F31000
+00000000000i[MEM0 ] allocated memory at 02E80020. after alignment, vector=02E81000
 00000000000i[MEM0 ] 64.00MB
 00000000000i[MEM0 ] mem block size = 0x00100000, blocks=64
 00000000000i[MEM0 ] rom at 0xffff0000/65536 ('BIOS-bochs-latest')
 00000000000i[MEM0 ] rom at 0xc0000/32768 ('VGABIOS-lgpl-latest')
 00000000000i[VTIME] using 'realtime pit' synchronization method
 00000000000i[CMOS ] Using local time for initial clock
-00000000000i[CMOS ] Setting initial clock to: Wed Nov 10 17:04:06 2010 (time0=1289379846)
+00000000000i[CMOS ] Setting initial clock to: Tue Dec 28 20:32:33 2010 (time0=1293539553)
 00000000000i[DMA  ] channel 4 used by cascade
 00000000000i[DMA  ] channel 2 used by Floppy Drive
 00000000000i[PCI  ] 440FX Host bridge present at device 0, function 0
 00000000000i[PCI  ] PIIX3 PCI-to-ISA bridge present at device 1, function 0
 00000000000i[MEM0 ] Register memory access handlers: 0x000a0000 - 0x000bffff
-00000000000i[WGUI ] Desktop Window dimensions: 1440 x 900
-00000000000i[WGUI ] Number of Mouse Buttons = 5
+00000000000i[WGUI ] Desktop Window dimensions: 1280 x 800
+00000000000i[WGUI ] Number of Mouse Buttons = 3
 00000000000i[WGUI ] IME disabled
 00000000000i[KMAP ] Loading keymap from 'C:\Program Files\Bochs-2.4.2/keymaps/x11-pc-us.map'
 00000000000i[KMAP ] Loaded 168 symbols

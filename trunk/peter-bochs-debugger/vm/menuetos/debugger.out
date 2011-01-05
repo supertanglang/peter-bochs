@@ -881,5 +881,8 @@ Num Type           Disp Enb Address
 <bochs:15> xp /8bx -1
 [bochs]:
 0xffffffffffffffff <bogus+       0>:	0xf5	0x00	0x00	0x00	0x00	0x00	0x00	0x00
-<bochs:16> c
-(0).[99632000] [0x000f05a9] f000:05a9 (unk. ctxt): mov al, byte ptr ds:[bx]  ; 8a07
+<bochs:16> pb  0x00007c00
+<bochs:17> info break
+Num Type           Disp Enb Address
+  1 pbreakpoint    keep y   0x00007c00
+<bochs:18> 

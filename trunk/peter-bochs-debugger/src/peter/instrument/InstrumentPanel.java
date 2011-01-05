@@ -26,9 +26,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
+import javax.media.opengl.GLCapabilities;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
@@ -67,6 +69,18 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.LookupPaintScale;
 import org.jfree.data.xy.DefaultXYZDataset;
 import org.jfree.data.xy.XYZDataset;
+import org.jzy3d.chart.Chart;
+import org.jzy3d.chart.controllers.ControllerType;
+import org.jzy3d.chart.controllers.mouse.ChartMouseController;
+import org.jzy3d.colors.ColorMapper;
+import org.jzy3d.colors.colormaps.ColorMapRainbow;
+import org.jzy3d.events.ControllerEvent;
+import org.jzy3d.events.ControllerEventListener;
+import org.jzy3d.maths.Coord3d;
+import org.jzy3d.plot3d.builder.Builder;
+import org.jzy3d.plot3d.primitives.AbstractDrawable;
+import org.jzy3d.plot3d.primitives.Shape;
+import org.jzy3d.plot3d.rendering.canvas.Quality;
 
 import peter.CommonLib;
 import peter.JRegisterPanel;
@@ -110,7 +124,8 @@ import com.petersoft.advancedswing.searchtextfield.JSearchTextField;
  * PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR
  * ANY CORPORATE OR COMMERCIAL PURPOSE.
  */
-public class InstrumentPanel extends JPanel implements ChartChangeListener, ChartMouseListener {
+public class InstrumentPanel extends JPanel implements ChartChangeListener,
+		ChartMouseListener {
 	private JTabbedPane jTabbedPane1;
 	private JPanel jMemoryPanel;
 	private JLabel jLabel12;
@@ -199,7 +214,7 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 	private JLabel jLabel6;
 	private JPanel jPanel1;
 	Color background = new Color(250, 250, 250);
-	// static Chart chart;
+	static Chart chart;
 	JmpTableModel jmpTableModel = new JmpTableModel();
 	mxGraph graph;
 	PeterGraphComponent graphComponent;
@@ -224,59 +239,133 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 					jTabbedPane1 = new JTabbedPane();
 					this.add(jTabbedPane1, BorderLayout.CENTER);
 					jTabbedPane1.setTabPlacement(JTabbedPane.LEFT);
-					jTabbedPane1.setPreferredSize(new java.awt.Dimension(661, 419));
+					jTabbedPane1.setPreferredSize(new java.awt.Dimension(661,
+							419));
 					{
 						jMemoryPanel = new JPanel();
-						GroupLayout jMemoryPanelLayout = new GroupLayout((JComponent) jMemoryPanel);
+						GroupLayout jMemoryPanelLayout = new GroupLayout(
+								(JComponent) jMemoryPanel);
 						jMemoryPanel.setLayout(jMemoryPanelLayout);
 						jTabbedPane1.addTab("Memory", null, jMemoryPanel, null);
-						jTabbedPane1.addTab("Profiling", null, getJMemoryProfilingPanel(), null);
+						jTabbedPane1.addTab("Profiling", null,
+								getJMemoryProfilingPanel(), null);
 						jTabbedPane1.addTab("Jmp", null, getJmpPanel(), null);
-						jTabbedPane1.addTab("Call graph", null, getJTabbedPane3(), null);
-						jMemoryPanelLayout.setVerticalGroup(jMemoryPanelLayout
-								.createSequentialGroup()
-								.addContainerGap()
-								.addGroup(
-										jMemoryPanelLayout
-												.createParallelGroup(GroupLayout.Alignment.BASELINE)
-												.addComponent(getJFromComboBox(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 24, GroupLayout.PREFERRED_SIZE)
-												.addComponent(getJLabel4x(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,
-														GroupLayout.PREFERRED_SIZE)
-												.addComponent(getJLabel6(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,
-														GroupLayout.PREFERRED_SIZE)
-												.addComponent(getJToComboBox(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 24, GroupLayout.PREFERRED_SIZE)
-												.addComponent(getJLabel5x(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,
-														GroupLayout.PREFERRED_SIZE)
-												.addComponent(getJBlockSizeComboBox(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 24, GroupLayout.PREFERRED_SIZE)
-												.addComponent(getJLabel3(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,
-														GroupLayout.PREFERRED_SIZE)
-												.addComponent(getJSearchTextField(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 24, GroupLayout.PREFERRED_SIZE))
-								.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-								.addComponent(getJTabbedPane2(), 0, 224, Short.MAX_VALUE)
-								.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-								.addGroup(
-										jMemoryPanelLayout
-												.createParallelGroup(GroupLayout.Alignment.BASELINE)
-												.addComponent(getJLabel1(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,
-														GroupLayout.PREFERRED_SIZE)
-												.addComponent(getJLabel2(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,
-														GroupLayout.PREFERRED_SIZE))
-								.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-								.addGroup(
-										jMemoryPanelLayout
-												.createParallelGroup()
-												.addComponent(getJHostestAddressScrollPane(), GroupLayout.Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 110,
-														GroupLayout.PREFERRED_SIZE)
-												.addGroup(
-														GroupLayout.Alignment.LEADING,
-														jMemoryPanelLayout.createSequentialGroup()
-																.addComponent(getJLabel4(), GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
-																.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-																.addComponent(getJLabel5(), GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
-																.addGap(74))).addComponent(getJPanel1(), GroupLayout.PREFERRED_SIZE, 28, GroupLayout.PREFERRED_SIZE)
-								.addContainerGap());
+						jTabbedPane1.addTab("Call graph", null,
+								getJTabbedPane3(), null);
+						jMemoryPanelLayout
+								.setVerticalGroup(jMemoryPanelLayout
+										.createSequentialGroup()
+										.addContainerGap()
+										.addGroup(
+												jMemoryPanelLayout
+														.createParallelGroup(
+																GroupLayout.Alignment.BASELINE)
+														.addComponent(
+																getJFromComboBox(),
+																GroupLayout.Alignment.BASELINE,
+																GroupLayout.PREFERRED_SIZE,
+																24,
+																GroupLayout.PREFERRED_SIZE)
+														.addComponent(
+																getJLabel4x(),
+																GroupLayout.Alignment.BASELINE,
+																GroupLayout.PREFERRED_SIZE,
+																GroupLayout.PREFERRED_SIZE,
+																GroupLayout.PREFERRED_SIZE)
+														.addComponent(
+																getJLabel6(),
+																GroupLayout.Alignment.BASELINE,
+																GroupLayout.PREFERRED_SIZE,
+																GroupLayout.PREFERRED_SIZE,
+																GroupLayout.PREFERRED_SIZE)
+														.addComponent(
+																getJToComboBox(),
+																GroupLayout.Alignment.BASELINE,
+																GroupLayout.PREFERRED_SIZE,
+																24,
+																GroupLayout.PREFERRED_SIZE)
+														.addComponent(
+																getJLabel5x(),
+																GroupLayout.Alignment.BASELINE,
+																GroupLayout.PREFERRED_SIZE,
+																GroupLayout.PREFERRED_SIZE,
+																GroupLayout.PREFERRED_SIZE)
+														.addComponent(
+																getJBlockSizeComboBox(),
+																GroupLayout.Alignment.BASELINE,
+																GroupLayout.PREFERRED_SIZE,
+																24,
+																GroupLayout.PREFERRED_SIZE)
+														.addComponent(
+																getJLabel3(),
+																GroupLayout.Alignment.BASELINE,
+																GroupLayout.PREFERRED_SIZE,
+																GroupLayout.PREFERRED_SIZE,
+																GroupLayout.PREFERRED_SIZE)
+														.addComponent(
+																getJSearchTextField(),
+																GroupLayout.Alignment.BASELINE,
+																GroupLayout.PREFERRED_SIZE,
+																24,
+																GroupLayout.PREFERRED_SIZE))
+										.addPreferredGap(
+												LayoutStyle.ComponentPlacement.RELATED)
+										.addComponent(getJTabbedPane2(), 0,
+												224, Short.MAX_VALUE)
+										.addPreferredGap(
+												LayoutStyle.ComponentPlacement.RELATED)
+										.addGroup(
+												jMemoryPanelLayout
+														.createParallelGroup(
+																GroupLayout.Alignment.BASELINE)
+														.addComponent(
+																getJLabel1(),
+																GroupLayout.Alignment.BASELINE,
+																GroupLayout.PREFERRED_SIZE,
+																GroupLayout.PREFERRED_SIZE,
+																GroupLayout.PREFERRED_SIZE)
+														.addComponent(
+																getJLabel2(),
+																GroupLayout.Alignment.BASELINE,
+																GroupLayout.PREFERRED_SIZE,
+																GroupLayout.PREFERRED_SIZE,
+																GroupLayout.PREFERRED_SIZE))
+										.addPreferredGap(
+												LayoutStyle.ComponentPlacement.RELATED)
+										.addGroup(
+												jMemoryPanelLayout
+														.createParallelGroup()
+														.addComponent(
+																getJHostestAddressScrollPane(),
+																GroupLayout.Alignment.LEADING,
+																GroupLayout.PREFERRED_SIZE,
+																110,
+																GroupLayout.PREFERRED_SIZE)
+														.addGroup(
+																GroupLayout.Alignment.LEADING,
+																jMemoryPanelLayout
+																		.createSequentialGroup()
+																		.addComponent(
+																				getJLabel4(),
+																				GroupLayout.PREFERRED_SIZE,
+																				GroupLayout.PREFERRED_SIZE,
+																				GroupLayout.PREFERRED_SIZE)
+																		.addPreferredGap(
+																				LayoutStyle.ComponentPlacement.RELATED)
+																		.addComponent(
+																				getJLabel5(),
+																				GroupLayout.PREFERRED_SIZE,
+																				GroupLayout.PREFERRED_SIZE,
+																				GroupLayout.PREFERRED_SIZE)
+																		.addGap(74)))
+										.addComponent(getJPanel1(),
+												GroupLayout.PREFERRED_SIZE, 28,
+												GroupLayout.PREFERRED_SIZE)
+										.addContainerGap());
 						jMemoryPanelLayout.linkSize(SwingConstants.VERTICAL,
-								new Component[] { getJSearchTextField(), getJFromComboBox(), getJToComboBox(), getJBlockSizeComboBox() });
+								new Component[] { getJSearchTextField(),
+										getJFromComboBox(), getJToComboBox(),
+										getJBlockSizeComboBox() });
 						jMemoryPanelLayout
 								.setHorizontalGroup(jMemoryPanelLayout
 										.createSequentialGroup()
@@ -294,40 +383,67 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 																								GroupLayout.Alignment.LEADING,
 																								jMemoryPanelLayout
 																										.createSequentialGroup()
-																										.addComponent(getJLabel3(), GroupLayout.PREFERRED_SIZE, 70,
+																										.addComponent(
+																												getJLabel3(),
+																												GroupLayout.PREFERRED_SIZE,
+																												70,
 																												GroupLayout.PREFERRED_SIZE)
-																										.addComponent(getJSearchTextField(), GroupLayout.PREFERRED_SIZE, 151,
+																										.addComponent(
+																												getJSearchTextField(),
+																												GroupLayout.PREFERRED_SIZE,
+																												151,
 																												GroupLayout.PREFERRED_SIZE))
 																						.addGroup(
 																								GroupLayout.Alignment.LEADING,
 																								jMemoryPanelLayout
 																										.createSequentialGroup()
-																										.addComponent(getJLabel2(), GroupLayout.PREFERRED_SIZE, 96,
-																												GroupLayout.PREFERRED_SIZE).addGap(125))
+																										.addComponent(
+																												getJLabel2(),
+																												GroupLayout.PREFERRED_SIZE,
+																												96,
+																												GroupLayout.PREFERRED_SIZE)
+																										.addGap(125))
 																						.addGroup(
 																								GroupLayout.Alignment.LEADING,
 																								jMemoryPanelLayout
 																										.createSequentialGroup()
-																										.addComponent(getJPanel1(), GroupLayout.PREFERRED_SIZE, 182,
-																												GroupLayout.PREFERRED_SIZE).addGap(39))
+																										.addComponent(
+																												getJPanel1(),
+																												GroupLayout.PREFERRED_SIZE,
+																												182,
+																												GroupLayout.PREFERRED_SIZE)
+																										.addGap(39))
 																						.addGroup(
 																								jMemoryPanelLayout
 																										.createSequentialGroup()
-																										.addPreferredGap(getJLabel2(), getJLabel4(),
+																										.addPreferredGap(
+																												getJLabel2(),
+																												getJLabel4(),
 																												LayoutStyle.ComponentPlacement.INDENT)
 																										.addGroup(
 																												jMemoryPanelLayout
 																														.createParallelGroup()
-																														.addComponent(getJLabel4(), GroupLayout.Alignment.LEADING,
-																																GroupLayout.PREFERRED_SIZE, 160,
+																														.addComponent(
+																																getJLabel4(),
+																																GroupLayout.Alignment.LEADING,
+																																GroupLayout.PREFERRED_SIZE,
+																																160,
 																																GroupLayout.PREFERRED_SIZE)
-																														.addComponent(getJLabel5(), GroupLayout.Alignment.LEADING,
-																																GroupLayout.PREFERRED_SIZE, 160,
-																																GroupLayout.PREFERRED_SIZE)).addGap(49)))
+																														.addComponent(
+																																getJLabel5(),
+																																GroupLayout.Alignment.LEADING,
+																																GroupLayout.PREFERRED_SIZE,
+																																160,
+																																GroupLayout.PREFERRED_SIZE))
+																										.addGap(49)))
 																		.addGroup(
 																				jMemoryPanelLayout
 																						.createParallelGroup()
-																						.addComponent(getJHostestAddressScrollPane(), GroupLayout.Alignment.LEADING, 0, 498,
+																						.addComponent(
+																								getJHostestAddressScrollPane(),
+																								GroupLayout.Alignment.LEADING,
+																								0,
+																								498,
 																								Short.MAX_VALUE)
 																						.addGroup(
 																								GroupLayout.Alignment.LEADING,
@@ -344,35 +460,64 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 																																				getJLabel1(),
 																																				getJLabel4x(),
 																																				LayoutStyle.ComponentPlacement.INDENT)
-																																		.addComponent(getJLabel4x(),
+																																		.addComponent(
+																																				getJLabel4x(),
 																																				GroupLayout.PREFERRED_SIZE,
 																																				GroupLayout.PREFERRED_SIZE,
 																																				GroupLayout.PREFERRED_SIZE)
 																																		.addPreferredGap(
 																																				LayoutStyle.ComponentPlacement.RELATED)
-																																		.addComponent(getJFromComboBox(),
-																																				GroupLayout.PREFERRED_SIZE, 139,
+																																		.addComponent(
+																																				getJFromComboBox(),
+																																				GroupLayout.PREFERRED_SIZE,
+																																				139,
 																																				GroupLayout.PREFERRED_SIZE))
 																														.addGroup(
 																																GroupLayout.Alignment.LEADING,
 																																jMemoryPanelLayout
 																																		.createSequentialGroup()
-																																		.addComponent(getJLabel1(),
-																																				GroupLayout.PREFERRED_SIZE, 112,
+																																		.addComponent(
+																																				getJLabel1(),
+																																				GroupLayout.PREFERRED_SIZE,
+																																				112,
 																																				GroupLayout.PREFERRED_SIZE)
 																																		.addGap(80)))
-																										.addComponent(getJLabel6(), GroupLayout.PREFERRED_SIZE, 21,
+																										.addComponent(
+																												getJLabel6(),
+																												GroupLayout.PREFERRED_SIZE,
+																												21,
 																												GroupLayout.PREFERRED_SIZE)
-																										.addComponent(getJToComboBox(), GroupLayout.PREFERRED_SIZE, 120,
+																										.addComponent(
+																												getJToComboBox(),
+																												GroupLayout.PREFERRED_SIZE,
+																												120,
 																												GroupLayout.PREFERRED_SIZE)
-																										.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 0,
+																										.addPreferredGap(
+																												LayoutStyle.ComponentPlacement.RELATED,
+																												0,
 																												GroupLayout.PREFERRED_SIZE)
-																										.addComponent(getJLabel5x(), GroupLayout.PREFERRED_SIZE, 69,
+																										.addComponent(
+																												getJLabel5x(),
+																												GroupLayout.PREFERRED_SIZE,
+																												69,
 																												GroupLayout.PREFERRED_SIZE)
-																										.addComponent(getJBlockSizeComboBox(), GroupLayout.PREFERRED_SIZE, 75,
-																												GroupLayout.PREFERRED_SIZE).addGap(0, 9, Short.MAX_VALUE))))
-														.addComponent(getJTabbedPane2(), GroupLayout.Alignment.LEADING, 0, 719, Short.MAX_VALUE)).addContainerGap());
-						jMemoryPanelLayout.linkSize(SwingConstants.HORIZONTAL, new Component[] { getJFromComboBox(), getJToComboBox() });
+																										.addComponent(
+																												getJBlockSizeComboBox(),
+																												GroupLayout.PREFERRED_SIZE,
+																												75,
+																												GroupLayout.PREFERRED_SIZE)
+																										.addGap(0,
+																												9,
+																												Short.MAX_VALUE))))
+														.addComponent(
+																getJTabbedPane2(),
+																GroupLayout.Alignment.LEADING,
+																0, 719,
+																Short.MAX_VALUE))
+										.addContainerGap());
+						jMemoryPanelLayout.linkSize(SwingConstants.HORIZONTAL,
+								new Component[] { getJFromComboBox(),
+										getJToComboBox() });
 					}
 				}
 			}
@@ -384,7 +529,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 	}
 
 	private static JFreeChart createChart(XYZDataset dataset) {
-		NumberAxis xAxis = new NumberAxis("address (" + jBlockSizeComboBox.getSelectedItem() + ")");
+		NumberAxis xAxis = new NumberAxis("address ("
+				+ jBlockSizeComboBox.getSelectedItem() + ")");
 		xAxis.setLowerMargin(0.0);
 		xAxis.setUpperMargin(0.0);
 		xAxis.setAxisLinePaint(Color.cyan);
@@ -395,7 +541,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 		// xAxis.setNumberFormatOverride(nf);
 		// xAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
-		NumberAxis yAxis = new NumberAxis("address (" + jBlockSizeComboBox.getSelectedItem() + " KB)");
+		NumberAxis yAxis = new NumberAxis("address ("
+				+ jBlockSizeComboBox.getSelectedItem() + " KB)");
 		// yAxis.setAutoRangeIncludesZero(true);
 		// yAxis.setInverted(false);
 		yAxis.setLowerMargin(0.0);
@@ -449,7 +596,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 		// plot.setRangeGridlineStroke(new BasicStroke(1));
 		plot.setRangeGridlinePaint(Color.white);
 
-		JFreeChart chart = new JFreeChart("Memory read/write hot zone", new Font("Serif", Font.PLAIN, 12), plot, true);
+		JFreeChart chart = new JFreeChart("Memory read/write hot zone",
+				new Font("Serif", Font.PLAIN, 12), plot, true);
 		chart.removeLegend();
 		chart.setBackgroundPaint(Color.white);
 
@@ -472,10 +620,18 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 	}
 
 	private static XYZDataset createDataset() {
-		long rowCount = Data.getRowCount(CommonLib.convertFilesize((String) jFromComboBox.getSelectedItem()), CommonLib.convertFilesize((String) jToComboBox.getSelectedItem()),
-				CommonLib.convertFilesize((String) jBlockSizeComboBox.getSelectedItem()));
-		long columnCount = Data.getColumnCount(CommonLib.convertFilesize((String) jFromComboBox.getSelectedItem()),
-				CommonLib.convertFilesize((String) jToComboBox.getSelectedItem()), CommonLib.convertFilesize((String) jBlockSizeComboBox.getSelectedItem()));
+		long rowCount = Data.getRowCount(CommonLib
+				.convertFilesize((String) jFromComboBox.getSelectedItem()),
+				CommonLib.convertFilesize((String) jToComboBox
+						.getSelectedItem()), CommonLib
+						.convertFilesize((String) jBlockSizeComboBox
+								.getSelectedItem()));
+		long columnCount = Data.getColumnCount(CommonLib
+				.convertFilesize((String) jFromComboBox.getSelectedItem()),
+				CommonLib.convertFilesize((String) jToComboBox
+						.getSelectedItem()), CommonLib
+						.convertFilesize((String) jBlockSizeComboBox
+								.getSelectedItem()));
 		double[] xvalues = new double[(int) (columnCount * rowCount)];
 		double[] yvalues = new double[(int) (columnCount * rowCount)];
 		double[] zvalues = new double[(int) (columnCount * rowCount)];
@@ -488,8 +644,12 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			}
 		}
 
-		int dataB[] = Data.getChartData(CommonLib.convertFilesize((String) jFromComboBox.getSelectedItem()), CommonLib.convertFilesize((String) jToComboBox.getSelectedItem()),
-				CommonLib.convertFilesize((String) jBlockSizeComboBox.getSelectedItem()));
+		int dataB[] = Data.getChartData(CommonLib
+				.convertFilesize((String) jFromComboBox.getSelectedItem()),
+				CommonLib.convertFilesize((String) jToComboBox
+						.getSelectedItem()), CommonLib
+						.convertFilesize((String) jBlockSizeComboBox
+								.getSelectedItem()));
 		for (int index = 0; index < dataB.length; index++) {
 			int y = (int) (index / columnCount);
 			int x = (int) (index - (y * columnCount));
@@ -502,8 +662,12 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 	}
 
 	private static void setValue(double[][] data, int x, int y, double value) {
-		long columnCount = Data.getColumnCount(CommonLib.convertFilesize((String) jFromComboBox.getSelectedItem()),
-				CommonLib.convertFilesize((String) jToComboBox.getSelectedItem()), CommonLib.convertFilesize((String) jBlockSizeComboBox.getSelectedItem()));
+		long columnCount = Data.getColumnCount(CommonLib
+				.convertFilesize((String) jFromComboBox.getSelectedItem()),
+				CommonLib.convertFilesize((String) jToComboBox
+						.getSelectedItem()), CommonLib
+						.convertFilesize((String) jBlockSizeComboBox
+								.getSelectedItem()));
 		data[0][(int) (y * columnCount + x)] = x;
 		data[1][(int) (y * columnCount + x)] = y;
 		data[2][(int) (y * columnCount + x)] = value;
@@ -517,21 +681,31 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 	public void update2DChart() {
 		// jfcMemory.getCategoryPlot().setDataset(createMemoryDataset());
 		jfcMemory.getXYPlot().setDataset(createDataset());
-		MyXYBlockRenderer renderer = (MyXYBlockRenderer) jfcMemory.getXYPlot().getRenderer();
-		int largest = findLargest(Data.getChartData(CommonLib.convertFilesize((String) jFromComboBox.getSelectedItem()),
-				CommonLib.convertFilesize((String) jToComboBox.getSelectedItem()), CommonLib.convertFilesize((String) jBlockSizeComboBox.getSelectedItem())));
+		MyXYBlockRenderer renderer = (MyXYBlockRenderer) jfcMemory.getXYPlot()
+				.getRenderer();
+		int largest = findLargest(Data.getChartData(CommonLib
+				.convertFilesize((String) jFromComboBox.getSelectedItem()),
+				CommonLib.convertFilesize((String) jToComboBox
+						.getSelectedItem()), CommonLib
+						.convertFilesize((String) jBlockSizeComboBox
+								.getSelectedItem())));
 		if (largest == 0) {
 			largest = 1;
 		}
-		LookupPaintScale paintScale = new LookupPaintScale(0, largest, background);
+		LookupPaintScale paintScale = new LookupPaintScale(0, largest,
+				background);
 		if (largest > 1) {
 			// int mean =
 			// medianWithoutZero(Data.getChartData(CommonLib.convertFilesize((String)
 			// jFromComboBox.getSelectedItem()),
 			// CommonLib.convertFilesize((String) jToComboBox
 			// .getSelectedItem())));
-			int m[] = Data.getChartData(CommonLib.convertFilesize((String) jFromComboBox.getSelectedItem()), CommonLib.convertFilesize((String) jToComboBox.getSelectedItem()),
-					CommonLib.convertFilesize((String) jBlockSizeComboBox.getSelectedItem()));
+			int m[] = Data.getChartData(CommonLib
+					.convertFilesize((String) jFromComboBox.getSelectedItem()),
+					CommonLib.convertFilesize((String) jToComboBox
+							.getSelectedItem()), CommonLib
+							.convertFilesize((String) jBlockSizeComboBox
+									.getSelectedItem()));
 			TreeSet<Integer> data = new TreeSet<Integer>();
 			for (int x = 0; x < m.length; x++) {
 				if (m[x] > 0) {
@@ -544,9 +718,11 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			Object iData[] = data.toArray();
 			paintScale.add(1, allColors.get(0));
 			for (int x = 1; x < iData.length - 1; x++) {
-				paintScale.add((int) (Integer) iData[x], allColors.get(allColors.size() / iData.length * x));
+				paintScale.add((int) (Integer) iData[x],
+						allColors.get(allColors.size() / iData.length * x));
 			}
-			paintScale.add((int) (Integer) iData[iData.length - 1], allColors.get(allColors.size() - 1));
+			paintScale.add((int) (Integer) iData[iData.length - 1],
+					allColors.get(allColors.size() - 1));
 		}
 		renderer.setPaintScale(paintScale);
 		renderer.setBaseToolTipGenerator(new MyXYToolTipGenerator());
@@ -555,43 +731,68 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 	}
 
 	public void update3DChart() {
-		/*
-		 * try { long rowCount =
-		 * Data.getRowCount(CommonLib.convertFilesize((String)
-		 * jFromComboBox.getSelectedItem()), CommonLib.convertFilesize((String)
-		 * jToComboBox.getSelectedItem()), CommonLib.convertFilesize((String)
-		 * jBlockSizeComboBox.getSelectedItem())); long columnCount =
-		 * Data.getColumnCount(CommonLib.convertFilesize((String)
-		 * jFromComboBox.getSelectedItem()), CommonLib.convertFilesize((String)
-		 * jToComboBox.getSelectedItem()), CommonLib.convertFilesize((String)
-		 * jBlockSizeComboBox.getSelectedItem()));
-		 * 
-		 * List<Coord3d> coords = new ArrayList<Coord3d>();//
-		 * SphereScatterGenerator.generate(new int dataB[] =
-		 * Data.getChartData(CommonLib.convertFilesize((String)
-		 * jFromComboBox.getSelectedItem()), CommonLib.convertFilesize((String)
-		 * jToComboBox.getSelectedItem()), CommonLib.convertFilesize((String)
-		 * jBlockSizeComboBox.getSelectedItem()));
-		 * 
-		 * // Random r = new Random(); for (int x = 0; x < columnCount; x++) {
-		 * for (int y = 0; y < rowCount; y++) { int index = (int) (x + y *
-		 * columnCount); if (index < dataB.length) { coords.add(new Coord3d(x,
-		 * y, dataB[index])); } // coords.add(new Coord3d(x, y,
-		 * r.nextInt(100))); } }
-		 * 
-		 * // Create the object to represent the function over the given range.
-		 * final Shape surface = (Shape) Builder.buildDelaunay(coords);
-		 * surface.setColorMapper(new ColorMapper(new ColorMapRainbow(),
-		 * surface.getBounds().getZmin(), surface.getBounds().getZmax(), new
-		 * net.masagroup.jzy3d.colors.Color(1, 1, 1, .5f)));
-		 * surface.setFaceDisplayed(true); surface.setWireframeDisplayed(true);
-		 * surface.setWireframeColor(net.masagroup.jzy3d.colors.Color.BLACK);
-		 * 
-		 * for (Iterator<Drawable> it =
-		 * chart.getScene().getGraph().getAll().iterator(); it.hasNext();) {
-		 * it.next(); it.remove(); } chart.getScene().getGraph().add(surface); }
-		 * catch (Exception ex) { ex.printStackTrace(); }
-		 */
+
+		try {
+			long rowCount = Data.getRowCount(CommonLib
+					.convertFilesize((String) jFromComboBox.getSelectedItem()),
+					CommonLib.convertFilesize((String) jToComboBox
+							.getSelectedItem()), CommonLib
+							.convertFilesize((String) jBlockSizeComboBox
+									.getSelectedItem()));
+			long columnCount = Data.getColumnCount(CommonLib
+					.convertFilesize((String) jFromComboBox.getSelectedItem()),
+					CommonLib.convertFilesize((String) jToComboBox
+							.getSelectedItem()), CommonLib
+							.convertFilesize((String) jBlockSizeComboBox
+									.getSelectedItem()));
+
+			List<Coord3d> coords = new ArrayList<Coord3d>();
+			//
+			// int dataB[] = new SphereScatterGenerator.generate(
+			// Data.getChartData(
+			// jFromComboBox.getSelectedItem()),
+			// CommonLib.convertFilesize((String)
+			// jToComboBox.getSelectedItem()),
+			// CommonLib.convertFilesize((String)
+			// jBlockSizeComboBox.getSelectedItem()));
+
+			int dataB[] = Data.getChartData(CommonLib
+					.convertFilesize((String) jFromComboBox.getSelectedItem()),
+					CommonLib.convertFilesize((String) jToComboBox
+							.getSelectedItem()), CommonLib
+							.convertFilesize((String) jBlockSizeComboBox
+									.getSelectedItem()));
+
+			// Random r = new Random();
+			for (int x = 0; x < columnCount; x++) {
+				for (int y = 0; y < rowCount; y++) {
+					int index = (int) (x + y * columnCount);
+					if (index < dataB.length) {
+						coords.add(new Coord3d(x, y, dataB[index]));
+					}
+					// coords.add(new Coord3d(x, y, r.nextInt(100)));
+				}
+			}
+
+			// Create the object to represent the function over the given range.
+			final Shape surface = (Shape) Builder.buildDelaunay(coords);
+			surface.setColorMapper(new ColorMapper(new ColorMapRainbow(),
+					surface.getBounds().getZmin(), surface.getBounds()
+							.getZmax(),
+					new org.jzy3d.colors.Color(1, 1, 1, .5f)));
+			surface.setFaceDisplayed(true);
+			surface.setWireframeDisplayed(true);
+			surface.setWireframeColor(org.jzy3d.colors.Color.BLACK);
+
+			for (Iterator<AbstractDrawable> it = chart.getScene().getGraph()
+					.getAll().iterator(); it.hasNext();) {
+				it.next();
+				it.remove();
+			}
+			chart.getScene().getGraph().add(surface);
+		} catch (Exception ex) {
+			
+		}
 	}
 
 	public ArrayList<Color> allColors() {
@@ -644,45 +845,67 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 		}
 	}
 
-	/*
-	 * private JPanel getJMemory3DPanel() { if (jMemory3DPanel == null) {
-	 * jMemory3DPanel = new JPanel(); GroupLayout jMemory3DPanelLayout = new
-	 * GroupLayout((JComponent) jMemory3DPanel);
-	 * jMemory3DPanel.setLayout(jMemory3DPanelLayout);
-	 * jMemory3DPanel.setPreferredSize(new java.awt.Dimension(890, 242));
-	 * 
-	 * try { Chart chart = createEmptyMemory3DChart(); ChartMouseController
-	 * mouse = new ChartMouseController(); mouse.addControllerEventListener(new
-	 * ControllerEventListener() { public void
-	 * controllerEventFired(ControllerEvent e) { if (e.getType() ==
-	 * ControllerType.ROTATE) { // System.out.println("Mouse[ROTATE]:" + //
-	 * (Coord3d)e.getValue()); } } }); chart.addController(mouse);
-	 * 
-	 * jMemory3DPanelLayout.setHorizontalGroup(jMemory3DPanelLayout.
-	 * createSequentialGroup().addContainerGap() .addComponent((Component)
-	 * chart.getCanvas(), 0, 220, Short.MAX_VALUE).addContainerGap());
-	 * jMemory3DPanelLayout
-	 * .setVerticalGroup(jMemory3DPanelLayout.createSequentialGroup
-	 * ().addContainerGap() .addComponent((Component) chart.getCanvas(), 0, 116,
-	 * Short.MAX_VALUE).addContainerGap());
-	 * 
-	 * GLCapabilities glCapabilities = new GLCapabilities();
-	 * glCapabilities.setHardwareAccelerated(true); } catch (IOException e1) {
-	 * e1.printStackTrace(); }
-	 * 
-	 * } return jMemory3DPanel; }
-	 */
+	private JPanel getJMemory3DPanel() {
+		if (jMemory3DPanel == null) {
+			jMemory3DPanel = new JPanel();
+			GroupLayout jMemory3DPanelLayout = new GroupLayout(
+					(JComponent) jMemory3DPanel);
+			jMemory3DPanel.setLayout(jMemory3DPanelLayout);
+			jMemory3DPanel.setPreferredSize(new java.awt.Dimension(890, 242));
 
-	/*
-	 * public static Chart createEmptyMemory3DChart() throws IOException { chart
-	 * = new Chart(Quality.Fastest); return chart; }
-	 */
+			try {
+				Chart chart = createEmptyMemory3DChart();
+				ChartMouseController mouse = new ChartMouseController();
+				mouse.addControllerEventListener(new ControllerEventListener() {
+
+					public void controllerEventFired(ControllerEvent e) {
+						if (e.getType() == ControllerType.ROTATE) {
+							// System.out.println("Mouse[ROTATE]:" +
+							// (Coord3d)e.getValue());
+
+						}
+
+					}
+
+				});
+				chart.addController(mouse);
+
+				jMemory3DPanelLayout.setHorizontalGroup(jMemory3DPanelLayout
+						.createSequentialGroup()
+						.addContainerGap()
+						.addComponent((Component) chart.getCanvas(), 0, 220,
+								Short.MAX_VALUE).addContainerGap());
+				jMemory3DPanelLayout.setVerticalGroup(jMemory3DPanelLayout
+						.createSequentialGroup()
+						.addContainerGap()
+						.addComponent((Component) chart.getCanvas(), 0, 116,
+								Short.MAX_VALUE).addContainerGap());
+
+				GLCapabilities glCapabilities = new GLCapabilities();
+				glCapabilities.setHardwareAccelerated(true);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			} catch (UnsatisfiedLinkError e) {
+				e.printStackTrace();
+				jMemory3DPanel = new JPanel();
+				jMemory3DPanel.add(new JLabel("Error : no gluegen-rt in java.library.path, to fix it, please add -Djava.library.path=<directory that contains libgluegen-rt.so>"));
+			}
+
+		}
+		return jMemory3DPanel;
+	}
+
+	public static Chart createEmptyMemory3DChart() throws IOException {
+		chart = new Chart(Quality.Fastest);
+		return chart;
+	}
 
 	private JButton getJZoomOutButton() {
 		if (jZoomOutButton == null) {
 			jZoomOutButton = new JButton();
 			jZoomOutButton.setText("out");
-			jZoomOutButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/zoom_out.png")));
+			jZoomOutButton.setIcon(new ImageIcon(getClass().getClassLoader()
+					.getResource("icons/famfam_icons/zoom_out.png")));
 			jZoomOutButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jZoomOutButtonActionPerformed(evt);
@@ -700,7 +923,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 		if (jZoomInButton == null) {
 			jZoomInButton = new JButton();
 			jZoomInButton.setText("in");
-			jZoomInButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/zoom_in.png")));
+			jZoomInButton.setIcon(new ImageIcon(getClass().getClassLoader()
+					.getResource("icons/famfam_icons/zoom_in.png")));
 			jZoomInButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jZoomInButtonActionPerformed(evt);
@@ -718,7 +942,9 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 		if (jZoomOutAutoRangeButton == null) {
 			jZoomOutAutoRangeButton = new JButton();
 			jZoomOutAutoRangeButton.setText("fit");
-			jZoomOutAutoRangeButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/zoom.png")));
+			jZoomOutAutoRangeButton.setIcon(new ImageIcon(getClass()
+					.getClassLoader()
+					.getResource("icons/famfam_icons/zoom.png")));
 			jZoomOutAutoRangeButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jZoomOutAutoRangeButtonActionPerformed(evt);
@@ -755,7 +981,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 
 	private JTable getJHotestAddressTable() {
 		if (jHotestAddressTable == null) {
-			DefaultTableModel jHotestAddressTableModel = new DefaultTableModel(new String[][] {}, new String[] { "Address", "Hit count" });
+			DefaultTableModel jHotestAddressTableModel = new DefaultTableModel(
+					new String[][] {}, new String[] { "Address", "Hit count" });
 			jHotestAddressTable = new JTable();
 			jHotestAddressTable.setModel(jHotestAddressTableModel);
 		}
@@ -808,7 +1035,6 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 
 	private void jSearchButtonActionPerformed(ActionEvent evt) {
 		System.out.println("jSearchButton.actionPerformed, event=" + evt);
-		// TODO add your code for jSearchButton.actionPerformed
 	}
 
 	@Override
@@ -817,7 +1043,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			// System.out.println(event.getTrigger().getX());
 			JFreeChart chart = event.getChart();
 			XYPlot xyplot = chart.getXYPlot();
-			MyXYBlockRenderer renderer = (MyXYBlockRenderer) xyplot.getRenderer();
+			MyXYBlockRenderer renderer = (MyXYBlockRenderer) xyplot
+					.getRenderer();
 
 			XYZDataset dataset = (XYZDataset) xyplot.getDataset();
 			XYItemEntity entity = (XYItemEntity) event.getEntity();
@@ -826,38 +1053,52 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 
 			int i = event.getTrigger().getX();
 			int j = event.getTrigger().getY();
-			Point2D point2d = jMemoryChartPanel.translateScreenToJava2D(new Point(i, j));
-			ChartRenderingInfo chartrenderinginfo = jMemoryChartPanel.getChartRenderingInfo();
-			Rectangle2D rectangle2d = chartrenderinginfo.getPlotInfo().getDataArea();
-			double x = xyplot.getDomainAxis().java2DToValue(point2d.getX(), rectangle2d, xyplot.getDomainAxisEdge());
-			double y = xyplot.getRangeAxis().java2DToValue(point2d.getY(), rectangle2d, xyplot.getRangeAxisEdge());
+			Point2D point2d = jMemoryChartPanel
+					.translateScreenToJava2D(new Point(i, j));
+			ChartRenderingInfo chartrenderinginfo = jMemoryChartPanel
+					.getChartRenderingInfo();
+			Rectangle2D rectangle2d = chartrenderinginfo.getPlotInfo()
+					.getDataArea();
+			double x = xyplot.getDomainAxis().java2DToValue(point2d.getX(),
+					rectangle2d, xyplot.getDomainAxisEdge());
+			double y = xyplot.getRangeAxis().java2DToValue(point2d.getY(),
+					rectangle2d, xyplot.getRangeAxisEdge());
 			int realX = (int) Math.round(x);
 			int realY = (int) Math.round(y);
 			renderer.setSelectedXY(realX, realY);
-			long blockSize = CommonLib.convertFilesize((String) jBlockSizeComboBox.getSelectedItem());
-			long columnCount = Data.getColumnCount(CommonLib.convertFilesize((String) jFromComboBox.getSelectedItem()),
-					CommonLib.convertFilesize((String) jToComboBox.getSelectedItem()), blockSize);
+			long blockSize = CommonLib
+					.convertFilesize((String) jBlockSizeComboBox
+							.getSelectedItem());
+			long columnCount = Data.getColumnCount(CommonLib
+					.convertFilesize((String) jFromComboBox.getSelectedItem()),
+					CommonLib.convertFilesize((String) jToComboBox
+							.getSelectedItem()), blockSize);
 			Long address = ((realY * columnCount) + realX) * blockSize;
 
 			updateHotestTable(address, blockSize);
 
-			this.jAddressLabel.setText("Address=0x" + Long.toHexString(address));
-			this.jRWCountLabel.setText("R/W count=" + (int) dataset.getZValue(series, item));
+			this.jAddressLabel
+					.setText("Address=0x" + Long.toHexString(address));
+			this.jRWCountLabel.setText("R/W count="
+					+ (int) dataset.getZValue(series, item));
 		} catch (Exception ex) {
 
 		}
 	}
 
 	private void updateHotestTable(long address, long blockSize) {
-		DefaultTableModel jHotestAddressTableModel = (DefaultTableModel) jHotestAddressTable.getModel();
+		DefaultTableModel jHotestAddressTableModel = (DefaultTableModel) jHotestAddressTable
+				.getModel();
 		while (jHotestAddressTableModel.getRowCount() > 0) {
 			jHotestAddressTableModel.removeRow(0);
 		}
-		HashMap<String, Integer> map = Data.getHotestAddressCount(address, blockSize);
+		HashMap<String, Integer> map = Data.getHotestAddressCount(address,
+				blockSize);
 		Iterator it = map.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry entry = (Map.Entry) it.next();
-			jHotestAddressTableModel.addRow(new String[] { entry.getKey().toString(), entry.getValue().toString() });
+			jHotestAddressTableModel.addRow(new String[] {
+					entry.getKey().toString(), entry.getValue().toString() });
 		}
 	}
 
@@ -869,7 +1110,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 
 	private JComboBox getJFromComboBox() {
 		if (jFromComboBox == null) {
-			ComboBoxModel jFromComboBoxModel = new DefaultComboBoxModel(new String[] { "0MB" });
+			ComboBoxModel jFromComboBoxModel = new DefaultComboBoxModel(
+					new String[] { "0MB" });
 			jFromComboBox = new JComboBox();
 			jFromComboBox.setModel(jFromComboBoxModel);
 			jFromComboBox.setEditable(true);
@@ -900,7 +1142,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 
 	private JComboBox getJBlockSizeComboBox() {
 		if (jBlockSizeComboBox == null) {
-			ComboBoxModel jToComboBoxModel = new DefaultComboBoxModel(new String[] { "100MB", "10MB", "1MB", "100KB", "32KB" });
+			ComboBoxModel jToComboBoxModel = new DefaultComboBoxModel(
+					new String[] { "100MB", "10MB", "1MB", "100KB", "32KB" });
 			jBlockSizeComboBox = new JComboBox();
 			jBlockSizeComboBox.setModel(jToComboBoxModel);
 			jBlockSizeComboBox.setEditable(true);
@@ -933,7 +1176,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 
 	private JComboBox getJToComboBox() {
 		if (jToComboBox == null) {
-			ComboBoxModel jToComboBoxModel = new DefaultComboBoxModel(new String[] { "1GB", "100MB", "10MB", "1MB" });
+			ComboBoxModel jToComboBoxModel = new DefaultComboBoxModel(
+					new String[] { "1GB", "100MB", "10MB", "1MB" });
 			jToComboBox = new JComboBox();
 			jToComboBox.setModel(jToComboBoxModel);
 			jToComboBox.setEditable(true);
@@ -972,14 +1216,22 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			// Double max = jfcMemory.getMax(jfcMemory.getXYPlot().getDataset(),
 			// xAxis.getRange());
 
-			long columnCount = Data.getColumnCount(CommonLib.convertFilesize((String) jFromComboBox.getSelectedItem()),
-					CommonLib.convertFilesize((String) jToComboBox.getSelectedItem()), CommonLib.convertFilesize((String) jBlockSizeComboBox.getSelectedItem()));
-			long address = CommonLib.convertFilesize(jSearchTextField.getText());
-			long blockSize = CommonLib.convertFilesize((String) jBlockSizeComboBox.getSelectedItem());
+			long columnCount = Data.getColumnCount(CommonLib
+					.convertFilesize((String) jFromComboBox.getSelectedItem()),
+					CommonLib.convertFilesize((String) jToComboBox
+							.getSelectedItem()), CommonLib
+							.convertFilesize((String) jBlockSizeComboBox
+									.getSelectedItem()));
+			long address = CommonLib
+					.convertFilesize(jSearchTextField.getText());
+			long blockSize = CommonLib
+					.convertFilesize((String) jBlockSizeComboBox
+							.getSelectedItem());
 			long blockNo = address / blockSize;
 			long x = blockNo % columnCount;
 			long y = blockNo / columnCount;
-			MyXYBlockRenderer renderer = (MyXYBlockRenderer) jfcMemory.getXYPlot().getRenderer();
+			MyXYBlockRenderer renderer = (MyXYBlockRenderer) jfcMemory
+					.getXYPlot().getRenderer();
 			renderer.setRealX((int) x);
 			renderer.setRealY((int) y);
 			System.out.println(x + "," + y);
@@ -998,8 +1250,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 				jfcMemory = createEmptyChart(createEmptyDataset());
 				jMemoryChartPanel = new ChartPanel(jfcMemory);
 				jTabbedPane2.addTab("Chart", null, jMemoryChartPanel, null);
-				// jTabbedPane2.addTab("Memory 3D", null, getJMemory3DPanel(),
-				// null);
+				jTabbedPane2.addTab("Memory 3D", null, getJMemory3DPanel(),
+						null);
 				jMemoryChartPanel.setDisplayToolTips(true);
 				jfcMemory.addChangeListener(this);
 				jMemoryChartPanel.addChartMouseListener(this);
@@ -1011,77 +1263,153 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 	private JPanel getJMemoryProfilingPanel() {
 		if (jMemoryProfilingPanel == null) {
 			jMemoryProfilingPanel = new JPanel();
-			GroupLayout jMemoryProfilingPanelLayout = new GroupLayout((JComponent) jMemoryProfilingPanel);
+			GroupLayout jMemoryProfilingPanelLayout = new GroupLayout(
+					(JComponent) jMemoryProfilingPanel);
 			jMemoryProfilingPanel.setLayout(jMemoryProfilingPanelLayout);
-			jMemoryProfilingPanelLayout.setHorizontalGroup(jMemoryProfilingPanelLayout
-					.createSequentialGroup()
-					.addContainerGap()
-					.addGroup(
-							jMemoryProfilingPanelLayout
-									.createParallelGroup()
-									.addGroup(
-											GroupLayout.Alignment.LEADING,
-											jMemoryProfilingPanelLayout
-													.createSequentialGroup()
-													.addGroup(
-															jMemoryProfilingPanelLayout
-																	.createParallelGroup()
-																	.addGroup(
-																			GroupLayout.Alignment.LEADING,
-																			jMemoryProfilingPanelLayout
-																					.createSequentialGroup()
-																					.addGroup(
-																							jMemoryProfilingPanelLayout
-																									.createParallelGroup()
-																									.addGroup(
-																											GroupLayout.Alignment.LEADING,
-																											jMemoryProfilingPanelLayout
-																													.createSequentialGroup()
-																													.addComponent(getJLabel8(), GroupLayout.PREFERRED_SIZE, 39,
-																															GroupLayout.PREFERRED_SIZE)
-																													.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-																													.addComponent(getJProfilingFromComboBox(),
-																															GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,
-																															GroupLayout.PREFERRED_SIZE))
-																									.addGroup(
-																											GroupLayout.Alignment.LEADING,
-																											jMemoryProfilingPanelLayout
-																													.createSequentialGroup()
-																													.addComponent(getJDeleteZoneButton(),
-																															GroupLayout.PREFERRED_SIZE, 62,
-																															GroupLayout.PREFERRED_SIZE).addGap(108)))
-																					.addGap(7)
-																					.addComponent(getJLabel9(), GroupLayout.PREFERRED_SIZE, 23, GroupLayout.PREFERRED_SIZE)
-																					.addGap(7)
-																					.addComponent(getJProfilingToComboBox(), GroupLayout.PREFERRED_SIZE,
-																							GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE))
-																	.addGroup(
-																			GroupLayout.Alignment.LEADING,
-																			jMemoryProfilingPanelLayout.createSequentialGroup()
-																					.addComponent(getJLabel7(), GroupLayout.PREFERRED_SIZE, 292, GroupLayout.PREFERRED_SIZE)
-																					.addGap(34)))
-													.addComponent(getJAddZoneButton(), GroupLayout.PREFERRED_SIZE, 62, GroupLayout.PREFERRED_SIZE).addGap(0, 331, Short.MAX_VALUE))
-									.addComponent(getJScrollPane2(), GroupLayout.Alignment.LEADING, 0, 719, Short.MAX_VALUE)).addContainerGap());
-			jMemoryProfilingPanelLayout.linkSize(SwingConstants.HORIZONTAL, new Component[] { getJProfilingFromComboBox(), getJProfilingToComboBox() });
-			jMemoryProfilingPanelLayout.setVerticalGroup(jMemoryProfilingPanelLayout
-					.createSequentialGroup()
-					.addContainerGap()
-					.addComponent(getJLabel7(), GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-					.addGroup(
-							jMemoryProfilingPanelLayout
-									.createParallelGroup(GroupLayout.Alignment.BASELINE)
-									.addComponent(getJProfilingFromComboBox(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,
-											GroupLayout.PREFERRED_SIZE)
-									.addComponent(getJLabel8(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
-									.addComponent(getJLabel9(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
-									.addComponent(getJProfilingToComboBox(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,
-											GroupLayout.PREFERRED_SIZE)
-									.addComponent(getJAddZoneButton(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,
-											GroupLayout.PREFERRED_SIZE)).addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-					.addComponent(getJScrollPane2(), 0, 337, Short.MAX_VALUE).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 0, GroupLayout.PREFERRED_SIZE)
-					.addComponent(getJDeleteZoneButton(), GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE).addContainerGap());
-			jMemoryProfilingPanelLayout.linkSize(SwingConstants.VERTICAL, new Component[] { getJProfilingFromComboBox(), getJProfilingToComboBox() });
+			jMemoryProfilingPanelLayout
+					.setHorizontalGroup(jMemoryProfilingPanelLayout
+							.createSequentialGroup()
+							.addContainerGap()
+							.addGroup(
+									jMemoryProfilingPanelLayout
+											.createParallelGroup()
+											.addGroup(
+													GroupLayout.Alignment.LEADING,
+													jMemoryProfilingPanelLayout
+															.createSequentialGroup()
+															.addGroup(
+																	jMemoryProfilingPanelLayout
+																			.createParallelGroup()
+																			.addGroup(
+																					GroupLayout.Alignment.LEADING,
+																					jMemoryProfilingPanelLayout
+																							.createSequentialGroup()
+																							.addGroup(
+																									jMemoryProfilingPanelLayout
+																											.createParallelGroup()
+																											.addGroup(
+																													GroupLayout.Alignment.LEADING,
+																													jMemoryProfilingPanelLayout
+																															.createSequentialGroup()
+																															.addComponent(
+																																	getJLabel8(),
+																																	GroupLayout.PREFERRED_SIZE,
+																																	39,
+																																	GroupLayout.PREFERRED_SIZE)
+																															.addPreferredGap(
+																																	LayoutStyle.ComponentPlacement.RELATED)
+																															.addComponent(
+																																	getJProfilingFromComboBox(),
+																																	GroupLayout.PREFERRED_SIZE,
+																																	GroupLayout.PREFERRED_SIZE,
+																																	GroupLayout.PREFERRED_SIZE))
+																											.addGroup(
+																													GroupLayout.Alignment.LEADING,
+																													jMemoryProfilingPanelLayout
+																															.createSequentialGroup()
+																															.addComponent(
+																																	getJDeleteZoneButton(),
+																																	GroupLayout.PREFERRED_SIZE,
+																																	62,
+																																	GroupLayout.PREFERRED_SIZE)
+																															.addGap(108)))
+																							.addGap(7)
+																							.addComponent(
+																									getJLabel9(),
+																									GroupLayout.PREFERRED_SIZE,
+																									23,
+																									GroupLayout.PREFERRED_SIZE)
+																							.addGap(7)
+																							.addComponent(
+																									getJProfilingToComboBox(),
+																									GroupLayout.PREFERRED_SIZE,
+																									GroupLayout.PREFERRED_SIZE,
+																									GroupLayout.PREFERRED_SIZE))
+																			.addGroup(
+																					GroupLayout.Alignment.LEADING,
+																					jMemoryProfilingPanelLayout
+																							.createSequentialGroup()
+																							.addComponent(
+																									getJLabel7(),
+																									GroupLayout.PREFERRED_SIZE,
+																									292,
+																									GroupLayout.PREFERRED_SIZE)
+																							.addGap(34)))
+															.addComponent(
+																	getJAddZoneButton(),
+																	GroupLayout.PREFERRED_SIZE,
+																	62,
+																	GroupLayout.PREFERRED_SIZE)
+															.addGap(0,
+																	331,
+																	Short.MAX_VALUE))
+											.addComponent(
+													getJScrollPane2(),
+													GroupLayout.Alignment.LEADING,
+													0, 719, Short.MAX_VALUE))
+							.addContainerGap());
+			jMemoryProfilingPanelLayout.linkSize(SwingConstants.HORIZONTAL,
+					new Component[] { getJProfilingFromComboBox(),
+							getJProfilingToComboBox() });
+			jMemoryProfilingPanelLayout
+					.setVerticalGroup(jMemoryProfilingPanelLayout
+							.createSequentialGroup()
+							.addContainerGap()
+							.addComponent(getJLabel7(),
+									GroupLayout.PREFERRED_SIZE,
+									GroupLayout.PREFERRED_SIZE,
+									GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(
+									LayoutStyle.ComponentPlacement.RELATED)
+							.addGroup(
+									jMemoryProfilingPanelLayout
+											.createParallelGroup(
+													GroupLayout.Alignment.BASELINE)
+											.addComponent(
+													getJProfilingFromComboBox(),
+													GroupLayout.Alignment.BASELINE,
+													GroupLayout.PREFERRED_SIZE,
+													GroupLayout.PREFERRED_SIZE,
+													GroupLayout.PREFERRED_SIZE)
+											.addComponent(
+													getJLabel8(),
+													GroupLayout.Alignment.BASELINE,
+													GroupLayout.PREFERRED_SIZE,
+													GroupLayout.PREFERRED_SIZE,
+													GroupLayout.PREFERRED_SIZE)
+											.addComponent(
+													getJLabel9(),
+													GroupLayout.Alignment.BASELINE,
+													GroupLayout.PREFERRED_SIZE,
+													GroupLayout.PREFERRED_SIZE,
+													GroupLayout.PREFERRED_SIZE)
+											.addComponent(
+													getJProfilingToComboBox(),
+													GroupLayout.Alignment.BASELINE,
+													GroupLayout.PREFERRED_SIZE,
+													GroupLayout.PREFERRED_SIZE,
+													GroupLayout.PREFERRED_SIZE)
+											.addComponent(
+													getJAddZoneButton(),
+													GroupLayout.Alignment.BASELINE,
+													GroupLayout.PREFERRED_SIZE,
+													GroupLayout.PREFERRED_SIZE,
+													GroupLayout.PREFERRED_SIZE))
+							.addPreferredGap(
+									LayoutStyle.ComponentPlacement.UNRELATED)
+							.addComponent(getJScrollPane2(), 0, 337,
+									Short.MAX_VALUE)
+							.addPreferredGap(
+									LayoutStyle.ComponentPlacement.RELATED, 0,
+									GroupLayout.PREFERRED_SIZE)
+							.addComponent(getJDeleteZoneButton(),
+									GroupLayout.PREFERRED_SIZE,
+									GroupLayout.PREFERRED_SIZE,
+									GroupLayout.PREFERRED_SIZE)
+							.addContainerGap());
+			jMemoryProfilingPanelLayout.linkSize(SwingConstants.VERTICAL,
+					new Component[] { getJProfilingFromComboBox(),
+							getJProfilingToComboBox() });
 		}
 		return jMemoryProfilingPanel;
 	}
@@ -1104,14 +1432,16 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 
 	private JComboBox getJProfilingFromComboBox() {
 		if (jProfilingFromComboBox == null) {
-			ComboBoxModel jComboBox1Model = new DefaultComboBoxModel(new String[] {});
+			ComboBoxModel jComboBox1Model = new DefaultComboBoxModel(
+					new String[] {});
 			jProfilingFromComboBox = new JComboBox();
 			jProfilingFromComboBox.setModel(jComboBox1Model);
 			jProfilingFromComboBox.setEditable(true);
 
 			new Thread() {
 				public void run() {
-					LinkedList<Long> vector = Setting.getInstance().getProfileMemoryFromAddress();
+					LinkedList<Long> vector = Setting.getInstance()
+							.getProfileMemoryFromAddress();
 					Iterator<Long> iterator = vector.iterator();
 					while (iterator.hasNext()) {
 						addProfileMemoryFromComboBox(iterator.next());
@@ -1133,14 +1463,16 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 
 	private JComboBox getJProfilingToComboBox() {
 		if (jProfilingToComboBox == null) {
-			ComboBoxModel jComboBox2Model = new DefaultComboBoxModel(new String[] {});
+			ComboBoxModel jComboBox2Model = new DefaultComboBoxModel(
+					new String[] {});
 			jProfilingToComboBox = new JComboBox();
 			jProfilingToComboBox.setModel(jComboBox2Model);
 			jProfilingToComboBox.setEditable(true);
 
 			new Thread() {
 				public void run() {
-					LinkedList<Long> vector = Setting.getInstance().getProfileMemoryToAddress();
+					LinkedList<Long> vector = Setting.getInstance()
+							.getProfileMemoryToAddress();
 					Iterator<Long> iterator = vector.iterator();
 					while (iterator.hasNext()) {
 						addProfileMemoryToComboBox(iterator.next());
@@ -1157,17 +1489,21 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			ProfilingTableModel profilingTableModel = new ProfilingTableModel();
 			jProfilingTable.setModel(profilingTableModel);
 			jProfilingTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-			jProfilingTable.getColumnModel().getColumn(4).setPreferredWidth(500);
+			jProfilingTable.getColumnModel().getColumn(4)
+					.setPreferredWidth(500);
 			jProfilingTable.getTableHeader().setReorderingAllowed(false);
 			Data.memoryProfilingZone = profilingTableModel;
 
 			try {
-				LinkedList<Long> fromVector = Setting.getInstance().getProfileMemoryFromAddress();
-				LinkedList<Long> toVector = Setting.getInstance().getProfileMemoryToAddress();
+				LinkedList<Long> fromVector = Setting.getInstance()
+						.getProfileMemoryFromAddress();
+				LinkedList<Long> toVector = Setting.getInstance()
+						.getProfileMemoryToAddress();
 				Iterator<Long> fromIterator = fromVector.iterator();
 				Iterator<Long> toIterator = toVector.iterator();
 				while (fromIterator.hasNext()) {
-					((ProfilingTableModel) this.jProfilingTable.getModel()).addZone(fromIterator.next(), toIterator.next());
+					((ProfilingTableModel) this.jProfilingTable.getModel())
+							.addZone(fromIterator.next(), toIterator.next());
 				}
 			} catch (Exception ex) {
 
@@ -1199,14 +1535,17 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 
 	private void jAddZoneButtonActionPerformed(ActionEvent evt) {
 		try {
-			long from = CommonLib.convertFilesize(jProfilingFromComboBox.getSelectedItem().toString());
-			long to = CommonLib.convertFilesize(jProfilingToComboBox.getSelectedItem().toString());
+			long from = CommonLib.convertFilesize(jProfilingFromComboBox
+					.getSelectedItem().toString());
+			long to = CommonLib.convertFilesize(jProfilingToComboBox
+					.getSelectedItem().toString());
 			if (from > to) {
 				long x = to;
 				to = from;
 				from = x;
 			}
-			((ProfilingTableModel) this.jProfilingTable.getModel()).addZone(from, to);
+			((ProfilingTableModel) this.jProfilingTable.getModel()).addZone(
+					from, to);
 			jProfilingFromComboBox.setSelectedItem("");
 			jProfilingToComboBox.setSelectedItem("");
 
@@ -1222,7 +1561,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 
 	private void addProfileMemoryFromComboBox(Long l) {
 		for (int x = 0; x < jProfilingFromComboBox.getItemCount(); x++) {
-			if (jProfilingFromComboBox.getItemAt(x).toString().trim().equals(l.toString().trim())) {
+			if (jProfilingFromComboBox.getItemAt(x).toString().trim()
+					.equals(l.toString().trim())) {
 				return;
 			}
 		}
@@ -1231,7 +1571,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 
 	private void addProfileMemoryToComboBox(Long l) {
 		for (int x = 0; x < jProfilingToComboBox.getItemCount(); x++) {
-			if (jProfilingToComboBox.getItemAt(x).toString().trim().equals(l.toString().trim())) {
+			if (jProfilingToComboBox.getItemAt(x).toString().trim()
+					.equals(l.toString().trim())) {
 				return;
 			}
 		}
@@ -1252,17 +1593,22 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 	}
 
 	private void jDeleteZoneButtonActionPerformed(ActionEvent evt) {
-		Setting.getInstance().getProfileMemoryToAddress().remove(jProfilingTable.getSelectedRow());
-		Setting.getInstance().getProfileMemoryFromAddress().remove(jProfilingTable.getSelectedRow());
+		Setting.getInstance().getProfileMemoryToAddress()
+				.remove(jProfilingTable.getSelectedRow());
+		Setting.getInstance().getProfileMemoryFromAddress()
+				.remove(jProfilingTable.getSelectedRow());
 
 		((ProfilingTableModel) this.jProfilingTable.getModel()).removeAll();
 
-		LinkedList<Long> fromVector = Setting.getInstance().getProfileMemoryFromAddress();
-		LinkedList<Long> toVector = Setting.getInstance().getProfileMemoryToAddress();
+		LinkedList<Long> fromVector = Setting.getInstance()
+				.getProfileMemoryFromAddress();
+		LinkedList<Long> toVector = Setting.getInstance()
+				.getProfileMemoryToAddress();
 		Iterator<Long> fromIterator = fromVector.iterator();
 		Iterator<Long> toIterator = toVector.iterator();
 		while (fromIterator.hasNext()) {
-			((ProfilingTableModel) this.jProfilingTable.getModel()).addZone(fromIterator.next(), toIterator.next());
+			((ProfilingTableModel) this.jProfilingTable.getModel()).addZone(
+					fromIterator.next(), toIterator.next());
 		}
 	}
 
@@ -1300,7 +1646,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 
 	private JComboBox getJNoOfLineComboBox() {
 		if (jNoOfLineComboBox == null) {
-			ComboBoxModel jNoOfLineComboBoxModel = new DefaultComboBoxModel(new String[] { "20", "50", "100", "200" });
+			ComboBoxModel jNoOfLineComboBoxModel = new DefaultComboBoxModel(
+					new String[] { "20", "50", "100", "200" });
 			jNoOfLineComboBox = new JComboBox();
 			jNoOfLineComboBox.setModel(jNoOfLineComboBoxModel);
 			jNoOfLineComboBox.setEditable(true);
@@ -1323,7 +1670,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 	}
 
 	private void jNoOfLineComboBoxActionPerformed(ActionEvent evt) {
-		jmpTableModel.setRowCount(Integer.parseInt(jNoOfLineComboBox.getSelectedItem().toString()));
+		jmpTableModel.setRowCount(Integer.parseInt(jNoOfLineComboBox
+				.getSelectedItem().toString()));
 	}
 
 	private JCheckBox getJGroupCheckBox() {
@@ -1406,8 +1754,10 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 
 	public void updateCallGraph() {
 		graph = new mxGraph() {
-			public void drawState(mxICanvas canvas, mxCellState state, String label) {
-				if (getModel().isVertex(state.getCell()) && canvas instanceof PeterSwingCanvas) {
+			public void drawState(mxICanvas canvas, mxCellState state,
+					String label) {
+				if (getModel().isVertex(state.getCell())
+						&& canvas instanceof PeterSwingCanvas) {
 					PeterSwingCanvas c = (PeterSwingCanvas) canvas;
 					c.drawVertex(state, label);
 				} else {
@@ -1429,7 +1779,10 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			// source and target of an edge
 			public String getToolTipForCell(Object cell) {
 				if (model.isEdge(cell)) {
-					return convertValueToString(model.getTerminal(cell, true)) + " -> " + convertValueToString(model.getTerminal(cell, false));
+					return convertValueToString(model.getTerminal(cell, true))
+							+ " -> "
+							+ convertValueToString(model.getTerminal(cell,
+									false));
 				}
 
 				return super.getToolTipForCell(cell);
@@ -1489,7 +1842,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 	private void setMarkerMaxAndMinSize() {
 		long smallestSegmentStart = Long.MAX_VALUE;
 		long largestSegmentEnd = Long.MIN_VALUE;
-		for (int x = JmpSocketServer.jmpDataVector.size() - 1, counter = 0; x >= 0 && counter <= MAX_NUMBER_OF_VERTEX; x--, counter++) {
+		for (int x = JmpSocketServer.jmpDataVector.size() - 1, counter = 0; x >= 0
+				&& counter <= MAX_NUMBER_OF_VERTEX; x--, counter++) {
 			JmpData jumpData = JmpSocketServer.jmpDataVector.get(x);
 			if (jumpData.segmentStart < smallestSegmentStart) {
 				smallestSegmentStart = jumpData.segmentStart;
@@ -1518,15 +1872,21 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 		try {
 			mxCell lastPort = null;
 			jStatusProgressBar.setMaximum(MAX_NUMBER_OF_VERTEX);
-			for (int x = JmpSocketServer.jmpDataVector.size() - 1, counter = 0; x >= 0 && counter <= MAX_NUMBER_OF_VERTEX; x--, counter++) {
-				jStatusLabel.setText("Updating call graph " + x + "/" + JmpSocketServer.jmpDataVector.size());
+			for (int x = JmpSocketServer.jmpDataVector.size() - 1, counter = 0; x >= 0
+					&& counter <= MAX_NUMBER_OF_VERTEX; x--, counter++) {
+				jStatusLabel.setText("Updating call graph " + x + "/"
+						+ JmpSocketServer.jmpDataVector.size());
 				jStatusProgressBar.setValue(counter);
 				JmpData jumpData = JmpSocketServer.jmpDataVector.get(x);
 				callGraphRawTableModel.add(jumpData);
 				int positionX = (int) ((jumpData.segmentStart - graphComponent.markerOffset) / graphComponent.addressPerPixel);
 				positionX += minX;
-				mxCell node = (mxCell) graph.insertVertex(parent, null, "0x" + Long.toHexString(jumpData.segmentStart) + " -> " + "0x" + Long.toHexString(jumpData.segmentEnd),
-						positionX, minY + (counter * 30), (jumpData.segmentEnd - jumpData.segmentStart) / graphComponent.addressPerPixel, cellHeight);
+				mxCell node = (mxCell) graph.insertVertex(parent, null, "0x"
+						+ Long.toHexString(jumpData.segmentStart) + " -> "
+						+ "0x" + Long.toHexString(jumpData.segmentEnd),
+						positionX, minY + (counter * 30),
+						(jumpData.segmentEnd - jumpData.segmentStart)
+								/ graphComponent.addressPerPixel, cellHeight);
 
 				mxCell ports[] = addPort(node);
 
@@ -1535,7 +1895,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 					// "edgeStyle=elbowEdgeStyle;elbow=horizontal;"
 					// +
 					// "exitX=1;exitY=0.5;exitPerimeter=1;entryX=0;entryY=0;entryPerimeter=1;");
-					graph.insertEdge(parent, null, "", lastPort, ports[0], "edgeStyle=entityRelationEdgeStyle;");
+					graph.insertEdge(parent, null, "", lastPort, ports[0],
+							"edgeStyle=entityRelationEdgeStyle;");
 				}
 				lastPort = ports[1];
 			}
@@ -1553,7 +1914,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 		geo1.setOffset(new mxPoint(-PORT_RADIUS, -PORT_RADIUS));
 		geo1.setRelative(true);
 
-		mxCell port1 = new mxCell(null, geo1, "shape=ellipse;perimter=ellipsePerimeter");
+		mxCell port1 = new mxCell(null, geo1,
+				"shape=ellipse;perimter=ellipsePerimeter");
 		port1.setVertex(true);
 		graph.addCell(port1, node);
 
@@ -1561,7 +1923,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 		geo2.setOffset(new mxPoint(-PORT_RADIUS, -PORT_RADIUS));
 		geo2.setRelative(true);
 
-		mxCell port2 = new mxCell(null, geo2, "shape=ellipse;perimter=ellipsePerimeter");
+		mxCell port2 = new mxCell(null, geo2,
+				"shape=ellipse;perimter=ellipsePerimeter");
 		port2.setVertex(true);
 		graph.addCell(port2, node);
 		return new mxCell[] { port1, port2 };
@@ -1655,7 +2018,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 		mxCompactTreeLayout layout = new mxCompactTreeLayout(graph);
 		if (layout != null) {
 			Object cell = graphComponent.getGraph().getSelectionCell();
-			if (cell == null || graphComponent.getGraph().getModel().getChildCount(cell) == 0) {
+			if (cell == null
+					|| graphComponent.getGraph().getModel().getChildCount(cell) == 0) {
 				cell = graphComponent.getGraph().getDefaultParent();
 			}
 			layout.execute(cell);
@@ -1666,7 +2030,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 		mxCircleLayout layout = new mxCircleLayout(graph);
 		if (layout != null) {
 			Object cell = graphComponent.getGraph().getSelectionCell();
-			if (cell == null || graphComponent.getGraph().getModel().getChildCount(cell) == 0) {
+			if (cell == null
+					|| graphComponent.getGraph().getModel().getChildCount(cell) == 0) {
 				cell = graphComponent.getGraph().getDefaultParent();
 			}
 			layout.execute(cell);
@@ -1677,7 +2042,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 		mxOrganicLayout layout = new mxOrganicLayout(graph);
 		if (layout != null) {
 			Object cell = graphComponent.getGraph().getSelectionCell();
-			if (cell == null || graphComponent.getGraph().getModel().getChildCount(cell) == 0) {
+			if (cell == null
+					|| graphComponent.getGraph().getModel().getChildCount(cell) == 0) {
 				cell = graphComponent.getGraph().getDefaultParent();
 			}
 			layout.execute(cell);
@@ -1688,7 +2054,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 		mxHierarchicalLayout layout = new mxHierarchicalLayout(graph);
 		if (layout != null) {
 			Object cell = graphComponent.getGraph().getSelectionCell();
-			if (cell == null || graphComponent.getGraph().getModel().getChildCount(cell) == 0) {
+			if (cell == null
+					|| graphComponent.getGraph().getModel().getChildCount(cell) == 0) {
 				cell = graphComponent.getGraph().getDefaultParent();
 			}
 			layout.execute(cell);
@@ -1699,9 +2066,11 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 		if (jTabbedPane3 == null) {
 			jTabbedPane3 = new JTabbedPane();
 			jTabbedPane3.setPreferredSize(new java.awt.Dimension(730, 443));
-			jTabbedPane3.addTab("Config", null, getJCallGraphConfigPanel(), null);
+			jTabbedPane3.addTab("Config", null, getJCallGraphConfigPanel(),
+					null);
 			jTabbedPane3.addTab("Call graph", null, getJCallGraphPanel(), null);
-			jTabbedPane3.addTab("Raw data", null, getJCallGraphTablePanel(), null);
+			jTabbedPane3.addTab("Raw data", null, getJCallGraphTablePanel(),
+					null);
 		}
 		return jTabbedPane3;
 	}
@@ -1748,8 +2117,10 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			jCallGraphDetailPanel = new JPanel();
 			BorderLayout jCallGraphDetailPanelLayout = new BorderLayout();
 			jCallGraphDetailPanel.setLayout(jCallGraphDetailPanelLayout);
-			jCallGraphDetailPanel.setPreferredSize(new java.awt.Dimension(760, 184));
-			jCallGraphDetailPanel.add(getJCallGraphPreviewPanel(), BorderLayout.WEST);
+			jCallGraphDetailPanel.setPreferredSize(new java.awt.Dimension(760,
+					184));
+			jCallGraphDetailPanel.add(getJCallGraphPreviewPanel(),
+					BorderLayout.WEST);
 			jCallGraphDetailPanel.add(getJTabbedPane4(), BorderLayout.CENTER);
 		}
 		return jCallGraphDetailPanel;
@@ -1761,7 +2132,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			jCallGraphSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 			jCallGraphSplitPane.setDividerLocation(300);
 			jCallGraphSplitPane.add(getJPanel3(), JSplitPane.TOP);
-			jCallGraphSplitPane.add(getJCallGraphDetailPanel(), JSplitPane.BOTTOM);
+			jCallGraphSplitPane.add(getJCallGraphDetailPanel(),
+					JSplitPane.BOTTOM);
 		}
 		return jCallGraphSplitPane;
 	}
@@ -1816,53 +2188,129 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			jPanel4 = new JPanel();
 			GroupLayout jPanel4Layout = new GroupLayout((JComponent) jPanel4);
 			jPanel4.setLayout(jPanel4Layout);
-			jPanel4Layout.setHorizontalGroup(jPanel4Layout
-					.createSequentialGroup()
-					.addContainerGap()
-					.addGroup(
-							jPanel4Layout.createParallelGroup()
-									.addComponent(getJSegmentStartLabel(), GroupLayout.Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 149, GroupLayout.PREFERRED_SIZE)
-									.addComponent(getJSegmentEndLabel(), GroupLayout.Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 149, GroupLayout.PREFERRED_SIZE)
-									.addComponent(getJSegmentFromLabel(), GroupLayout.Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 149, GroupLayout.PREFERRED_SIZE)
-									.addComponent(getJSegmentToLabel(), GroupLayout.Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 149, GroupLayout.PREFERRED_SIZE))
-					.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-					.addGroup(
-							jPanel4Layout
-									.createParallelGroup()
-									.addGroup(
-											jPanel4Layout.createSequentialGroup().addComponent(getJSegmentStartTextField(), GroupLayout.PREFERRED_SIZE, 158,
+			jPanel4Layout
+					.setHorizontalGroup(jPanel4Layout
+							.createSequentialGroup()
+							.addContainerGap()
+							.addGroup(
+									jPanel4Layout
+											.createParallelGroup()
+											.addComponent(
+													getJSegmentStartLabel(),
+													GroupLayout.Alignment.LEADING,
+													GroupLayout.PREFERRED_SIZE,
+													149,
+													GroupLayout.PREFERRED_SIZE)
+											.addComponent(
+													getJSegmentEndLabel(),
+													GroupLayout.Alignment.LEADING,
+													GroupLayout.PREFERRED_SIZE,
+													149,
+													GroupLayout.PREFERRED_SIZE)
+											.addComponent(
+													getJSegmentFromLabel(),
+													GroupLayout.Alignment.LEADING,
+													GroupLayout.PREFERRED_SIZE,
+													149,
+													GroupLayout.PREFERRED_SIZE)
+											.addComponent(
+													getJSegmentToLabel(),
+													GroupLayout.Alignment.LEADING,
+													GroupLayout.PREFERRED_SIZE,
+													149,
 													GroupLayout.PREFERRED_SIZE))
-									.addGroup(
-											jPanel4Layout.createSequentialGroup().addComponent(getJSegmentEndTextField(), GroupLayout.PREFERRED_SIZE, 158,
-													GroupLayout.PREFERRED_SIZE))
-									.addGroup(
-											jPanel4Layout.createSequentialGroup().addComponent(getJSegmentFromTextField(), GroupLayout.PREFERRED_SIZE, 158,
-													GroupLayout.PREFERRED_SIZE))
-									.addGroup(
-											jPanel4Layout.createSequentialGroup().addComponent(getJSegmentToTextField(), GroupLayout.PREFERRED_SIZE, 158,
-													GroupLayout.PREFERRED_SIZE))).addContainerGap(324, Short.MAX_VALUE));
+							.addPreferredGap(
+									LayoutStyle.ComponentPlacement.RELATED)
+							.addGroup(
+									jPanel4Layout
+											.createParallelGroup()
+											.addGroup(
+													jPanel4Layout
+															.createSequentialGroup()
+															.addComponent(
+																	getJSegmentStartTextField(),
+																	GroupLayout.PREFERRED_SIZE,
+																	158,
+																	GroupLayout.PREFERRED_SIZE))
+											.addGroup(
+													jPanel4Layout
+															.createSequentialGroup()
+															.addComponent(
+																	getJSegmentEndTextField(),
+																	GroupLayout.PREFERRED_SIZE,
+																	158,
+																	GroupLayout.PREFERRED_SIZE))
+											.addGroup(
+													jPanel4Layout
+															.createSequentialGroup()
+															.addComponent(
+																	getJSegmentFromTextField(),
+																	GroupLayout.PREFERRED_SIZE,
+																	158,
+																	GroupLayout.PREFERRED_SIZE))
+											.addGroup(
+													jPanel4Layout
+															.createSequentialGroup()
+															.addComponent(
+																	getJSegmentToTextField(),
+																	GroupLayout.PREFERRED_SIZE,
+																	158,
+																	GroupLayout.PREFERRED_SIZE)))
+							.addContainerGap(324, Short.MAX_VALUE));
 			jPanel4Layout.setVerticalGroup(jPanel4Layout
 					.createSequentialGroup()
 					.addContainerGap()
 					.addGroup(
-							jPanel4Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-									.addComponent(getJSegmentStartTextField(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
-									.addComponent(getJSegmentStartLabel(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE))
+							jPanel4Layout
+									.createParallelGroup(
+											GroupLayout.Alignment.BASELINE)
+									.addComponent(getJSegmentStartTextField(),
+											GroupLayout.Alignment.BASELINE,
+											GroupLayout.PREFERRED_SIZE, 26,
+											GroupLayout.PREFERRED_SIZE)
+									.addComponent(getJSegmentStartLabel(),
+											GroupLayout.Alignment.BASELINE,
+											GroupLayout.PREFERRED_SIZE, 21,
+											GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
 					.addGroup(
-							jPanel4Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-									.addComponent(getJSegmentEndTextField(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
-									.addComponent(getJSegmentEndLabel(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE))
+							jPanel4Layout
+									.createParallelGroup(
+											GroupLayout.Alignment.BASELINE)
+									.addComponent(getJSegmentEndTextField(),
+											GroupLayout.Alignment.BASELINE,
+											GroupLayout.PREFERRED_SIZE, 26,
+											GroupLayout.PREFERRED_SIZE)
+									.addComponent(getJSegmentEndLabel(),
+											GroupLayout.Alignment.BASELINE,
+											GroupLayout.PREFERRED_SIZE, 21,
+											GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
 					.addGroup(
-							jPanel4Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-									.addComponent(getJSegmentFromTextField(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 27, GroupLayout.PREFERRED_SIZE)
-									.addComponent(getJSegmentFromLabel(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 22, GroupLayout.PREFERRED_SIZE))
+							jPanel4Layout
+									.createParallelGroup(
+											GroupLayout.Alignment.BASELINE)
+									.addComponent(getJSegmentFromTextField(),
+											GroupLayout.Alignment.BASELINE,
+											GroupLayout.PREFERRED_SIZE, 27,
+											GroupLayout.PREFERRED_SIZE)
+									.addComponent(getJSegmentFromLabel(),
+											GroupLayout.Alignment.BASELINE,
+											GroupLayout.PREFERRED_SIZE, 22,
+											GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
 					.addGroup(
-							jPanel4Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-									.addComponent(getJSegmentToTextField(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 27, GroupLayout.PREFERRED_SIZE)
-									.addComponent(getJSegmentToLabel(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 22, GroupLayout.PREFERRED_SIZE))
+							jPanel4Layout
+									.createParallelGroup(
+											GroupLayout.Alignment.BASELINE)
+									.addComponent(getJSegmentToTextField(),
+											GroupLayout.Alignment.BASELINE,
+											GroupLayout.PREFERRED_SIZE, 27,
+											GroupLayout.PREFERRED_SIZE)
+									.addComponent(getJSegmentToLabel(),
+											GroupLayout.Alignment.BASELINE,
+											GroupLayout.PREFERRED_SIZE, 22,
+											GroupLayout.PREFERRED_SIZE))
 					.addContainerGap(21, 21));
 		}
 		return jPanel4;
@@ -1910,27 +2358,33 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 		}
 	}
 
-	protected void saveXmlPng(mxGraphComponent graphComponent, File file, Color bg) throws IOException {
+	protected void saveXmlPng(mxGraphComponent graphComponent, File file,
+			Color bg) throws IOException {
 		mxGraph graph = graphComponent.getGraph();
 
 		// Creates the image for the PNG file
-		BufferedImage image = mxCellRenderer.createBufferedImage(graph, null, 1, bg, graphComponent.isAntiAlias(), null, graphComponent.getCanvas());
+		BufferedImage image = mxCellRenderer.createBufferedImage(graph, null,
+				1, bg, graphComponent.isAntiAlias(), null,
+				graphComponent.getCanvas());
 
 		// Creates the URL-encoded XML data
 		mxCodec codec = new mxCodec();
-		String xml = URLEncoder.encode(mxUtils.getXml(codec.encode(graph.getModel())), "UTF-8");
+		String xml = URLEncoder.encode(
+				mxUtils.getXml(codec.encode(graph.getModel())), "UTF-8");
 		mxPngEncodeParam param = mxPngEncodeParam.getDefaultEncodeParam(image);
 		param.setCompressedText(new String[] { "mxGraphModel", xml });
 
 		// Saves as a PNG file
 		FileOutputStream outputStream = new FileOutputStream(file);
 		try {
-			mxPngImageEncoder encoder = new mxPngImageEncoder(outputStream, param);
+			mxPngImageEncoder encoder = new mxPngImageEncoder(outputStream,
+					param);
 
 			if (image != null) {
 				encoder.encode(image);
 			} else {
-				JOptionPane.showMessageDialog(graphComponent, mxResources.get("noImageData"));
+				JOptionPane.showMessageDialog(graphComponent,
+						mxResources.get("noImageData"));
 			}
 		} finally {
 			outputStream.close();
@@ -1967,8 +2421,10 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			jCallGraphConfigTable.setModel(callGraphConfigTableModel);
 			jCallGraphConfigTable.getTableHeader().setReorderingAllowed(false);
 			jCallGraphConfigTable.getTableHeader().setReorderingAllowed(false);
-			jCallGraphConfigTable.setDefaultRenderer(Boolean.class, new CallGraphConfigTableCellRenderer());
-			jCallGraphConfigTable.setDefaultEditor(Boolean.class, new CallGraphConfigTableCellEditor());
+			jCallGraphConfigTable.setDefaultRenderer(Boolean.class,
+					new CallGraphConfigTableCellRenderer());
+			jCallGraphConfigTable.setDefaultEditor(Boolean.class,
+					new CallGraphConfigTableCellEditor());
 		}
 		return jCallGraphConfigTable;
 	}
@@ -2029,8 +2485,10 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 
 	private JComboBox getJTrackUnitComboBox() {
 		if (jTrackUnitComboBox == null) {
-			ComboBoxModel jTrackUnitComboBoxModel = new DefaultComboBoxModel(new String[] { "1", "2", "4", "8", "0x10", "0x20", "0x40", "0x80", "0x100", "0x200", "0x400", "0x800",
-					"0x1000", "0x2000", "0x4000", "0x8000" });
+			ComboBoxModel jTrackUnitComboBoxModel = new DefaultComboBoxModel(
+					new String[] { "1", "2", "4", "8", "0x10", "0x20", "0x40",
+							"0x80", "0x100", "0x200", "0x400", "0x800",
+							"0x1000", "0x2000", "0x4000", "0x8000" });
 			jTrackUnitComboBox = new JComboBox();
 			jTrackUnitComboBox.setModel(jTrackUnitComboBoxModel);
 			jTrackUnitComboBox.setMaximumSize(new java.awt.Dimension(100, 25));
@@ -2046,11 +2504,15 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 
 	private JComboBox getJTrackDistanceComboBox() {
 		if (jTrackDistanceComboBox == null) {
-			ComboBoxModel jTrackDistanceComboBoxModel = new DefaultComboBoxModel(new String[] { "10", "20", "40", "80", "100", "200", "400", "800" });
+			ComboBoxModel jTrackDistanceComboBoxModel = new DefaultComboBoxModel(
+					new String[] { "10", "20", "40", "80", "100", "200", "400",
+							"800" });
 			jTrackDistanceComboBox = new JComboBox();
 			jTrackDistanceComboBox.setModel(jTrackDistanceComboBoxModel);
-			jTrackDistanceComboBox.setPreferredSize(new java.awt.Dimension(30, 22));
-			jTrackDistanceComboBox.setMaximumSize(new java.awt.Dimension(100, 25));
+			jTrackDistanceComboBox.setPreferredSize(new java.awt.Dimension(30,
+					22));
+			jTrackDistanceComboBox.setMaximumSize(new java.awt.Dimension(100,
+					25));
 			jTrackDistanceComboBox.setEditable(true);
 			jTrackDistanceComboBox.setSelectedItem(100);
 			jTrackDistanceComboBox.addActionListener(new ActionListener() {
@@ -2063,27 +2525,31 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 	}
 
 	private void jCallGraphZoomInButtonActionPerformed(ActionEvent evt) {
-		int scale = Integer.parseInt(jCallGraphScaleTextField.getText().replaceAll("%", ""));
+		int scale = Integer.parseInt(jCallGraphScaleTextField.getText()
+				.replaceAll("%", ""));
 		scale += 20;
 		graphComponent.zoomTo((double) scale / 100, true);
 		jCallGraphScaleTextField.setText(scale + "%");
 	}
 
 	private void jCallGraphZoomOutButtonActionPerformed(ActionEvent evt) {
-		int scale = Integer.parseInt(jCallGraphScaleTextField.getText().replaceAll("%", ""));
+		int scale = Integer.parseInt(jCallGraphScaleTextField.getText()
+				.replaceAll("%", ""));
 		scale -= 20;
 		graphComponent.zoomTo((double) scale / 100, true);
 		jCallGraphScaleTextField.setText(scale + "%");
 	}
 
 	private void jTrackUnitComboBoxActionPerformed(ActionEvent evt) {
-		graphComponent.addressPerPixel = CommonLib.string2decimal(jTrackUnitComboBox.getSelectedItem().toString());
+		graphComponent.addressPerPixel = CommonLib
+				.string2decimal(jTrackUnitComboBox.getSelectedItem().toString());
 		addCells(graph.getDefaultParent());
 		graphComponent.repaint();
 	}
 
 	private void jTrackDistanceComboBoxActionPerformed(ActionEvent evt) {
-		graphComponent.pixelPerMarker = CommonLib.string2decimal(jTrackDistanceComboBox.getSelectedItem().toString()).intValue();
+		graphComponent.pixelPerMarker = CommonLib.string2decimal(
+				jTrackDistanceComboBox.getSelectedItem().toString()).intValue();
 		addCells(graph.getDefaultParent());
 		graphComponent.repaint();
 	}
@@ -2092,7 +2558,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 		if (jCallGraphScaleTextField == null) {
 			jCallGraphScaleTextField = new JTextField();
 			jCallGraphScaleTextField.setText("100%");
-			jCallGraphScaleTextField.setMaximumSize(new java.awt.Dimension(50, 25));
+			jCallGraphScaleTextField.setMaximumSize(new java.awt.Dimension(50,
+					25));
 			jCallGraphScaleTextField.addFocusListener(new FocusAdapter() {
 				public void focusLost(FocusEvent evt) {
 					jCallGraphScaleTextFieldFocusLost(evt);
@@ -2114,7 +2581,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 	}
 
 	private void jCallGraphScaleTextFieldFocusLost(FocusEvent evt) {
-		int scale = Integer.parseInt(jCallGraphScaleTextField.getText().replaceAll("%", ""));
+		int scale = Integer.parseInt(jCallGraphScaleTextField.getText()
+				.replaceAll("%", ""));
 		graphComponent.zoomTo((double) scale / 100, true);
 	}
 
