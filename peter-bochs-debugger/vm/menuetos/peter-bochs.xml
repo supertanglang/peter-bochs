@@ -1,30 +1,44 @@
 <?xml version='1.0' ?>  <Setting>
-    <bochsCommandHistory/>
-    <breakpoint/>
+    <bochsCommandHistory>
+      <bochsCommandHistory>r</bochsCommandHistory>
+    </bochsCommandHistory>
+    <breakpoint>
+      <breakpoint>
+        <address> 0x00007c00</address>
+        <enable>keep y</enable>
+        <hit>0</hit>
+        <no>0</no>
+        <type>1 pbreakpoint</type>
+      </breakpoint>
+    </breakpoint>
     <currentLanguage>en_US</currentLanguage>
-    <customZone>false</customZone>
-    <divX>499</divX>
-    <divY>200</divY>
+    <customZone>true</customZone>
+    <divX>493</divX>
+    <divY>221</divY>
     <fontFamily>Dialog</fontFamily>
     <fontsize>12</fontsize>
     <gdt/>
-    <height>701</height>
-    <hitZone>false</hitZone>
+    <height>572</height>
+    <hitZone>true</hitZone>
     <idt/>
-    <jmpProfiling>false</jmpProfiling>
+    <jmpProfiling>true</jmpProfiling>
     <lastElfHistoryOpenDir>C:\peter2\projects\peter-bochs-debugger\vm\menuetos\.</lastElfHistoryOpenDir>
     <lastElfHistoryOpenDir2>C:\peter2\projects\peter-bochs-debugger\vm\menuetos\.</lastElfHistoryOpenDir2>
     <ldt/>
     <loadBreakpointAtStartup>false</loadBreakpointAtStartup>
     <memoryCombo/>
     <memoryEnd/>
-    <memoryProfiling>false</memoryProfiling>
+    <memoryProfiling>true</memoryProfiling>
     <memoryStart/>
     <osDebugSplitPane_DividerLocation>150</osDebugSplitPane_DividerLocation>
     <physicalAddress/>
-    <profileMemoryFromAddress/>
-    <profileMemoryToAddress/>
-    <profilingUpdateGraph>false</profilingUpdateGraph>
+    <profileMemoryFromAddress>
+      <profileMemoryFromAddress>31744</profileMemoryFromAddress>
+    </profileMemoryFromAddress>
+    <profileMemoryToAddress>
+      <profileMemoryToAddress>36864</profileMemoryToAddress>
+    </profileMemoryToAddress>
+    <profilingUpdateGraph>true</profilingUpdateGraph>
     <register/>
     <tss/>
     <updateAfterBochsCommand>false</updateAfterBochsCommand>
@@ -46,7 +60,7 @@
     <updateFastStepCommand_ldt>false</updateFastStepCommand_ldt>
     <updateFastStepCommand_memory>true</updateFastStepCommand_memory>
     <updateFastStepCommand_register>true</updateFastStepCommand_register>
-    <width>1135</width>
-    <x>228</x>
-    <y>108</y>
+    <width>1063</width>
+    <x>146</x>
+    <y>49</y>
   </Setting>

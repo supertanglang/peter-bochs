@@ -111,6 +111,7 @@ import peter.osdebuginformation.OSDebugInfoHelper;
 
 import com.petersoft.advancedswing.diskpanel.DiskPanel;
 import com.petersoft.advancedswing.enhancedtextarea.EnhancedTextArea;
+import com.petersoft.advancedswing.jdropdownbutton.JDropDownButton;
 import com.petersoft.advancedswing.jmaximizabletabbedpane.JMaximizableTabbedPane;
 import com.petersoft.advancedswing.jmaximizabletabbedpane.JMaximizableTabbedPane_BasePanel;
 
@@ -200,7 +201,7 @@ public class Application extends javax.swing.JFrame {
 	private JComboBox jInstructionComboBox;
 	private JPanel jInstructionControlPanel;
 	private JPanel jPanel10;
-	private JButton jLoadBreakpointButton;
+	private JDropDownButton jLoadBreakpointButton;
 	private int commandHistoryIndex;
 	private JScrollPane jScrollPane10;
 	private ButtonGroup buttonGroup1;
@@ -216,6 +217,7 @@ public class Application extends javax.swing.JFrame {
 	private JPanel jPanel22;
 	private JPanel jPanel24;
 	private JToolBar jPanel26;
+	private JComboBox jBreakpointPageComboBox;
 	private JMenuItem jHelpRequestMenuItem;
 	private EnhancedTextArea osLogPanel1;
 	private JToggleButton jOSLogToggleButton;
@@ -398,6 +400,22 @@ public class Application extends javax.swing.JFrame {
 	private String currentPanel = "jMaximizableTabbedPane_BasePanel1";
 
 	private ButtonGroup buttonGroup2 = new ButtonGroup();
+	private JMenuItem loadSystemsMapMenuItem = new JMenuItem("Load systems.map");
+
+	private static void writeToFile(InputStream is, File file) {
+		BufferedOutputStream fOut = null;
+		try {
+			fOut = new BufferedOutputStream(new FileOutputStream(file));
+			byte[] buffer = new byte[32 * 1024];
+			int bytesRead = 0;
+			while ((bytesRead = is.read(buffer)) != -1) {
+				fOut.write(buffer, 0, bytesRead);
+			}
+			fOut.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
 
 	/**
 	 * Auto-generated main method to display this JFrame
@@ -411,45 +429,52 @@ public class Application extends javax.swing.JFrame {
 		try {
 			if (Application.class.getProtectionDomain().getCodeSource().getLocation().getFile().endsWith(".jar")) {
 				JarFile jarFile = new JarFile(Application.class.getProtectionDomain().getCodeSource().getLocation().getFile());
-				InputStream is = jarFile.getInputStream(new JarEntry("exe/PauseBochs.exe"));
-				InputStream is2 = jarFile.getInputStream(new JarEntry("exe/StopBochs.exe"));
-				InputStream is3 = jarFile.getInputStream(new JarEntry("exe/ndisasm.exe"));
+				if (System.getProperty("os.name").toLowerCase().startsWith("linux")) {
+					/*
+					 * writeToFile(jarFile.getInputStream(new
+					 * JarEntry("jogl_dll/linux_i586/libgluegen-rt.so")), new
+					 * File("libgluegen-rt.so"));
+					 * writeToFile(jarFile.getInputStream(new
+					 * JarEntry("jogl_dll/linux_i586/libjogl_awt.so")), new
+					 * File("libjogl_awt.so"));
+					 * writeToFile(jarFile.getInputStream(new
+					 * JarEntry("jogl_dll/linux_i586/libjogl_cg.so")), new
+					 * File("libjogl_cg.so"));
+					 * writeToFile(jarFile.getInputStream(new
+					 * JarEntry("jogl_dll/linux_i586/libjogl.so")), new
+					 * File("libjogl.so")); try { File f = new File(".");
+					 * System.load(f.getAbsolutePath() + File.separator +
+					 * "libjogl.so"); System.load(f.getAbsolutePath() +
+					 * File.separator + "libjogl_awt.so"); //
+					 * System.load(f.getAbsolutePath() + File.separator + //
+					 * "libjogl_cg.so"); System.load(f.getAbsolutePath() +
+					 * File.separator + "libgluegen-rt.so"); } catch
+					 * (UnsatisfiedLinkError e) { e.printStackTrace();
+					 * System.err
+					 * .println("Native code library failed to load.\n" + e); }
+					 */
+				} else if (System.getProperty("os.name").toLowerCase().startsWith("windows")) {
+					writeToFile(jarFile.getInputStream(new JarEntry("exe/PauseBochs.exe")), new File("PauseBochs.exe"));
+					writeToFile(jarFile.getInputStream(new JarEntry("exe/StopBochs.exe")), new File("StopBochs.exe"));
+					writeToFile(jarFile.getInputStream(new JarEntry("exe/ndisasm.exe")), new File("ndisasm.exe"));
 
-				BufferedOutputStream fOut = null;
-				try {
-					fOut = new BufferedOutputStream(new FileOutputStream(new File("PauseBochs.exe")));
-					byte[] buffer = new byte[32 * 1024];
-					int bytesRead = 0;
-					while ((bytesRead = is.read(buffer)) != -1) {
-						fOut.write(buffer, 0, bytesRead);
-					}
-					fOut.close();
+					writeToFile(jarFile.getInputStream(new JarEntry("jogl_dll/windows_i586/jogl.dll")), new File("jogl.dll"));
+					writeToFile(jarFile.getInputStream(new JarEntry("jogl_dll/windows_i586/jogl_awt.dll")), new File("jogl_awt.dll"));
+					writeToFile(jarFile.getInputStream(new JarEntry("jogl_dll/windows_i586/jogl_cg.dll")), new File("jogl_cg.dll"));
+					writeToFile(jarFile.getInputStream(new JarEntry("jogl_dll/windows_i586/gluegen-rt.dll")), new File("gluegen-rt.dll"));
 
-					fOut = new BufferedOutputStream(new FileOutputStream(new File("StopBochs.exe")));
-					buffer = new byte[32 * 1024];
-					bytesRead = 0;
-					while ((bytesRead = is2.read(buffer)) != -1) {
-						fOut.write(buffer, 0, bytesRead);
+					try {
+						System.load("jogl.dll");
+						System.load("jogl_awt.dll");
+						System.load("jogl_cg.dll");
+						System.load("gluegen-rt.dll");
+					} catch (UnsatisfiedLinkError e) {
+						e.printStackTrace();
+						System.err.println("Native code library failed to load.\n" + e);
 					}
-					fOut.close();
-
-					fOut = new BufferedOutputStream(new FileOutputStream(new File("ndisasm.exe")));
-					buffer = new byte[32 * 1024];
-					bytesRead = 0;
-					while ((bytesRead = is3.read(buffer)) != -1) {
-						fOut.write(buffer, 0, bytesRead);
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				} finally {
-					is.close();
-					is2.close();
-					is3.close();
-					fOut.close();
 				}
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -469,7 +494,7 @@ public class Application extends javax.swing.JFrame {
 		}
 
 		for (String str : args) {
-			if (str.contains("bochsrc")) {
+			if (str.contains("bochsrc") || str.contains(".bxrc")) {
 				bochsrc = str;
 			}
 		}
@@ -988,10 +1013,7 @@ public class Application extends javax.swing.JFrame {
 
 			jOSDebugInformationPanel1.getjMainSplitPane().setDividerLocation(Setting.getInstance().getOsDebugSplitPane_DividerLocation());
 			// pack();
-
-			initChineseFont();
 			initGlobalFontSetting(new Font(Setting.getInstance().getFontFamily(), Font.PLAIN, Setting.getInstance().getFontsize()));
-
 			jInstrumentPanel.setThing(jStatusProgressBar, jStatusLabel);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2425,9 +2447,11 @@ public class Application extends javax.swing.JFrame {
 		try {
 			// commandReceiver.setCommandNoOfLine(-1);
 			commandReceiver.clearBuffer();
+			System.out.println("s1");
 			sendCommand("info break");
 			Thread.currentThread().sleep(100);
 			String result = commandReceiver.getCommandResultUntilEnd();
+			System.out.println("s2");
 			String[] lines = result.split("\n");
 			DefaultTableModel model = (DefaultTableModel) jBreakpointTable.getModel();
 			while (model.getRowCount() > 0) {
@@ -2435,6 +2459,7 @@ public class Application extends javax.swing.JFrame {
 			}
 
 			for (int x = 1; x < lines.length; x++) {
+				System.out.println("x=" + x);
 				if (lines[x].contains("breakpoint")) {
 					Vector<String> strs = new Vector<String>(Arrays.asList(lines[x].trim().split(" \\s")));
 					strs.add("0"); // hit count
@@ -2496,36 +2521,57 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jLoadBreakpointButtonActionPerformed(ActionEvent evt) {
-		jLoadBreakpointButton.setEnabled(false);
-		LinkedList<Breakpoint> vector = Setting.getInstance().getBreakpoint();
-		try {
-			for (int x = 0; x < vector.size(); x++) {
-				boolean match = false;
-				for (int y = 0; y < this.jBreakpointTable.getRowCount(); y++) {
-					if (vector.get(x).getAddress().trim().equals(jBreakpointTable.getValueAt(y, 2).toString().trim())) {
-						match = true;
-						break;
+		if (jLoadBreakpointButton.getEventSource() == jLoadBreakpointButton) {
+			jLoadBreakpointButton.setEnabled(false);
+			LinkedList<Breakpoint> vector = Setting.getInstance().getBreakpoint();
+			try {
+				for (int x = 0; x < vector.size(); x++) {
+					boolean match = false;
+					for (int y = 0; y < this.jBreakpointTable.getRowCount(); y++) {
+						if (vector.get(x).getAddress().trim().equals(jBreakpointTable.getValueAt(y, 2).toString().trim())) {
+							match = true;
+							break;
+						}
+					}
+					if (!match) {
+						if (vector.get(x).getType().contains("pbreakpoint")) {
+							sendCommand("pb " + vector.get(x).getAddress());
+						} else {
+							sendCommand("lb " + vector.get(x).getAddress());
+						}
+						if (vector.get(x).getEnable().trim().equals("keep n")) {
+							sendCommand("bpd " + (x + 1));
+						}
 					}
 				}
-				if (!match) {
-					if (vector.get(x).getType().contains("pbreakpoint")) {
-						sendCommand("pb " + vector.get(x).getAddress());
-					} else {
-						sendCommand("lb " + vector.get(x).getAddress());
-					}
-					if (vector.get(x).getEnable().trim().equals("keep n")) {
-						sendCommand("bpd " + (x + 1));
-					}
+			} catch (Exception e) {
+				if (Global.debug) {
+					e.printStackTrace();
 				}
 			}
-		} catch (Exception e) {
-			if (Global.debug) {
-				e.printStackTrace();
+			updateBreakpoint();
+			updateBreakpointTableColor();
+			jLoadBreakpointButton.setEnabled(true);
+		} else if (jLoadBreakpointButton.getEventSource() == loadSystemsMapMenuItem) {
+			// TODO : let's work out system.map
+
+			final JFileChooser fc = new JFileChooser(new File("."));
+			int returnVal = fc.showOpenDialog(this);
+
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				File file = fc.getSelectedFile();
+				String fileContent = new String(CommonLib.readFile(file));
+
+				String lines[] = fileContent.split("\n");
+				int x = 0;
+				for (String line : lines) {
+					sendCommand("pb 0x" + line.split(" ")[0]);
+					System.out.println(x++);
+				}
+				updateBreakpoint();
+				// updateBreakpointTableColor();
 			}
 		}
-		updateBreakpoint();
-		updateBreakpointTableColor();
-		jLoadBreakpointButton.setEnabled(true);
 	}
 
 	private void jDeleteBreakpointButtonActionPerformed(ActionEvent evt) {
@@ -2735,7 +2781,6 @@ public class Application extends javax.swing.JFrame {
 				UIManager.put(key, fontRes);
 			}
 		}
-
 		SwingUtilities.updateComponentTreeUI(this);
 	}
 
@@ -3229,7 +3274,6 @@ public class Application extends javax.swing.JFrame {
 
 	private void jButton10ActionPerformed(ActionEvent evt) {
 		System.out.println("jButton10.actionPerformed, event=" + evt);
-		// TODO add your code for jButton10.actionPerformed
 	}
 
 	private JButton getJButton11() {
@@ -3247,7 +3291,6 @@ public class Application extends javax.swing.JFrame {
 
 	private void jButton11ActionPerformed(ActionEvent evt) {
 		System.out.println("jButton11.actionPerformed, event=" + evt);
-		// TODO add your code for jButton11.actionPerformed
 	}
 
 	private JButton getJButton12() {
@@ -3650,9 +3693,11 @@ public class Application extends javax.swing.JFrame {
 							});
 						}
 						{
-							jLoadBreakpointButton = new JButton();
+							jLoadBreakpointButton = new JDropDownButton();
 							jPanel12.add(jLoadBreakpointButton);
+							jPanel12.add(getJBreakpointPageComboBox());
 							jLoadBreakpointButton.setText(MyLanguage.getString("Load"));
+							jLoadBreakpointButton.add(loadSystemsMapMenuItem);
 							jLoadBreakpointButton.addActionListener(new ActionListener() {
 								public void actionPerformed(ActionEvent evt) {
 									jLoadBreakpointButtonActionPerformed(evt);
@@ -6595,6 +6640,15 @@ public class Application extends javax.swing.JFrame {
 		HelpRequestDialog helpRequestDialog = new HelpRequestDialog(this, commandReceiver);
 		CommonLib.centerDialog(helpRequestDialog);
 		helpRequestDialog.setVisible(true);
+	}
+
+	private JComboBox getJBreakpointPageComboBox() {
+		if (jBreakpointPageComboBox == null) {
+			ComboBoxModel jBreakpointPageComboBoxModel = new DefaultComboBoxModel(new String[] { "1", "2", "3", "4", "5", "6", "7", "8" });
+			jBreakpointPageComboBox = new JComboBox();
+			jBreakpointPageComboBox.setModel(jBreakpointPageComboBoxModel);
+		}
+		return jBreakpointPageComboBox;
 	}
 
 }

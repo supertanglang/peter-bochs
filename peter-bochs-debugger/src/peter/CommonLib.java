@@ -246,6 +246,10 @@ public class CommonLib {
 		return path.delete();
 	}
 
+	public static byte[] readFile(File file) {
+		return readFile(file.getAbsolutePath(), 0, (int) file.length());
+	}
+
 	public static byte[] readFile(File file, long offset, int size) {
 		return readFile(file.getAbsolutePath(), offset, size);
 	}

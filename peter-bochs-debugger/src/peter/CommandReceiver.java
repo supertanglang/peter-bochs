@@ -18,7 +18,7 @@ public class CommandReceiver implements Runnable {
 	// private int threadID = 0;
 	public boolean shouldShow;
 
-	int timeoutSecond = 1;
+	int timeoutSecond = 2;
 
 	boolean readCommandFinish;
 	Vector<String> lines = new Vector<String>();
