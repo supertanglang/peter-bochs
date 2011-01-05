@@ -1,0 +1,1 @@
+java -jar peter-bochs-debugger.jar c:\Program Files\Bochs-2.4.5\bochsdbg.exe -q -f bochsrc.bxrc
