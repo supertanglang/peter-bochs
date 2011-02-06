@@ -6,7 +6,7 @@ import java.util.Vector;
 import javax.swing.table.AbstractTableModel;
 
 public class SearchTableModel extends AbstractTableModel {
-	private String[] columnNames = { Application.language.getString("Physical_address"), Application.language.getString("Bytes"), Application.language.getString("String") };
+	private String[] columnNames = { MyLanguage.getString("Physical_address"), MyLanguage.getString("Bytes"), MyLanguage.getString("String") };
 	private int radix = 16;
 
 	Vector<Long> address = new Vector<Long>();

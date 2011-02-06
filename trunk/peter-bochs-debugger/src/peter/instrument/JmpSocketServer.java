@@ -8,7 +8,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.LinkedHashSet;
 import java.util.Vector;
 
 import javax.swing.JOptionPane;
@@ -53,14 +52,14 @@ public class JmpSocketServer implements Runnable {
 		shouldStop = true;
 		try {
 			serverSocket.close();
-		} catch (IOException e) {
+		} catch (Exception e) {
 		}
 	}
 
 	@Override
 	public void run() {
 		if (Global.debug) {
-			System.out.println("Memory server start at port " + port);
+			System.out.println("Jmp server start at port " + port);
 		}
 
 		try {

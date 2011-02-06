@@ -202,6 +202,7 @@ public class Setting {
 	boolean hitZone;
 	boolean customZone;
 	boolean jmpProfiling;
+	boolean interruptProfiling;
 	boolean profilingUpdateGraph;
 
 	String lastElfHistoryOpenDir = new File(".").getAbsolutePath();
@@ -608,9 +609,17 @@ public class Setting {
 	public boolean isJmpProfiling() {
 		return jmpProfiling;
 	}
+	
+	public boolean isInterruptProfiling(){
+		return interruptProfiling;
+	}
 
 	public void setJmpProfiling(boolean jmpProfiling) {
 		this.jmpProfiling = jmpProfiling;
+	}
+	
+	public void setInterruptProfiling(boolean interruptProfiling) {
+		this.interruptProfiling = interruptProfiling;
 	}
 
 	public boolean isProfilingUpdateGraph() {

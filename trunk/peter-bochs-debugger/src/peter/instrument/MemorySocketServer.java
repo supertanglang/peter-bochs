@@ -42,7 +42,7 @@ public class MemorySocketServer implements Runnable {
 		shouldStop = true;
 		try {
 			serverSocket.close();
-		} catch (IOException e) {
+		} catch (Exception e) {
 		}
 	}
 

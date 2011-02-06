@@ -11,8 +11,8 @@ import com.petersoft.CommonLib;
 
 public class JSourceCodeTableModel extends AbstractTableModel {
 	private String currentFile;
-	private String[] columnNames = { "", Application.language.getString("Line"), Application.language.getString("Address"), Application.language.getString("Source"),
-			Application.language.getString("Bytes") };
+	private String[] columnNames = { "", MyLanguage.getString("Line"), MyLanguage.getString("Address"), MyLanguage.getString("Source"),
+			MyLanguage.getString("Bytes") };
 	private HashMap<String, List<String>> sourceCodes = new HashMap<String, List<String>>();
 	private HashMap<String, HashMap<Integer, Long>> debugLineInfo = new HashMap<String, HashMap<Integer, Long>>();
 	private HashMap<Long, Boolean> breakpoint = new HashMap<Long, Boolean>();

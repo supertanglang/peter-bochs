@@ -1,5 +1,5 @@
 Next at t=0
-(0) [0xfffffff0] f000:fff0 (unk. ctxt): jmp far f000:e05b         ; ea5be000f0
+(0) [0x00000000fffffff0] f000:fff0 (unk. ctxt): jmp far f000:e05b         ; ea5be000f0
 <bochs:1> r
 rax: 0x00000000:00000000 rcx: 0x00000000:00000000
 rdx: 0x00000000:00000f20 rbx: 0x00000000:00000000
@@ -31,10 +31,10 @@ idtr:base=0x0000000000000000, limit=0xffff
 <bochs:3> creg
 CR0=0x60000010: pg CD NW ac wp ne ET ts em mp pe
 CR2=page fault laddr=0x0000000000000000
-CR3=0x00000000
+CR3=0x0000000000000000
     PCD=page-level cache disable=0
     PWT=page-level write-through=0
-CR4=0x00000000: osxsave smx vmx osxmmexcpt osfxsr pce pge mce pae pse de tsd pvi vme
+CR4=0x00000000: osxsave pcid smx vmx osxmmexcpt osfxsr pce pge mce pae pse de tsd pvi vme
 EFER=0x00000000: ffxsr nxe lma lme sce
 <bochs:4> dreg
 DR0=0x0000000000000000
@@ -185,8 +185,10 @@ id vip vif ac vm rf nt IOPL=0 of df if tf sf zf af pf cf
 00100100: (                    ): add byte ptr ds:[bx+si], al ; 0000
 00100102: (                    ): add byte ptr ds:[bx+si], al ; 0000
 <bochs:7> info break
+from 0 to 10000
 Num Type           Disp Enb Address
 <bochs:8> info break
+from 0 to 10000
 Num Type           Disp Enb Address
 <bochs:9> info gdt 0 100
 Global Descriptor Table (base=0x0000000000000000, limit=65535):
@@ -877,8 +879,9 @@ Stack address size 2
  | STACK 0x004e [0x0000]
 <bochs:13> info tab
 <bochs:14> info break
+from 0 to 10000
 Num Type           Disp Enb Address
 <bochs:15> xp /8bx -1
 [bochs]:
-0xffffffffffffffff <bogus+       0>:	0xf5	0x00	0x00	0x00	0x00	0x00	0x00	0x00
+0xffffffffffffffff <bogus+       0>:	0xff	0x00	0x00	0x00	0x00	0x00	0x00	0x00
 <bochs:16> 
