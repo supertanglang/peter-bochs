@@ -1,43 +1,57 @@
 <?xml version='1.0' ?>  <Setting>
-    <bochsCommandHistory/>
+    <bochsCommandHistory>
+      <bochsCommandHistory>r</bochsCommandHistory>
+      <bochsCommandHistory>vb 0x1234:0x4567</bochsCommandHistory>
+      <bochsCommandHistory>vb 1:2</bochsCommandHistory>
+      <bochsCommandHistory>v 2:4</bochsCommandHistory>
+      <bochsCommandHistory>vb 1:3</bochsCommandHistory>
+      <bochsCommandHistory>pb 0x1234</bochsCommandHistory>
+      <bochsCommandHistory>pb 0x12388</bochsCommandHistory>
+      <bochsCommandHistory>vb 12:21</bochsCommandHistory>
+      <bochsCommandHistory>s</bochsCommandHistory>
+    </bochsCommandHistory>
     <breakpoint/>
     <currentLanguage>en_US</currentLanguage>
-    <customZone>false</customZone>
-    <divX>400</divX>
-    <divY>200</divY>
-    <fontFamily>Dialog</fontFamily>
+    <customZone>true</customZone>
+    <divX>567</divX>
+    <divY>177</divY>
+    <fontFamily>AR PL UKai CN</fontFamily>
     <fontsize>12</fontsize>
     <gdt/>
-    <height>600</height>
-    <hitZone>false</hitZone>
+    <height>517</height>
+    <hitZone>true</hitZone>
     <idt/>
-    <jmpProfiling>false</jmpProfiling>
+    <jmpProfiling>true</jmpProfiling>
     <lastElfHistoryOpenDir>C:\Users\student1\Desktop\workspace\peter-bochs-debugger\vm\peterOS\.</lastElfHistoryOpenDir>
     <lastElfHistoryOpenDir2>C:\Users\student1\Desktop\workspace\peter-bochs-debugger\vm\peterOS\.</lastElfHistoryOpenDir2>
     <ldt/>
     <loadBreakpointAtStartup>false</loadBreakpointAtStartup>
     <memoryCombo/>
     <memoryEnd/>
-    <memoryProfiling>false</memoryProfiling>
+    <memoryProfiling>true</memoryProfiling>
     <memoryStart/>
     <osDebugSplitPane_DividerLocation>150</osDebugSplitPane_DividerLocation>
     <physicalAddress/>
-    <profileMemoryFromAddress/>
-    <profileMemoryToAddress/>
-    <profilingUpdateGraph>false</profilingUpdateGraph>
+    <profileMemoryFromAddress>
+      <profileMemoryFromAddress>25165824</profileMemoryFromAddress>
+    </profileMemoryFromAddress>
+    <profileMemoryToAddress>
+      <profileMemoryToAddress>26214400</profileMemoryToAddress>
+    </profileMemoryToAddress>
+    <profilingUpdateGraph>true</profilingUpdateGraph>
     <register/>
     <tss/>
-    <updateAfterBochsCommand>false</updateAfterBochsCommand>
+    <updateAfterBochsCommand>true</updateAfterBochsCommand>
     <updateAfterBochsCommand_addressTranslate>false</updateAfterBochsCommand_addressTranslate>
-    <updateAfterBochsCommand_breakpoint>false</updateAfterBochsCommand_breakpoint>
+    <updateAfterBochsCommand_breakpoint>true</updateAfterBochsCommand_breakpoint>
     <updateAfterBochsCommand_gdt>false</updateAfterBochsCommand_gdt>
     <updateAfterBochsCommand_history>false</updateAfterBochsCommand_history>
     <updateAfterBochsCommand_idt>false</updateAfterBochsCommand_idt>
     <updateAfterBochsCommand_instruction>false</updateAfterBochsCommand_instruction>
     <updateAfterBochsCommand_ldt>false</updateAfterBochsCommand_ldt>
-    <updateAfterBochsCommand_memory>false</updateAfterBochsCommand_memory>
+    <updateAfterBochsCommand_memory>true</updateAfterBochsCommand_memory>
     <updateAfterBochsCommand_pageTable>false</updateAfterBochsCommand_pageTable>
-    <updateAfterBochsCommand_register>false</updateAfterBochsCommand_register>
+    <updateAfterBochsCommand_register>true</updateAfterBochsCommand_register>
     <updateAfterBochsCommand_stack>false</updateAfterBochsCommand_stack>
     <updateFastStepCommand_breakpoint>false</updateFastStepCommand_breakpoint>
     <updateFastStepCommand_gdt>false</updateFastStepCommand_gdt>
@@ -46,7 +60,7 @@
     <updateFastStepCommand_ldt>false</updateFastStepCommand_ldt>
     <updateFastStepCommand_memory>true</updateFastStepCommand_memory>
     <updateFastStepCommand_register>true</updateFastStepCommand_register>
-    <width>800</width>
-    <x>167</x>
-    <y>67</y>
+    <width>967</width>
+    <x>210</x>
+    <y>33</y>
   </Setting>

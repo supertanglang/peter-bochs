@@ -103,6 +103,7 @@ import peter.elf.ElfUtil;
 import peter.helprequest.HelpRequestDialog;
 import peter.instrument.Data;
 import peter.instrument.InstrumentPanel;
+import peter.instrument.InterruptSocketServerController;
 import peter.instrument.JmpSocketServerController;
 import peter.instrument.MemorySocketServerController;
 import peter.logpanel.LogPanel;
@@ -217,7 +218,6 @@ public class Application extends javax.swing.JFrame {
 	private JPanel jPanel22;
 	private JPanel jPanel24;
 	private JToolBar jPanel26;
-	private JComboBox jBreakpointPageComboBox;
 	private JMenuItem jHelpRequestMenuItem;
 	private EnhancedTextArea osLogPanel1;
 	private JToggleButton jOSLogToggleButton;
@@ -400,7 +400,8 @@ public class Application extends javax.swing.JFrame {
 	private String currentPanel = "jMaximizableTabbedPane_BasePanel1";
 
 	private ButtonGroup buttonGroup2 = new ButtonGroup();
-	private JMenuItem loadSystemsMapMenuItem = new JMenuItem("Load systems.map");
+	private JMenuItem loadSystemsMapMenuItem = new JMenuItem("Load system.map");
+	private String latestVersionURL;
 
 	private static void writeToFile(InputStream is, File file) {
 		BufferedOutputStream fOut = null;
@@ -430,29 +431,27 @@ public class Application extends javax.swing.JFrame {
 			if (Application.class.getProtectionDomain().getCodeSource().getLocation().getFile().endsWith(".jar")) {
 				JarFile jarFile = new JarFile(Application.class.getProtectionDomain().getCodeSource().getLocation().getFile());
 				if (System.getProperty("os.name").toLowerCase().startsWith("linux")) {
-					/*
-					 * writeToFile(jarFile.getInputStream(new
-					 * JarEntry("jogl_dll/linux_i586/libgluegen-rt.so")), new
-					 * File("libgluegen-rt.so"));
-					 * writeToFile(jarFile.getInputStream(new
-					 * JarEntry("jogl_dll/linux_i586/libjogl_awt.so")), new
-					 * File("libjogl_awt.so"));
-					 * writeToFile(jarFile.getInputStream(new
-					 * JarEntry("jogl_dll/linux_i586/libjogl_cg.so")), new
-					 * File("libjogl_cg.so"));
-					 * writeToFile(jarFile.getInputStream(new
-					 * JarEntry("jogl_dll/linux_i586/libjogl.so")), new
-					 * File("libjogl.so")); try { File f = new File(".");
-					 * System.load(f.getAbsolutePath() + File.separator +
-					 * "libjogl.so"); System.load(f.getAbsolutePath() +
-					 * File.separator + "libjogl_awt.so"); //
-					 * System.load(f.getAbsolutePath() + File.separator + //
-					 * "libjogl_cg.so"); System.load(f.getAbsolutePath() +
-					 * File.separator + "libgluegen-rt.so"); } catch
-					 * (UnsatisfiedLinkError e) { e.printStackTrace();
-					 * System.err
-					 * .println("Native code library failed to load.\n" + e); }
-					 */
+					if (System.getProperty("os.arch").contains("64")) {
+						writeToFile(jarFile.getInputStream(new JarEntry("jogl_dll/linux_amd64/libgluegen-rt.so")), new File("libgluegen-rt.so"));
+						writeToFile(jarFile.getInputStream(new JarEntry("jogl_dll/linux_amd64/libjogl_awt.so")), new File("libjogl_awt.so"));
+						writeToFile(jarFile.getInputStream(new JarEntry("jogl_dll/linux_amd64/libjogl_cg.so")), new File("libjogl_cg.so"));
+						writeToFile(jarFile.getInputStream(new JarEntry("jogl_dll/linux_amd64/libjogl.so")), new File("libjogl.so"));
+					} else {
+						writeToFile(jarFile.getInputStream(new JarEntry("jogl_dll/linux_i586/libgluegen-rt.so")), new File("libgluegen-rt.so"));
+						writeToFile(jarFile.getInputStream(new JarEntry("jogl_dll/linux_i586/libjogl_awt.so")), new File("libjogl_awt.so"));
+						writeToFile(jarFile.getInputStream(new JarEntry("jogl_dll/linux_i586/libjogl_cg.so")), new File("libjogl_cg.so"));
+						writeToFile(jarFile.getInputStream(new JarEntry("jogl_dll/linux_i586/libjogl.so")), new File("libjogl.so"));
+					}
+					try {
+						File f = new File(".");
+						System.load(f.getAbsolutePath() + File.separator + "libjogl.so");
+						System.load(f.getAbsolutePath() + File.separator + "libjogl_awt.so");
+						System.load(f.getAbsolutePath() + File.separator + "libjogl_cg.so");
+						System.load(f.getAbsolutePath() + File.separator + "libgluegen-rt.so");
+					} catch (UnsatisfiedLinkError e) {
+						e.printStackTrace();
+						System.err.println("Native code library failed to load.\n" + e);
+					}
 				} else if (System.getProperty("os.name").toLowerCase().startsWith("windows")) {
 					writeToFile(jarFile.getInputStream(new JarEntry("exe/PauseBochs.exe")), new File("PauseBochs.exe"));
 					writeToFile(jarFile.getInputStream(new JarEntry("exe/StopBochs.exe")), new File("StopBochs.exe"));
@@ -604,6 +603,7 @@ public class Application extends javax.swing.JFrame {
 		if (Global.debug) {
 			System.out.println("end startBochs()");
 		}
+		initChineseFont();
 		new Thread() {
 			public void run() {
 				HashMap<String, String> map = CommonLib.checkLatestVersion();
@@ -612,8 +612,12 @@ public class Application extends javax.swing.JFrame {
 				}
 				if (map != null) {
 					if (map.get("latestVersion").compareTo(Global.version) > 0) {
-						jLatestVersionLabel.setText(MyLanguage.getString("Latest_version_available") + " : " + map.get("latestVersion") + "     "
-								+ MyLanguage.getString("Download_url") + " : " + map.get("downloadURL"));
+						// jLatestVersionLabel.setText(MyLanguage.getString("Latest_version_available")
+						// + " : " + map.get("latestVersion") + "     "
+						// + MyLanguage.getString("Download_url") + " : " +
+						// map.get("downloadURL"));
+						jLatestVersionLabel.setText(MyLanguage.getString("Latest_version_available") + " : " + map.get("latestVersion"));
+						latestVersionURL = map.get("downloadURL");
 					} else {
 						jLatestVersionLabel.setText("");
 					}
@@ -696,6 +700,12 @@ public class Application extends javax.swing.JFrame {
 						}
 						JmpSocketServerController.start(Global.profilingJmpPort, jInstrumentPanel.getJmpTableModel());
 					}
+					if (Setting.getInstance().isInterruptProfiling()) {
+						if (Global.debug) {
+							System.out.println("Interrupt profiling port " + Global.profilingInterruptPort);
+						}
+						InterruptSocketServerController.start(Global.profilingInterruptPort);
+					}
 				}
 			}
 		} catch (Exception ex) {
@@ -726,6 +736,7 @@ public class Application extends javax.swing.JFrame {
 
 			MemorySocketServerController.stop();
 			JmpSocketServerController.stop();
+			InterruptSocketServerController.stop();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -1025,7 +1036,6 @@ public class Application extends javax.swing.JFrame {
 		new Thread() {
 			public void run() {
 				Font[] allfonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
-				int fontcount = 0;
 				String chinesesample = "\u4e00";
 				for (int j = 0; j < allfonts.length; j++) {
 					if (allfonts[j].canDisplayUpTo(chinesesample) == -1) {
@@ -1038,7 +1048,19 @@ public class Application extends javax.swing.JFrame {
 						});
 						jMenu2.add(jMenuItem);
 					}
-					fontcount++;
+				}
+
+				for (int j = 0; j < allfonts.length; j++) {
+					if (allfonts[j].canDisplayUpTo(chinesesample) != -1) {
+						// System.out.println(allfonts[j].getFontName());
+						JMenuItem jMenuItem = new JMenuItem(allfonts[j].getFontName());
+						jMenuItem.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent evt) {
+								Setting.getInstance().setFontFamily(((JMenuItem) evt.getSource()).getText());
+							}
+						});
+						jMenu2.add(jMenuItem);
+					}
 				}
 			}
 		}.start();
@@ -1120,8 +1142,8 @@ public class Application extends javax.swing.JFrame {
 			commandReceiver.clearBuffer();
 			commandOutputStream.write(command + "\n");
 			commandOutputStream.flush();
-			if (!command.equals("6") && !command.equals("c") && !command.startsWith("pb") && !command.startsWith("lb") && !command.startsWith("bpd") && !command.startsWith("bpe")
-					&& !command.startsWith("del") && !command.startsWith("set")) {
+			if (!command.equals("6") && !command.equals("c") && !command.startsWith("pb") && !command.startsWith("vb") && !command.startsWith("lb") && !command.startsWith("bpd")
+					&& !command.startsWith("bpe") && !command.startsWith("del") && !command.startsWith("set")) {
 				commandReceiver.waitUntilHaveInput();
 				return;
 			}
@@ -1395,6 +1417,7 @@ public class Application extends javax.swing.JFrame {
 					if (Global.debug) {
 						System.out.println("updateBreakpointTableColor");
 					}
+					updateBreakpoint();
 					updateBreakpointTableColor();
 				}
 
@@ -2447,11 +2470,9 @@ public class Application extends javax.swing.JFrame {
 		try {
 			// commandReceiver.setCommandNoOfLine(-1);
 			commandReceiver.clearBuffer();
-			System.out.println("s1");
 			sendCommand("info break");
 			Thread.currentThread().sleep(100);
 			String result = commandReceiver.getCommandResultUntilEnd();
-			System.out.println("s2");
 			String[] lines = result.split("\n");
 			DefaultTableModel model = (DefaultTableModel) jBreakpointTable.getModel();
 			while (model.getRowCount() > 0) {
@@ -2459,7 +2480,6 @@ public class Application extends javax.swing.JFrame {
 			}
 
 			for (int x = 1; x < lines.length; x++) {
-				System.out.println("x=" + x);
 				if (lines[x].contains("breakpoint")) {
 					Vector<String> strs = new Vector<String>(Arrays.asList(lines[x].trim().split(" \\s")));
 					strs.add("0"); // hit count
@@ -2486,14 +2506,17 @@ public class Application extends javax.swing.JFrame {
 	private void jAddBreakpointButtonActionPerformed(ActionEvent evt) {
 		jAddBreakpointButton.setEnabled(false);
 		String type = (String) JOptionPane.showInputDialog(this, null, "Add breakpoint", JOptionPane.QUESTION_MESSAGE, null,
-				new Object[] { MyLanguage.getString("Physical_address"), MyLanguage.getString("Linear_address") }, "Breakpoint");
+				new Object[] { MyLanguage.getString("Physical_address"), MyLanguage.getString("Linear_address"), MyLanguage.getString("Virtual_address") },
+				MyLanguage.getString("Physical_address"));
 		if (type != null) {
 			String address = JOptionPane.showInputDialog(this, "Please input breakpoint address", "Add breakpoint", JOptionPane.QUESTION_MESSAGE);
 			if (address != null) {
 				if (type.equals(MyLanguage.getString("Physical_address"))) {
 					sendCommand("pb " + address);
-				} else {
+				} else if (type.equals(MyLanguage.getString("Linear_address"))) {
 					sendCommand("lb " + address);
+				} else {
+					sendCommand("vb " + address);
 				}
 				updateBreakpoint();
 				updateBreakpointTableColor();
@@ -2553,23 +2576,12 @@ public class Application extends javax.swing.JFrame {
 			updateBreakpointTableColor();
 			jLoadBreakpointButton.setEnabled(true);
 		} else if (jLoadBreakpointButton.getEventSource() == loadSystemsMapMenuItem) {
-			// TODO : let's work out system.map
-
 			final JFileChooser fc = new JFileChooser(new File("."));
 			int returnVal = fc.showOpenDialog(this);
 
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
-				String fileContent = new String(CommonLib.readFile(file));
-
-				String lines[] = fileContent.split("\n");
-				int x = 0;
-				for (String line : lines) {
-					sendCommand("pb 0x" + line.split(" ")[0]);
-					System.out.println(x++);
-				}
-				updateBreakpoint();
-				// updateBreakpointTableColor();
+				new SystemMapDialog(this, file).setVisible(true);
 			}
 		}
 	}
@@ -3695,7 +3707,6 @@ public class Application extends javax.swing.JFrame {
 						{
 							jLoadBreakpointButton = new JDropDownButton();
 							jPanel12.add(jLoadBreakpointButton);
-							jPanel12.add(getJBreakpointPageComboBox());
 							jLoadBreakpointButton.setText(MyLanguage.getString("Load"));
 							jLoadBreakpointButton.add(loadSystemsMapMenuItem);
 							jLoadBreakpointButton.addActionListener(new ActionListener() {
@@ -5005,6 +5016,7 @@ public class Application extends javax.swing.JFrame {
 	private JLabel getJLatestVersionLabel() {
 		if (jLatestVersionLabel == null) {
 			jLatestVersionLabel = new JLabel();
+			jLatestVersionLabel.setForeground(Color.green);
 			jLatestVersionLabel.addMouseListener(new MouseAdapter() {
 				public void mouseClicked(MouseEvent evt) {
 					jLatestVersionLabelMouseClicked(evt);
@@ -5017,7 +5029,10 @@ public class Application extends javax.swing.JFrame {
 	private void jLatestVersionLabelMouseClicked(MouseEvent evt) {
 		if (!jLatestVersionLabel.getText().equals("")) {
 			try {
-				java.awt.Desktop.getDesktop().browse(new URI(jLatestVersionLabel.getText().split(MyLanguage.getString("Download_url") + " : ")[1]));
+				// java.awt.Desktop.getDesktop().browse(new
+				// URI(jLatestVersionLabel.getText().split(MyLanguage.getString("Download_url")
+				// + " : ")[1]));
+				java.awt.Desktop.getDesktop().browse(new URI(latestVersionURL));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -6640,15 +6655,6 @@ public class Application extends javax.swing.JFrame {
 		HelpRequestDialog helpRequestDialog = new HelpRequestDialog(this, commandReceiver);
 		CommonLib.centerDialog(helpRequestDialog);
 		helpRequestDialog.setVisible(true);
-	}
-
-	private JComboBox getJBreakpointPageComboBox() {
-		if (jBreakpointPageComboBox == null) {
-			ComboBoxModel jBreakpointPageComboBoxModel = new DefaultComboBoxModel(new String[] { "1", "2", "3", "4", "5", "6", "7", "8" });
-			jBreakpointPageComboBox = new JComboBox();
-			jBreakpointPageComboBox.setModel(jBreakpointPageComboBoxModel);
-		}
-		return jBreakpointPageComboBox;
 	}
 
 }
