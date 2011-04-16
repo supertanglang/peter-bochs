@@ -1,5 +1,9 @@
 #summary Changes
 
+=== version 20110416 ===
+
+1) Fixed many bugs in openjdk, peter-bochs can run smoothly by using openjdk
+
 === version 20100321 ===
 
 1) can edit memory now
