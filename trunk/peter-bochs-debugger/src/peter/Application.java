@@ -218,6 +218,7 @@ public class Application extends javax.swing.JFrame {
 	private JPanel jPanel22;
 	private JPanel jPanel24;
 	private JToolBar jPanel26;
+	private JPanel jPanel30;
 	private JMenuItem jHelpRequestMenuItem;
 	private EnhancedTextArea osLogPanel1;
 	private JToggleButton jOSLogToggleButton;
@@ -2544,8 +2545,17 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jLoadBreakpointButtonActionPerformed(ActionEvent evt) {
-		if (jLoadBreakpointButton.getEventSource() == jLoadBreakpointButton) {
+		if (jLoadBreakpointButton.getEventSource() == loadSystemsMapMenuItem) {
+			final JFileChooser fc = new JFileChooser(new File("."));
+			int returnVal = fc.showOpenDialog(this);
+
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				File file = fc.getSelectedFile();
+				new SystemMapDialog(this, file).setVisible(true);
+			}
+		} else {
 			jLoadBreakpointButton.setEnabled(false);
+			System.out.println(Setting.getInstance().getBreakpoint().size());
 			LinkedList<Breakpoint> vector = Setting.getInstance().getBreakpoint();
 			try {
 				for (int x = 0; x < vector.size(); x++) {
@@ -2575,14 +2585,6 @@ public class Application extends javax.swing.JFrame {
 			updateBreakpoint();
 			updateBreakpointTableColor();
 			jLoadBreakpointButton.setEnabled(true);
-		} else if (jLoadBreakpointButton.getEventSource() == loadSystemsMapMenuItem) {
-			final JFileChooser fc = new JFileChooser(new File("."));
-			int returnVal = fc.showOpenDialog(this);
-
-			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				File file = fc.getSelectedFile();
-				new SystemMapDialog(this, file).setVisible(true);
-			}
 		}
 	}
 
@@ -2683,8 +2685,7 @@ public class Application extends javax.swing.JFrame {
 	private JScrollPane getJTableTranslateScrollPane() {
 		if (jTableTranslateScrollPane == null) {
 			jTableTranslateScrollPane = new JScrollPane();
-			jTableTranslateScrollPane.setViewportView(getJTabbedPane5());
-			jTableTranslateScrollPane.setViewportView(getJAddressTranslateTable());
+			jTableTranslateScrollPane.setViewportView(getJPanel30());
 		}
 		return jTableTranslateScrollPane;
 	}
@@ -5132,7 +5133,7 @@ public class Application extends javax.swing.JFrame {
 		int returnVal = fc.showOpenDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			this.jELFComboBox.addItem(file);
+			jELFComboBox.addItem(file);
 
 			parseELF(file);
 			openELF(file);
@@ -6365,7 +6366,6 @@ public class Application extends javax.swing.JFrame {
 			jPanel29.setLayout(jPanel29Layout);
 			jPanel29.add(getJToolBar5(), BorderLayout.NORTH);
 			jPanel29.add(getJScrollPane19(), BorderLayout.CENTER);
-			jPanel29.add(getJEditorPane3());
 		}
 		return jPanel29;
 	}
@@ -6438,6 +6438,7 @@ public class Application extends javax.swing.JFrame {
 		if (jScrollPane19 == null) {
 			jScrollPane19 = new JScrollPane();
 			jScrollPane19.setPreferredSize(new java.awt.Dimension(993, 533));
+			jScrollPane19.setViewportView(getJEditorPane3());
 		}
 		return jScrollPane19;
 	}
@@ -6655,6 +6656,17 @@ public class Application extends javax.swing.JFrame {
 		HelpRequestDialog helpRequestDialog = new HelpRequestDialog(this, commandReceiver);
 		CommonLib.centerDialog(helpRequestDialog);
 		helpRequestDialog.setVisible(true);
+	}
+
+	private JPanel getJPanel30() {
+		if (jPanel30 == null) {
+			jPanel30 = new JPanel();
+			BorderLayout jPanel30Layout = new BorderLayout();
+			jPanel30.setLayout(jPanel30Layout);
+			jPanel30.add(getJAddressTranslateTable(), BorderLayout.CENTER);
+			jPanel30.add(getJTabbedPane5(), BorderLayout.WEST);
+		}
+		return jPanel30;
 	}
 
 }

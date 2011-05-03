@@ -85,13 +85,11 @@ public class SystemMapTableModel extends AbstractTableModel {
 
 	@Override
 	public void addTableModelListener(TableModelListener l) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void removeTableModelListener(TableModelListener l) {
-		// TODO Auto-generated method stub
 
 	}
 
