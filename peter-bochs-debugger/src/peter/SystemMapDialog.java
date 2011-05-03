@@ -99,7 +99,6 @@ public class SystemMapDialog extends javax.swing.JDialog {
 
 	private void jSetButtonActionPerformed(ActionEvent evt) {
 		System.out.println("jSetButton.actionPerformed, event=" + evt);
-		//TODO add your code for jSetButton.actionPerformed
 	}
 
 	private void jCancelButtonActionPerformed(ActionEvent evt) {

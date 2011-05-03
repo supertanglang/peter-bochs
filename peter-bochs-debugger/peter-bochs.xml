@@ -2,93 +2,32 @@
     <bochsCommandHistory/>
     <breakpoint/>
     <currentLanguage>en_US</currentLanguage>
-    <customZone>true</customZone>
-    <divX>509</divX>
-    <divY>248</divY>
+    <customZone>false</customZone>
+    <divX>400</divX>
+    <divY>200</divY>
     <fontFamily>Dialog</fontFamily>
     <fontsize>12</fontsize>
-    <gdt>
-      <gdt>true</gdt>
-      <gdt>false</gdt>
-      <gdt>false</gdt>
-      <gdt>false</gdt>
-      <gdt>false</gdt>
-      <gdt>false</gdt>
-    </gdt>
-    <height>632</height>
-    <hitZone>true</hitZone>
-    <idt>
-      <idt>false</idt>
-      <idt>true</idt>
-      <idt>false</idt>
-      <idt>false</idt>
-      <idt>false</idt>
-      <idt>false</idt>
-    </idt>
-    <jmpProfiling>true</jmpProfiling>
+    <gdt/>
+    <height>600</height>
+    <hitZone>false</hitZone>
+    <idt/>
+    <interruptProfiling>false</interruptProfiling>
+    <jmpProfiling>false</jmpProfiling>
     <lastElfHistoryOpenDir>/root/workspace/peter-bochs-debugger/.</lastElfHistoryOpenDir>
     <lastElfHistoryOpenDir2>/root/workspace/peter-bochs-debugger/.</lastElfHistoryOpenDir2>
-    <ldt>
-      <ldt>false</ldt>
-      <ldt>false</ldt>
-      <ldt>true</ldt>
-      <ldt>false</ldt>
-      <ldt>false</ldt>
-      <ldt>false</ldt>
-    </ldt>
+    <ldt/>
     <loadBreakpointAtStartup>false</loadBreakpointAtStartup>
     <memoryCombo/>
-    <memoryEnd>
-      <memoryEnd>true</memoryEnd>
-      <memoryEnd>false</memoryEnd>
-      <memoryEnd>true</memoryEnd>
-      <memoryEnd>true</memoryEnd>
-      <memoryEnd>false</memoryEnd>
-      <memoryEnd>true</memoryEnd>
-    </memoryEnd>
+    <memoryEnd/>
     <memoryProfiling>false</memoryProfiling>
-    <memoryStart>
-      <memoryStart>true</memoryStart>
-      <memoryStart>true</memoryStart>
-      <memoryStart>true</memoryStart>
-      <memoryStart>false</memoryStart>
-      <memoryStart>true</memoryStart>
-      <memoryStart>false</memoryStart>
-    </memoryStart>
+    <memoryStart/>
     <osDebugSplitPane_DividerLocation>150</osDebugSplitPane_DividerLocation>
-    <physicalAddress>
-      <physicalAddress>120</physicalAddress>
-      <physicalAddress>34</physicalAddress>
-      <physicalAddress>0</physicalAddress>
-      <physicalAddress>0</physicalAddress>
-      <physicalAddress>0</physicalAddress>
-      <physicalAddress>0</physicalAddress>
-    </physicalAddress>
-    <profileMemoryFromAddress>
-      <profileMemoryFromAddress>23068672</profileMemoryFromAddress>
-      <profileMemoryFromAddress>31744</profileMemoryFromAddress>
-    </profileMemoryFromAddress>
-    <profileMemoryToAddress>
-      <profileMemoryToAddress>24117247</profileMemoryToAddress>
-      <profileMemoryToAddress>507904</profileMemoryToAddress>
-    </profileMemoryToAddress>
+    <physicalAddress/>
+    <profileMemoryFromAddress/>
+    <profileMemoryToAddress/>
     <profilingUpdateGraph>false</profilingUpdateGraph>
-    <register>
-      <register>true</register>
-      <register>true</register>
-      <register>false</register>
-      <register>true</register>
-      <register>true</register>
-      <register>false</register>
-    </register>
-    <tss>
-      <tss>false</tss>
-      <tss>true</tss>
-      <tss>true</tss>
-      <tss>false</tss>
-      <tss>true</tss>
-      <tss>false</tss>
-    </tss>
+    <register/>
+    <tss/>
     <updateAfterBochsCommand>false</updateAfterBochsCommand>
     <updateAfterBochsCommand_addressTranslate>false</updateAfterBochsCommand_addressTranslate>
     <updateAfterBochsCommand_breakpoint>false</updateAfterBochsCommand_breakpoint>
@@ -108,7 +47,7 @@
     <updateFastStepCommand_ldt>false</updateFastStepCommand_ldt>
     <updateFastStepCommand_memory>true</updateFastStepCommand_memory>
     <updateFastStepCommand_register>true</updateFastStepCommand_register>
-    <width>978</width>
-    <x>357</x>
-    <y>106</y>
+    <width>800</width>
+    <x>0</x>
+    <y>0</y>
   </Setting>

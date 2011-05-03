@@ -13,22 +13,26 @@
     <breakpoint/>
     <currentLanguage>en_US</currentLanguage>
     <customZone>true</customZone>
-    <divX>567</divX>
-    <divY>177</divY>
-    <fontFamily>AR PL UKai CN</fontFamily>
+    <divX>574</divX>
+    <divY>411</divY>
+    <fontFamily>Dialog</fontFamily>
     <fontsize>12</fontsize>
     <gdt/>
-    <height>517</height>
+    <height>806</height>
     <hitZone>true</hitZone>
     <idt/>
-    <jmpProfiling>true</jmpProfiling>
+    <interruptProfiling>true</interruptProfiling>
+    <jmpProfiling>false</jmpProfiling>
     <lastElfHistoryOpenDir>C:\Users\student1\Desktop\workspace\peter-bochs-debugger\vm\peterOS\.</lastElfHistoryOpenDir>
     <lastElfHistoryOpenDir2>C:\Users\student1\Desktop\workspace\peter-bochs-debugger\vm\peterOS\.</lastElfHistoryOpenDir2>
     <ldt/>
     <loadBreakpointAtStartup>false</loadBreakpointAtStartup>
-    <memoryCombo/>
+    <memoryCombo>
+      <memoryCombo>0xb3d0</memoryCombo>
+      <memoryCombo>0xb3ef</memoryCombo>
+    </memoryCombo>
     <memoryEnd/>
-    <memoryProfiling>true</memoryProfiling>
+    <memoryProfiling>false</memoryProfiling>
     <memoryStart/>
     <osDebugSplitPane_DividerLocation>150</osDebugSplitPane_DividerLocation>
     <physicalAddress/>
@@ -38,7 +42,7 @@
     <profileMemoryToAddress>
       <profileMemoryToAddress>26214400</profileMemoryToAddress>
     </profileMemoryToAddress>
-    <profilingUpdateGraph>true</profilingUpdateGraph>
+    <profilingUpdateGraph>false</profilingUpdateGraph>
     <register/>
     <tss/>
     <updateAfterBochsCommand>true</updateAfterBochsCommand>
@@ -60,7 +64,7 @@
     <updateFastStepCommand_ldt>false</updateFastStepCommand_ldt>
     <updateFastStepCommand_memory>true</updateFastStepCommand_memory>
     <updateFastStepCommand_register>true</updateFastStepCommand_register>
-    <width>967</width>
-    <x>210</x>
-    <y>33</y>
+    <width>1238</width>
+    <x>0</x>
+    <y>73</y>
   </Setting>
