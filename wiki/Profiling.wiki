@@ -32,7 +32,7 @@ Something you should know:
 
 == Step 2, compile bochs with peter-bochs instrument ==
 
-$./configure --enable-disasm --enable-debugger --enable-vbe --enable-instrumentation=instrument/peter-bochs
+$./configure --enable-disasm --enable-debugger --enable-instrumentation=instrument/peter-bochs
 
 $make
 
