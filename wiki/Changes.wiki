@@ -1,5 +1,9 @@
 #summary Changes
 
+=== version 20110514 ===
+
+[http://peter-bochs.googlecode.com/files/stepNFeature.png]
+
 === version 20110505 ===
 
 1) Added "Step N" button
