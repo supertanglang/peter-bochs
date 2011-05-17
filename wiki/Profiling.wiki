@@ -26,9 +26,9 @@ Something you should know:
 
 == Step 1, download peter-bochs instrument stub and put it inside the bochs source directory ==
 
-[http://peter-bochs.googlecode.com/files/peter-bochs-instrument20100904.tar.bz2]
+The instruction zip file can be download in here [http://code.google.com/p/peter-bochs/downloads/list]
 
-[http://peter-bochs.googlecode.com/files/install-peter-bochs-instrument.png]
+[http://peter-bochs.googlecode.com/files/install-peter-bochs-instrument2.png]
 
 == Step 2, compile bochs with peter-bochs instrument ==
 
