@@ -53,10 +53,12 @@ import javax.swing.ButtonGroup;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
+import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -73,9 +75,11 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.LayoutStyle;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -129,7 +133,7 @@ import com.petersoft.advancedswing.jmaximizabletabbedpane.JMaximizableTabbedPane
 public class Application extends javax.swing.JFrame {
 	private JMenuItem aboutUsMenuItem;
 	private JPanel jPanel8;
-	private JButton jStepBochsButton;
+	private JDropDownButton jStepBochsButton;
 	private JMenu jMenu5;
 	private JScrollPane jScrollPane1;
 	private JScrollPane jScrollPane2;
@@ -218,6 +222,22 @@ public class Application extends javax.swing.JFrame {
 	private JPanel jPanel22;
 	private JPanel jPanel24;
 	private JToolBar jPanel26;
+	private JCheckBox jAutoUpdateEvery20LinesCheckBox;
+	private JCheckBox jDisableAutoUpdateCheckBox;
+	private JLabel jStepCountLabel;
+	private JButton jButton16;
+	private EnhancedTextArea jTextArea1;
+	private JLabel jRunningLabel2;
+	private JPanel jRunningPanel;
+	private JMenuItem jStepUntilIPBigChangeMenuItem;
+	private JMenuItem jJVMMenuItem;
+	private JMenuItem jStepUntilMovMenuItem;
+	private JMenuItem jStepUntilIRetMenuItem;
+	private JMenuItem jStepUntilRetMenuItem;
+	private JMenuItem jStepUntilCallOrJumpMenuItem;
+	private JMenuItem jStepNMenuItem;
+	private JMenuItem jStep100MenuItem;
+	private JMenuItem jStep10MenuItem;
 	private JPanel jPanel30;
 	private JMenuItem jHelpRequestMenuItem;
 	private EnhancedTextArea osLogPanel1;
@@ -649,7 +669,7 @@ public class Application extends javax.swing.JFrame {
 
 	private void startBochs() {
 		try {
-			this.enableAllButtons(true);
+			this.enableAllButtons(true, false);
 			jRunBochsButton.setText(MyLanguage.getString("Run_bochs"));
 			jRunBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/resultset_next.png")));
 
@@ -709,6 +729,7 @@ public class Application extends javax.swing.JFrame {
 					}
 				}
 			}
+			jLoadBreakpointButtonActionPerformed(null);
 		} catch (Exception ex) {
 			JOptionPane.showMessageDialog(this, MyLanguage.getString("Unable_to_start_bochs") + "\n" + MyLanguage.getString("Tips_you_specified_a_wrong_path_of_bochs"));
 			ex.printStackTrace();
@@ -717,7 +738,7 @@ public class Application extends javax.swing.JFrame {
 
 	private void stopBochs() {
 		try {
-			this.enableAllButtons(false);
+			this.enableAllButtons(false, false);
 			jRunBochsButton.setText(MyLanguage.getString("Run_bochs"));
 			jRunBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/resultset_next.png")));
 
@@ -772,13 +793,15 @@ public class Application extends javax.swing.JFrame {
 
 	private void runBochs() {
 		try {
-			Data.memoryProfilingZone.needToTellBochsToUpdateZone = true;
-			commandReceiver.clearBuffer();
-			sendCommand("c");
+			enableAllButtons(false, true);
 			if (currentPanel.equals("jMaximizableTabbedPane_BasePanel1")) {
 				CardLayout cl = (CardLayout) (jMainPanel.getLayout());
 				cl.show(jMainPanel, "Running Label");
 			}
+			Data.memoryProfilingZone.needToTellBochsToUpdateZone = true;
+			commandReceiver.clearBuffer();
+			sendCommand("c");
+
 			jRunBochsButton.setText(MyLanguage.getString("Pause_bochs"));
 			jRunBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/pause.png")));
 
@@ -868,11 +891,20 @@ public class Application extends javax.swing.JFrame {
 					});
 				}
 				{
-					jStepBochsButton = new JButton();
+					jStepBochsButton = new JDropDownButton();
 					jToolBar1.add(jStepBochsButton);
 					jToolBar1.add(getJFastStepBochsButton());
 					jStepBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/step.png")));
 					jStepBochsButton.setText(MyLanguage.getString("Step"));
+					jStepBochsButton.setMaximumSize(new java.awt.Dimension(95, 26));
+					jStepBochsButton.add(getJStep10MenuItem());
+					jStepBochsButton.add(getJStep100MenuItem());
+					jStepBochsButton.add(getJStepNMenuItem());
+					jStepBochsButton.add(getJStepUntilCallOrJumpMenuItem());
+					jStepBochsButton.add(getJStepUntilRetMenuItem());
+					jStepBochsButton.add(getJStepUntilIRetMenuItem());
+					jStepBochsButton.add(getJStepUntilMovMenuItem());
+					jStepBochsButton.add(getJStepUntilIPBigChangeMenuItem());
 					jStepBochsButton.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
 							jStepBochsButtonActionPerformed(evt);
@@ -1002,6 +1034,7 @@ public class Application extends javax.swing.JFrame {
 						aboutUsMenuItem = new JMenuItem();
 						jMenu5.add(aboutUsMenuItem);
 						jMenu5.add(getJHelpRequestMenuItem());
+						jMenu5.add(getJJVMMenuItem());
 						aboutUsMenuItem.setText(MyLanguage.getString("About_us"));
 						aboutUsMenuItem.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent evt) {
@@ -1166,12 +1199,177 @@ public class Application extends javax.swing.JFrame {
 		new JAboutUsDialog(this).setVisible(true);
 	}
 
+	MyThread untilThread;
+
 	private void jStepBochsButtonActionPerformed(ActionEvent evt) {
-		try {
+		if (jStepBochsButton.getEventSource() != null) {
+			untilThread = new MyThread(jStepBochsButton.getEventSource());
+			if (jStepBochsButton.getEventSource() == jStepNMenuItem) {
+				String s = JOptionPane.showInputDialog(this, "Please input the instruction count?");
+				if (s == null) {
+					return;
+				}
+				untilThread.instructionCount = Integer.parseInt(s);
+			} else if (jStepBochsButton.getEventSource() == jStepUntilIPBigChangeMenuItem) {
+				String s = JOptionPane.showInputDialog("Please input the instruction count?");
+				if (s == null) {
+					return;
+				}
+				untilThread.ipDelta = CommonLib.convertFilesize(s);
+			}
+
+			if (currentPanel.equals("jMaximizableTabbedPane_BasePanel1")) {
+				CardLayout cl = (CardLayout) (jMainPanel.getLayout());
+				cl.show(jMainPanel, "Running Label 2");
+			}
+			new Thread(untilThread).start();
+		} else {
 			sendCommand("s");
 			updateBochsStatus();
-		} catch (Exception ex) {
-			ex.printStackTrace();
+		}
+	}
+
+	class MyThread implements Runnable {
+		Object eventSource;
+		public boolean shouldStop;
+		public int instructionCount;
+		public long ipDelta;
+
+		public MyThread(Object eventSource) {
+			this.eventSource = eventSource;
+		}
+
+		public void run() {
+			try {
+				enableAllButtons(false, false);
+				jStepCountLabel.setVisible(false);
+				if (eventSource != null) {
+					if (eventSource == jStep10MenuItem) {
+						for (int x = 1; x <= 10; x++) {
+							jStatusLabel.setText("Step " + x + " / 10");
+							sendCommand("s");
+						}
+						updateBochsStatus();
+					} else if (eventSource == jStep100MenuItem) {
+						for (int x = 1; x <= 100; x++) {
+							jStatusLabel.setText("Step " + x + " / 100");
+							sendCommand("s");
+						}
+						updateBochsStatus();
+					} else if (eventSource == jStepNMenuItem) {
+						int noOfLine = 1;
+						String result = "";
+						for (int x = 1; x <= instructionCount; x++) {
+							jStatusLabel.setText("Step " + x + " / " + instructionCount);
+							sendCommand("s");
+							if (!jDisableAutoUpdateCheckBox.isSelected()) {
+								result += commandReceiver.getCommandResult("(").toLowerCase() + "\n";
+								if (result.endsWith(System.getProperty("line.separator"))) {
+									result = result.substring(0, result.length() - 1);
+								}
+								if (jAutoUpdateEvery20LinesCheckBox.isSelected()) {
+									if (noOfLine >= 20) {
+										jBochsEditorPane.setText(jBochsEditorPane.getText() + System.getProperty("line.separator") + result);
+										jTextArea1.newLogFileLine(result);
+										result = "";
+										noOfLine = 1;
+									} else {
+										noOfLine++;
+									}
+								} else {
+									jBochsEditorPane.setText(jBochsEditorPane.getText() + System.getProperty("line.separator") + result);
+									jTextArea1.newLogFileLine(result);
+								}
+							}
+						}
+						updateBochsStatus();
+					} else if (eventSource == jStepUntilCallOrJumpMenuItem) {
+						boolean notMatch = true;
+						do {
+							sendCommand("s");
+							String result = commandReceiver.getCommandResult("(").toLowerCase();
+							if (result.contains("jmp") || result.contains("call")) {
+								notMatch = false;
+							}
+						} while (notMatch && !shouldStop);
+						updateBochsStatus();
+					} else if (eventSource == jStepUntilRetMenuItem) {
+						boolean notMatch = true;
+						do {
+							sendCommand("s");
+							String result = commandReceiver.getCommandResult("(").toLowerCase();
+							if (result.contains("ret")) {
+								notMatch = false;
+							}
+						} while (notMatch && !shouldStop);
+						updateBochsStatus();
+
+					} else if (eventSource == jStepUntilIRetMenuItem) {
+						boolean notMatch = true;
+						do {
+							sendCommand("s");
+							String result = commandReceiver.getCommandResult("(").toLowerCase();
+							if (result.contains("iret")) {
+								notMatch = false;
+							}
+						} while (notMatch && !shouldStop);
+						updateBochsStatus();
+					} else if (eventSource == jStepUntilMovMenuItem) {
+						boolean notMatch = true;
+						int x = 0;
+						do {
+							sendCommand("s");
+							String result = commandReceiver.getCommandResult("(").toLowerCase();
+							if (result.contains("mov")) {
+								notMatch = false;
+							}
+						} while (notMatch && !shouldStop);
+						updateBochsStatus();
+					} else if (eventSource == jStepUntilIPBigChangeMenuItem) {
+						boolean notMatch = true;
+						long lastIP = -1;
+						int count = 1;
+						Date lastTime = new Date();
+						jStepCountLabel.setVisible(true);
+
+						int noOfLine = 1;
+						String result = "";
+
+						do {
+							sendCommand("s");
+							result += commandReceiver.getCommandResult("(").toLowerCase() + "\n";
+							if (result.endsWith(System.getProperty("line.separator"))) {
+								result = result.substring(0, result.length() - 1);
+							}
+							if (!jDisableAutoUpdateCheckBox.isSelected()) {
+								jBochsEditorPane.setText(jBochsEditorPane.getText() + System.getProperty("line.separator") + result);
+								jTextArea1.newLogFileLine(result);
+							}
+							result = result.replaceAll("\\].*$", "").replaceAll("^.*\\[", "");
+							long ip = CommonLib.convertFilesize(result);
+							if (lastIP != -1 && Math.abs(ip - lastIP) >= ipDelta) {
+								notMatch = false;
+							}
+							lastIP = ip;
+
+							double secondDiff = (Double.parseDouble(String.valueOf(new Date().getTime())) - lastTime.getTime()) / 1000;
+							jStepCountLabel.setText(String.valueOf(count++) + " instructions executed, current EIP=0x" + Long.toHexString(ip) + ", " + Math.round(1 / secondDiff)
+									+ " instructions executed per second");
+							lastTime = new Date();
+						} while (notMatch && !shouldStop);
+						updateBochsStatus();
+					}
+				}
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			} finally {
+				if (currentPanel.equals("jMaximizableTabbedPane_BasePanel1")) {
+					CardLayout cl = (CardLayout) (jMainPanel.getLayout());
+					cl.show(jMainPanel, "jMaximizableTabbedPane_BasePanel1");
+					currentPanel = "jMaximizableTabbedPane_BasePanel1";
+				}
+				enableAllButtons(true, false);
+			}
 		}
 	}
 
@@ -1214,7 +1412,7 @@ public class Application extends javax.swing.JFrame {
 	public void updateBochsStatus(boolean shouldWait) {
 		Thread updateThread = new Thread() {
 			public void run() {
-				enableAllButtons(false);
+				enableAllButtons(false, false);
 
 				if (Global.debug) {
 					System.out.println("updateRegister");
@@ -1261,10 +1459,6 @@ public class Application extends javax.swing.JFrame {
 				}
 				updateAddressTranslate();
 
-				// ((DefaultComboBoxModel)
-				// jPauseHistoryList.getModel()).addElement(jRegisterPanel1.jCSTextField.getText()
-				// + ":" + jRegisterPanel1.jEIPTextField.getText());
-
 				if (Global.debug) {
 					System.out.println("updateHistoryTable");
 				}
@@ -1276,10 +1470,12 @@ public class Application extends javax.swing.JFrame {
 				updateBreakpoint();
 				updateBreakpointTableColor();
 
-				if (Global.debug) {
-					System.out.println("update OS debug informations");
+				if (Global.osDebug != -1) {
+					if (Global.debug) {
+						System.out.println("update OS debug informations");
+					}
+					updateOSDebugInfo();
 				}
-				updateOSDebugInfo();
 
 				jInstrumentPanel.updateChart();
 
@@ -1291,12 +1487,12 @@ public class Application extends javax.swing.JFrame {
 
 				jStatusLabel.setText("");
 
-				enableAllButtons(true);
+				enableAllButtons(true, false);
 
 				if (breakpointLoadedOnce == false && Setting.getInstance().loadBreakpointAtStartup) {
 					jLoadBreakpointButtonActionPerformed(null);
 					breakpointLoadedOnce = true; // since we only have to load
-					// once
+													// once
 				}
 			}
 		};
@@ -1338,7 +1534,7 @@ public class Application extends javax.swing.JFrame {
 	public void updateBochsStatusForBochsCommand(boolean shouldWait) {
 		Thread updateThread = new Thread() {
 			public void run() {
-				enableAllButtons(false);
+				enableAllButtons(false, false);
 
 				if (Setting.getInstance().isUpdateAfterBochsCommand_register()) {
 					if (Global.debug) {
@@ -1424,7 +1620,7 @@ public class Application extends javax.swing.JFrame {
 
 				jStatusLabel.setText("");
 
-				enableAllButtons(true);
+				enableAllButtons(true, false);
 
 				if (breakpointLoadedOnce == false && Setting.getInstance().loadBreakpointAtStartup) {
 					jLoadBreakpointButtonActionPerformed(null);
@@ -1563,11 +1759,18 @@ public class Application extends javax.swing.JFrame {
 		}
 	}
 
-	private void enableAllButtons(boolean b) {
-		jRunBochsButton.setEnabled(b);
+	private void enableAllButtons(boolean b, boolean exceptRunButton) {
+		if (!exceptRunButton) {
+			jRunBochsButton.setEnabled(b);
+		}
 		jStepBochsButton.setEnabled(b);
 		jFastStepBochsButton.setEnabled(b);
 		jUpdateBochsButton.setEnabled(b);
+		jButton13.setEnabled(b);
+		jSettingButton.setEnabled(b);
+		jRegisterToggleButton.setEnabled(b);
+		jProfilerToggleButton.setEnabled(b);
+
 		jPageDirectoryTable.setEnabled(b);
 		jPageTableTable.setEnabled(b);
 
@@ -2373,7 +2576,7 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jButton2ActionPerformed(ActionEvent evt) {
-		final JFileChooser fc = new JFileChooser();
+		JFileChooser fc = new JFileChooser();
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
@@ -2546,7 +2749,7 @@ public class Application extends javax.swing.JFrame {
 
 	private void jLoadBreakpointButtonActionPerformed(ActionEvent evt) {
 		if (jLoadBreakpointButton.getEventSource() == loadSystemsMapMenuItem) {
-			final JFileChooser fc = new JFileChooser(new File("."));
+			JFileChooser fc = new JFileChooser(new File("."));
 			int returnVal = fc.showOpenDialog(this);
 
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -2555,7 +2758,6 @@ public class Application extends javax.swing.JFrame {
 			}
 		} else {
 			jLoadBreakpointButton.setEnabled(false);
-			System.out.println(Setting.getInstance().getBreakpoint().size());
 			LinkedList<Breakpoint> vector = Setting.getInstance().getBreakpoint();
 			try {
 				for (int x = 0; x < vector.size(); x++) {
@@ -3098,7 +3300,7 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jButton3ActionPerformed(ActionEvent evt) {
-		final JFileChooser fc = new JFileChooser();
+		JFileChooser fc = new JFileChooser();
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
@@ -3122,7 +3324,7 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jButton4ActionPerformed(ActionEvent evt) {
-		final JFileChooser fc = new JFileChooser();
+		JFileChooser fc = new JFileChooser();
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
@@ -3144,7 +3346,7 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jButton5ActionPerformed(ActionEvent evt) {
-		final JFileChooser fc = new JFileChooser();
+		JFileChooser fc = new JFileChooser();
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
@@ -3176,7 +3378,7 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jButton6ActionPerformed(ActionEvent evt) {
-		final JFileChooser fc = new JFileChooser();
+		JFileChooser fc = new JFileChooser();
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
@@ -3200,7 +3402,7 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jButton7ActionPerformed(ActionEvent evt) {
-		final JFileChooser fc = new JFileChooser();
+		JFileChooser fc = new JFileChooser();
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
@@ -3240,7 +3442,7 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jButton8ActionPerformed(ActionEvent evt) {
-		final JFileChooser fc = new JFileChooser();
+		JFileChooser fc = new JFileChooser();
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
@@ -3262,7 +3464,7 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jButton9ActionPerformed(ActionEvent evt) {
-		final JFileChooser fc = new JFileChooser();
+		JFileChooser fc = new JFileChooser();
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
@@ -3320,7 +3522,7 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jButton12ActionPerformed(ActionEvent evt) {
-		final JFileChooser fc = new JFileChooser();
+		JFileChooser fc = new JFileChooser();
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
@@ -3343,7 +3545,7 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jButton13ActionPerformed(ActionEvent evt) {
-		final JFileChooser fc = new JFileChooser();
+		JFileChooser fc = new JFileChooser();
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
@@ -3542,6 +3744,7 @@ public class Application extends javax.swing.JFrame {
 				jMainPanel.add(getJRunningLabel(), "Running Label");
 				jMainPanel.add(getLogPanel1(), "logPanel1");
 				jMainPanel.add(getOsLogPanel1(), "oSLogPanel1");
+				jMainPanel.add(getJRunningPanel(), "Running Label 2");
 			}
 		}
 		return jMainPanel;
@@ -3573,13 +3776,13 @@ public class Application extends javax.swing.JFrame {
 							ComboBoxModel jInstructionComboBoxModel = new DefaultComboBoxModel(new String[] {});
 							jInstructionComboBox = new JComboBox();
 							jInstructionControlPanel.add(jInstructionComboBox);
+							jInstructionControlPanel.add(getJButton14());
 							jInstructionComboBox.setModel(jInstructionComboBoxModel);
 							jInstructionComboBox.setEditable(true);
 						}
 						{
 							jDisassembleButton = new JButton();
 							jInstructionControlPanel.add(jDisassembleButton);
-							jInstructionControlPanel.add(getJButton14());
 							jInstructionControlPanel.add(getJInstructionUpTenButton());
 							jInstructionControlPanel.add(getJInstructionUpButton());
 							jInstructionControlPanel.add(getJButton22());
@@ -4138,7 +4341,7 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jPagingGraphButtonActionPerformed(ActionEvent evt) {
-		final JFileChooser fc = new JFileChooser();
+		JFileChooser fc = new JFileChooser();
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
@@ -4753,7 +4956,7 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jOpenELFButtonActionPerformed(ActionEvent evt) {
-		final JFileChooser fc = new JFileChooser();
+		JFileChooser fc = new JFileChooser();
 		fc.setCurrentDirectory(new File(Setting.getInstance().getLastElfHistoryOpenDir()));
 
 		int returnVal = fc.showOpenDialog(this);
@@ -5125,7 +5328,7 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jOpenELFDumpButtonActionPerformed(ActionEvent evt) {
-		final JFileChooser fc = new JFileChooser();
+		JFileChooser fc = new JFileChooser();
 		// load history
 		fc.setCurrentDirectory(new File(Setting.getInstance().getLastElfHistoryOpenDir2()));
 
@@ -5490,7 +5693,7 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jButton21ActionPerformed(ActionEvent evt) {
-		final JFileChooser fc = new JFileChooser();
+		JFileChooser fc = new JFileChooser();
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
@@ -5499,7 +5702,7 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jButton1ActionPerformed(ActionEvent evt) {
-		final JFileChooser fc = new JFileChooser();
+		JFileChooser fc = new JFileChooser();
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
@@ -5510,7 +5713,7 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jButton17ActionPerformed(ActionEvent evt) {
-		final JFileChooser fc = new JFileChooser();
+		JFileChooser fc = new JFileChooser();
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
@@ -5521,7 +5724,7 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jButton18ActionPerformed(ActionEvent evt) {
-		final JFileChooser fc = new JFileChooser();
+		JFileChooser fc = new JFileChooser();
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
@@ -6042,7 +6245,7 @@ public class Application extends javax.swing.JFrame {
 			sendCommand("s");
 			Thread updateThread = new Thread() {
 				public void run() {
-					enableAllButtons(false);
+					enableAllButtons(false, false);
 
 					if (Setting.getInstance().updateFastStepCommand_register) {
 						if (Global.debug) {
@@ -6080,7 +6283,7 @@ public class Application extends javax.swing.JFrame {
 
 					jStatusLabel.setText("");
 
-					enableAllButtons(true);
+					enableAllButtons(true, false);
 				}
 			};
 			updateThread.start();
@@ -6151,6 +6354,7 @@ public class Application extends javax.swing.JFrame {
 			jSettingButton = new JButton();
 			jSettingButton.setText(MyLanguage.getString("Setting"));
 			jSettingButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/wrench.png")));
+			jSettingButton.setToolTipText("System setting");
 			jSettingButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jSettingButtonActionPerformed(evt);
@@ -6518,6 +6722,7 @@ public class Application extends javax.swing.JFrame {
 			jProfilerToggleButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/chart_organisation.png")));
 			jProfilerToggleButton.setText("Profile & Sampling");
 			buttonGroup2.add(jProfilerToggleButton);
+			jProfilerToggleButton.setToolTipText("Profile & Sampling");
 			jProfilerToggleButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jProfilerToggleButtonActionPerformed(evt);
@@ -6544,6 +6749,7 @@ public class Application extends javax.swing.JFrame {
 			jLogToggleButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/script.png")));
 			jLogToggleButton.setText("Log");
 			buttonGroup2.add(jLogToggleButton);
+			jLogToggleButton.setToolTipText("Log");
 			jLogToggleButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jLogToggleButtonActionPerformed(evt);
@@ -6578,6 +6784,7 @@ public class Application extends javax.swing.JFrame {
 			buttonGroup2.add(jRegisterToggleButton);
 			jRegisterToggleButton.setSelected(true);
 			jRegisterToggleButton.setText("Reg");
+			jRegisterToggleButton.setToolTipText("View all registers");
 			jRegisterToggleButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jRegisterToggleButtonActionPerformed(evt);
@@ -6610,6 +6817,7 @@ public class Application extends javax.swing.JFrame {
 			jOSLogToggleButton = new JToggleButton();
 			jOSLogToggleButton.setText("os.log");
 			jOSLogToggleButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/page_red.png")));
+			jOSLogToggleButton.setToolTipText("os.log");
 			jOSLogToggleButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jOSLogToggleButtonActionPerformed(evt);
@@ -6667,6 +6875,235 @@ public class Application extends javax.swing.JFrame {
 			jPanel30.add(getJTabbedPane5(), BorderLayout.WEST);
 		}
 		return jPanel30;
+	}
+
+	private JMenuItem getJStep10MenuItem() {
+		if (jStep10MenuItem == null) {
+			jStep10MenuItem = new JMenuItem();
+			jStep10MenuItem.setText("Step 10 Instructions");
+		}
+		return jStep10MenuItem;
+	}
+
+	private JMenuItem getJStep100MenuItem() {
+		if (jStep100MenuItem == null) {
+			jStep100MenuItem = new JMenuItem();
+			jStep100MenuItem.setText("Step 100 Instructions");
+		}
+		return jStep100MenuItem;
+	}
+
+	private JMenuItem getJStepNMenuItem() {
+		if (jStepNMenuItem == null) {
+			jStepNMenuItem = new JMenuItem();
+			jStepNMenuItem.setText("Step N Instructions");
+		}
+		return jStepNMenuItem;
+	}
+
+	private JMenuItem getJStepUntilCallOrJumpMenuItem() {
+		if (jStepUntilCallOrJumpMenuItem == null) {
+			jStepUntilCallOrJumpMenuItem = new JMenuItem();
+			jStepUntilCallOrJumpMenuItem.setText("Until call or jump");
+		}
+		return jStepUntilCallOrJumpMenuItem;
+	}
+
+	private JMenuItem getJStepUntilRetMenuItem() {
+		if (jStepUntilRetMenuItem == null) {
+			jStepUntilRetMenuItem = new JMenuItem();
+			jStepUntilRetMenuItem.setText("Until ret");
+		}
+		return jStepUntilRetMenuItem;
+	}
+
+	private JMenuItem getJStepUntilIRetMenuItem() {
+		if (jStepUntilIRetMenuItem == null) {
+			jStepUntilIRetMenuItem = new JMenuItem();
+			jStepUntilIRetMenuItem.setText("Until iret");
+		}
+		return jStepUntilIRetMenuItem;
+	}
+
+	private JMenuItem getJStepUntilMovMenuItem() {
+		if (jStepUntilMovMenuItem == null) {
+			jStepUntilMovMenuItem = new JMenuItem();
+			jStepUntilMovMenuItem.setText("Until mov");
+		}
+		return jStepUntilMovMenuItem;
+	}
+
+	private JMenuItem getJJVMMenuItem() {
+		if (jJVMMenuItem == null) {
+			jJVMMenuItem = new JMenuItem();
+			jJVMMenuItem.setText("JVM");
+			jJVMMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jJVMMenuItemActionPerformed(evt);
+				}
+			});
+		}
+		return jJVMMenuItem;
+	}
+
+	private void jJVMMenuItemActionPerformed(ActionEvent evt) {
+		new JVMInfoDialog(this).setVisible(true);
+	}
+
+	private JMenuItem getJStepUntilIPBigChangeMenuItem() {
+		if (jStepUntilIPBigChangeMenuItem == null) {
+			jStepUntilIPBigChangeMenuItem = new JMenuItem();
+			jStepUntilIPBigChangeMenuItem.setText("Until IP big change");
+		}
+		return jStepUntilIPBigChangeMenuItem;
+	}
+
+	private JPanel getJRunningPanel() {
+		if (jRunningPanel == null) {
+			jRunningPanel = new JPanel();
+			GroupLayout jRunningPanelLayout = new GroupLayout((JComponent) jRunningPanel);
+			jRunningPanel.setLayout(jRunningPanelLayout);
+			jRunningPanelLayout.setHorizontalGroup(jRunningPanelLayout
+					.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(
+							jRunningPanelLayout
+									.createParallelGroup()
+									.addComponent(getJTextArea1(), GroupLayout.Alignment.LEADING, 0, 1109, Short.MAX_VALUE)
+									.addGroup(
+											jRunningPanelLayout
+													.createSequentialGroup()
+													.addPreferredGap(getJTextArea1(), getJButton16xxx(), LayoutStyle.ComponentPlacement.INDENT)
+													.addGroup(
+															jRunningPanelLayout
+																	.createParallelGroup()
+																	.addGroup(
+																			GroupLayout.Alignment.LEADING,
+																			jRunningPanelLayout
+																					.createSequentialGroup()
+																					.addComponent(getJButton16xxx(), GroupLayout.PREFERRED_SIZE, 66, GroupLayout.PREFERRED_SIZE)
+																					.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+																					.addGroup(
+																							jRunningPanelLayout
+																									.createParallelGroup()
+																									.addGroup(
+																											jRunningPanelLayout
+																													.createSequentialGroup()
+																													.addComponent(getJStepCountLabel(), GroupLayout.PREFERRED_SIZE,
+																															862, GroupLayout.PREFERRED_SIZE)
+																													.addGap(0, 0, Short.MAX_VALUE))
+																									.addGroup(
+																											GroupLayout.Alignment.LEADING,
+																											jRunningPanelLayout
+																													.createSequentialGroup()
+																													.addGap(56)
+																													.addComponent(getJRunningLabel2(), GroupLayout.PREFERRED_SIZE,
+																															679, GroupLayout.PREFERRED_SIZE)
+																													.addGap(0, 127, Short.MAX_VALUE))))
+																	.addGroup(
+																			GroupLayout.Alignment.LEADING,
+																			jRunningPanelLayout
+																					.createSequentialGroup()
+																					.addGap(65)
+																					.addComponent(getJCheckBox1(), GroupLayout.PREFERRED_SIZE, 308, GroupLayout.PREFERRED_SIZE)
+																					.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+																					.addComponent(getJAutoUpdateEvery20LinesCheckBox(), GroupLayout.PREFERRED_SIZE, 336,
+																							GroupLayout.PREFERRED_SIZE).addGap(0, 211, Short.MAX_VALUE))).addGap(169))));
+			jRunningPanelLayout
+					.setVerticalGroup(jRunningPanelLayout
+							.createSequentialGroup()
+							.addContainerGap()
+							.addComponent(getJRunningLabel2(), GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+							.addGroup(
+									jRunningPanelLayout
+											.createParallelGroup(GroupLayout.Alignment.BASELINE)
+											.addComponent(getJStepCountLabel(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 29, GroupLayout.PREFERRED_SIZE)
+											.addComponent(getJButton16xxx(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,
+													GroupLayout.PREFERRED_SIZE))
+							.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+							.addGroup(
+									jRunningPanelLayout
+											.createParallelGroup(GroupLayout.Alignment.BASELINE)
+											.addComponent(getJCheckBox1(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)
+											.addComponent(getJAutoUpdateEvery20LinesCheckBox(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 21,
+													GroupLayout.PREFERRED_SIZE)).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+							.addComponent(getJTextArea1(), GroupLayout.PREFERRED_SIZE, 619, GroupLayout.PREFERRED_SIZE).addContainerGap(10, Short.MAX_VALUE));
+		}
+		return jRunningPanel;
+	}
+
+	private JLabel getJRunningLabel2() {
+		if (jRunningLabel2 == null) {
+			jRunningLabel2 = new JLabel();
+			URL url = getClass().getClassLoader().getResource("images/ajax-loader_red.gif");
+			if (Setting.getInstance().getCurrentLanguage().equals("zh_TW")) {
+				jRunningLabel2.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\"" + url
+						+ "\" /><br><br><a style=\"color: #000000;  text-decoration:none\" href=\"http://www.kingofcoders.com\">編程王網站  www.kingofcoders.com</a></center></html>");
+			} else if (Setting.getInstance().getCurrentLanguage().equals("zh_CN")) {
+				jRunningLabel2
+						.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\""
+								+ url
+								+ "\" /><br><br><img src=\"http://www.kingofcoders.com/images/KOC_logo2.jpg\" /><br><a style=\"color: #000000;  text-decoration:none\" href=\"http://www.kingofcoders.com\">编程王网站  www.kingofcoders.com</a></center></html>");
+			} else {
+				jRunningLabel2.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\"" + url + "\" /></center></html>");
+			}
+			jRunningLabel2.setHorizontalAlignment(SwingConstants.CENTER);
+			jRunningLabel2.setHorizontalTextPosition(SwingConstants.CENTER);
+			jRunningLabel2.setFont(new java.awt.Font("Arial", 0, 20));
+		}
+		return jRunningLabel2;
+	}
+
+	private EnhancedTextArea getJTextArea1() {
+		if (jTextArea1 == null) {
+			jTextArea1 = new EnhancedTextArea();
+		}
+		return jTextArea1;
+	}
+
+	private JButton getJButton16xxx() {
+		if (jButton16 == null) {
+			jButton16 = new JButton();
+			jButton16.setText("Pause");
+			jButton16.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jButton16ActionPerformed(evt);
+				}
+			});
+		}
+		return jButton16;
+	}
+
+	private void jButton16ActionPerformed(ActionEvent evt) {
+		if (untilThread != null) {
+			untilThread.shouldStop = true;
+		}
+	}
+
+	private JLabel getJStepCountLabel() {
+		if (jStepCountLabel == null) {
+			jStepCountLabel = new JLabel();
+			jStepCountLabel.setForeground(new java.awt.Color(222, 0, 5));
+			jStepCountLabel.setFont(new java.awt.Font("Abyssinica SIL", 0, 14));
+		}
+		return jStepCountLabel;
+	}
+
+	private JCheckBox getJCheckBox1() {
+		if (jDisableAutoUpdateCheckBox == null) {
+			jDisableAutoUpdateCheckBox = new JCheckBox();
+			jDisableAutoUpdateCheckBox.setText("Disable auto update, so bochs runs faster");
+		}
+		return jDisableAutoUpdateCheckBox;
+	}
+
+	private JCheckBox getJAutoUpdateEvery20LinesCheckBox() {
+		if (jAutoUpdateEvery20LinesCheckBox == null) {
+			jAutoUpdateEvery20LinesCheckBox = new JCheckBox();
+			jAutoUpdateEvery20LinesCheckBox.setText("Update the following insturction box every 20 lines, this make bochs runs faster");
+		}
+		return jAutoUpdateEvery20LinesCheckBox;
 	}
 
 }

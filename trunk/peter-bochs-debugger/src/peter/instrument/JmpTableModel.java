@@ -171,8 +171,6 @@ public class JmpTableModel extends DefaultTableModel implements Runnable {
 		for (int x = 0; x < allData.length; x++) {
 			if (allData[x].size() > 0) {
 				allData[x].remove(0);
-			} else {
-				System.out.println("fuck =" + x);
 			}
 		}
 	}

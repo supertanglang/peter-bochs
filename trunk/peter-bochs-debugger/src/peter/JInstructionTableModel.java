@@ -12,7 +12,11 @@ public class JInstructionTableModel extends AbstractTableModel {
 	private String[] columnNames = { "", MyLanguage.getString("Address"), MyLanguage.getString("Instruction"), MyLanguage.getString("Bytes") };
 	private HashMap<Long, Boolean> breakpoint = new HashMap<Long, Boolean>();
 	private Vector<String[]> data = new Vector<String[]>();
-	long eip;
+	private long eip;
+
+	public Vector<String[]> getData() {
+		return data;
+	}
 
 	public Object getValueAt(int row, int column) {
 		try {
