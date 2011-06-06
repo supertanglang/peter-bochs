@@ -395,7 +395,6 @@ public class CloseAndMaxTabbedPane extends JTabbedPane {
 		this.overTabIndex = overTabIndex;
 
 		EventListener maxListeners[] = getListeners(MaxListener.class);
-		System.out.println("asd");
 		for (int i = 0; i < maxListeners.length; i++) {
 			((MaxListener) maxListeners[i]).maxOperation(e);
 		}

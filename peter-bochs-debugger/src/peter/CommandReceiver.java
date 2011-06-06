@@ -49,11 +49,6 @@ public class CommandReceiver implements Runnable {
 				if (lines.size() > 0) {
 					return;
 				}
-				// try {
-				// Thread.currentThread().sleep(2000);
-				// } catch (InterruptedException e) {
-				// }
-				// System.out.println(lines.size());
 			}
 		}
 	}
@@ -75,7 +70,7 @@ public class CommandReceiver implements Runnable {
 				}
 				long diff = new Date().getTime() - startTime;
 				if (diff / 1000 >= 4) {
-					return null;
+					return str;
 				}
 			}
 		}

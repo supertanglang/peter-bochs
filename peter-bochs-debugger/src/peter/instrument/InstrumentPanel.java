@@ -738,11 +738,9 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			} catch (UnsatisfiedLinkError e) {
-				e.printStackTrace();
 				jMemory3DPanel = new JPanel();
 				jMemory3DPanel.add(new JLabel("Error : no gluegen-rt in java.library.path, to fix it, please add -Djava.library.path=<directory that contains libgluegen-rt.so>"));
 			}
-
 		}
 		return jMemory3DPanel;
 	}
@@ -1051,7 +1049,6 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			MyXYBlockRenderer renderer = (MyXYBlockRenderer) jfcMemory.getXYPlot().getRenderer();
 			renderer.setRealX((int) x);
 			renderer.setRealY((int) y);
-			System.out.println(x + "," + y);
 			updateHotestTable(address, blockSize);
 			jfcMemory.fireChartChanged();
 			// ((DefaultXYZDataset)

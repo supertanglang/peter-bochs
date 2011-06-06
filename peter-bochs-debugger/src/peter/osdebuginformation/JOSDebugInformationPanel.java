@@ -325,7 +325,6 @@ public class JOSDebugInformationPanel extends JPanel {
 	private void jFunctionTreeValueChanged(TreeSelectionEvent evt) {
 		FunctionTreeNode node = (FunctionTreeNode) jFunctionTree.getLastSelectedPathComponent();
 		CardLayout cl = (CardLayout) (jMainPanel.getLayout());
-		System.out.println(node.toString());
 		if (node.toString().equals("os")) {
 			cl.show(jMainPanel, "jOSInfoPanel");
 		} else if (node.toString().equals("xml")) {
