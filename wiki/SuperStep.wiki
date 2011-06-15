@@ -15,3 +15,5 @@ Bochs command line debugger supports single step trace, but I think this is nor 
 After the bochs is pause, remember to take a look the history window, it keeps all the past record of registers and tables.
 
 [http://peter-bochs.googlecode.com/files/history_table.png]
+
+[http://peter-bochs.googlecode.com/files/history_table2.png]
