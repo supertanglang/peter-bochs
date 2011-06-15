@@ -1,0 +1,7 @@
+#summary A Better Bochs Step Trace
+
+= Introduction =
+
+Bochs command line debugger supports single step trace, but I think this is nor enough for OS debugger. So I enhanced it with
+
+[http://peter-bochs.googlecode.com/files/super_step.png]
