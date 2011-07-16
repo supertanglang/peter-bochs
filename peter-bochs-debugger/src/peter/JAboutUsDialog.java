@@ -1,15 +1,10 @@
 package peter;
 
-import java.awt.BorderLayout;
-import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
-
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.LayoutStyle;
 import javax.swing.SwingUtilities;
 
 import com.petersoft.CommonLib;

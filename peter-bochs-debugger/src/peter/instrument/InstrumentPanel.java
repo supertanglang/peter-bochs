@@ -28,6 +28,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -36,6 +37,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeSet;
+import java.util.Vector;
 
 import javax.media.opengl.GLCapabilities;
 import javax.swing.ComboBoxModel;
@@ -55,6 +57,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.LayoutStyle;
@@ -98,6 +101,7 @@ import org.jzy3d.plot3d.primitives.Shape;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 
 import peter.CommonLib;
+import peter.Global;
 import peter.JRegisterPanel;
 import peter.Setting;
 import peter.TSSPanel;
@@ -131,18 +135,18 @@ import com.petersoft.advancedswing.combo_color_renderer.ComboBoxRenderer;
 import com.petersoft.advancedswing.searchtextfield.JSearchTextField;
 
 /**
- * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
- * Builder, which is free for non-commercial use. If Jigloo is being used
- * commercially (ie, by a corporation, company or business for any purpose
- * whatever) then you should purchase a license for each developer using Jigloo.
- * Please visit www.cloudgarden.com for details. Use of Jigloo implies
- * acceptance of these licensing terms. A COMMERCIAL LICENSE HAS NOT BEEN
- * PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR
- * ANY CORPORATE OR COMMERCIAL PURPOSE.
+ * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI Builder, which is free for non-commercial use. If Jigloo is being used commercially (ie, by a
+ * corporation, company or business for any purpose whatever) then you should purchase a license for each developer using Jigloo. Please visit www.cloudgarden.com for details. Use
+ * of Jigloo implies acceptance of these licensing terms. A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR ANY
+ * CORPORATE OR COMMERCIAL PURPOSE.
  */
 public class InstrumentPanel extends JPanel implements ChartChangeListener, ChartMouseListener {
 	private JTabbedPane jTabbedPane1;
 	private JPanel jMemoryPanel;
+	private JCheckBox jSortCheckBox;
+	private JTextArea jTextArea1;
+	private JLabel jLabel17;
+	private JScrollPane jScrollPane6;
 	private JComboBox jChartGirdColorComboBox;
 	private JLabel jLabel16;
 	private JComboBox jChartBackgroundComboBox;
@@ -740,6 +744,9 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			} catch (UnsatisfiedLinkError e) {
 				jMemory3DPanel = new JPanel();
 				jMemory3DPanel.add(new JLabel("Error : no gluegen-rt in java.library.path, to fix it, please add -Djava.library.path=<directory that contains libgluegen-rt.so>"));
+				if (Global.debug) {
+					e.printStackTrace();
+				}
 			}
 		}
 		return jMemory3DPanel;
@@ -1078,12 +1085,49 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			jMemoryProfilingPanel = new JPanel();
 			GroupLayout jMemoryProfilingPanelLayout = new GroupLayout((JComponent) jMemoryProfilingPanel);
 			jMemoryProfilingPanel.setLayout(jMemoryProfilingPanelLayout);
+			jMemoryProfilingPanelLayout
+					.setVerticalGroup(jMemoryProfilingPanelLayout
+							.createSequentialGroup()
+							.addContainerGap()
+							.addComponent(getJLabel7(), GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+							.addGroup(
+									jMemoryProfilingPanelLayout
+											.createParallelGroup(GroupLayout.Alignment.BASELINE)
+											.addComponent(getJProfilingFromComboBox(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,
+													GroupLayout.PREFERRED_SIZE)
+											.addComponent(getJLabel8(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,
+													GroupLayout.PREFERRED_SIZE)
+											.addComponent(getJLabel9(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,
+													GroupLayout.PREFERRED_SIZE)
+											.addComponent(getJProfilingToComboBox(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,
+													GroupLayout.PREFERRED_SIZE)
+											.addComponent(getJAddZoneButton(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,
+													GroupLayout.PREFERRED_SIZE))
+							.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+							.addComponent(getJScrollPane2(), GroupLayout.PREFERRED_SIZE, 254, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+							.addGroup(
+									jMemoryProfilingPanelLayout
+											.createParallelGroup(GroupLayout.Alignment.BASELINE)
+											.addComponent(getJSortCheckBox(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,
+													GroupLayout.PREFERRED_SIZE)
+											.addComponent(getJLabel17(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,
+													GroupLayout.PREFERRED_SIZE)).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+							.addComponent(getJScrollPane6(), GroupLayout.PREFERRED_SIZE, 214, GroupLayout.PREFERRED_SIZE).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+							.addComponent(getJDeleteZoneButton(), GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE));
+			jMemoryProfilingPanelLayout.linkSize(SwingConstants.VERTICAL, new Component[] { getJProfilingFromComboBox(), getJProfilingToComboBox() });
 			jMemoryProfilingPanelLayout.setHorizontalGroup(jMemoryProfilingPanelLayout
 					.createSequentialGroup()
 					.addContainerGap()
 					.addGroup(
 							jMemoryProfilingPanelLayout
 									.createParallelGroup()
+									.addGroup(
+											GroupLayout.Alignment.LEADING,
+											jMemoryProfilingPanelLayout.createSequentialGroup()
+													.addComponent(getJLabel7(), GroupLayout.PREFERRED_SIZE, 608, GroupLayout.PREFERRED_SIZE).addGap(0, 156, Short.MAX_VALUE))
 									.addGroup(
 											GroupLayout.Alignment.LEADING,
 											jMemoryProfilingPanelLayout
@@ -1098,55 +1142,33 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 																					.addGroup(
 																							jMemoryProfilingPanelLayout
 																									.createParallelGroup()
-																									.addGroup(
-																											GroupLayout.Alignment.LEADING,
-																											jMemoryProfilingPanelLayout
-																													.createSequentialGroup()
-																													.addComponent(getJLabel8(), GroupLayout.PREFERRED_SIZE, 39,
-																															GroupLayout.PREFERRED_SIZE)
-																													.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-																													.addComponent(getJProfilingFromComboBox(),
-																															GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,
-																															GroupLayout.PREFERRED_SIZE))
+																									.addComponent(getJLabel17(), GroupLayout.Alignment.LEADING,
+																											GroupLayout.PREFERRED_SIZE, 108, GroupLayout.PREFERRED_SIZE)
 																									.addGroup(
 																											GroupLayout.Alignment.LEADING,
 																											jMemoryProfilingPanelLayout
 																													.createSequentialGroup()
 																													.addComponent(getJDeleteZoneButton(),
 																															GroupLayout.PREFERRED_SIZE, 62,
-																															GroupLayout.PREFERRED_SIZE).addGap(108)))
-																					.addGap(7)
-																					.addComponent(getJLabel9(), GroupLayout.PREFERRED_SIZE, 23, GroupLayout.PREFERRED_SIZE)
-																					.addGap(7)
-																					.addComponent(getJProfilingToComboBox(), GroupLayout.PREFERRED_SIZE,
-																							GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE))
+																															GroupLayout.PREFERRED_SIZE).addGap(46)))
+																					.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+																					.addComponent(getJSortCheckBox(), GroupLayout.PREFERRED_SIZE, 79, GroupLayout.PREFERRED_SIZE))
 																	.addGroup(
 																			GroupLayout.Alignment.LEADING,
-																			jMemoryProfilingPanelLayout.createSequentialGroup()
-																					.addComponent(getJLabel7(), GroupLayout.PREFERRED_SIZE, 292, GroupLayout.PREFERRED_SIZE)
-																					.addGap(34)))
-													.addComponent(getJAddZoneButton(), GroupLayout.PREFERRED_SIZE, 62, GroupLayout.PREFERRED_SIZE).addGap(0, 331, Short.MAX_VALUE))
-									.addComponent(getJScrollPane2(), GroupLayout.Alignment.LEADING, 0, 719, Short.MAX_VALUE)).addContainerGap());
+																			jMemoryProfilingPanelLayout
+																					.createSequentialGroup()
+																					.addComponent(getJLabel8(), GroupLayout.PREFERRED_SIZE, 39, GroupLayout.PREFERRED_SIZE)
+																					.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+																					.addComponent(getJProfilingFromComboBox(), GroupLayout.PREFERRED_SIZE,
+																							GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE).addGap(29)))
+													.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 74, GroupLayout.PREFERRED_SIZE)
+													.addComponent(getJLabel9(), GroupLayout.PREFERRED_SIZE, 23, GroupLayout.PREFERRED_SIZE)
+													.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+													.addComponent(getJProfilingToComboBox(), GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+													.addComponent(getJAddZoneButton(), GroupLayout.PREFERRED_SIZE, 62, GroupLayout.PREFERRED_SIZE).addGap(0, 275, Short.MAX_VALUE))
+									.addComponent(getJScrollPane2(), GroupLayout.Alignment.LEADING, 0, 764, Short.MAX_VALUE)
+									.addComponent(getJScrollPane6(), GroupLayout.Alignment.LEADING, 0, 764, Short.MAX_VALUE)).addContainerGap());
 			jMemoryProfilingPanelLayout.linkSize(SwingConstants.HORIZONTAL, new Component[] { getJProfilingFromComboBox(), getJProfilingToComboBox() });
-			jMemoryProfilingPanelLayout.setVerticalGroup(jMemoryProfilingPanelLayout
-					.createSequentialGroup()
-					.addContainerGap()
-					.addComponent(getJLabel7(), GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-					.addGroup(
-							jMemoryProfilingPanelLayout
-									.createParallelGroup(GroupLayout.Alignment.BASELINE)
-									.addComponent(getJProfilingFromComboBox(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,
-											GroupLayout.PREFERRED_SIZE)
-									.addComponent(getJLabel8(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
-									.addComponent(getJLabel9(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
-									.addComponent(getJProfilingToComboBox(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,
-											GroupLayout.PREFERRED_SIZE)
-									.addComponent(getJAddZoneButton(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,
-											GroupLayout.PREFERRED_SIZE)).addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-					.addComponent(getJScrollPane2(), 0, 337, Short.MAX_VALUE).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 0, GroupLayout.PREFERRED_SIZE)
-					.addComponent(getJDeleteZoneButton(), GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE).addContainerGap());
-			jMemoryProfilingPanelLayout.linkSize(SwingConstants.VERTICAL, new Component[] { getJProfilingFromComboBox(), getJProfilingToComboBox() });
 		}
 		return jMemoryProfilingPanel;
 	}
@@ -1222,8 +1244,13 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			ProfilingTableModel profilingTableModel = new ProfilingTableModel();
 			jProfilingTable.setModel(profilingTableModel);
 			jProfilingTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-			jProfilingTable.getColumnModel().getColumn(4).setPreferredWidth(500);
+			jProfilingTable.getColumnModel().getColumn(4).setPreferredWidth(3000);
 			jProfilingTable.getTableHeader().setReorderingAllowed(false);
+			jProfilingTable.addMouseListener(new MouseAdapter() {
+				public void mouseClicked(MouseEvent evt) {
+					jProfilingTableMouseClicked(evt);
+				}
+			});
 			Data.memoryProfilingZone = profilingTableModel;
 
 			try {
@@ -2581,6 +2608,80 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 	private void jChartGirdColorComboBoxActionPerformed(ActionEvent evt) {
 		((XYPlot) interruptChart.getPlot()).setDomainGridlinePaint((Color) jChartGirdColorComboBox.getSelectedItem());
 		((XYPlot) interruptChart.getPlot()).setRangeGridlinePaint((Color) jChartGirdColorComboBox.getSelectedItem());
+	}
+
+	private JScrollPane getJScrollPane6() {
+		if (jScrollPane6 == null) {
+			jScrollPane6 = new JScrollPane();
+			jScrollPane6.setViewportView(getJTextArea1());
+		}
+		return jScrollPane6;
+	}
+
+	private JLabel getJLabel17() {
+		if (jLabel17 == null) {
+			jLabel17 = new JLabel();
+			jLabel17.setText("Information :");
+		}
+		return jLabel17;
+	}
+
+	private JTextArea getJTextArea1() {
+		if (jTextArea1 == null) {
+			jTextArea1 = new JTextArea();
+		}
+		return jTextArea1;
+	}
+
+	private void jProfilingTableMouseClicked(MouseEvent evt) {
+		loadInformation(jSortCheckBox.isSelected(), jProfilingTable.getValueAt(jProfilingTable.getSelectedRow(), 4).toString());
+	}
+
+	private JCheckBox getJSortCheckBox() {
+		if (jSortCheckBox == null) {
+			jSortCheckBox = new JCheckBox();
+			jSortCheckBox.setText("Sort");
+			jSortCheckBox.setSelected(true);
+			jSortCheckBox.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jSortCheckBoxActionPerformed(evt);
+				}
+			});
+		}
+		return jSortCheckBox;
+	}
+
+	private void loadInformation(boolean sort, String str) {
+		String address[] = str.split(":");
+		HashSet<Long> c = new HashSet<Long>();
+		for (int x = 0; x < address.length; x++) {
+			try {
+				c.add(CommonLib.hex2decimal(address[x]));
+			} catch (Exception ex) {
+
+			}
+		}
+		Vector<Long> v = new Vector<Long>();
+
+		Iterator<Long> it = c.iterator();
+		while (it.hasNext()) {
+			Long element = it.next();
+			v.add(element);
+		}
+
+		if (sort) {
+			Collections.sort(v);
+		}
+		jTextArea1.setText("");
+		Iterator<Long> it2 = v.iterator();
+		while (it2.hasNext()) {
+			Long element = it2.next();
+			jTextArea1.setText(jTextArea1.getText() + "\n0x" + Long.toHexString(element));
+		}
+	}
+
+	private void jSortCheckBoxActionPerformed(ActionEvent evt) {
+		loadInformation(jSortCheckBox.isSelected(), jProfilingTable.getValueAt(jProfilingTable.getSelectedRow(), 4).toString());
 	}
 
 }

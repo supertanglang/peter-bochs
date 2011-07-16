@@ -14,7 +14,7 @@ public class JInstructionTableCellRenderer extends JLabel implements TableCellRe
 	ImageIcon breakpointHereIcon = new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/arrow_right_red.png"));
 	ImageIcon breakpointIcon = new ImageIcon(getClass().getClassLoader().getResource("images/breakpoint/breakpoint.png"));
 	ImageIcon breakpointDisableIcon = new ImageIcon(getClass().getClassLoader().getResource("images/breakpoint/breakpointDisable.png"));
-	
+
 	public JInstructionTableCellRenderer() {
 		this.setOpaque(true);
 	}
@@ -23,15 +23,25 @@ public class JInstructionTableCellRenderer extends JLabel implements TableCellRe
 		if (isSelected) {
 			this.setBackground(table.getSelectionBackground());
 		} else {
-			this.setBackground(Color.white);
+			if (row % 2 == 0) {
+				this.setBackground(Color.white);
+			} else {
+				this.setBackground(new Color(0xf4f4f4));
+			}
 		}
-		if (value.toString().equals("here")) {
-			this.setIcon(breakpointHereIcon);
-		} else if (value.toString().equals("O")) {
-			this.setIcon(breakpointIcon);
-		} else if (value.toString().equals("X")) {
-			this.setIcon(breakpointDisableIcon);
+		if (column == 0) {
+			if (value.toString().equals("here")) {
+				this.setIcon(breakpointHereIcon);
+			} else if (value.toString().equals("O")) {
+				this.setIcon(breakpointIcon);
+			} else if (value.toString().equals("X")) {
+				this.setIcon(breakpointDisableIcon);
+			} else {
+				this.setIcon(null);
+			}
+			this.setText(null);
 		} else {
+			this.setText((String) value);
 			this.setIcon(null);
 		}
 		return this;

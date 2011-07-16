@@ -67,10 +67,12 @@ public class MemorySocketServer implements Runnable {
 
 					for (int z = 0; z <= MAX_MEMORY_PROFILING_BUFFER - 4; z += 4) {
 						try {
-							long address = bytes[z] + (bytes[z + 1] << 8) + (bytes[z + 2] << 16) + (bytes[z + 3] << 24);
+							long address = CommonLib.getInt(bytes, z);
 							Data.increaseMemoryReadCount(address);
 						} catch (Exception ex) {
-
+							if (Global.debug) {
+								ex.printStackTrace();
+							}
 						}
 					}
 					// end hit count
@@ -79,7 +81,6 @@ public class MemorySocketServer implements Runnable {
 					try {
 						// hit count
 						int noOfZone = in.readUnsignedByte() + (in.readUnsignedByte() << 8) + (in.readUnsignedByte() << 16) + (in.readUnsignedByte() << 24);
-
 						for (int offset = 0; offset < noOfZone; offset++) {
 							long zoneFrom = in.readUnsignedByte() + (in.readUnsignedByte() << 8) + (in.readUnsignedByte() << 16) + (in.readUnsignedByte() << 24);
 							long zoneTo = in.readUnsignedByte() + (in.readUnsignedByte() << 8) + (in.readUnsignedByte() << 16) + (in.readUnsignedByte() << 24);
@@ -111,7 +112,9 @@ public class MemorySocketServer implements Runnable {
 							}
 						}
 					} catch (Exception ex) {
-
+						if (Global.debug) {
+							ex.printStackTrace();
+						}
 					}
 					// end zones
 
@@ -145,6 +148,9 @@ public class MemorySocketServer implements Runnable {
 		} catch (BindException ex) {
 			JOptionPane.showMessageDialog(null, "You have turn on the profiling feature but the port " + port + " is not available. Program exit", "Error",
 					JOptionPane.ERROR_MESSAGE);
+			if (Global.debug) {
+				ex.printStackTrace();
+			}
 			System.exit(-1);
 		} catch (IOException ex2) {
 
