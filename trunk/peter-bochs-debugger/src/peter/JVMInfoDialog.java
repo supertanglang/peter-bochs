@@ -7,9 +7,7 @@ import java.util.Properties;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 
 import com.petersoft.CommonLib;
 

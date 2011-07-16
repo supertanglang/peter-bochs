@@ -1,44 +1,31 @@
 <?xml version='1.0' ?>  <Setting>
-    <bochsCommandHistory>
-      <bochsCommandHistory>r</bochsCommandHistory>
-    </bochsCommandHistory>
-    <breakpoint>
-      <breakpoint>
-        <address> 0x00007c00</address>
-        <enable>keep y</enable>
-        <hit>0</hit>
-        <no>0</no>
-        <type>1 pbreakpoint</type>
-      </breakpoint>
-    </breakpoint>
+    <bochsCommandHistory/>
+    <breakpoint/>
     <currentLanguage>en_US</currentLanguage>
-    <customZone>true</customZone>
-    <divX>493</divX>
-    <divY>221</divY>
+    <customZone>false</customZone>
+    <divX>555</divX>
+    <divY>408</divY>
     <fontFamily>Dialog</fontFamily>
     <fontsize>12</fontsize>
     <gdt/>
-    <height>572</height>
-    <hitZone>true</hitZone>
+    <height>917</height>
+    <hitZone>false</hitZone>
     <idt/>
-    <jmpProfiling>true</jmpProfiling>
-    <lastElfHistoryOpenDir>C:\peter2\projects\peter-bochs-debugger\vm\menuetos\.</lastElfHistoryOpenDir>
-    <lastElfHistoryOpenDir2>C:\peter2\projects\peter-bochs-debugger\vm\menuetos\.</lastElfHistoryOpenDir2>
+    <interruptProfiling>false</interruptProfiling>
+    <jmpProfiling>false</jmpProfiling>
+    <lastElfHistoryOpenDir>D:\Downloads\workspace\peter-bochs-debugger\vm\menuetos\.</lastElfHistoryOpenDir>
+    <lastElfHistoryOpenDir2>D:\Downloads\workspace\peter-bochs-debugger\vm\menuetos\.</lastElfHistoryOpenDir2>
     <ldt/>
     <loadBreakpointAtStartup>false</loadBreakpointAtStartup>
     <memoryCombo/>
     <memoryEnd/>
-    <memoryProfiling>true</memoryProfiling>
+    <memoryProfiling>false</memoryProfiling>
     <memoryStart/>
     <osDebugSplitPane_DividerLocation>150</osDebugSplitPane_DividerLocation>
     <physicalAddress/>
-    <profileMemoryFromAddress>
-      <profileMemoryFromAddress>31744</profileMemoryFromAddress>
-    </profileMemoryFromAddress>
-    <profileMemoryToAddress>
-      <profileMemoryToAddress>36864</profileMemoryToAddress>
-    </profileMemoryToAddress>
-    <profilingUpdateGraph>true</profilingUpdateGraph>
+    <profileMemoryFromAddress/>
+    <profileMemoryToAddress/>
+    <profilingUpdateGraph>false</profilingUpdateGraph>
     <register/>
     <tss/>
     <updateAfterBochsCommand>false</updateAfterBochsCommand>
@@ -60,7 +47,7 @@
     <updateFastStepCommand_ldt>false</updateFastStepCommand_ldt>
     <updateFastStepCommand_memory>true</updateFastStepCommand_memory>
     <updateFastStepCommand_register>true</updateFastStepCommand_register>
-    <width>1063</width>
-    <x>146</x>
-    <y>49</y>
+    <width>1455</width>
+    <x>329</x>
+    <y>76</y>
   </Setting>

@@ -1,8 +1,10 @@
 Next at t=0
-(0) [0xfffffff0] f000:fff0 (unk. ctxt): jmp far f000:e05b         ; ea5be000f0
-<bochs:1> r
+(0) [0x00000000fffffff0] f000:fff0 (unk. ctxt): jmp far f000:e05b         ; ea5be000f0
+<bochs:1> info break
+Num Type           Disp Enb Address
+<bochs:2> r
 rax: 0x00000000:00000000 rcx: 0x00000000:00000000
-rdx: 0x00000000:00000f20 rbx: 0x00000000:00000000
+rdx: 0x00000000:00000f23 rbx: 0x00000000:00000000
 rsp: 0x00000000:00000000 rbp: 0x00000000:00000000
 rsi: 0x00000000:00000000 rdi: 0x00000000:00000000
 r8 : 0x00000000:00000000 r9 : 0x00000000:00000000
@@ -11,7 +13,7 @@ r12: 0x00000000:00000000 r13: 0x00000000:00000000
 r14: 0x00000000:00000000 r15: 0x00000000:00000000
 rip: 0x00000000:0000fff0
 eflags 0x00000002: id vip vif ac vm rf nt IOPL=0 of df if tf sf zf af pf cf
-<bochs:2> sreg
+<bochs:3> sreg
 es:0x0000, dh=0x00009300, dl=0x0000ffff, valid=7
 	Data segment, base=0x00000000, limit=0x0000ffff, Read/Write, Accessed
 cs:0xf000, dh=0xff0093ff, dl=0x0000ffff, valid=7
@@ -28,24 +30,24 @@ ldtr:0x0000, dh=0x00008200, dl=0x0000ffff, valid=1
 tr:0x0000, dh=0x00008b00, dl=0x0000ffff, valid=1
 gdtr:base=0x0000000000000000, limit=0xffff
 idtr:base=0x0000000000000000, limit=0xffff
-<bochs:3> creg
+<bochs:4> creg
 CR0=0x60000010: pg CD NW ac wp ne ET ts em mp pe
 CR2=page fault laddr=0x0000000000000000
-CR3=0x00000000
+CR3=0x0000000000000000
     PCD=page-level cache disable=0
     PWT=page-level write-through=0
-CR4=0x00000000: osxsave smx vmx osxmmexcpt osfxsr pce pge mce pae pse de tsd pvi vme
+CR4=0x00000000: osxsave pcid fsgsbase smx vmx osxmmexcpt osfxsr pce pge mce pae pse de tsd pvi vme
 EFER=0x00000000: ffxsr nxe lma lme sce
-<bochs:4> dreg
+<bochs:5> dreg
 DR0=0x0000000000000000
 DR1=0x0000000000000000
 DR2=0x0000000000000000
 DR3=0x0000000000000000
 DR6=0xffff0ff0: bt bs bd b3 b2 b1 b0
 DR7=0x00000400: DR3=Code-Byte DR2=Code-Byte DR1=Code-Byte DR0=Code-Byte gd | ge le | g3 l3 g2 l2 g1 l1 g0 l0
-<bochs:5> info eflags
+<bochs:6> info eflags
 id vip vif ac vm rf nt IOPL=0 of df if tf sf zf af pf cf
-<bochs:6> disasm cs:eip 0xf000:0x10103
+<bochs:7> disasm cs:eip 0xf000:0x10103
 000ffff0: (                    ): jmp far f000:e05b         ; ea5be000f0
 000ffff5: (                    ): xor byte ptr ds:[di], dh  ; 3035
 000ffff7: (                    ): das                       ; 2f
@@ -184,11 +186,11 @@ id vip vif ac vm rf nt IOPL=0 of df if tf sf zf af pf cf
 001000fe: (                    ): add byte ptr ds:[bx+si], al ; 0000
 00100100: (                    ): add byte ptr ds:[bx+si], al ; 0000
 00100102: (                    ): add byte ptr ds:[bx+si], al ; 0000
-<bochs:7> info break
-Num Type           Disp Enb Address
 <bochs:8> info break
 Num Type           Disp Enb Address
-<bochs:9> info gdt 0 100
+<bochs:9> info break
+Num Type           Disp Enb Address
+<bochs:10> info gdt 0 100
 Global Descriptor Table (base=0x0000000000000000, limit=65535):
 GDT[0x00]=??? descriptor hi=0x00000000, lo=0x00000000
 GDT[0x01]=??? descriptor hi=0x00000000, lo=0x00000000
@@ -291,7 +293,7 @@ GDT[0x61]=??? descriptor hi=0x00000000, lo=0x00000000
 GDT[0x62]=??? descriptor hi=0x00000000, lo=0x00000000
 GDT[0x63]=??? descriptor hi=0x00000000, lo=0x00000000
 GDT[0x64]=??? descriptor hi=0x00000000, lo=0x00000000
-<bochs:10> info idt 0 25
+<bochs:11> info idt 0 25
 Interrupt Descriptor Table (base=0x0000000000000000, limit=65535):
 IDT[0x00]=??? descriptor hi=0x00000000, lo=0x00000000
 IDT[0x01]=??? descriptor hi=0x00000000, lo=0x00000000
@@ -319,7 +321,7 @@ IDT[0x16]=??? descriptor hi=0x00000000, lo=0x00000000
 IDT[0x17]=??? descriptor hi=0x00000000, lo=0x00000000
 IDT[0x18]=??? descriptor hi=0x00000000, lo=0x00000000
 IDT[0x19]=??? descriptor hi=0x00000000, lo=0x00000000
-<bochs:11> xp /4096bx 0
+<bochs:12> xp /4096bx 0
 [bochs]:
 0x0000000000000000 <bogus+       0>:	0x00	0x00	0x00	0x00	0x00	0x00	0x00	0x00
 0x0000000000000008 <bogus+       8>:	0x00	0x00	0x00	0x00	0x00	0x00	0x00	0x00
@@ -833,7 +835,7 @@ IDT[0x19]=??? descriptor hi=0x00000000, lo=0x00000000
 0x0000000000000fe8 <bogus+    4072>:	0x00	0x00	0x00	0x00	0x00	0x00	0x00	0x00
 0x0000000000000ff0 <bogus+    4080>:	0x00	0x00	0x00	0x00	0x00	0x00	0x00	0x00
 0x0000000000000ff8 <bogus+    4088>:	0x00	0x00	0x00	0x00	0x00	0x00	0x00	0x00
-<bochs:12> print-stack 40
+<bochs:13> print-stack 40
 Stack address size 2
  | STACK 0x0000 [0x0000]
  | STACK 0x0002 [0x0000]
@@ -875,14 +877,7 @@ Stack address size 2
  | STACK 0x004a [0x0000]
  | STACK 0x004c [0x0000]
  | STACK 0x004e [0x0000]
-<bochs:13> info tab
-<bochs:14> info break
+<bochs:14> info tab
+<bochs:15> info break
 Num Type           Disp Enb Address
-<bochs:15> xp /8bx -1
-[bochs]:
-0xffffffffffffffff <bogus+       0>:	0xf5	0x00	0x00	0x00	0x00	0x00	0x00	0x00
-<bochs:16> pb  0x00007c00
-<bochs:17> info break
-Num Type           Disp Enb Address
-  1 pbreakpoint    keep y   0x00007c00
-<bochs:18> 
+<bochs:16> 

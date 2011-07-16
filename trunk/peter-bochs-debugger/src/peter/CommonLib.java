@@ -615,6 +615,14 @@ public class CommonLib {
 		bb[index + 3] = (byte) (x >> 24);
 	}
 
+	public static long getInt(byte[] bb, int index) {
+		return (long) ((((bb[index + 0] & 0xff) << 0) | ((bb[index + 1] & 0xff) << 8) | ((bb[index + 2] & 0xff) << 16) | ((bb[index + 3] & 0xff) << 24)));
+	}
+
+	public static long getInt(byte b0, byte b1, byte b2, byte b3) {
+		return (long) ((((b0 & 0xff) << 0) | ((b1 & 0xff) << 8) | ((b2 & 0xff) << 16) | ((b3 & 0xff) << 24)));
+	}
+
 	public static long getInt(int[] bb, int index) {
 		return (long) ((((bb[index + 0] & 0xff) << 0) | ((bb[index + 1] & 0xff) << 8) | ((bb[index + 2] & 0xff) << 16) | ((bb[index + 3] & 0xff) << 24)));
 	}

@@ -40,4 +40,6 @@ public class AllRegisters {
 	public static Vector<Vector<Long>> ldt = new Vector<Vector<Long>>();
 
 	public static Vector<Long> tr = new Vector<Long>();
+
+	public static Vector<String> instructions = new Vector<String>();
 }
