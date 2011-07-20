@@ -1,0 +1,3 @@
+Author : Peter Cheung (mcheung63@hotmail.com)
+
+2011/07/17 bochs changed the instrument again, if you are using the bochs before 2011 June, please rename instrument_old.cc to instrument.cc , rename instrument_old.h to instrument.h
