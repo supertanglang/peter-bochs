@@ -48,7 +48,7 @@ public class SearchMemoryDialog extends javax.swing.JDialog {
 		this.to = to;
 
 		initGUI();
-		setTitle(Application.language.getString("Search") + " " + pattern + " " + Application.language.getString("From") + " 0x" + Long.toHexString(from) + " " + Application.language.getString("To")
+		setTitle(MyLanguage.getString("Search") + " " + pattern + " " + MyLanguage.getString("From") + " 0x" + Long.toHexString(from) + " " + MyLanguage.getString("To")
 				+ " 0x" + Long.toHexString(to));
 		t = new Thread(s);
 		t.start();
@@ -75,7 +75,7 @@ public class SearchMemoryDialog extends javax.swing.JDialog {
 							jButton1ActionPerformed(evt);
 						}
 					});
-					jButton1.setText(Application.language.getString("Cancel"));
+					jButton1.setText(MyLanguage.getString("Cancel"));
 				}
 			}
 			{
@@ -91,7 +91,7 @@ public class SearchMemoryDialog extends javax.swing.JDialog {
 				{
 					jLabel1 = new JLabel();
 					jPanel2.add(jLabel1, BorderLayout.NORTH);
-					jLabel1.setText(Application.language.getString("Searching_these_bytes"));
+					jLabel1.setText(MyLanguage.getString("Searching_these_bytes"));
 				}
 			}
 			setSize(350, 130);
@@ -164,7 +164,7 @@ public class SearchMemoryDialog extends javax.swing.JDialog {
 				jProgressBar1.setValue((int) ((addr - from) * 100 / (to - from)));
 			}
 			jProgressBar1.setValue(100);
-			jButton1.setText(Application.language.getString("Finished"));
+			jButton1.setText(MyLanguage.getString("Finished"));
 		}
 	}
 

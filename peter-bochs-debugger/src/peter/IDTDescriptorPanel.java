@@ -61,7 +61,7 @@ public class IDTDescriptorPanel extends JPanel {
 				jTabbedPane1.setPreferredSize(new java.awt.Dimension(515, 437));
 				{
 					jPanel2 = new JPanel();
-					jTabbedPane1.addTab(Application.language.getString("Info"), null, jPanel2, null);
+					jTabbedPane1.addTab(MyLanguage.getString("Info"), null, jPanel2, null);
 					BorderLayout jPanel2Layout = new BorderLayout();
 					jPanel2.setLayout(jPanel2Layout);
 					{
@@ -88,15 +88,15 @@ public class IDTDescriptorPanel extends JPanel {
 				}
 				{
 					jPanel3 = new JPanel();
-					jTabbedPane1.addTab(Application.language.getString("Field"), null, jPanel3, null);
+					jTabbedPane1.addTab(MyLanguage.getString("Field"), null, jPanel3, null);
 					BorderLayout jPanel3Layout = new BorderLayout();
 					jPanel3.setLayout(jPanel3Layout);
 					{
 						jScrollPane2 = new JScrollPane();
 						jPanel3.add(jScrollPane2, BorderLayout.CENTER);
 						{
-							TableModel jTable2Model = new DefaultTableModel(new String[][] {}, new String[] { Application.language.getString("Field"),
-									Application.language.getString("Value") });
+							TableModel jTable2Model = new DefaultTableModel(new String[][] {}, new String[] { MyLanguage.getString("Field"),
+									MyLanguage.getString("Value") });
 							jFieldTable = new JTable();
 							jScrollPane2.setViewportView(jFieldTable);
 							jFieldTable.setModel(jTable2Model);
@@ -207,7 +207,7 @@ public class IDTDescriptorPanel extends JPanel {
 			// parse each descriptor
 
 			JScrollPane pane = new JScrollPane();
-			jTabbedPane1.addTab(Application.language.getString("Descriptor"), null, pane, null);
+			jTabbedPane1.addTab(MyLanguage.getString("Descriptor"), null, pane, null);
 			JTable table = new JTable();
 			DefaultTableModel model2 = new DefaultTableModel(new String[][] {}, new String[] { "No.", "Type", "Value", "Base", "Limit", "A", "R/W", "C/E", "X", "S", "DPL", "P",
 					"AVL", "D/B", "G" });

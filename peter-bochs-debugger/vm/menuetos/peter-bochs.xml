@@ -2,30 +2,69 @@
     <bochsCommandHistory/>
     <breakpoint/>
     <currentLanguage>en_US</currentLanguage>
-    <customZone>false</customZone>
-    <divX>555</divX>
-    <divY>408</divY>
+    <customZone>true</customZone>
+    <divX>579</divX>
+    <divY>404</divY>
     <fontFamily>Dialog</fontFamily>
     <fontsize>12</fontsize>
     <gdt/>
-    <height>917</height>
-    <hitZone>false</hitZone>
+    <height>762</height>
+    <hitZone>true</hitZone>
     <idt/>
-    <interruptProfiling>false</interruptProfiling>
-    <jmpProfiling>false</jmpProfiling>
-    <lastElfHistoryOpenDir>D:\Downloads\workspace\peter-bochs-debugger\vm\menuetos\.</lastElfHistoryOpenDir>
-    <lastElfHistoryOpenDir2>D:\Downloads\workspace\peter-bochs-debugger\vm\menuetos\.</lastElfHistoryOpenDir2>
+    <interruptProfiling>true</interruptProfiling>
+    <jmpProfiling>true</jmpProfiling>
+    <lastElfHistoryOpenDir>/root/workspace2/peter-bochs-debugger/vm/menuetos/.</lastElfHistoryOpenDir>
+    <lastElfHistoryOpenDir2>/root/workspace2/peter-bochs-debugger/vm/menuetos/.</lastElfHistoryOpenDir2>
     <ldt/>
     <loadBreakpointAtStartup>false</loadBreakpointAtStartup>
-    <memoryCombo/>
+    <memoryCombo>
+      <memoryCombo>0x0</memoryCombo>
+      <memoryCombo>0x100</memoryCombo>
+      <memoryCombo>0x1000000b8</memoryCombo>
+      <memoryCombo>0x100000180</memoryCombo>
+      <memoryCombo>0x1000001c8</memoryCombo>
+      <memoryCombo>0x190</memoryCombo>
+      <memoryCombo>0x258</memoryCombo>
+      <memoryCombo>0x320</memoryCombo>
+      <memoryCombo>0x38</memoryCombo>
+      <memoryCombo>0x3e8</memoryCombo>
+      <memoryCombo>0x4b0</memoryCombo>
+      <memoryCombo>0x578</memoryCombo>
+      <memoryCombo>0xb8000</memoryCombo>
+      <memoryCombo>0xc8</memoryCombo>
+      <memoryCombo>0xfffef618</memoryCombo>
+      <memoryCombo>0xfffef6e0</memoryCombo>
+      <memoryCombo>0xfffef7a8</memoryCombo>
+      <memoryCombo>0xfffef870</memoryCombo>
+      <memoryCombo>0xfffef938</memoryCombo>
+      <memoryCombo>0xfffefa00</memoryCombo>
+      <memoryCombo>0xfffefa88</memoryCombo>
+      <memoryCombo>0xfffefb00</memoryCombo>
+      <memoryCombo>0xfffefb50</memoryCombo>
+      <memoryCombo>0xfffefc00</memoryCombo>
+      <memoryCombo>0xfffefc18</memoryCombo>
+      <memoryCombo>0xfffefce0</memoryCombo>
+      <memoryCombo>0xfffefd00</memoryCombo>
+      <memoryCombo>0xfffefda8</memoryCombo>
+      <memoryCombo>0xfffefe00</memoryCombo>
+      <memoryCombo>0xfffefe70</memoryCombo>
+      <memoryCombo>0xfffeff00</memoryCombo>
+      <memoryCombo>0xfffeff38</memoryCombo>
+      <memoryCombo>0xffff0000</memoryCombo>
+      <memoryCombo>0xfffffff0</memoryCombo>
+    </memoryCombo>
     <memoryEnd/>
-    <memoryProfiling>false</memoryProfiling>
+    <memoryProfiling>true</memoryProfiling>
     <memoryStart/>
     <osDebugSplitPane_DividerLocation>150</osDebugSplitPane_DividerLocation>
     <physicalAddress/>
-    <profileMemoryFromAddress/>
-    <profileMemoryToAddress/>
-    <profilingUpdateGraph>false</profilingUpdateGraph>
+    <profileMemoryFromAddress>
+      <profileMemoryFromAddress>31744</profileMemoryFromAddress>
+    </profileMemoryFromAddress>
+    <profileMemoryToAddress>
+      <profileMemoryToAddress>1048576</profileMemoryToAddress>
+    </profileMemoryToAddress>
+    <profilingUpdateGraph>true</profilingUpdateGraph>
     <register/>
     <tss/>
     <updateAfterBochsCommand>false</updateAfterBochsCommand>
@@ -47,7 +86,7 @@
     <updateFastStepCommand_ldt>false</updateFastStepCommand_ldt>
     <updateFastStepCommand_memory>true</updateFastStepCommand_memory>
     <updateFastStepCommand_register>true</updateFastStepCommand_register>
-    <width>1455</width>
-    <x>329</x>
-    <y>76</y>
+    <width>1141</width>
+    <x>157</x>
+    <y>63</y>
   </Setting>

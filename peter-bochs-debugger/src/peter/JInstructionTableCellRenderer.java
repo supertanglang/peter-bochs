@@ -7,6 +7,7 @@ import java.util.HashMap;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.table.TableCellRenderer;
 
 public class JInstructionTableCellRenderer extends JLabel implements TableCellRenderer {
@@ -43,6 +44,11 @@ public class JInstructionTableCellRenderer extends JLabel implements TableCellRe
 		} else {
 			this.setText((String) value);
 			this.setIcon(null);
+		}
+		if (column == 1) {
+			this.setHorizontalAlignment(SwingConstants.CENTER);
+		} else {
+			this.setHorizontalAlignment(SwingConstants.LEFT);
 		}
 		return this;
 	}

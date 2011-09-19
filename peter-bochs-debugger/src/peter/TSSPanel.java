@@ -127,8 +127,8 @@ public class TSSPanel extends JPanel {
 						jSplitPane1.add(jScrollPane2, JSplitPane.LEFT);
 						jScrollPane2.setPreferredSize(new java.awt.Dimension(449, 600));
 						{
-							TableModel jTable2Model = new DefaultTableModel(new String[][] {}, new String[] { Application.language.getString("Field"),
-									Application.language.getString("Value") });
+							TableModel jTable2Model = new DefaultTableModel(new String[][] {}, new String[] { MyLanguage.getString("Field"),
+									MyLanguage.getString("Value") });
 							jTable2 = new JTable();
 							jScrollPane2.setViewportView(jTable2);
 							jTable2.setModel(jTable2Model);
@@ -139,8 +139,8 @@ public class TSSPanel extends JPanel {
 						jSplitPane1.add(jScrollPane3, JSplitPane.RIGHT);
 						jScrollPane3.setPreferredSize(new java.awt.Dimension(457, 600));
 						{
-							TableModel jTSSTableModel = new DefaultTableModel(new String[][] {}, new String[] { Application.language.getString("Offset"),
-									Application.language.getString("Field"), Application.language.getString("Value"), "" });
+							TableModel jTSSTableModel = new DefaultTableModel(new String[][] {}, new String[] { MyLanguage.getString("Offset"),
+									MyLanguage.getString("Field"), MyLanguage.getString("Value"), "" });
 							jTSSTable = new JTable();
 							jScrollPane3.setViewportView(jTSSTable);
 							jTSSTable.setModel(jTSSTableModel);
@@ -192,7 +192,7 @@ public class TSSPanel extends JPanel {
 						{
 							jLabel1 = new JLabel();
 							jPanel3.add(jLabel1, new CellConstraints("2, 1, 1, 1, default, default"));
-							jLabel1.setText(Application.language.getString("Linear_address"));
+							jLabel1.setText(MyLanguage.getString("Linear_address"));
 							jLabel1.setBounds(691, 12, 143, 14);
 						}
 						{
@@ -251,14 +251,14 @@ public class TSSPanel extends JPanel {
 						jPanel20.setLayout(jPanel20Layout);
 						{
 							jSearchAddressRadioButton1 = new JRadioButton();
-							jSearchAddressRadioButton1.setText(Application.language.getString("Virtual_address"));
+							jSearchAddressRadioButton1.setText(MyLanguage.getString("Virtual_address"));
 							jPanel20.add(jSearchAddressRadioButton1, "1, 0, 2, 0");
 							jSearchAddressRadioButton1.setSelected(true);
 							getButtonGroup1().add(jSearchAddressRadioButton1);
 						}
 						{
 							jSearchAddressRadioButton2 = new JRadioButton();
-							jSearchAddressRadioButton2.setText(Application.language.getString("Linear_address"));
+							jSearchAddressRadioButton2.setText(MyLanguage.getString("Linear_address"));
 							jPanel20.add(jSearchAddressRadioButton2, "1, 1, 2, 1");
 							getButtonGroup1().add(jSearchAddressRadioButton2);
 						}
@@ -272,7 +272,7 @@ public class TSSPanel extends JPanel {
 							jPanel20.add(jPanel21, "1, 4");
 							{
 								jRefreshAddressTranslateButton = new JButton();
-								jRefreshAddressTranslateButton.setText(Application.language.getString("Convert"));
+								jRefreshAddressTranslateButton.setText(MyLanguage.getString("Convert"));
 								jPanel21.add(jRefreshAddressTranslateButton);
 								jRefreshAddressTranslateButton.addActionListener(new ActionListener() {
 									public void actionPerformed(ActionEvent evt) {

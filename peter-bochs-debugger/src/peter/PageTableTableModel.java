@@ -3,7 +3,7 @@ package peter;
 import javax.swing.table.DefaultTableModel;
 
 public class PageTableTableModel extends DefaultTableModel {
-	String columnNames[] = new String[] { "No.", Application.language.getString("Physical_address"), "AVL", "G", "PAT", "D", "A", "PCD", "PWT", "U/S", "W/R", "P" };
+	String columnNames[] = new String[] { "No.", MyLanguage.getString("Physical_address"), "AVL", "G", "PAT", "D", "A", "PCD", "PWT", "U/S", "W/R", "P" };
 	boolean showZeroAddress = true;
 
 	public boolean isShowZeroAddress() {

@@ -5,6 +5,7 @@ import java.awt.Component;
 
 import javax.swing.JLabel;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.table.TableCellRenderer;
 
 public class JMemoryTableCellRenderer extends JLabel implements TableCellRenderer {
@@ -20,6 +21,11 @@ public class JMemoryTableCellRenderer extends JLabel implements TableCellRendere
 				this.setBackground(Color.white);
 			} else {
 				this.setBackground(new Color(0xf4f4f4));
+			}
+			if (column >= 0 && column <= 8) {
+				this.setHorizontalAlignment(SwingConstants.CENTER);
+			} else {
+				this.setHorizontalAlignment(SwingConstants.LEFT);
 			}
 		}
 		this.setText(value.toString());

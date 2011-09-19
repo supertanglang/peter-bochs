@@ -48,6 +48,8 @@ import java.util.TreeSet;
 import java.util.Vector;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -114,6 +116,7 @@ import peter.instrument.MemorySocketServerController;
 import peter.logpanel.LogPanel;
 import peter.osdebuginformation.JOSDebugInformationPanel;
 import peter.osdebuginformation.OSDebugInfoHelper;
+import peter.sourceleveldebugger.SourceLevelDebugger;
 
 import com.petersoft.advancedswing.diskpanel.DiskPanel;
 import com.petersoft.advancedswing.enhancedtextarea.EnhancedTextArea;
@@ -165,7 +168,7 @@ public class Application extends javax.swing.JFrame {
 	private JTextField jBochsCommandTextField;
 	private JPanel jPanel2;
 	private JPanel jPanel1;
-	private JTable jInstructionTable;
+	public static JTable jInstructionTable;
 	private JScrollPane jScrollPane5;
 	private JScrollPane jScrollPane4;
 	public JComboBox jMemoryAddressComboBox;
@@ -220,6 +223,16 @@ public class Application extends javax.swing.JFrame {
 	private JPanel jPanel22;
 	private JPanel jPanel24;
 	private JToolBar jPanel26;
+	private ButtonGroup buttonGroup4;
+	public JMenuItem jWhereIsHereMenuItem;
+	private JMenuItem jLoadSystemMapMenuItem;
+	private JMenu jSystemMenu;
+	private JToggleButton jSourceLevelDebuggerButton;
+	private SourceLevelDebugger sourceLevelDebugger;
+	public JMenuItem jShowInSourceCodeMenuItem;
+	private JSeparator jSeparator3;
+	private JRadioButton jMMXRadioButton;
+	private JRadioButton jFPURadioButton;
 	private JButton jPreviousMemoryButton;
 	private JButton jNextMemoryPageButton;
 	private JComboBox jMaxRowComboBox;
@@ -270,8 +283,8 @@ public class Application extends javax.swing.JFrame {
 	private JMenuItem jMenuItem7;
 	private JMenuItem jMenuItem6;
 	private JPopupMenu jBreakpointPopupMenu;
-	private JMenuItem jMenuItem5;
-	private JMenuItem jMenuItem4;
+	private JMenuItem jSetLinearBreakpointMenuItem;
+	private JMenuItem jSetPhysicalBreakpointMenuItem;
 	private JPopupMenu jInstructionPanelPopupMenu;
 	private JCheckBox jHideIfAddressIsZeroCheckBox;
 	private JMaximizableTabbedPane_BasePanel jMaximizableTabbedPane_BasePanel1;
@@ -348,9 +361,9 @@ public class Application extends javax.swing.JFrame {
 	private JButton jButton7;
 	private JButton jButton6;
 	private JPanel jPanel14;
-	private JRadioButton jRadioButton2;
+	private JRadioButton jTblRadioButton;
 	private JToolBar jPanel13;
-	private JRadioButton jRadioButton1;
+	private JRadioButton jRegRadioButton;
 	private JTable jHistoryTable;
 	private JMenuItem jDialogMenuItem;
 	private JMenuItem jArialMenuItem;
@@ -374,7 +387,7 @@ public class Application extends javax.swing.JFrame {
 	private JButton jButton1;
 	private JButton jButton2;
 	private JButton jButton3;
-	private JButton jButton4;
+	private JButton jExportHistoryToExcelButton;
 	private JButton jButton5;
 	private JButton jButton12;
 	private JButton jButton13;
@@ -401,6 +414,7 @@ public class Application extends javax.swing.JFrame {
 	static boolean preventSetVisibleHang = true;
 
 	boolean breakpointLoadedOnce = false;
+	boolean systemMapLoadedOnce = false;
 	private JScrollPane jScrollPane17;
 	private JEditorPane jEditorPane1;
 	private JButton jSearchObjdumpButton;
@@ -519,6 +533,7 @@ public class Application extends javax.swing.JFrame {
 					} catch (UnsatisfiedLinkError e) {
 						e.printStackTrace();
 						System.err.println("Native code library failed to load.\n" + e);
+						System.err.println("Solution : Please add \"-Djava.library.path=.\" to start peter-bochs\n" + e);
 					}
 				} else if (System.getProperty("os.name").toLowerCase().startsWith("windows")) {
 					writeToFile(jarFile.getInputStream(new JarEntry("exe/PauseBochs.exe")), new File("PauseBochs.exe"));
@@ -551,6 +566,7 @@ public class Application extends javax.swing.JFrame {
 					} catch (UnsatisfiedLinkError e) {
 						e.printStackTrace();
 						System.err.println("Native code library failed to load.\n" + e);
+						System.err.println("Solution : Please add \"-Djava.library.path=.\" to start peter-bochs\n" + e);
 					}
 				}
 			}
@@ -574,6 +590,11 @@ public class Application extends javax.swing.JFrame {
 				x = -1;
 			} else if (args[x].toLowerCase().startsWith("-profilingjmpport")) {
 				Global.profilingJmpPort = (int) CommonLib.convertFilesize(args[x].replaceAll("-.*=", ""));
+				args = (String[]) ArrayUtils.removeElement(args, args[x]);
+				x = -1;
+			} else if (args[x].toLowerCase().startsWith("-loadmap")) {
+				Global.mapFilePath = args[x].replaceAll("-.*=", "");
+				Setting.getInstance().setLoadSystemMapAtStartup(true);
 				args = (String[]) ArrayUtils.removeElement(args, args[x]);
 				x = -1;
 			}
@@ -754,7 +775,6 @@ public class Application extends javax.swing.JFrame {
 					}
 				}
 			}
-			jLoadBreakpointButtonActionPerformed(null);
 		} catch (Exception ex) {
 			JOptionPane.showMessageDialog(this, MyLanguage.getString("Unable_to_start_bochs") + "\n" + MyLanguage.getString("Tips_you_specified_a_wrong_path_of_bochs"));
 			ex.printStackTrace();
@@ -804,9 +824,13 @@ public class Application extends javax.swing.JFrame {
 
 				updateBochsStatus();
 
-				CardLayout cl = (CardLayout) (jMainPanel.getLayout());
-				cl.show(jMainPanel, currentPanel);
-
+				SwingUtilities.invokeLater(new Runnable() {
+					// this invokeLater prevent openJDK hang my program, I am using FC15
+					public void run() {
+						CardLayout cl = (CardLayout) (jMainPanel.getLayout());
+						cl.show(jMainPanel, currentPanel);
+					}
+				});
 				jRunBochsButton.setText(MyLanguage.getString("Run_bochs"));
 				jRunBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/resultset_next.png")));
 				// jStepBochsButton.setEnabled(true);
@@ -942,6 +966,7 @@ public class Application extends javax.swing.JFrame {
 					jToolBar1.add(getJButton13());
 					jToolBar1.add(getJSettingButton());
 					jToolBar1.add(getJRegisterToggleButton());
+					jToolBar1.add(getJSourceLevelDebuggerButton());
 					jToolBar1.add(getJProfilerToggleButton());
 					jToolBar1.add(getJLogToggleButton());
 					jToolBar1.add(getJOSLogToggleButton());
@@ -994,6 +1019,7 @@ public class Application extends javax.swing.JFrame {
 					jMenuBar1.add(jMenu4);
 					jMenuBar1.add(getJFontMenu());
 					jMenuBar1.add(getJMenu6());
+					jMenuBar1.add(getJSystemMenu());
 					jMenu4.setText(MyLanguage.getString("Bochs"));
 					{
 						startBochsMenuItem = new JMenuItem();
@@ -1085,6 +1111,10 @@ public class Application extends javax.swing.JFrame {
 			// pack();
 			initGlobalFontSetting(new Font(Setting.getInstance().getFontFamily(), Font.PLAIN, Setting.getInstance().getFontsize()));
 			jInstrumentPanel.setThing(jStatusProgressBar, jStatusLabel);
+
+			// prevent null jmenuitem
+			getJInstructionPanelPopupMenu();
+			// end prevent null jmenuitem
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(ERROR);
@@ -1243,14 +1273,16 @@ public class Application extends javax.swing.JFrame {
 				untilThread.ipDelta = CommonLib.convertFilesize(s);
 			}
 
-			if (currentPanel.equals("jMaximizableTabbedPane_BasePanel1")) {
-				CardLayout cl = (CardLayout) (jMainPanel.getLayout());
-				cl.show(jMainPanel, "Running Label 2");
-			}
+			// if (currentPanel.equals("jMaximizableTabbedPane_BasePanel1")) {
+			CardLayout cl = (CardLayout) (jMainPanel.getLayout());
+			cl.show(jMainPanel, "Running Label 2");
+			// }
 			new Thread(untilThread, "Step until thread").start();
 		} else {
 			sendCommand("s");
-			updateBochsStatus();
+			String re = commandReceiver.getCommandResult("(").toLowerCase();
+			updateHistoryTable(re);
+			updateBochsStatus(false, false);
 		}
 	}
 
@@ -1279,7 +1311,7 @@ public class Application extends javax.swing.JFrame {
 							String re = commandReceiver.getCommandResult("(").toLowerCase();
 							updateHistoryTable(re);
 						}
-						updateBochsStatus();
+						updateBochsStatus(false, false);
 					} else if (eventSource == jStep100MenuItem) {
 						for (int x = 1; x <= 100 && !shouldStop; x++) {
 							jStatusLabel.setText("Step " + x + " / 100");
@@ -1540,10 +1572,10 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	public void updateBochsStatus() {
-		updateBochsStatus(false);
+		updateBochsStatus(false, true);
 	}
 
-	public void updateBochsStatus(boolean shouldWait) {
+	public void updateBochsStatus(boolean shouldWait, final boolean updateHistoryTable) {
 		Thread updateThread = new Thread("updateBochsStatus thread") {
 			public void run() {
 				enableAllButtons(false, false);
@@ -1593,10 +1625,12 @@ public class Application extends javax.swing.JFrame {
 				}
 				updateAddressTranslate();
 
-				if (Global.debug) {
-					System.out.println("updateHistoryTable");
+				if (updateHistoryTable) {
+					if (Global.debug) {
+						System.out.println("updateHistoryTable");
+					}
+					updateHistoryTable();
 				}
-				updateHistoryTable();
 
 				if (Global.debug) {
 					System.out.println("updateBreakpointTableColor");
@@ -1625,8 +1659,11 @@ public class Application extends javax.swing.JFrame {
 
 				if (breakpointLoadedOnce == false && Setting.getInstance().loadBreakpointAtStartup) {
 					jLoadBreakpointButtonActionPerformed(null);
-					breakpointLoadedOnce = true; // since we only have to load
-													// once
+					breakpointLoadedOnce = true; // since we only have to load once
+				}
+				if (systemMapLoadedOnce == false && Setting.getInstance().loadSystemMapAtStartup) {
+					sourceLevelDebugger.loadSystemMap(new File(Global.mapFilePath));
+					systemMapLoadedOnce = true; // since we only have to load once
 				}
 			}
 		};
@@ -1758,8 +1795,7 @@ public class Application extends javax.swing.JFrame {
 
 				if (breakpointLoadedOnce == false && Setting.getInstance().loadBreakpointAtStartup) {
 					jLoadBreakpointButtonActionPerformed(null);
-					breakpointLoadedOnce = true; // since we only have to load
-					// once
+					breakpointLoadedOnce = true; // since we only have to load once
 				}
 			}
 		};
@@ -1846,6 +1882,28 @@ public class Application extends javax.swing.JFrame {
 			}
 			AllRegisters.stack.add(stack);
 
+			AllRegisters.st0.add(jRegisterPanel1.jST0TextField.getText());
+			AllRegisters.st1.add(jRegisterPanel1.jST1TextField.getText());
+			AllRegisters.st2.add(jRegisterPanel1.jST2TextField.getText());
+			AllRegisters.st3.add(jRegisterPanel1.jST3TextField.getText());
+			AllRegisters.st4.add(jRegisterPanel1.jST4TextField.getText());
+			AllRegisters.st5.add(jRegisterPanel1.jST5TextField.getText());
+			AllRegisters.st6.add(jRegisterPanel1.jST6TextField.getText());
+			AllRegisters.st7.add(jRegisterPanel1.jST7TextField.getText());
+			AllRegisters.fpu_status.add(jRegisterPanel1.jFPUStatusTextField.getText());
+			AllRegisters.fpu_control.add(jRegisterPanel1.jFPUControlTextField.getText());
+			AllRegisters.fpu_tag.add(jRegisterPanel1.jFPUTagTextField.getText());
+			AllRegisters.fpu_operand.add(jRegisterPanel1.jFPUOperandTextField.getText());
+
+			AllRegisters.mm0.add(jRegisterPanel1.jMMX0TextField.getText());
+			AllRegisters.mm1.add(jRegisterPanel1.jMMX1TextField.getText());
+			AllRegisters.mm2.add(jRegisterPanel1.jMMX2TextField.getText());
+			AllRegisters.mm3.add(jRegisterPanel1.jMMX3TextField.getText());
+			AllRegisters.mm4.add(jRegisterPanel1.jMMX4TextField.getText());
+			AllRegisters.mm5.add(jRegisterPanel1.jMMX5TextField.getText());
+			AllRegisters.mm6.add(jRegisterPanel1.jMMX6TextField.getText());
+			AllRegisters.mm7.add(jRegisterPanel1.jMMX7TextField.getText());
+
 			this.jHistoryTable.updateUI();
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -1909,6 +1967,7 @@ public class Application extends javax.swing.JFrame {
 		jButton13.setEnabled(b);
 		jSettingButton.setEnabled(b);
 		jRegisterToggleButton.setEnabled(b);
+		jSourceLevelDebuggerButton.setEnabled(b);
 		jProfilerToggleButton.setEnabled(b);
 
 		jPageDirectoryTable.setEnabled(b);
@@ -2296,6 +2355,15 @@ public class Application extends javax.swing.JFrame {
 		jTextField.setText(newValue);
 	}
 
+	private void changeTextStr(JTextField jTextField, String value) {
+		if (jTextField.getText().equals(value)) {
+			jTextField.setForeground(Color.black);
+		} else {
+			jTextField.setForeground(Color.red);
+		}
+		jTextField.setText(value);
+	}
+
 	private void updateRegister() {
 		try {
 			jStatusLabel.setText("Updating general registers");
@@ -2309,32 +2377,23 @@ public class Application extends javax.swing.JFrame {
 				jStatusProgressBar.setValue(x++);
 				if (line.matches(".*.ax:.*")) {
 					changeText(this.jRegisterPanel1.jEAXTextField, line.replaceAll(":", "").replaceAll("^.*ax", "").split(" ")[1]);
-				}
-				if (line.matches(".*.bx:.*")) {
+				} else if (line.matches(".*.bx:.*")) {
 					changeText(this.jRegisterPanel1.jEBXTextField, line.replaceAll(":", "").replaceAll("^.*bx", "").split(" ")[1]);
-				}
-				if (line.matches(".*.cx:.*")) {
+				} else if (line.matches(".*.cx:.*")) {
 					changeText(this.jRegisterPanel1.jECXTextField, line.replaceAll(":", "").replaceAll("^.*cx", "").split(" ")[1]);
-				}
-				if (line.matches(".*.dx:.*")) {
+				} else if (line.matches(".*.dx:.*")) {
 					changeText(this.jRegisterPanel1.jEDXTextField, line.replaceAll(":", "").replaceAll("^.*dx", "").split(" ")[1]);
-				}
-				if (line.matches(".*.si:.*")) {
+				} else if (line.matches(".*.si:.*")) {
 					changeText(this.jRegisterPanel1.jESITextField, line.replaceAll(":", "").replaceAll("^.*si", "").split(" ")[1]);
-				}
-				if (line.matches(".*.di:.*")) {
+				} else if (line.matches(".*.di:.*")) {
 					changeText(this.jRegisterPanel1.jEDITextField, line.replaceAll(":", "").replaceAll("^.*di", "").split(" ")[1]);
-				}
-				if (line.matches(".*.bp:.*")) {
+				} else if (line.matches(".*.bp:.*")) {
 					changeText(this.jRegisterPanel1.jEBPTextField, line.replaceAll(":", "").replaceAll("^.*bp", "").split(" ")[1]);
-				}
-				if (line.matches(".*.sp:.*")) {
+				} else if (line.matches(".*.sp:.*")) {
 					changeText(this.jRegisterPanel1.jESPTextField, line.replaceAll(":", "").replaceAll("^.*sp", "").split(" ")[1]);
-				}
-				if (line.matches(".*.ip:.*")) {
+				} else if (line.matches(".*.ip:.*")) {
 					changeText(this.jRegisterPanel1.jEIPTextField, line.replaceAll(":", "").replaceAll("^.*ip", "").split(" ")[1]);
-				}
-				if (line.matches(".*eflags .*")) {
+				} else if (line.matches(".*eflags .*")) {
 					changeText(this.jRegisterPanel1.jEFLAGSTextField, line.replaceAll(":", "").replaceAll("^.*eflags", "").split(" ")[1]);
 				}
 			}
@@ -2363,22 +2422,18 @@ public class Application extends javax.swing.JFrame {
 
 					if (line.matches(".*cs:.*")) {
 						changeText(this.jRegisterPanel1.jCSTextField, line.split("=")[1].split(",")[0]);
-					}
-					if (line.matches(".*ds:.*")) {
+					} else if (line.matches(".*ds:.*")) {
 						changeText(this.jRegisterPanel1.jDSTextField, line.split("=")[1].split(",")[0]);
-					}
-					if (line.matches(".*es:.*")) {
+					} else if (line.matches(".*es:.*")) {
 						changeText(this.jRegisterPanel1.jESTextField, line.split("=")[1].split(",")[0]);
-					}
-					if (line.matches(".*fs:.*")) {
+					} else if (line.matches(".*fs:.*")) {
 						changeText(this.jRegisterPanel1.jFSTextField, line.split("=")[1].split(",")[0]);
-					}
-					if (line.matches(".*gs:.*")) {
+					} else if (line.matches(".*gs:.*")) {
 						changeText(this.jRegisterPanel1.jGSTextField, line.split("=")[1].split(",")[0]);
-					}
-					if (line.matches(".*ss:.*")) {
+					} else if (line.matches(".*ss:.*")) {
 						changeText(this.jRegisterPanel1.jSSTextField, line.split("=")[1].split(",")[0]);
-					}
+					} else
+
 					if (line.matches(".*gdtr:.*")) {
 						changeText(this.jRegisterPanel1.jGDTRTextField, line.split("=")[1].split(",")[0]);
 						changeText(this.jRegisterPanel1.jGDTRLimitTextField, str[1].split("=")[1]);
@@ -2415,20 +2470,15 @@ public class Application extends javax.swing.JFrame {
 
 					if (line.matches(".*cs:.*")) {
 						changeText(this.jRegisterPanel1.jCSTextField, line.split(":")[1].split(",")[0]);
-					}
-					if (line.matches(".*ds:.*")) {
+					} else if (line.matches(".*ds:.*")) {
 						changeText(this.jRegisterPanel1.jDSTextField, line.split(":")[1].split(",")[0]);
-					}
-					if (line.matches(".*es:.*")) {
+					} else if (line.matches(".*es:.*")) {
 						changeText(this.jRegisterPanel1.jESTextField, line.split(":")[1].split(",")[0]);
-					}
-					if (line.matches(".*fs:.*")) {
+					} else if (line.matches(".*fs:.*")) {
 						changeText(this.jRegisterPanel1.jFSTextField, line.split(":")[1].split(",")[0]);
-					}
-					if (line.matches(".*gs:.*")) {
+					} else if (line.matches(".*gs:.*")) {
 						changeText(this.jRegisterPanel1.jGSTextField, line.split(":")[1].split(",")[0]);
-					}
-					if (line.matches(".*ss:.*")) {
+					} else if (line.matches(".*ss:.*")) {
 						changeText(this.jRegisterPanel1.jSSTextField, line.split(":")[1].split(",")[0]);
 					}
 
@@ -2481,14 +2531,11 @@ public class Application extends javax.swing.JFrame {
 					for (int z = 7; z < arr.length; z++) {
 						jRegisterPanel1.jCR0DetailLabel2.setText(jRegisterPanel1.jCR0DetailLabel2.getText() + arr[z] + " ");
 					}
-				}
-				if (line.matches(".*CR2=.*")) {
+				} else if (line.matches(".*CR2=.*")) {
 					changeText(this.jRegisterPanel1.jCR2TextField, line.split(" ")[2].split("=")[1]);
-				}
-				if (line.matches(".*CR3=.*")) {
+				} else if (line.matches(".*CR3=.*")) {
 					changeText(this.jRegisterPanel1.jCR3TextField, line.split(" ")[0].split("=")[1]);
-				}
-				if (line.matches(".*CR4=.*")) {
+				} else if (line.matches(".*CR4=.*")) {
 					changeText(this.jRegisterPanel1.jCR4TextField, line.split(" ")[0].split("=")[1].replace(":", ""));
 				}
 			}
@@ -2524,6 +2571,87 @@ public class Application extends javax.swing.JFrame {
 					} else if (line.matches(".*DR7=0x.*")) {
 						changeText(this.jRegisterPanel1.jDR7TextField, line.split("=")[1].split(":")[0]);
 					}
+				}
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+
+		try {
+			// fpu
+			jStatusLabel.setText("Updating FPU registers");
+			commandReceiver.clearBuffer();
+			sendCommand("fpu");
+			String result = commandReceiver.getCommandResult("status", "FP7");
+			String[] lines = result.split("\n");
+
+			int x = 0;
+			jStatusProgressBar.setMaximum(lines.length - 1);
+
+			for (String line : lines) {
+				jStatusProgressBar.setValue(x++);
+				String ss[] = line.split(":");
+				if (line.matches(".*ST0.*")) {
+					changeTextStr(this.jRegisterPanel1.jST0TextField, line.split(" ")[10]);
+				} else if (line.matches(".*ST1.*")) {
+					changeTextStr(this.jRegisterPanel1.jST1TextField, line.split(" ")[12]);
+				} else if (line.matches(".*ST2.*")) {
+					changeTextStr(this.jRegisterPanel1.jST2TextField, line.split(" ")[12]);
+				} else if (line.matches(".*ST3.*")) {
+					changeTextStr(this.jRegisterPanel1.jST3TextField, line.split(" ")[12]);
+				} else if (line.matches(".*ST4.*")) {
+					changeTextStr(this.jRegisterPanel1.jST4TextField, line.split(" ")[12]);
+				} else if (line.matches(".*ST5.*")) {
+					changeTextStr(this.jRegisterPanel1.jST5TextField, line.split(" ")[12]);
+				} else if (line.matches(".*ST6.*")) {
+					changeTextStr(this.jRegisterPanel1.jST6TextField, line.split(" ")[12]);
+				} else if (line.matches(".*ST7.*")) {
+					changeTextStr(this.jRegisterPanel1.jST7TextField, line.split(" ")[12]);
+				} else if (line.matches(".*status.*")) {
+					changeTextStr(this.jRegisterPanel1.jFPUStatusTextField, line.substring(line.indexOf(":")));
+				} else if (line.matches(".*control.*")) {
+					changeTextStr(this.jRegisterPanel1.jFPUControlTextField, ss[ss.length - 2].trim() + " " + ss[ss.length - 1].trim());
+				} else if (line.matches(".*tag.*")) {
+					changeTextStr(this.jRegisterPanel1.jFPUTagTextField, ss[ss.length - 1].trim());
+				} else if (line.matches(".*operand.*")) {
+					changeTextStr(this.jRegisterPanel1.jFPUOperandTextField, ss[ss.length - 1].trim());
+				}
+			}
+
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+
+		try {
+			// mmx
+			jStatusLabel.setText("Updating MMX registers");
+			commandReceiver.clearBuffer();
+			sendCommand("mmx");
+			String result = commandReceiver.getCommandResult("MM[0]", "MM[7]");
+			String[] lines = result.split("\n");
+
+			int x = 0;
+			jStatusProgressBar.setMaximum(lines.length - 1);
+
+			for (String line : lines) {
+				jStatusProgressBar.setValue(x++);
+				String ss[] = line.split(":");
+				if (line.matches(".*MM\\[0\\].*")) {
+					changeTextStr(this.jRegisterPanel1.jMMX0TextField, ss[2].trim());
+				} else if (line.matches(".*MM\\[1\\].*")) {
+					changeTextStr(this.jRegisterPanel1.jMMX1TextField, ss[1].trim());
+				} else if (line.matches(".*MM\\[2\\].*")) {
+					changeTextStr(this.jRegisterPanel1.jMMX2TextField, ss[1].trim());
+				} else if (line.matches(".*MM\\[3\\].*")) {
+					changeTextStr(this.jRegisterPanel1.jMMX3TextField, ss[1].trim());
+				} else if (line.matches(".*MM\\[4\\].*")) {
+					changeTextStr(this.jRegisterPanel1.jMMX4TextField, ss[1].trim());
+				} else if (line.matches(".*MM\\[5\\].*")) {
+					changeTextStr(this.jRegisterPanel1.jMMX5TextField, ss[1].trim());
+				} else if (line.matches(".*MM\\[6\\].*")) {
+					changeTextStr(this.jRegisterPanel1.jMMX6TextField, ss[1].trim());
+				} else if (line.matches(".*MM\\[7\\].*")) {
+					changeTextStr(this.jRegisterPanel1.jMMX7TextField, ss[1].trim());
 				}
 			}
 		} catch (Exception ex) {
@@ -3211,24 +3339,26 @@ public class Application extends javax.swing.JFrame {
 			for (int x = 1; x <= 14; x++) {
 				jHistoryTable.getColumnModel().getColumn(x).setPreferredWidth(120);
 			}
-			jHistoryTable.getColumnModel().getColumn(15).setPreferredWidth(500);
+			jHistoryTable.getColumnModel().getColumn(2).setPreferredWidth(800);
 		}
+		jHistoryTable.setDefaultRenderer(String.class, new HistoryTableCellRenderer());
+		jHistoryTable.setIntercellSpacing(new Dimension(0, 0));
 		return jHistoryTable;
 	}
 
 	private JRadioButton getJRadioButton1() {
-		if (jRadioButton1 == null) {
-			jRadioButton1 = new JRadioButton();
-			jRadioButton1.setText("reg");
-			getButtonGroup2().add(jRadioButton1);
-			jRadioButton1.setSelected(true);
-			jRadioButton1.addActionListener(new ActionListener() {
+		if (jRegRadioButton == null) {
+			jRegRadioButton = new JRadioButton();
+			jRegRadioButton.setText("reg");
+			getButtonGroup2().add(jRegRadioButton);
+			jRegRadioButton.setSelected(true);
+			jRegRadioButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jRadioButton1ActionPerformed(evt);
 				}
 			});
 		}
-		return jRadioButton1;
+		return jRegRadioButton;
 	}
 
 	private JToolBar getJPanel13() {
@@ -3243,24 +3373,26 @@ public class Application extends javax.swing.JFrame {
 			}
 			jPanel13.add(getJRadioButton1());
 			jPanel13.add(getJRadioButton2());
+			jPanel13.add(getJFPURadioButton());
+			jPanel13.add(getJMMXRadioButton());
 			jPanel13.add(getJButton1());
-			jPanel13.add(getJButton4());
+			jPanel13.add(getJExportHistoryToExcelButton());
 		}
 		return jPanel13;
 	}
 
 	private JRadioButton getJRadioButton2() {
-		if (jRadioButton2 == null) {
-			jRadioButton2 = new JRadioButton();
-			jRadioButton2.setText("tbl. desc.");
-			getButtonGroup2().add(jRadioButton2);
-			jRadioButton2.addActionListener(new ActionListener() {
+		if (jTblRadioButton == null) {
+			jTblRadioButton = new JRadioButton();
+			jTblRadioButton.setText("tbl. desc.");
+			getButtonGroup2().add(jTblRadioButton);
+			jTblRadioButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jRadioButton2ActionPerformed(evt);
 				}
 			});
 		}
-		return jRadioButton2;
+		return jTblRadioButton;
 	}
 
 	private ButtonGroup getButtonGroup2() {
@@ -3271,19 +3403,21 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jRadioButton1ActionPerformed(ActionEvent evt) {
-		((HistoryTableModel) this.jHistoryTable.getModel()).setView("reg");
-		for (int x = 1; x <= 13; x++) {
+		HistoryTableModel model = (HistoryTableModel) this.jHistoryTable.getModel();
+		model.setView("reg");
+		for (int x = 1; x < model.getColumnCount(); x++) {
 			jHistoryTable.getColumnModel().getColumn(x).setPreferredWidth(120);
 		}
-		jHistoryTable.getColumnModel().getColumn(15).setPreferredWidth(500);
+		jHistoryTable.getColumnModel().getColumn(2).setPreferredWidth(800);
 	}
 
 	private void jRadioButton2ActionPerformed(ActionEvent evt) {
-		((HistoryTableModel) this.jHistoryTable.getModel()).setView("tbl");
-		for (int x = 1; x <= 13; x++) {
+		HistoryTableModel model = (HistoryTableModel) this.jHistoryTable.getModel();
+		model.setView("tbl");
+		for (int x = 1; x < model.getColumnCount(); x++) {
 			jHistoryTable.getColumnModel().getColumn(x).setPreferredWidth(120);
 		}
-		jHistoryTable.getColumnModel().getColumn(6).setPreferredWidth(500);
+		jHistoryTable.getColumnModel().getColumn(6).setPreferredWidth(300);
 	}
 
 	private JSplitPane getJSplitPane3() {
@@ -3391,20 +3525,20 @@ public class Application extends javax.swing.JFrame {
 		}
 	}
 
-	private JButton getJButton4() {
-		if (jButton4 == null) {
-			jButton4 = new JButton();
-			jButton4.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/excel.gif")));
-			jButton4.addActionListener(new ActionListener() {
+	private JButton getJExportHistoryToExcelButton() {
+		if (jExportHistoryToExcelButton == null) {
+			jExportHistoryToExcelButton = new JButton();
+			jExportHistoryToExcelButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/excel.gif")));
+			jExportHistoryToExcelButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
-					jButton4ActionPerformed(evt);
+					jExportHistoryToExcelButtonActionPerformed(evt);
 				}
 			});
 		}
-		return jButton4;
+		return jExportHistoryToExcelButton;
 	}
 
-	private void jButton4ActionPerformed(ActionEvent evt) {
+	private void jExportHistoryToExcelButtonActionPerformed(ActionEvent evt) {
 		JFileChooser fc = new JFileChooser();
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -3826,6 +3960,7 @@ public class Application extends javax.swing.JFrame {
 				jMainPanel.add(getLogPanel1(), "logPanel1");
 				jMainPanel.add(getOsLogPanel1(), "oSLogPanel1");
 				jMainPanel.add(getJRunningPanel(), "Running Label 2");
+				jMainPanel.add(getSourceLevelDebugger(), "sourceLevelDebugger");
 			}
 		}
 		return jMainPanel;
@@ -3843,6 +3978,11 @@ public class Application extends javax.swing.JFrame {
 			{
 				jTabbedPane1 = new JMaximizableTabbedPane();
 				jSplitPane1.add(jTabbedPane1, JSplitPane.RIGHT);
+				jTabbedPane1.addChangeListener(new ChangeListener() {
+					public void stateChanged(ChangeEvent evt) {
+						jTabbedPane1StateChanged(evt);
+					}
+				});
 				{
 					jPanel10 = new JPanel();
 					BorderLayout jPanel10Layout = new BorderLayout();
@@ -5635,6 +5775,7 @@ public class Application extends javax.swing.JFrame {
 			while ((len = input.read(b)) > 0) {
 				str += new String(b, 0, len);
 			}
+			input.close();
 			jSearchDynamicEditorPane.setText(str);
 
 			jStatusLabel.setText("");
@@ -5985,8 +6126,11 @@ public class Application extends javax.swing.JFrame {
 	private JPopupMenu getJInstructionPanelPopupMenu() {
 		if (jInstructionPanelPopupMenu == null) {
 			jInstructionPanelPopupMenu = new JPopupMenu();
-			jInstructionPanelPopupMenu.add(getJMenuItem4x());
-			jInstructionPanelPopupMenu.add(getJMenuItem5x());
+			jInstructionPanelPopupMenu.add(getJSetPhysicalBreakpointMenuItem());
+			jInstructionPanelPopupMenu.add(getJSetLinearBreakpointMenuItem());
+			jInstructionPanelPopupMenu.add(getJSeparator3());
+			jInstructionPanelPopupMenu.add(getJShowInSourceCodeMenuItem());
+			jInstructionPanelPopupMenu.add(getJWhereIsHereMenuItem());
 		}
 		return jInstructionPanelPopupMenu;
 	}
@@ -6008,55 +6152,74 @@ public class Application extends javax.swing.JFrame {
 		});
 	}
 
-	private JMenuItem getJMenuItem4x() {
-		if (jMenuItem4 == null) {
-			jMenuItem4 = new JMenuItem();
-			jMenuItem4.setText("Set physical breakpoint here");
-			jMenuItem4.addActionListener(new ActionListener() {
+	private JMenuItem getJSetPhysicalBreakpointMenuItem() {
+		if (jSetPhysicalBreakpointMenuItem == null) {
+			jSetPhysicalBreakpointMenuItem = new JMenuItem();
+			jSetPhysicalBreakpointMenuItem.setText("Set physical breakpoint here");
+			jSetPhysicalBreakpointMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
-					jMenuItem4ActionPerformed(evt);
+					jSetPhysicalBreakpointMenuItemActionPerformed(evt);
 				}
 			});
 		}
-		return jMenuItem4;
+		return jSetPhysicalBreakpointMenuItem;
 	}
 
-	private JMenuItem getJMenuItem5x() {
-		if (jMenuItem5 == null) {
-			jMenuItem5 = new JMenuItem();
-			jMenuItem5.setText("Set linear breakpoint here");
-			jMenuItem5.addActionListener(new ActionListener() {
+	private JMenuItem getJSetLinearBreakpointMenuItem() {
+		if (jSetLinearBreakpointMenuItem == null) {
+			jSetLinearBreakpointMenuItem = new JMenuItem();
+			jSetLinearBreakpointMenuItem.setText("Set linear breakpoint here");
+			jSetLinearBreakpointMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
-					jMenuItem5ActionPerformed(evt);
+					jSetLinearBreakpointMenuItemActionPerformed(evt);
 				}
 			});
 		}
-		return jMenuItem5;
+		return jSetLinearBreakpointMenuItem;
 	}
 
-	private void jInstructionTableMouseClicked(MouseEvent evt) {
+	public void jInstructionTableMouseClicked(MouseEvent evt) {
 		if (SwingUtilities.isRightMouseButton(evt)) {
+			JTable jTable = (JTable) evt.getSource();
+
+			if (jTable == jInstructionTable) {
+				Global.clickedWhichInstructionPanel = 0;
+			} else {
+				Global.clickedWhichInstructionPanel = 1;
+			}
+
 			// select
 			Point p = evt.getPoint();
-			int rowNumber = jInstructionTable.rowAtPoint(p);
-			int columnNumber = jInstructionTable.columnAtPoint(p);
-			ListSelectionModel model = jInstructionTable.getSelectionModel();
+			int rowNumber = jTable.rowAtPoint(p);
+			int columnNumber = jTable.columnAtPoint(p);
+			ListSelectionModel model = jTable.getSelectionModel();
 			model.setSelectionInterval(rowNumber, rowNumber);
-			jInstructionTable.getColumnModel().getSelectionModel().setSelectionInterval(columnNumber, columnNumber);
+
+			jTable.getColumnModel().getSelectionModel().setSelectionInterval(columnNumber, columnNumber);
 			// end select
 
 			getJInstructionPanelPopupMenu().show(evt.getComponent(), evt.getX(), evt.getY());
 		}
 	}
 
-	private void jMenuItem4ActionPerformed(ActionEvent evt) {
-		Application.sendCommand("pb 0x" + this.jInstructionTable.getValueAt(this.jInstructionTable.getSelectedRow(), 1));
+	private void jSetPhysicalBreakpointMenuItemActionPerformed(ActionEvent evt) {
+		if (jRegisterToggleButton.isSelected()) {
+			Application.sendCommand("pb " + Application.jInstructionTable.getValueAt(this.jInstructionTable.getSelectedRow(), 1));
+		} else if (this.jSourceLevelDebuggerButton.isSelected()) {
+			Application.sendCommand("pb " + this.sourceLevelDebugger.jAssemblyTable.getValueAt(this.sourceLevelDebugger.jAssemblyTable.getSelectedRow(), 1));
+		}
 		this.updateBreakpoint();
+		this.updateInstruction(null);
 	}
 
-	private void jMenuItem5ActionPerformed(ActionEvent evt) {
-		Application.sendCommand("lb 0x" + this.jInstructionTable.getValueAt(this.jInstructionTable.getSelectedRow(), 1));
+	private void jSetLinearBreakpointMenuItemActionPerformed(ActionEvent evt) {
+		if (jRegisterToggleButton.isSelected()) {
+			Application.sendCommand("lb " + Application.jInstructionTable.getValueAt(this.jInstructionTable.getSelectedRow(), 1));
+		} else if (this.jSourceLevelDebuggerButton.isSelected()) {
+			Application.sendCommand("lb " + this.sourceLevelDebugger.jAssemblyTable.getValueAt(this.sourceLevelDebugger.jAssemblyTable.getSelectedRow(), 1));
+		}
 		this.updateBreakpoint();
+		this.updateInstruction(null);
 	}
 
 	private void jBreakpointTableMouseClicked(MouseEvent evt) {
@@ -6804,7 +6967,7 @@ public class Application extends javax.swing.JFrame {
 			jProfilerToggleButton = new JToggleButton();
 			jProfilerToggleButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/chart_organisation.png")));
 			jProfilerToggleButton.setText("Profile & Sampling");
-			buttonGroup2.add(jProfilerToggleButton);
+			getButtonGroup4().add(jProfilerToggleButton);
 			jProfilerToggleButton.setToolTipText("Profile & Sampling");
 			jProfilerToggleButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
@@ -6831,7 +6994,7 @@ public class Application extends javax.swing.JFrame {
 			jLogToggleButton = new JToggleButton();
 			jLogToggleButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/script.png")));
 			jLogToggleButton.setText("Log");
-			buttonGroup2.add(jLogToggleButton);
+			getButtonGroup4().add(jLogToggleButton);
 			jLogToggleButton.setToolTipText("Log");
 			jLogToggleButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
@@ -6864,7 +7027,7 @@ public class Application extends javax.swing.JFrame {
 		if (jRegisterToggleButton == null) {
 			jRegisterToggleButton = new JToggleButton();
 			jRegisterToggleButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/chart_bar.png")));
-			buttonGroup2.add(jRegisterToggleButton);
+			getButtonGroup4().add(jRegisterToggleButton);
 			jRegisterToggleButton.setSelected(true);
 			jRegisterToggleButton.setText("Reg");
 			jRegisterToggleButton.setToolTipText("View all registers");
@@ -6901,12 +7064,12 @@ public class Application extends javax.swing.JFrame {
 			jOSLogToggleButton.setText("os.log");
 			jOSLogToggleButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/page_red.png")));
 			jOSLogToggleButton.setToolTipText("os.log");
+			getButtonGroup4().add(jOSLogToggleButton);
 			jOSLogToggleButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jOSLogToggleButtonActionPerformed(evt);
 				}
 			});
-			getButtonGroup2().add(jOSLogToggleButton);
 		}
 		return jOSLogToggleButton;
 	}
@@ -7273,4 +7436,177 @@ public class Application extends javax.swing.JFrame {
 		}
 	}
 
+	private JRadioButton getJFPURadioButton() {
+		if (jFPURadioButton == null) {
+			jFPURadioButton = new JRadioButton();
+			jFPURadioButton.setText("fpu");
+			jFPURadioButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jFPURadioButtonActionPerformed(evt);
+				}
+			});
+			getButtonGroup2().add(jFPURadioButton);
+		}
+		return jFPURadioButton;
+	}
+
+	private JRadioButton getJMMXRadioButton() {
+		if (jMMXRadioButton == null) {
+			jMMXRadioButton = new JRadioButton();
+			jMMXRadioButton.setText("mmx");
+			jMMXRadioButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jMMXRadioButtonActionPerformed(evt);
+				}
+			});
+			getButtonGroup2().add(jMMXRadioButton);
+		}
+		return jMMXRadioButton;
+	}
+
+	private void jMMXRadioButtonActionPerformed(ActionEvent evt) {
+		HistoryTableModel model = (HistoryTableModel) this.jHistoryTable.getModel();
+		model.setView("mmx");
+		for (int x = 0; x < model.getColumnCount(); x++) {
+			jHistoryTable.getColumnModel().getColumn(x).setPreferredWidth(200);
+		}
+	}
+
+	private void jFPURadioButtonActionPerformed(ActionEvent evt) {
+		HistoryTableModel model = (HistoryTableModel) this.jHistoryTable.getModel();
+		model.setView("fpu");
+		for (int x = 0; x < model.getColumnCount(); x++) {
+			jHistoryTable.getColumnModel().getColumn(x).setPreferredWidth(200);
+		}
+	}
+
+	private void jTabbedPane1StateChanged(ChangeEvent evt) {
+		JTabbedPane pane = (JTabbedPane) evt.getSource();
+		int sel = pane.getSelectedIndex();
+		if (sel == 2) {
+			jBochsCommandTextField.requestFocus();
+		}
+	}
+
+	private JSeparator getJSeparator3() {
+		if (jSeparator3 == null) {
+			jSeparator3 = new JSeparator();
+		}
+		return jSeparator3;
+	}
+
+	private JMenuItem getJShowInSourceCodeMenuItem() {
+		if (jShowInSourceCodeMenuItem == null) {
+			jShowInSourceCodeMenuItem = new JMenuItem();
+			jShowInSourceCodeMenuItem.setText("Show in source code");
+			jShowInSourceCodeMenuItem.setEnabled(false);
+			jShowInSourceCodeMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jShowInSourceCodeMenuItemActionPerformed(evt);
+				}
+			});
+		}
+		return jShowInSourceCodeMenuItem;
+	}
+
+	private void jShowInSourceCodeMenuItemActionPerformed(ActionEvent evt) {
+		System.out.println("jShowInSourceCodeMenuItem.actionPerformed, event=" + evt);
+	}
+
+	private SourceLevelDebugger getSourceLevelDebugger() {
+		if (sourceLevelDebugger == null) {
+			sourceLevelDebugger = new SourceLevelDebugger(this);
+		}
+		return sourceLevelDebugger;
+	}
+
+	private JToggleButton getJSourceLevelDebuggerButton() {
+		if (jSourceLevelDebuggerButton == null) {
+			jSourceLevelDebuggerButton = new JToggleButton();
+			getButtonGroup4().add(jSourceLevelDebuggerButton);
+			jSourceLevelDebuggerButton.setText("C/C++");
+			jSourceLevelDebuggerButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/page_white_text.png")));
+			jSourceLevelDebuggerButton.setEnabled(false);
+			jSourceLevelDebuggerButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jSourceLevelDebuggerButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jSourceLevelDebuggerButton;
+	}
+
+	public void jSourceLevelDebuggerButtonActionPerformed(ActionEvent evt) {
+		CardLayout cl = (CardLayout) (jMainPanel.getLayout());
+		if (jSourceLevelDebuggerButton.isSelected() || evt == null) {
+			cl.show(jMainPanel, "sourceLevelDebugger");
+			currentPanel = "sourceLevelDebugger";
+		} else {
+			cl.show(jMainPanel, "jMaximizableTabbedPane_BasePanel1");
+			currentPanel = "jMaximizableTabbedPane_BasePanel1";
+		}
+
+		if (evt == null) {
+			jSourceLevelDebuggerButton.setSelected(true);
+		}
+	}
+
+	private JMenu getJSystemMenu() {
+		if (jSystemMenu == null) {
+			jSystemMenu = new JMenu();
+			jSystemMenu.setText("System");
+			jSystemMenu.add(getJLoadSystemMapMenuItem());
+		}
+		return jSystemMenu;
+	}
+
+	private JMenuItem getJLoadSystemMapMenuItem() {
+		if (jLoadSystemMapMenuItem == null) {
+			jLoadSystemMapMenuItem = new JMenuItem();
+			jLoadSystemMapMenuItem.setText("Load System Map");
+			jLoadSystemMapMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jLoadSystemMapMenuItemActionPerformed(evt);
+				}
+			});
+		}
+		return jLoadSystemMapMenuItem;
+	}
+
+	private void jLoadSystemMapMenuItemActionPerformed(ActionEvent evt) {
+		this.sourceLevelDebugger.jLoadMapButtonActionPerformed(null);
+	}
+
+	private JMenuItem getJWhereIsHereMenuItem() {
+		if (jWhereIsHereMenuItem == null) {
+			jWhereIsHereMenuItem = new JMenuItem();
+			jWhereIsHereMenuItem.setText("Where is here?");
+			jWhereIsHereMenuItem.setEnabled(false);
+			jWhereIsHereMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jWhereIsHereMenuItemActionPerformed(evt);
+				}
+			});
+		}
+		return jWhereIsHereMenuItem;
+	}
+
+	private void jWhereIsHereMenuItemActionPerformed(ActionEvent evt) {
+		jSourceLevelDebuggerButtonActionPerformed(null);
+		sourceLevelDebugger.jMainTabbedPane.setSelectedIndex(1);
+		sourceLevelDebugger.jMapTabbedPane.setSelectedIndex(1);
+		if (Global.clickedWhichInstructionPanel == 0) {
+			sourceLevelDebugger.showWhere(com.petersoft.CommonLib.string2decimal((String) jInstructionTable.getValueAt(jInstructionTable.getSelectedRow(), 1)));
+		} else {
+			sourceLevelDebugger.showWhere(com.petersoft.CommonLib.string2decimal((String) sourceLevelDebugger.jAssemblyTable.getValueAt(
+					sourceLevelDebugger.jAssemblyTable.getSelectedRow(), 1)));
+		}
+	}
+
+	private ButtonGroup getButtonGroup4() {
+		if (buttonGroup4 == null) {
+			buttonGroup4 = new ButtonGroup();
+		}
+		return buttonGroup4;
+	}
 }
