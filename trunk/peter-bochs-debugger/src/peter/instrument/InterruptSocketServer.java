@@ -63,20 +63,17 @@ public class InterruptSocketServer implements Runnable {
 				Socket clientSocket = serverSocket.accept();
 				DataInputStream in = new DataInputStream(clientSocket.getInputStream());
 
-				int lineNo = 1;
-
 				while (!shouldStop) {
 					long intNo = CommonLib.readLongFromInputStream(in);
-					//					System.out.println("int==" + intNo);
+					// System.out.println("intNo==" + intNo);
 
-					lineNo++;
 					if (interruptRecords.get(intNo) != null) {
-						//						System.out.println(interruptRecords.get(intNo));
+						// System.out.println(interruptRecords.get(intNo));
 						interruptRecords.put(intNo, interruptRecords.get(intNo) + 1);
 					} else {
 						interruptRecords.put(intNo, 1);
 					}
-					//					fstream.write(lineNo + "-" + dateformat1.format(new Date()) + "-" + intNo + "\n");
+					// fstream.write(lineNo + "-" + dateformat1.format(new Date()) + "-" + intNo + "\n");
 				}
 
 				in.close();

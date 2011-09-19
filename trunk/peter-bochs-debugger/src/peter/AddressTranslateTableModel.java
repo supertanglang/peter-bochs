@@ -6,10 +6,10 @@ import java.util.Vector;
 import javax.swing.table.DefaultTableModel;
 
 public class AddressTranslateTableModel extends DefaultTableModel {
-	String columnNames[] = new String[] { Application.language.getString("Address_type"), Application.language.getString("Search_address"), Application.language.getString("Virtual_address"),
-			Application.language.getString("Segment_no"), Application.language.getString("Base_address"), Application.language.getString("Linear_address"), Application.language.getString("PD_No"),
-			Application.language.getString("PDE"), Application.language.getString("PT_No"), Application.language.getString("PTE"), Application.language.getString("Physical_address"),
-			Application.language.getString("Bytes") };
+	String columnNames[] = new String[] { MyLanguage.getString("Address_type"), MyLanguage.getString("Search_address"), MyLanguage.getString("Virtual_address"),
+			MyLanguage.getString("Segment_no"), MyLanguage.getString("Base_address"), MyLanguage.getString("Linear_address"), MyLanguage.getString("PD_No"),
+			MyLanguage.getString("PDE"), MyLanguage.getString("PT_No"), MyLanguage.getString("PTE"), MyLanguage.getString("Physical_address"),
+			MyLanguage.getString("Bytes") };
 
 	public Vector<Integer> searchType = new Vector<Integer>();
 	public Vector<Long> searchSegSelector = new Vector<Long>();
@@ -48,11 +48,11 @@ public class AddressTranslateTableModel extends DefaultTableModel {
 		try {
 			if (column == 0) {
 				if (searchType.get(row) == 1) {
-					return Application.language.getString("Virtual_address");
+					return MyLanguage.getString("Virtual_address");
 				} else if (searchType.get(row) == 2) {
-					return Application.language.getString("Linear_address");
+					return MyLanguage.getString("Linear_address");
 				} else if (searchType.get(row) == 3) {
-					return Application.language.getString("Physical_address");
+					return MyLanguage.getString("Physical_address");
 				} else {
 					return "";
 				}

@@ -32,14 +32,10 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 /**
- * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
- * Builder, which is free for non-commercial use. If Jigloo is being used
- * commercially (ie, by a corporation, company or business for any purpose
- * whatever) then you should purchase a license for each developer using Jigloo.
- * Please visit www.cloudgarden.com for details. Use of Jigloo implies
- * acceptance of these licensing terms. A COMMERCIAL LICENSE HAS NOT BEEN
- * PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR
- * ANY CORPORATE OR COMMERCIAL PURPOSE.
+ * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI Builder, which is free for non-commercial use. If Jigloo is being used commercially (ie, by a
+ * corporation, company or business for any purpose whatever) then you should purchase a license for each developer using Jigloo. Please visit www.cloudgarden.com for details. Use
+ * of Jigloo implies acceptance of these licensing terms. A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR ANY
+ * CORPORATE OR COMMERCIAL PURPOSE.
  */
 public class JRegisterPanel extends javax.swing.JPanel {
 	private JLabel jEAXLabel;
@@ -81,6 +77,35 @@ public class JRegisterPanel extends javax.swing.JPanel {
 	private JLabel jGDTRLabel;
 	public JTextField jCR4TextField;
 	public JTextField jCR3TextField;
+	private JLabel jST1Label;
+	public JTextField jFPUOperandTextField;
+	public JTextField jFPUTagTextField;
+	public JTextField jFPUControlTextField;
+	public JTextField jFPUStatusTextField;
+	private JLabel jLabel4;
+	private JLabel jLabel3;
+	private JLabel jLabel2;
+	private JLabel jLabel1;
+	private JSeparator jSeparator2;
+	public JTextField jMMX7TextField;
+	public JTextField jMMX6TextField;
+	public JTextField jMMX5TextField;
+	public JTextField jMMX4TextField;
+	public JTextField jMMX3TextField;
+	public JTextField jMMX2TextField;
+	public JTextField jMMX1TextField;
+	public JTextField jMMX0TextField;
+	private JLabel jMM7Label;
+	private JLabel jMM6Label;
+	private JLabel jMM5Label;
+	private JLabel jMM4Label;
+	private JLabel jST7Label;
+	private JLabel jST6Label;
+	private JLabel jST5Label;
+	private JLabel jST4Label;
+	private JLabel jST3Label;
+	private JLabel jST2Label;
+	private JLabel jST0Label;
 	private JPanel jPanel1;
 	private JButton jExportExcelButton;
 	private JButton jButton1;
@@ -88,6 +113,18 @@ public class JRegisterPanel extends javax.swing.JPanel {
 	private JScrollPane jStackScrollPane;
 	public JTextField jGDTRLimitTextField;
 	public JTextField jCR2TextField;
+	private JLabel jMM3Label;
+	private JLabel jMM2Label;
+	private JLabel jMM1Label;
+	private JLabel jMM0Label;
+	public JTextField jST7TextField;
+	public JTextField jST6TextField;
+	public JTextField jST5TextField;
+	public JTextField jST4TextField;
+	public JTextField jST3TextField;
+	public JTextField jST2TextField;
+	public JTextField jST1TextField;
+	public JTextField jST0TextField;
 	public JLabel jCR0DetailLabel2;
 	public JLabel jCR0DetailLabel;
 	public JLabel jEFlagLabel2;
@@ -118,8 +155,9 @@ public class JRegisterPanel extends javax.swing.JPanel {
 	private JLabel jEBXLabel;
 	Application application;
 	BorderLayout thisLayout = new BorderLayout();
-	FormLayout jPanel2Layout = new FormLayout("max(p;15dlu), 24dlu, 72dlu, 5dlu, max(p;15dlu), 67dlu, 5dlu, max(p;15dlu), 68dlu, 5dlu, 28dlu, 5dlu, max(p;15dlu), 72dlu, 5dlu, 83dlu",
-			"max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu)");
+	FormLayout jPanel2Layout = new FormLayout(
+			"max(p;15dlu), 24dlu, max(p;15dlu), 72dlu, 5dlu, max(p;15dlu), 67dlu, 5dlu, max(p;15dlu), 68dlu, 5dlu, 28dlu, 5dlu, max(p;15dlu), 72dlu, 5dlu, 83dlu",
+			"max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu), max(p;15dlu)");
 
 	/**
 	 * Auto-generated main method to display this JPanel inside a new JFrame.
@@ -142,6 +180,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 			BoxLayout thisLayout = new BoxLayout(this, javax.swing.BoxLayout.X_AXIS);
 			this.setLayout(thisLayout);
 			this.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+			this.setPreferredSize(new java.awt.Dimension(917, 575));
 			{
 				jPanel99 = new JPanel();
 				this.add(jPanel99, BorderLayout.CENTER);
@@ -158,7 +197,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jCSTextField = new JTextField();
-					jPanel99.add(jCSTextField, new CellConstraints("3, 1, 1, 1, default, default"));
+					jPanel99.add(jCSTextField, new CellConstraints("3, 1, 2, 1, default, default"));
 					jCSTextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jCSTextFieldKeyTyped(evt);
@@ -217,7 +256,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jDSTextField = new JTextField();
-					jPanel99.add(jDSTextField, new CellConstraints("3, 3, 1, 1, default, default"));
+					jPanel99.add(jDSTextField, new CellConstraints("3, 3, 2, 1, default, default"));
 					jDSTextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jDSTextFieldKeyTyped(evt);
@@ -226,7 +265,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jESTextField = new JTextField();
-					jPanel99.add(jESTextField, new CellConstraints("3, 4, 1, 1, default, default"));
+					jPanel99.add(jESTextField, new CellConstraints("3, 4, 2, 1, default, default"));
 					jESTextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jESTextFieldKeyTyped(evt);
@@ -235,7 +274,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jFSTextField = new JTextField();
-					jPanel99.add(jFSTextField, new CellConstraints("3, 5, 1, 1, default, default"));
+					jPanel99.add(jFSTextField, new CellConstraints("3, 5, 2, 1, default, default"));
 					jFSTextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jFSTextFieldKeyTyped(evt);
@@ -244,7 +283,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jGSTextField = new JTextField();
-					jPanel99.add(jGSTextField, new CellConstraints("3, 6, 1, 1, default, default"));
+					jPanel99.add(jGSTextField, new CellConstraints("3, 6, 2, 1, default, default"));
 					jGSTextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jGSTextFieldKeyTyped(evt);
@@ -253,7 +292,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jSSTextField = new JTextField();
-					jPanel99.add(jSSTextField, new CellConstraints("3, 7, 1, 1, default, default"));
+					jPanel99.add(jSSTextField, new CellConstraints("3, 7, 2, 1, default, default"));
 					jSSTextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jSSTextFieldKeyTyped(evt);
@@ -272,7 +311,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jEIPTextField = new JTextField();
-					jPanel99.add(jEIPTextField, new CellConstraints("3, 2, 1, 1, default, default"));
+					jPanel99.add(jEIPTextField, new CellConstraints("3, 2, 2, 1, default, default"));
 					jEIPTextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jEIPTextFieldKeyTyped(evt);
@@ -291,7 +330,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jEFLAGSTextField = new JTextField();
-					jPanel99.add(jEFLAGSTextField, new CellConstraints("3, 8, 1, 1, default, default"));
+					jPanel99.add(jEFLAGSTextField, new CellConstraints("3, 8, 2, 1, default, default"));
 				}
 				{
 					jEFlagLabel = new JLabel();
@@ -303,7 +342,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jEAXLabel = new JLabel();
-					jPanel99.add(jEAXLabel, new CellConstraints("5, 1, 1, 1, default, default"));
+					jPanel99.add(jEAXLabel, new CellConstraints("6, 1, 1, 1, default, default"));
 					jEAXLabel.setText("eax");
 					jEAXLabel.addMouseListener(new MouseAdapter() {
 						public void mouseClicked(MouseEvent evt) {
@@ -313,7 +352,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jEBXLabel = new JLabel();
-					jPanel99.add(jEBXLabel, new CellConstraints("5, 2, 1, 1, default, default"));
+					jPanel99.add(jEBXLabel, new CellConstraints("6, 2, 1, 1, default, default"));
 					jEBXLabel.setText("ebx");
 					jEBXLabel.addMouseListener(new MouseAdapter() {
 						public void mouseClicked(MouseEvent evt) {
@@ -323,7 +362,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jECXLabel = new JLabel();
-					jPanel99.add(jECXLabel, new CellConstraints("5, 3, 1, 1, default, default"));
+					jPanel99.add(jECXLabel, new CellConstraints("6, 3, 1, 1, default, default"));
 					jECXLabel.setText("ecx");
 					jECXLabel.addMouseListener(new MouseAdapter() {
 						public void mouseClicked(MouseEvent evt) {
@@ -333,7 +372,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jEDXLabel = new JLabel();
-					jPanel99.add(jEDXLabel, new CellConstraints("5, 4, 1, 1, default, default"));
+					jPanel99.add(jEDXLabel, new CellConstraints("6, 4, 1, 1, default, default"));
 					jEDXLabel.setText("edx");
 					jEDXLabel.addMouseListener(new MouseAdapter() {
 						public void mouseClicked(MouseEvent evt) {
@@ -343,7 +382,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jESILabel = new JLabel();
-					jPanel99.add(jESILabel, new CellConstraints("5, 5, 1, 1, default, default"));
+					jPanel99.add(jESILabel, new CellConstraints("6, 5, 1, 1, default, default"));
 					jESILabel.setText("esi");
 					jESILabel.addMouseListener(new MouseAdapter() {
 						public void mouseClicked(MouseEvent evt) {
@@ -353,7 +392,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jEDILabel = new JLabel();
-					jPanel99.add(jEDILabel, new CellConstraints("5, 6, 1, 1, default, default"));
+					jPanel99.add(jEDILabel, new CellConstraints("6, 6, 1, 1, default, default"));
 					jEDILabel.setText("edi");
 					jEDILabel.addMouseListener(new MouseAdapter() {
 						public void mouseClicked(MouseEvent evt) {
@@ -363,7 +402,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jEBPLabel = new JLabel();
-					jPanel99.add(jEBPLabel, new CellConstraints("5, 7, 1, 1, default, default"));
+					jPanel99.add(jEBPLabel, new CellConstraints("6, 7, 1, 1, default, default"));
 					jEBPLabel.setText("ebp");
 					jEBPLabel.addMouseListener(new MouseAdapter() {
 						public void mouseClicked(MouseEvent evt) {
@@ -373,7 +412,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jESPLabel = new JLabel();
-					jPanel99.add(jESPLabel, new CellConstraints("5, 8, 1, 1, default, default"));
+					jPanel99.add(jESPLabel, new CellConstraints("6, 8, 1, 1, default, default"));
 					jESPLabel.setText("esp");
 					jESPLabel.addMouseListener(new MouseAdapter() {
 						public void mouseClicked(MouseEvent evt) {
@@ -383,7 +422,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jEAXTextField = new JTextField();
-					jPanel99.add(jEAXTextField, new CellConstraints("6, 1, 1, 1, default, default"));
+					jPanel99.add(jEAXTextField, new CellConstraints("7, 1, 1, 1, default, default"));
 					jEAXTextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jEAXTextFieldKeyTyped(evt);
@@ -392,7 +431,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jEBXTextField = new JTextField();
-					jPanel99.add(jEBXTextField, new CellConstraints("6, 2, 1, 1, default, default"));
+					jPanel99.add(jEBXTextField, new CellConstraints("7, 2, 1, 1, default, default"));
 					jEBXTextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jEBXTextFieldKeyTyped(evt);
@@ -401,7 +440,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jECXTextField = new JTextField();
-					jPanel99.add(jECXTextField, new CellConstraints("6, 3, 1, 1, default, default"));
+					jPanel99.add(jECXTextField, new CellConstraints("7, 3, 1, 1, default, default"));
 					jECXTextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jECXTextFieldKeyTyped(evt);
@@ -410,7 +449,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jEDXTextField = new JTextField();
-					jPanel99.add(jEDXTextField, new CellConstraints("6, 4, 1, 1, default, default"));
+					jPanel99.add(jEDXTextField, new CellConstraints("7, 4, 1, 1, default, default"));
 					jEDXTextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jEDXTextFieldKeyTyped(evt);
@@ -419,7 +458,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jESITextField = new JTextField();
-					jPanel99.add(jESITextField, new CellConstraints("6, 5, 1, 1, default, default"));
+					jPanel99.add(jESITextField, new CellConstraints("7, 5, 1, 1, default, default"));
 					jESITextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jESITextFieldKeyTyped(evt);
@@ -428,7 +467,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jEDITextField = new JTextField();
-					jPanel99.add(jEDITextField, new CellConstraints("6, 6, 1, 1, default, default"));
+					jPanel99.add(jEDITextField, new CellConstraints("7, 6, 1, 1, default, default"));
 					jEDITextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jEDITextFieldKeyTyped(evt);
@@ -437,7 +476,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jEBPTextField = new JTextField();
-					jPanel99.add(jEBPTextField, new CellConstraints("6, 7, 1, 1, default, default"));
+					jPanel99.add(jEBPTextField, new CellConstraints("7, 7, 1, 1, default, default"));
 					jEBPTextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jEBPTextFieldKeyTyped(evt);
@@ -446,7 +485,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jESPTextField = new JTextField();
-					jPanel99.add(jESPTextField, new CellConstraints("6, 8, 1, 1, default, default"));
+					jPanel99.add(jESPTextField, new CellConstraints("7, 8, 1, 1, default, default"));
 					jESPTextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jESPTextFieldKeyTyped(evt);
@@ -455,7 +494,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jCR0Label = new JLabel();
-					jPanel99.add(jCR0Label, new CellConstraints("8, 1, 1, 1, default, default"));
+					jPanel99.add(jCR0Label, new CellConstraints("9, 1, 1, 1, default, default"));
 					jCR0Label.setText("cr0");
 					jCR0Label.addMouseListener(new MouseAdapter() {
 						public void mouseClicked(MouseEvent evt) {
@@ -465,7 +504,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jCR0TextField = new JTextField();
-					jPanel99.add(jCR0TextField, new CellConstraints("9, 1, 3, 1, default, default"));
+					jPanel99.add(jCR0TextField, new CellConstraints("10, 1, 3, 1, default, default"));
 					jCR0TextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jCR0TextFieldKeyTyped(evt);
@@ -474,7 +513,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jCR2Label = new JLabel();
-					jPanel99.add(jCR2Label, new CellConstraints("8, 4, 1, 1, default, default"));
+					jPanel99.add(jCR2Label, new CellConstraints("9, 4, 1, 1, default, default"));
 					jCR2Label.setText("cr2");
 					jCR2Label.addMouseListener(new MouseAdapter() {
 						public void mouseClicked(MouseEvent evt) {
@@ -484,7 +523,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jCR2TextField = new JTextField();
-					jPanel99.add(jCR2TextField, new CellConstraints("9, 4, 3, 1, default, default"));
+					jPanel99.add(jCR2TextField, new CellConstraints("10, 4, 3, 1, default, default"));
 					jCR2TextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jCR2TextFieldKeyTyped(evt);
@@ -493,7 +532,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jCR3Label = new JLabel();
-					jPanel99.add(jCR3Label, new CellConstraints("8, 5, 1, 1, default, default"));
+					jPanel99.add(jCR3Label, new CellConstraints("9, 5, 1, 1, default, default"));
 					jCR3Label.setText("cr3");
 					jCR3Label.addMouseListener(new MouseAdapter() {
 						public void mouseClicked(MouseEvent evt) {
@@ -503,7 +542,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jCR3TextField = new JTextField();
-					jPanel99.add(jCR3TextField, new CellConstraints("9, 5, 3, 1, default, default"));
+					jPanel99.add(jCR3TextField, new CellConstraints("10, 5, 3, 1, default, default"));
 					jCR3TextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jCR3TextFieldKeyTyped(evt);
@@ -512,7 +551,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jCR4Label = new JLabel();
-					jPanel99.add(jCR4Label, new CellConstraints("8, 6, 1, 1, default, default"));
+					jPanel99.add(jCR4Label, new CellConstraints("9, 6, 1, 1, default, default"));
 					jCR4Label.setText("cr4");
 					jCR4Label.addMouseListener(new MouseAdapter() {
 						public void mouseClicked(MouseEvent evt) {
@@ -522,7 +561,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jCR4TextField = new JTextField();
-					jPanel99.add(jCR4TextField, new CellConstraints("9, 6, 3, 1, default, default"));
+					jPanel99.add(jCR4TextField, new CellConstraints("10, 6, 3, 1, default, default"));
 					jCR4TextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jCR4TextFieldKeyTyped(evt);
@@ -531,11 +570,11 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jSeparator1 = new JSeparator();
-					jPanel99.add(jSeparator1, new CellConstraints("8, 7, 4, 1, default, default"));
+					jPanel99.add(jSeparator1, new CellConstraints("9, 7, 4, 1, default, default"));
 				}
 				{
 					jGDTRTextField = new JTextField();
-					jPanel99.add(jGDTRTextField, new CellConstraints("9, 8, 1, 1, default, default"));
+					jPanel99.add(jGDTRTextField, new CellConstraints("10, 8, 1, 1, default, default"));
 					jGDTRTextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jGDTRTextFieldKeyTyped(evt);
@@ -544,7 +583,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jGDTRLabel = new JLabel();
-					jPanel99.add(jGDTRLabel, new CellConstraints("8, 8, 1, 1, default, default"));
+					jPanel99.add(jGDTRLabel, new CellConstraints("9, 8, 1, 1, default, default"));
 					jGDTRLabel.setText("gdtr");
 					jGDTRLabel.addMouseListener(new MouseAdapter() {
 						public void mouseClicked(MouseEvent evt) {
@@ -554,11 +593,11 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jGDTRLimitTextField = new JTextField();
-					jPanel99.add(jGDTRLimitTextField, new CellConstraints("11, 8, 1, 1, default, default"));
+					jPanel99.add(jGDTRLimitTextField, new CellConstraints("12, 8, 1, 1, default, default"));
 				}
 				{
 					jLDTRLabel = new JLabel();
-					jPanel99.add(jLDTRLabel, new CellConstraints("8, 9, 1, 1, default, default"));
+					jPanel99.add(jLDTRLabel, new CellConstraints("9, 9, 1, 1, default, default"));
 					jLDTRLabel.setText("ldtr");
 					jLDTRLabel.addMouseListener(new MouseAdapter() {
 						public void mouseClicked(MouseEvent evt) {
@@ -568,7 +607,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jLDTRTextField = new JTextField();
-					jPanel99.add(jLDTRTextField, new CellConstraints("9, 9, 3, 1, default, default"));
+					jPanel99.add(jLDTRTextField, new CellConstraints("10, 9, 3, 1, default, default"));
 					jLDTRTextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jLDTRTextFieldKeyTyped(evt);
@@ -577,7 +616,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jIDTRLabel = new JLabel();
-					jPanel99.add(jIDTRLabel, new CellConstraints("8, 10, 1, 1, default, default"));
+					jPanel99.add(jIDTRLabel, new CellConstraints("9, 10, 1, 1, default, default"));
 					jIDTRLabel.setText("idtr");
 					jIDTRLabel.addMouseListener(new MouseAdapter() {
 						public void mouseClicked(MouseEvent evt) {
@@ -587,7 +626,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jIDTRTextField = new JTextField();
-					jPanel99.add(jIDTRTextField, new CellConstraints("9, 10, 1, 1, default, default"));
+					jPanel99.add(jIDTRTextField, new CellConstraints("10, 10, 1, 1, default, default"));
 					jIDTRTextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jIDTRTextFieldKeyTyped(evt);
@@ -596,11 +635,11 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jIDTRLimitTextField = new JTextField();
-					jPanel99.add(jIDTRLimitTextField, new CellConstraints("11, 10, 1, 1, default, default"));
+					jPanel99.add(jIDTRLimitTextField, new CellConstraints("12, 10, 1, 1, default, default"));
 				}
 				{
 					jTRLabel = new JLabel();
-					jPanel99.add(jTRLabel, new CellConstraints("8, 11, 1, 1, default, default"));
+					jPanel99.add(jTRLabel, new CellConstraints("9, 11, 1, 1, default, default"));
 					jTRLabel.setText("tr");
 					jTRLabel.addMouseListener(new MouseAdapter() {
 						public void mouseClicked(MouseEvent evt) {
@@ -610,7 +649,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jTRTextField = new JTextField();
-					jPanel99.add(jTRTextField, new CellConstraints("9, 11, 3, 1, default, default"));
+					jPanel99.add(jTRTextField, new CellConstraints("10, 11, 3, 1, default, default"));
 					jTRTextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jTRTextFieldKeyTyped(evt);
@@ -619,15 +658,15 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jCR0DetailLabel = new JLabel();
-					jPanel99.add(jCR0DetailLabel, new CellConstraints("8, 2, 4, 1, default, default"));
+					jPanel99.add(jCR0DetailLabel, new CellConstraints("9, 2, 4, 1, default, default"));
 				}
 				{
 					jCR0DetailLabel2 = new JLabel();
-					jPanel99.add(jCR0DetailLabel2, new CellConstraints("8, 3, 4, 1, default, default"));
+					jPanel99.add(jCR0DetailLabel2, new CellConstraints("9, 3, 4, 1, default, default"));
 				}
 				{
 					jDR0Label = new JLabel();
-					jPanel99.add(jDR0Label, new CellConstraints("13, 1, 1, 1, default, default"));
+					jPanel99.add(jDR0Label, new CellConstraints("14, 1, 1, 1, default, default"));
 					jDR0Label.setText("DR0");
 					jDR0Label.addMouseListener(new MouseAdapter() {
 						public void mouseClicked(MouseEvent evt) {
@@ -637,7 +676,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jDR1Label = new JLabel();
-					jPanel99.add(jDR1Label, new CellConstraints("13, 2, 1, 1, default, default"));
+					jPanel99.add(jDR1Label, new CellConstraints("14, 2, 1, 1, default, default"));
 					jDR1Label.setText("DR1");
 					jDR1Label.addMouseListener(new MouseAdapter() {
 						public void mouseClicked(MouseEvent evt) {
@@ -647,7 +686,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jDR2Label = new JLabel();
-					jPanel99.add(jDR2Label, new CellConstraints("13, 3, 1, 1, default, default"));
+					jPanel99.add(jDR2Label, new CellConstraints("14, 3, 1, 1, default, default"));
 					jDR2Label.setText("DR2");
 					jDR2Label.addMouseListener(new MouseAdapter() {
 						public void mouseClicked(MouseEvent evt) {
@@ -657,7 +696,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jDR3Label = new JLabel();
-					jPanel99.add(jDR3Label, new CellConstraints("13, 4, 1, 1, default, default"));
+					jPanel99.add(jDR3Label, new CellConstraints("14, 4, 1, 1, default, default"));
 					jDR3Label.setText("DR3");
 					jDR3Label.addMouseListener(new MouseAdapter() {
 						public void mouseClicked(MouseEvent evt) {
@@ -667,7 +706,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jDR6Label = new JLabel();
-					jPanel99.add(jDR6Label, new CellConstraints("13, 5, 1, 1, default, default"));
+					jPanel99.add(jDR6Label, new CellConstraints("14, 5, 1, 1, default, default"));
 					jDR6Label.setText("DR6");
 					jDR6Label.addMouseListener(new MouseAdapter() {
 						public void mouseClicked(MouseEvent evt) {
@@ -677,7 +716,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jDR7Label = new JLabel();
-					jPanel99.add(jDR7Label, new CellConstraints("13, 6, 1, 1, default, default"));
+					jPanel99.add(jDR7Label, new CellConstraints("14, 6, 1, 1, default, default"));
 					jDR7Label.setText("DR7");
 					jDR7Label.addMouseListener(new MouseAdapter() {
 						public void mouseClicked(MouseEvent evt) {
@@ -687,7 +726,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jDR0TextField = new JTextField();
-					jPanel99.add(jDR0TextField, new CellConstraints("14, 1, 1, 1, default, default"));
+					jPanel99.add(jDR0TextField, new CellConstraints("15, 1, 1, 1, default, default"));
 					jDR0TextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jDR0TextFieldKeyTyped(evt);
@@ -696,7 +735,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jDR1TextField = new JTextField();
-					jPanel99.add(jDR1TextField, new CellConstraints("14, 2, 1, 1, default, default"));
+					jPanel99.add(jDR1TextField, new CellConstraints("15, 2, 1, 1, default, default"));
 					jDR1TextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jDR1TextFieldKeyTyped(evt);
@@ -705,7 +744,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jDR2TextField = new JTextField();
-					jPanel99.add(jDR2TextField, new CellConstraints("14, 3, 1, 1, default, default"));
+					jPanel99.add(jDR2TextField, new CellConstraints("15, 3, 1, 1, default, default"));
 					jDR2TextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jDR2TextFieldKeyTyped(evt);
@@ -714,7 +753,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jDR3TextField = new JTextField();
-					jPanel99.add(jDR3TextField, new CellConstraints("14, 4, 1, 1, default, default"));
+					jPanel99.add(jDR3TextField, new CellConstraints("15, 4, 1, 1, default, default"));
 					jDR3TextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jDR3TextFieldKeyTyped(evt);
@@ -723,7 +762,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jDR6TextField = new JTextField();
-					jPanel99.add(jDR6TextField, new CellConstraints("14, 5, 1, 1, default, default"));
+					jPanel99.add(jDR6TextField, new CellConstraints("15, 5, 1, 1, default, default"));
 					jDR6TextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jDR6TextFieldKeyTyped(evt);
@@ -732,7 +771,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jDR7TextField = new JTextField();
-					jPanel99.add(jDR7TextField, new CellConstraints("14, 6, 1, 1, default, default"));
+					jPanel99.add(jDR7TextField, new CellConstraints("15, 6, 1, 1, default, default"));
 					jDR7TextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jDR7TextFieldKeyTyped(evt);
@@ -741,12 +780,12 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jLabel25 = new JLabel();
-					jPanel99.add(jLabel25, new CellConstraints("16, 1, 1, 1, default, default"));
-					jLabel25.setText(Application.language.getString("Stack"));
+					jPanel99.add(jLabel25, new CellConstraints("17, 1, 1, 1, default, default"));
+					jLabel25.setText(MyLanguage.getString("Stack"));
 				}
 				{
 					jStackScrollPane = new JScrollPane();
-					jPanel99.add(jStackScrollPane, new CellConstraints("16, 2, 1, 10, default, default"));
+					jPanel99.add(jStackScrollPane, new CellConstraints("17, 2, 1, 10, default, default"));
 					jStackScrollPane.setPreferredSize(new java.awt.Dimension(120, 3));
 					{
 						jStackList = new JList();
@@ -778,6 +817,190 @@ public class JRegisterPanel extends javax.swing.JPanel {
 							}
 						});
 					}
+				}
+				{
+					jST0Label = new JLabel();
+					jPanel99.add(jST0Label, new CellConstraints("2, 12, 1, 1, default, default"));
+					jST0Label.setText("ST0");
+				}
+				{
+					jST1Label = new JLabel();
+					jPanel99.add(jST1Label, new CellConstraints("2, 13, 1, 1, default, default"));
+					jST1Label.setText("ST1");
+				}
+				{
+					jST2Label = new JLabel();
+					jPanel99.add(jST2Label, new CellConstraints("2, 14, 1, 1, default, default"));
+					jST2Label.setText("ST2");
+				}
+				{
+					jST3Label = new JLabel();
+					jPanel99.add(jST3Label, new CellConstraints("2, 15, 1, 1, default, default"));
+					jST3Label.setText("ST3");
+				}
+				{
+					jST4Label = new JLabel();
+					jPanel99.add(jST4Label, new CellConstraints("2, 16, 1, 1, default, default"));
+					jST4Label.setText("ST4");
+				}
+				{
+					jST5Label = new JLabel();
+					jPanel99.add(jST5Label, new CellConstraints("2, 17, 1, 1, default, default"));
+					jST5Label.setText("ST5");
+				}
+				{
+					jST6Label = new JLabel();
+					jPanel99.add(jST6Label, new CellConstraints("2, 18, 1, 1, default, default"));
+					jST6Label.setText("ST6");
+				}
+				{
+					jST7Label = new JLabel();
+					jPanel99.add(jST7Label, new CellConstraints("2, 19, 1, 1, default, default"));
+					jST7Label.setText("ST7");
+				}
+				{
+					jST0TextField = new JTextField();
+					jPanel99.add(jST0TextField, new CellConstraints("4, 12, 4, 1, default, default"));
+				}
+				{
+					jST1TextField = new JTextField();
+					jPanel99.add(jST1TextField, new CellConstraints("4, 13, 4, 1, default, default"));
+				}
+				{
+					jST2TextField = new JTextField();
+					jPanel99.add(jST2TextField, new CellConstraints("4, 14, 4, 1, default, default"));
+				}
+				{
+					jST3TextField = new JTextField();
+					jPanel99.add(jST3TextField, new CellConstraints("4, 15, 4, 1, default, default"));
+				}
+				{
+					jST4TextField = new JTextField();
+					jPanel99.add(jST4TextField, new CellConstraints("4, 16, 4, 1, default, default"));
+				}
+				{
+					jST5TextField = new JTextField();
+					jPanel99.add(jST5TextField, new CellConstraints("4, 17, 4, 1, default, default"));
+				}
+				{
+					jST6TextField = new JTextField();
+					jPanel99.add(jST6TextField, new CellConstraints("4, 18, 4, 1, default, default"));
+				}
+				{
+					jST7TextField = new JTextField();
+					jPanel99.add(jST7TextField, new CellConstraints("4, 19, 4, 1, default, default"));
+				}
+				{
+					jMM0Label = new JLabel();
+					jPanel99.add(jMM0Label, new CellConstraints("9, 12, 1, 1, default, default"));
+					jMM0Label.setText("MM0");
+				}
+				{
+					jMM1Label = new JLabel();
+					jPanel99.add(jMM1Label, new CellConstraints("9, 13, 1, 1, default, default"));
+					jMM1Label.setText("MM1");
+				}
+				{
+					jMM2Label = new JLabel();
+					jPanel99.add(jMM2Label, new CellConstraints("9, 14, 1, 1, default, default"));
+					jMM2Label.setText("MM2");
+				}
+				{
+					jMM3Label = new JLabel();
+					jPanel99.add(jMM3Label, new CellConstraints("9, 15, 1, 1, default, default"));
+					jMM3Label.setText("MM3");
+				}
+				{
+					jMM4Label = new JLabel();
+					jPanel99.add(jMM4Label, new CellConstraints("9, 16, 1, 1, default, default"));
+					jMM4Label.setText("MM4");
+				}
+				{
+					jMM5Label = new JLabel();
+					jPanel99.add(jMM5Label, new CellConstraints("9, 17, 1, 1, default, default"));
+					jMM5Label.setText("MM5");
+				}
+				{
+					jMM6Label = new JLabel();
+					jPanel99.add(jMM6Label, new CellConstraints("9, 18, 1, 1, default, default"));
+					jMM6Label.setText("MM6");
+				}
+				{
+					jMM7Label = new JLabel();
+					jPanel99.add(jMM7Label, new CellConstraints("9, 19, 1, 1, default, default"));
+					jMM7Label.setText("MM7");
+				}
+				{
+					jMMX0TextField = new JTextField();
+					jPanel99.add(jMMX0TextField, new CellConstraints("10, 12, 6, 1, default, default"));
+				}
+				{
+					jMMX1TextField = new JTextField();
+					jPanel99.add(jMMX1TextField, new CellConstraints("10, 13, 6, 1, default, default"));
+				}
+				{
+					jMMX2TextField = new JTextField();
+					jPanel99.add(jMMX2TextField, new CellConstraints("10, 14, 6, 1, default, default"));
+				}
+				{
+					jMMX3TextField = new JTextField();
+					jPanel99.add(jMMX3TextField, new CellConstraints("10, 15, 6, 1, default, default"));
+				}
+				{
+					jMMX4TextField = new JTextField();
+					jPanel99.add(jMMX4TextField, new CellConstraints("10, 16, 6, 1, default, default"));
+				}
+				{
+					jMMX5TextField = new JTextField();
+					jPanel99.add(jMMX5TextField, new CellConstraints("10, 17, 6, 1, default, default"));
+				}
+				{
+					jMMX6TextField = new JTextField();
+					jPanel99.add(jMMX6TextField, new CellConstraints("10, 18, 6, 1, default, default"));
+				}
+				{
+					jMMX7TextField = new JTextField();
+					jPanel99.add(jMMX7TextField, new CellConstraints("10, 19, 6, 1, default, default"));
+				}
+				{
+					jSeparator2 = new JSeparator();
+					jPanel99.add(jSeparator2, new CellConstraints("2, 11, 6, 1, default, default"));
+				}
+				{
+					jLabel1 = new JLabel();
+					jPanel99.add(jLabel1, new CellConstraints("2, 20, 2, 1, default, default"));
+					jLabel1.setText("Status");
+				}
+				{
+					jLabel2 = new JLabel();
+					jPanel99.add(jLabel2, new CellConstraints("2, 21, 2, 1, default, default"));
+					jLabel2.setText("Control");
+				}
+				{
+					jLabel3 = new JLabel();
+					jPanel99.add(jLabel3, new CellConstraints("2, 22, 2, 1, default, default"));
+					jLabel3.setText("Tag");
+				}
+				{
+					jLabel4 = new JLabel();
+					jPanel99.add(jLabel4, new CellConstraints("2, 23, 2, 1, default, default"));
+					jLabel4.setText("Operand");
+				}
+				{
+					jFPUStatusTextField = new JTextField();
+					jPanel99.add(jFPUStatusTextField, new CellConstraints("4, 20, 12, 1, default, default"));
+				}
+				{
+					jFPUControlTextField = new JTextField();
+					jPanel99.add(jFPUControlTextField, new CellConstraints("4, 21, 12, 1, default, default"));
+				}
+				{
+					jFPUTagTextField = new JTextField();
+					jPanel99.add(jFPUTagTextField, new CellConstraints("4, 22, 4, 1, default, default"));
+				}
+				{
+					jFPUOperandTextField = new JTextField();
+					jPanel99.add(jFPUOperandTextField, new CellConstraints("4, 23, 4, 1, default, default"));
 				}
 			}
 

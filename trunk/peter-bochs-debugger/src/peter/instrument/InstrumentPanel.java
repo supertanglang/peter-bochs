@@ -103,6 +103,7 @@ import org.jzy3d.plot3d.rendering.canvas.Quality;
 import peter.CommonLib;
 import peter.Global;
 import peter.JRegisterPanel;
+import peter.MyLanguage;
 import peter.Setting;
 import peter.TSSPanel;
 import peter.instrument.callgraph.CallGraphConfigTableCellEditor;
@@ -143,6 +144,9 @@ import com.petersoft.advancedswing.searchtextfield.JSearchTextField;
 public class InstrumentPanel extends JPanel implements ChartChangeListener, ChartMouseListener {
 	private JTabbedPane jTabbedPane1;
 	private JPanel jMemoryPanel;
+	private JButton jInvisible3dChartButton;
+	private JPanel jPanel15;
+	private JPanel jPanel14;
 	private JCheckBox jSortCheckBox;
 	private JTextArea jTextArea1;
 	private JLabel jLabel17;
@@ -250,7 +254,7 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 	private JLabel jLabel6;
 	private JPanel jPanel1;
 	Color background = new Color(250, 250, 250);
-	static Chart chart;
+	public static Chart memory3dChart;
 	JmpTableModel jmpTableModel = new JmpTableModel();
 	mxGraph graph;
 	CallGraphComponent graphComponent;
@@ -648,11 +652,11 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			surface.setWireframeDisplayed(true);
 			surface.setWireframeColor(org.jzy3d.colors.Color.BLACK);
 
-			for (Iterator<AbstractDrawable> it = chart.getScene().getGraph().getAll().iterator(); it.hasNext();) {
+			for (Iterator<AbstractDrawable> it = memory3dChart.getScene().getGraph().getAll().iterator(); it.hasNext();) {
 				it.next();
 				it.remove();
 			}
-			chart.getScene().getGraph().add(surface);
+			memory3dChart.getScene().getGraph().add(surface);
 		} catch (Exception ex) {
 
 		}
@@ -714,31 +718,32 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			GroupLayout jMemory3DPanelLayout = new GroupLayout((JComponent) jMemory3DPanel);
 			jMemory3DPanel.setLayout(jMemory3DPanelLayout);
 			jMemory3DPanel.setPreferredSize(new java.awt.Dimension(890, 242));
+			jMemory3DPanel.setVisible(false);
 
 			try {
-				Chart chart = createEmptyMemory3DChart();
+				memory3dChart = createEmptyMemory3DChart();
 				ChartMouseController mouse = new ChartMouseController();
-				mouse.addControllerEventListener(new ControllerEventListener() {
-
-					public void controllerEventFired(ControllerEvent e) {
-						if (e.getType() == ControllerType.ROTATE) {
-							// System.out.println("Mouse[ROTATE]:" +
-							// (Coord3d)e.getValue());
-
-						}
-
-					}
-
-				});
-				chart.addController(mouse);
+				// mouse.addControllerEventListener(new ControllerEventListener() {
+				//
+				// public void controllerEventFired(ControllerEvent e) {
+				// if (e.getType() == ControllerType.ROTATE) {
+				// // System.out.println("Mouse[ROTATE]:" +
+				// // (Coord3d)e.getValue());
+				//
+				// }
+				//
+				// }
+				//
+				// });
+				memory3dChart.addController(mouse);
 
 				jMemory3DPanelLayout.setHorizontalGroup(jMemory3DPanelLayout.createSequentialGroup().addContainerGap()
-						.addComponent((Component) chart.getCanvas(), 0, 220, Short.MAX_VALUE).addContainerGap());
+						.addComponent((Component) memory3dChart.getCanvas(), 0, 220, Short.MAX_VALUE).addContainerGap());
 				jMemory3DPanelLayout.setVerticalGroup(jMemory3DPanelLayout.createSequentialGroup().addContainerGap()
-						.addComponent((Component) chart.getCanvas(), 0, 116, Short.MAX_VALUE).addContainerGap());
+						.addComponent((Component) memory3dChart.getCanvas(), 0, 116, Short.MAX_VALUE).addContainerGap());
 
-				GLCapabilities glCapabilities = new GLCapabilities();
-				glCapabilities.setHardwareAccelerated(true);
+				// GLCapabilities glCapabilities = new GLCapabilities();
+				// glCapabilities.setHardwareAccelerated(true);
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			} catch (UnsatisfiedLinkError e) {
@@ -753,8 +758,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 	}
 
 	public static Chart createEmptyMemory3DChart() throws IOException {
-		chart = new Chart(Quality.Fastest);
-		return chart;
+		memory3dChart = new Chart(Quality.Fastest);
+		return memory3dChart;
 	}
 
 	private JButton getJZoomOutButton() {
@@ -1071,7 +1076,7 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 				jfcMemory = createEmptyChart(createEmptyDataset());
 				jMemoryChartPanel = new ChartPanel(jfcMemory);
 				jTabbedPane2.addTab("Chart", null, jMemoryChartPanel, null);
-				jTabbedPane2.addTab("Memory 3D", null, getJMemory3DPanel(), null);
+				jTabbedPane2.addTab("3D Chart", null, getJPanel14(), null);
 				jMemoryChartPanel.setDisplayToolTips(true);
 				jfcMemory.addChangeListener(this);
 				jMemoryChartPanel.addChartMouseListener(this);
@@ -2684,4 +2689,51 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 		loadInformation(jSortCheckBox.isSelected(), jProfilingTable.getValueAt(jProfilingTable.getSelectedRow(), 4).toString());
 	}
 
+	private JPanel getJPanel14() {
+		if (jPanel14 == null) {
+			jPanel14 = new JPanel();
+			BorderLayout jPanel14Layout = new BorderLayout();
+			jPanel14.setLayout(jPanel14Layout);
+			jPanel14.setPreferredSize(new java.awt.Dimension(759, 358));
+			jPanel14.add(getJMemory3DPanel(), BorderLayout.CENTER);
+			jPanel14.add(getJPanel15(), BorderLayout.SOUTH);
+		}
+		return jPanel14;
+	}
+
+	private JPanel getJPanel15() {
+		if (jPanel15 == null) {
+			jPanel15 = new JPanel();
+			FlowLayout jPanel15Layout = new FlowLayout();
+			jPanel15Layout.setAlignment(FlowLayout.LEFT);
+			jPanel15.setLayout(jPanel15Layout);
+			jPanel15.add(getJInvisible3dChartButton());
+		}
+		return jPanel15;
+	}
+
+	private JButton getJInvisible3dChartButton() {
+		if (jInvisible3dChartButton == null) {
+			jInvisible3dChartButton = new JButton();
+			jInvisible3dChartButton.setText(MyLanguage.getString("Visible"));
+			jInvisible3dChartButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jInvisible3dChartButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jInvisible3dChartButton;
+	}
+
+	private void jInvisible3dChartButtonActionPerformed(ActionEvent evt) {
+		if (jInvisible3dChartButton.getText().equals(MyLanguage.getString("Visible"))) {
+			jInvisible3dChartButton.setText(MyLanguage.getString("Invisible"));
+			jMemory3DPanel.setVisible(true);
+		} else {
+			jInvisible3dChartButton.setText(MyLanguage.getString("Visible"));
+			jMemory3DPanel.setVisible(false);
+			jMemory3DPanel.repaint();
+		}
+		jMemory3DPanel.revalidate();
+	}
 }

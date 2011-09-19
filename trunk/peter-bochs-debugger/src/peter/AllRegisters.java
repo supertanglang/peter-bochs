@@ -42,4 +42,27 @@ public class AllRegisters {
 	public static Vector<Long> tr = new Vector<Long>();
 
 	public static Vector<String> instructions = new Vector<String>();
+
+	public static Vector<String> st0 = new Vector<String>();
+	public static Vector<String> st1 = new Vector<String>();
+	public static Vector<String> st2 = new Vector<String>();
+	public static Vector<String> st3 = new Vector<String>();
+	public static Vector<String> st4 = new Vector<String>();
+	public static Vector<String> st5 = new Vector<String>();
+	public static Vector<String> st6 = new Vector<String>();
+	public static Vector<String> st7 = new Vector<String>();
+	public static Vector<String> fpu_status = new Vector<String>();
+	public static Vector<String> fpu_control = new Vector<String>();
+	public static Vector<String> fpu_tag = new Vector<String>();
+	public static Vector<String> fpu_operand = new Vector<String>();
+
+	public static Vector<String> mm0 = new Vector<String>();
+	public static Vector<String> mm1 = new Vector<String>();
+	public static Vector<String> mm2 = new Vector<String>();
+	public static Vector<String> mm3 = new Vector<String>();
+	public static Vector<String> mm4 = new Vector<String>();
+	public static Vector<String> mm5 = new Vector<String>();
+	public static Vector<String> mm6 = new Vector<String>();
+	public static Vector<String> mm7 = new Vector<String>();
+
 }

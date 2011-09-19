@@ -34,7 +34,11 @@ public class JInstructionTableModel extends AbstractTableModel {
 					return "";
 				}
 			} else {
-				return data.get(row)[column];
+				if (column == 1) {
+					return "0x" + data.get(row)[column];
+				} else {
+					return data.get(row)[column];
+				}
 			}
 		} catch (Exception ex) {
 			return "";

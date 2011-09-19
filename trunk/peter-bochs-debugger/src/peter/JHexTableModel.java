@@ -3,7 +3,7 @@ package peter;
 import javax.swing.table.AbstractTableModel;
 
 public class JHexTableModel extends AbstractTableModel {
-	private String[] columnNames = { Application.language.getString("Offset"), "0", "1", "2", "3", "4", "5", "6", "7", Application.language.getString("String") };
+	private String[] columnNames = { MyLanguage.getString("Offset"), "0", "1", "2", "3", "4", "5", "6", "7", MyLanguage.getString("String") };
 	private int qw[] = new int[(getColumnCount() - 2) * getRowCount()];
 	private int radix = 16;
 	private long currentAddress;

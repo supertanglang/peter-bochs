@@ -178,6 +178,7 @@ public class Setting {
 	}
 
 	boolean loadBreakpointAtStartup;
+	boolean loadSystemMapAtStartup;
 	boolean updateAfterBochsCommand;
 	boolean updateAfterBochsCommand_register;
 	boolean updateAfterBochsCommand_memory;
@@ -207,6 +208,15 @@ public class Setting {
 
 	String lastElfHistoryOpenDir = new File(".").getAbsolutePath();
 	String lastElfHistoryOpenDir2 = new File(".").getAbsolutePath();
+	String lastMapOpenDir = new File(".").getAbsolutePath();
+
+	public String getLastMapOpenDir() {
+		return lastMapOpenDir;
+	}
+
+	public void setLastMapOpenDir(String lastMapOpenDir) {
+		this.lastMapOpenDir = lastMapOpenDir;
+	}
 
 	public boolean isUpdateAfterBochsCommand_history() {
 		return updateAfterBochsCommand_history;
@@ -609,15 +619,15 @@ public class Setting {
 	public boolean isJmpProfiling() {
 		return jmpProfiling;
 	}
-	
-	public boolean isInterruptProfiling(){
+
+	public boolean isInterruptProfiling() {
 		return interruptProfiling;
 	}
 
 	public void setJmpProfiling(boolean jmpProfiling) {
 		this.jmpProfiling = jmpProfiling;
 	}
-	
+
 	public void setInterruptProfiling(boolean interruptProfiling) {
 		this.interruptProfiling = interruptProfiling;
 	}
@@ -628,6 +638,14 @@ public class Setting {
 
 	public void setProfilingUpdateGraph(boolean profilingUpdateGraph) {
 		this.profilingUpdateGraph = profilingUpdateGraph;
+	}
+
+	public boolean isLoadSystemMapAtStartup() {
+		return loadSystemMapAtStartup;
+	}
+
+	public void setLoadSystemMapAtStartup(boolean loadSystemMapAtStartup) {
+		this.loadSystemMapAtStartup = loadSystemMapAtStartup;
 	}
 
 	public static void main(String args[]) {
