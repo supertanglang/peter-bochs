@@ -17,7 +17,11 @@ public class HistoryTableCellRenderer extends JLabel implements TableCellRendere
 
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-		this.setText(value.toString());
+		if (value == null) {
+			this.setText("");
+		} else {
+			this.setText(value.toString());
+		}
 		if (isSelected) {
 			this.setBackground(table.getSelectionBackground());
 		} else {

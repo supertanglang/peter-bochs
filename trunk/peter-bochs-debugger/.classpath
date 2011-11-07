@@ -24,6 +24,9 @@
 	<classpathentry kind="lib" path="lib/jzy3d/org.jzy3d-0.8.4.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/JFreeChart/jfreechart-1.0.13.jar"/>
-	<classpathentry kind="lib" path="lib/commons-io-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-io-2.0.1.jar" sourcepath="C:/Downloads/JDKSource"/>
+	<classpathentry kind="lib" path="/root/Downloads/eclipse/plugins/org.apache.commons.logging_1.0.4.v201101211617.jar"/>
+	<classpathentry kind="lib" path="lib/javax.wsdl_1.6.2.v201012040545.jar"/>
+	<classpathentry kind="lib" path="lib/saaj.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

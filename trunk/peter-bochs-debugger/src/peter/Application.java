@@ -48,8 +48,6 @@ import java.util.TreeSet;
 import java.util.Vector;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -116,13 +114,16 @@ import peter.instrument.MemorySocketServerController;
 import peter.logpanel.LogPanel;
 import peter.osdebuginformation.JOSDebugInformationPanel;
 import peter.osdebuginformation.OSDebugInfoHelper;
-import peter.sourceleveldebugger.SourceLevelDebugger;
+import peter.sourceleveldebugger.SourceLevelDebugger2;
+import peter.webservice.WebServiceUtil;
 
 import com.petersoft.advancedswing.diskpanel.DiskPanel;
 import com.petersoft.advancedswing.enhancedtextarea.EnhancedTextArea;
 import com.petersoft.advancedswing.jdropdownbutton.JDropDownButton;
 import com.petersoft.advancedswing.jmaximizabletabbedpane.JMaximizableTabbedPane;
 import com.petersoft.advancedswing.jmaximizabletabbedpane.JMaximizableTabbedPane_BasePanel;
+import com.petersoft.advancedswing.jprogressbardialog.JProgressBarDialog;
+import com.petersoft.advancedswing.jvmdialog.JVMInfoDialog;
 
 /**
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI Builder, which is free for non-commercial use. If Jigloo is being used commercially (ie, by a
@@ -228,7 +229,7 @@ public class Application extends javax.swing.JFrame {
 	private JMenuItem jLoadSystemMapMenuItem;
 	private JMenu jSystemMenu;
 	private JToggleButton jSourceLevelDebuggerButton;
-	private SourceLevelDebugger sourceLevelDebugger;
+	private SourceLevelDebugger2 sourceLevelDebugger;
 	public JMenuItem jShowInSourceCodeMenuItem;
 	private JSeparator jSeparator3;
 	private JRadioButton jMMXRadioButton;
@@ -441,6 +442,7 @@ public class Application extends javax.swing.JFrame {
 	private JMenuItem loadSystemsMapMenuItem = new JMenuItem("Load system.map");
 	private String latestVersionURL;
 	private boolean saveToRunDotTxt = true;
+	private boolean processPauseBoch;
 
 	private static void writeToFile(InputStream is, File file) {
 		BufferedOutputStream fOut = null;
@@ -461,6 +463,7 @@ public class Application extends javax.swing.JFrame {
 	 * Auto-generated main method to display this JFrame
 	 */
 	public static void main(String[] args) {
+		WebServiceUtil.log("peter-bochs", "start", null, null, null);
 		try {
 			UIManager.setLookAndFeel("com.petersoft.white.PetersoftWhiteLookAndFeel");
 		} catch (Exception e) {
@@ -676,13 +679,10 @@ public class Application extends javax.swing.JFrame {
 				HashMap<String, String> map = CommonLib.checkLatestVersion();
 				if (Global.debug) {
 					System.out.println("finished checkLatestVersion()");
+					System.out.println("checkLatestVersion()=" + map.get("latestVersion"));
 				}
 				if (map != null) {
 					if (map.get("latestVersion").compareTo(Global.version) > 0) {
-						// jLatestVersionLabel.setText(MyLanguage.getString("Latest_version_available")
-						// + " : " + map.get("latestVersion") + "     "
-						// + MyLanguage.getString("Download_url") + " : " +
-						// map.get("downloadURL"));
 						jLatestVersionLabel.setText(MyLanguage.getString("Latest_version_available") + " : " + map.get("latestVersion"));
 						latestVersionURL = map.get("downloadURL");
 					} else {
@@ -782,6 +782,7 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void stopBochs() {
+		WebServiceUtil.log("peter-bochs", "stop", null, null, null);
 		try {
 			this.enableAllButtons(false, false);
 			jRunBochsButton.setText(MyLanguage.getString("Run_bochs"));
@@ -809,38 +810,48 @@ public class Application extends javax.swing.JFrame {
 		}
 	}
 
-	private synchronized void pauseBochs() {
-		try {
-			if (jRunBochsButton.getText().equals(MyLanguage.getString("Pause_bochs"))) {
-				commandReceiver.clearBuffer();
-				commandReceiver.waitUntilNoInput();
-				if (isLinux) {
-					ProcessBuilder pb = new ProcessBuilder("killall", "-2", "bochs");
-					pb.start();
-				} else {
-					ProcessBuilder pb = new ProcessBuilder("PauseBochs.exe");
-					pb.start();
-				}
+	private synchronized void pauseBochs(boolean pauseBochsManually) {
+		if (!processPauseBoch) {
+			processPauseBoch = true;
+			try {
+				if (jRunBochsButton.getText().equals(MyLanguage.getString("Pause_bochs"))) {
+					WebServiceUtil.log("peter-bochs", "pause", null, null, null);
+					commandReceiver.clearBuffer();
+					commandReceiver.waitUntilNoInput();
 
-				updateBochsStatus();
-
-				SwingUtilities.invokeLater(new Runnable() {
-					// this invokeLater prevent openJDK hang my program, I am using FC15
-					public void run() {
-						CardLayout cl = (CardLayout) (jMainPanel.getLayout());
-						cl.show(jMainPanel, currentPanel);
+					if (pauseBochsManually) {
+						if (isLinux) {
+							ProcessBuilder pb = new ProcessBuilder("killall", "-2", "bochs");
+							pb.start();
+						} else {
+							ProcessBuilder pb = new ProcessBuilder("PauseBochs.exe");
+							pb.start();
+						}
 					}
-				});
-				jRunBochsButton.setText(MyLanguage.getString("Run_bochs"));
-				jRunBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/resultset_next.png")));
-				// jStepBochsButton.setEnabled(true);
+
+					updateBochsStatus();
+
+					SwingUtilities.invokeLater(new Runnable() {
+						// this invokeLater prevent openJDK hang my program, I
+						// am using FC15
+						public void run() {
+							CardLayout cl = (CardLayout) (jMainPanel.getLayout());
+							cl.show(jMainPanel, currentPanel);
+						}
+					});
+					jRunBochsButton.setText(MyLanguage.getString("Run_bochs"));
+					jRunBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/resultset_next.png")));
+					// jStepBochsButton.setEnabled(true);
+				}
+			} catch (Exception ex) {
+				ex.printStackTrace();
 			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
+			processPauseBoch = false;
 		}
 	}
 
 	private void runBochs() {
+		WebServiceUtil.log("peter-bochs", "run", null, null, null);
 		try {
 			enableAllButtons(false, true);
 			if (currentPanel.equals("jMaximizableTabbedPane_BasePanel1")) {
@@ -859,18 +870,21 @@ public class Application extends javax.swing.JFrame {
 					while (commandReceiver.getLinesLength() == 0) {
 						try {
 							Thread.currentThread().sleep(200);
-						} catch (InterruptedException e) {
+						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					}
-					pauseBochs();
+					pauseBochs(false);
 				}
 			}.start();
 
-			// new Thread("http://peter-bochs.googlecode.com/files/run.txt thread") {
+			// new
+			// Thread("http://peter-bochs.googlecode.com/files/run.txt thread")
+			// {
 			// public void run() {
 			// try {
-			// InputStream in = new URL("http://peter-bochs.googlecode.com/files/run.txt").openStream();
+			// InputStream in = new
+			// URL("http://peter-bochs.googlecode.com/files/run.txt").openStream();
 			// String str = IOUtils.toString(in);
 			// IOUtils.closeQuietly(in);
 			// } catch (Exception ex) {
@@ -886,7 +900,11 @@ public class Application extends javax.swing.JFrame {
 		try {
 			{
 				this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-				this.setTitle(MyLanguage.getString("Title") + " " + Global.version);
+				if (Global.isBeta) {
+					this.setTitle(MyLanguage.getString("Title") + " " + Global.version + " , This is beta version, if you found a bug, please try older official release");
+				} else {
+					this.setTitle(MyLanguage.getString("Title") + " " + Global.version);
+				}
 
 				this.setIconImage(new ImageIcon(getClass().getClassLoader().getResource("icons/peter.png")).getImage());
 				this.addWindowListener(new WindowAdapter() {
@@ -1095,14 +1113,19 @@ public class Application extends javax.swing.JFrame {
 					}
 				}
 			}
-			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-			setSize(screenSize.width * 2 / 3, screenSize.height * 4 / 5);
-
-			setSize(Setting.getInstance().getWidth(), Setting.getInstance().getHeight());
-
+			if (Setting.getInstance().getWidth() == 0 || Setting.getInstance().getHeight() == 0) {
+				Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+				setSize(screenSize.width * 2 / 3, screenSize.height * 4 / 5);
+			} else {
+				setSize(Setting.getInstance().getWidth(), Setting.getInstance().getHeight());
+			}
 			int x = Setting.getInstance().getX();
 			int y = Setting.getInstance().getY();
-			setLocation(x, y);
+			if (x <= 0 || y <= 0) {
+				this.setLocationRelativeTo(null);
+			} else {
+				setLocation(x, y);
+			}
 
 			jSplitPane1.setDividerLocation(Setting.getInstance().getDivX());
 			jSplitPane2.setDividerLocation(Setting.getInstance().getDivY());
@@ -1204,7 +1227,7 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void pauseBochsMenuItemActionPerformed(ActionEvent evt) {
-		pauseBochs();
+		pauseBochs(true);
 	}
 
 	private void jStartBochButtonActionPerformed(ActionEvent evt) {
@@ -1281,8 +1304,8 @@ public class Application extends javax.swing.JFrame {
 		} else {
 			sendCommand("s");
 			String re = commandReceiver.getCommandResult("(").toLowerCase();
-			updateHistoryTable(re);
-			updateBochsStatus(false, false);
+			updateBochsStatus(false, true, re);
+			// updateHistoryTable(re);
 		}
 	}
 
@@ -1291,9 +1314,57 @@ public class Application extends javax.swing.JFrame {
 		public boolean shouldStop;
 		public int instructionCount;
 		public long ipDelta;
+		int noOfLine = 1;
 
 		public MyThread(Object eventSource) {
 			this.eventSource = eventSource;
+		}
+
+		private String update(String result, DataOutputStream out) {
+			String re = "";
+			if (saveToRunDotTxt || !jDisableAutoUpdateCheckBox.isSelected()) {
+				re = commandReceiver.getCommandResult("(").toLowerCase();
+				if (re.endsWith("\n")) {
+					re = re.substring(0, re.length() - 1);
+				}
+				if (jAutoUpdateEvery20LinesCheckBox.isSelected()) {
+					result += re + "\n";
+				} else {
+					result = re;
+				}
+			}
+			updateRegister();
+			updateHistoryTable(re);
+			if (saveToRunDotTxt) {
+				try {
+					out.writeBytes(result + "\n");
+					out.flush();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			if (!jDisableAutoUpdateCheckBox.isSelected()) {
+				if (jMaxRowComboBox.getSelectedItem().equals("infinite")) {
+					jTextArea1.setMaxRow(-1);
+				} else {
+					jTextArea1.setMaxRow(Integer.parseInt(jMaxRowComboBox.getSelectedItem().toString()));
+				}
+				if (jAutoUpdateEvery20LinesCheckBox.isSelected()) {
+					if (noOfLine >= 20) {
+						jBochsEditorPane.setText(jBochsEditorPane.getText() + result);
+						jTextArea1.newLogFileLine(result);
+						result = "";
+						noOfLine = 1;
+					} else {
+						noOfLine++;
+					}
+				} else {
+					jBochsEditorPane.setText(jBochsEditorPane.getText() + result);
+					jTextArea1.newLogFileLine(result);
+					result = "";
+				}
+			}
+			return result;
 		}
 
 		public void run() {
@@ -1305,68 +1376,29 @@ public class Application extends javax.swing.JFrame {
 
 				if (eventSource != null) {
 					if (eventSource == jStep10MenuItem) {
+						String result = "";
 						for (int x = 1; x <= 10 && !shouldStop; x++) {
 							jStatusLabel.setText("Step " + x + " / 10");
 							sendCommand("s");
-							String re = commandReceiver.getCommandResult("(").toLowerCase();
-							updateHistoryTable(re);
+							result = update(result, out);
 						}
-						updateBochsStatus(false, false);
+						updateBochsStatus();
 					} else if (eventSource == jStep100MenuItem) {
+						String result = "";
 						for (int x = 1; x <= 100 && !shouldStop; x++) {
 							jStatusLabel.setText("Step " + x + " / 100");
 							sendCommand("s");
-							String re = commandReceiver.getCommandResult("(").toLowerCase();
-							updateHistoryTable(re);
+							result = update(result, out);
 						}
 						updateBochsStatus();
 					} else if (eventSource == jStepNMenuItem) {
-						int noOfLine = 1;
 						String result = "";
 						jStepCountLabel.setVisible(true);
 						for (int x = 1; x <= instructionCount && !shouldStop; x++) {
 							jStatusLabel.setText("Step " + x + " / " + instructionCount);
 							jStepCountLabel.setText("Step " + x + " / " + instructionCount);
 							sendCommand("s");
-							String re = "";
-							if (saveToRunDotTxt || !jDisableAutoUpdateCheckBox.isSelected()) {
-								re = commandReceiver.getCommandResult("(").toLowerCase();
-								if (re.endsWith("\n")) {
-									re = re.substring(0, re.length() - 1);
-								}
-								if (jAutoUpdateEvery20LinesCheckBox.isSelected()) {
-									result += re + "\n";
-								} else {
-									result = re;
-								}
-							}
-							updateRegister();
-							updateHistoryTable(re);
-							if (saveToRunDotTxt) {
-								out.writeBytes(result + "\n");
-								out.flush();
-							}
-							if (!jDisableAutoUpdateCheckBox.isSelected()) {
-								if (jMaxRowComboBox.getSelectedItem().equals("infinite")) {
-									jTextArea1.setMaxRow(-1);
-								} else {
-									jTextArea1.setMaxRow(Integer.parseInt(jMaxRowComboBox.getSelectedItem().toString()));
-								}
-								if (jAutoUpdateEvery20LinesCheckBox.isSelected()) {
-									if (noOfLine >= 20) {
-										jBochsEditorPane.setText(jBochsEditorPane.getText() + result);
-										jTextArea1.newLogFileLine(result);
-										result = "";
-										noOfLine = 1;
-									} else {
-										noOfLine++;
-									}
-								} else {
-									jBochsEditorPane.setText(jBochsEditorPane.getText() + result);
-									jTextArea1.newLogFileLine(result);
-									result = "";
-								}
-							}
+							result = update(result, out);
 						}
 						updateBochsStatus();
 					} else if (eventSource == jStepUntilCallOrJumpMenuItem) {
@@ -1392,7 +1424,6 @@ public class Application extends javax.swing.JFrame {
 							}
 						} while (notMatch && !shouldStop);
 						updateBochsStatus();
-
 					} else if (eventSource == jStepUntilIRetMenuItem) {
 						boolean notMatch = true;
 						do {
@@ -1426,18 +1457,6 @@ public class Application extends javax.swing.JFrame {
 						do {
 							double secondDiff = 0;
 							sendCommand("s");
-							// String fromBochs = commandReceiver.getCommandResult("(").toLowerCase();
-							// long ip = CommonLib.convertFilesize(fromBochs.replaceAll("\\].*$", "").replaceAll("^.*\\[", ""));
-							// if (saveToRunDotTxt || !jDisableAutoUpdateCheckBox.isSelected()) {
-							// if (fromBochs.endsWith("\n")) {
-							// fromBochs = fromBochs.substring(0, fromBochs.length() - 1);
-							// }
-							// if (jAutoUpdateEvery20LinesCheckBox.isSelected()) {
-							// result += fromBochs + "\n";
-							// } else {
-							// result = fromBochs;
-							// }
-							// }
 
 							String re = commandReceiver.getCommandResult("(").toLowerCase();
 							long ip = CommonLib.convertFilesize(re.replaceAll("\\].*$", "").replaceAll("^.*\\[", ""));
@@ -1452,6 +1471,7 @@ public class Application extends javax.swing.JFrame {
 									result = re;
 								}
 							}
+							updateRegister();
 							updateHistoryTable(re);
 
 							if (saveToRunDotTxt) {
@@ -1517,11 +1537,12 @@ public class Application extends javax.swing.JFrame {
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			} finally {
-				if (currentPanel.equals("jMaximizableTabbedPane_BasePanel1")) {
+				if (currentPanel.equals("jMaximizableTabbedPane_BasePanel1") || currentPanel.equals("sourceLevelDebugger")) {
 					CardLayout cl = (CardLayout) (jMainPanel.getLayout());
 					cl.show(jMainPanel, "jMaximizableTabbedPane_BasePanel1");
 					currentPanel = "jMaximizableTabbedPane_BasePanel1";
 				}
+
 				enableAllButtons(true, false);
 			}
 
@@ -1572,86 +1593,109 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	public void updateBochsStatus() {
-		updateBochsStatus(false, true);
+		updateBochsStatus(false, true, null);
 	}
 
-	public void updateBochsStatus(boolean shouldWait, final boolean updateHistoryTable) {
+	public void updateBochsStatus(boolean shouldWait, final boolean updateHistoryTable, final String stepResult) {
+		WebServiceUtil.log("peter-bochs", "updateBochsStatus", null, null, null);
+		final JProgressBarDialog d = new JProgressBarDialog(this, true);
 		Thread updateThread = new Thread("updateBochsStatus thread") {
 			public void run() {
 				enableAllButtons(false, false);
 
+				d.jProgressBar.setString("updateRegister");
 				if (Global.debug) {
 					System.out.println("updateRegister");
 				}
 				updateRegister();
 
+				d.jProgressBar.setString("updateEFlag");
 				if (Global.debug) {
 					System.out.println("updateEFlag");
 				}
 				updateEFlag();
 
+				d.jProgressBar.setString("updateMemory");
 				if (Global.debug) {
 					System.out.println("updateMemory");
 				}
 				updateMemory(true);
 
+				d.jProgressBar.setString("updateInstruction");
 				if (Global.debug) {
 					System.out.println("updateInstruction");
 				}
 				updateInstruction(null);
 
+				d.jProgressBar.setString("updateGDT");
 				if (Global.debug) {
 					System.out.println("updateGDT");
 				}
 				updateGDT();
 
+				d.jProgressBar.setString("updateIDT");
 				if (Global.debug) {
 					System.out.println("updateIDT");
 				}
 				updateIDT();
 
+				d.jProgressBar.setString("updatePageTable");
 				if (Global.debug) {
 					System.out.println("updatePageTable");
 				}
 				updatePageTable(CommonLib.convertFilesize(jRegisterPanel1.jCR3TextField.getText()));
 
+				d.jProgressBar.setString("updateStack");
 				if (Global.debug) {
 					System.out.println("updateStack");
 				}
 				updateStack();
 
+				d.jProgressBar.setString("updateAddressTranslate");
 				if (Global.debug) {
 					System.out.println("updateAddressTranslate");
 				}
 				updateAddressTranslate();
 
-				if (updateHistoryTable) {
-					if (Global.debug) {
-						System.out.println("updateHistoryTable");
-					}
-					updateHistoryTable();
+				d.jProgressBar.setString("updateBreakpoint");
+				if (Global.debug) {
+					System.out.println("updateBreakpoint");
 				}
+				updateBreakpoint();
 
+				d.jProgressBar.setString("updateBreakpointTableColor");
 				if (Global.debug) {
 					System.out.println("updateBreakpointTableColor");
 				}
-				updateBreakpoint();
 				updateBreakpointTableColor();
 
 				if (Global.osDebug != -1) {
+					d.jProgressBar.setString("update OS debug informations");
 					if (Global.debug) {
 						System.out.println("update OS debug informations");
 					}
 					updateOSDebugInfo();
 				}
 
+				d.jProgressBar.setString("jInstrumentPanel.updateChart");
+				if (Global.debug) {
+					System.out.println("jInstrumentPanel.updateChart");
+				}
 				jInstrumentPanel.updateChart();
 
+				d.jProgressBar.setString("update call graph");
 				if (Global.debug) {
 					System.out.println("update call graph");
 				}
-
 				jInstrumentPanel.updateCallGraph();
+
+				if (updateHistoryTable) {
+					d.jProgressBar.setString("updateHistoryTable");
+					if (Global.debug) {
+						System.out.println("updateHistoryTable");
+					}
+					updateHistoryTable(stepResult);
+				}
 
 				jStatusLabel.setText("");
 
@@ -1659,22 +1703,41 @@ public class Application extends javax.swing.JFrame {
 
 				if (breakpointLoadedOnce == false && Setting.getInstance().loadBreakpointAtStartup) {
 					jLoadBreakpointButtonActionPerformed(null);
-					breakpointLoadedOnce = true; // since we only have to load once
+					breakpointLoadedOnce = true; // since we only have to load
+													// once
 				}
 				if (systemMapLoadedOnce == false && Setting.getInstance().loadSystemMapAtStartup) {
-					sourceLevelDebugger.loadSystemMap(new File(Global.mapFilePath));
-					systemMapLoadedOnce = true; // since we only have to load once
+					if (Global.mapFilePath != null) {
+						sourceLevelDebugger.loadSystemMap(new File(Global.mapFilePath));
+						systemMapLoadedOnce = true; // since we only have to
+													// load once
+					}
 				}
+				d.jProgressBar.setString("updateBochsStatus end");
+				if (Global.debug) {
+					System.out.println("updateBochsStatus end");
+				}
+				d.setVisible(false);
 			}
 		};
 
+		// d.thread = updateThread;
+		// updateThread.setDaemon(true);
+		// d.setTitle("Updating peter-bochs status");
+		// d.jProgressBar.setIndeterminate(true);
+		// d.jCancelButton.setVisible(false);
+		// d.setVisible(true);
 		updateThread.start();
+
 		if (shouldWait) {
 			try {
 				updateThread.join();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+		}
+		if (Global.debug) {
+			System.out.println("updateBochsStatus() end");
 		}
 	}
 
@@ -1795,7 +1858,8 @@ public class Application extends javax.swing.JFrame {
 
 				if (breakpointLoadedOnce == false && Setting.getInstance().loadBreakpointAtStartup) {
 					jLoadBreakpointButtonActionPerformed(null);
-					breakpointLoadedOnce = true; // since we only have to load once
+					breakpointLoadedOnce = true; // since we only have to load
+													// once
 				}
 			}
 		};
@@ -1809,7 +1873,7 @@ public class Application extends javax.swing.JFrame {
 		}
 	}
 
-	private void updateBreakpointTableColor() {
+	public void updateBreakpointTableColor() {
 		long eip = CommonLib.convertFilesize(jRegisterPanel1.jEIPTextField.getText());
 		String eipStr = Long.toHexString(eip);
 
@@ -1904,7 +1968,7 @@ public class Application extends javax.swing.JFrame {
 			AllRegisters.mm6.add(jRegisterPanel1.jMMX6TextField.getText());
 			AllRegisters.mm7.add(jRegisterPanel1.jMMX7TextField.getText());
 
-			this.jHistoryTable.updateUI();
+			((HistoryTableModel) this.jHistoryTable.getModel()).fireTableDataChanged();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -1951,7 +2015,7 @@ public class Application extends javax.swing.JFrame {
 				Vector<String> strs = new Vector<String>(Arrays.asList(lines[x].trim().split("->")));
 				model.addRow(strs);
 			}
-			jAddressTranslateTable.updateUI();
+			((DefaultTableModel) jAddressTranslateTable.getModel()).fireTableDataChanged();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -2130,7 +2194,6 @@ public class Application extends javax.swing.JFrame {
 			String result = commandReceiver.getCommandResultUntilHaveLines(40);
 			String[] lines = result.split("\n");
 			jRegisterPanel1.jStackList.removeAll();
-
 			jStatusProgressBar.setMaximum(lines.length - 1);
 			DefaultListModel model = new DefaultListModel();
 			for (int y = 1; y < lines.length; y++) {
@@ -2142,14 +2205,13 @@ public class Application extends javax.swing.JFrame {
 				} catch (Exception ex2) {
 				}
 			}
-
 			jRegisterPanel1.jStackList.setModel(model);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 	}
 
-	private void updateInstruction(Long address) {
+	public void updateInstruction(Long address) {
 		updateInstructionUsingBochs(address);
 
 		if (!jRegisterPanel1.jEIPTextField.getText().equals("")) {
@@ -2207,15 +2269,16 @@ public class Application extends javax.swing.JFrame {
 			String result = commandReceiver.getCommandResultUntilEnd();
 			String lines[] = result.split("\n");
 			if (lines.length > 0) {
-				try {
-					if (!lines[0].contains("not available")) {
-						this.jInstructionComboBox.setSelectedItem("0x" + lines[0].split(" ")[1].trim().replaceAll(":", ""));
-					} else {
-						JOptionPane.showMessageDialog(this, lines[0]);
-						return;
-					}
-				} catch (Exception ex) {
-				}
+				// try {
+				// if (!lines[0].contains("not available")) {
+				// this.jInstructionComboBox.setSelectedItem("0x" +
+				// lines[0].split(" ")[1].trim().replaceAll(":", ""));
+				// } else {
+				// JOptionPane.showMessageDialog(this, lines[0]);
+				// return;
+				// }
+				// } catch (Exception ex) {
+				// }
 				JInstructionTableModel model = (JInstructionTableModel) jInstructionTable.getModel();
 				model.clearData();
 				jStatusProgressBar.setMaximum(lines.length - 1);
@@ -2274,7 +2337,7 @@ public class Application extends javax.swing.JFrame {
 					}
 				}
 
-				jGDTTable.updateUI();
+				((JGDTTableModel) jGDTTable.getModel()).fireTableDataChanged();
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -2312,7 +2375,7 @@ public class Application extends javax.swing.JFrame {
 				} catch (Exception ex) {
 				}
 			}
-			jIDTTable.updateUI();
+			((JIDTTableModel) jIDTTable.getModel()).fireTableDataChanged();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -2338,7 +2401,7 @@ public class Application extends javax.swing.JFrame {
 				} catch (Exception ex) {
 				}
 			}
-			jLDTTable.updateUI();
+			((DefaultTableModel) jLDTTable.getModel()).fireTableDataChanged();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -2377,23 +2440,32 @@ public class Application extends javax.swing.JFrame {
 				jStatusProgressBar.setValue(x++);
 				if (line.matches(".*.ax:.*")) {
 					changeText(this.jRegisterPanel1.jEAXTextField, line.replaceAll(":", "").replaceAll("^.*ax", "").split(" ")[1]);
-				} else if (line.matches(".*.bx:.*")) {
+				}
+				if (line.matches(".*.bx:.*")) {
 					changeText(this.jRegisterPanel1.jEBXTextField, line.replaceAll(":", "").replaceAll("^.*bx", "").split(" ")[1]);
-				} else if (line.matches(".*.cx:.*")) {
+				}
+				if (line.matches(".*.cx:.*")) {
 					changeText(this.jRegisterPanel1.jECXTextField, line.replaceAll(":", "").replaceAll("^.*cx", "").split(" ")[1]);
-				} else if (line.matches(".*.dx:.*")) {
+				}
+				if (line.matches(".*.dx:.*")) {
 					changeText(this.jRegisterPanel1.jEDXTextField, line.replaceAll(":", "").replaceAll("^.*dx", "").split(" ")[1]);
-				} else if (line.matches(".*.si:.*")) {
+				}
+				if (line.matches(".*.si:.*")) {
 					changeText(this.jRegisterPanel1.jESITextField, line.replaceAll(":", "").replaceAll("^.*si", "").split(" ")[1]);
-				} else if (line.matches(".*.di:.*")) {
+				}
+				if (line.matches(".*.di:.*")) {
 					changeText(this.jRegisterPanel1.jEDITextField, line.replaceAll(":", "").replaceAll("^.*di", "").split(" ")[1]);
-				} else if (line.matches(".*.bp:.*")) {
+				}
+				if (line.matches(".*.bp:.*")) {
 					changeText(this.jRegisterPanel1.jEBPTextField, line.replaceAll(":", "").replaceAll("^.*bp", "").split(" ")[1]);
-				} else if (line.matches(".*.sp:.*")) {
+				}
+				if (line.matches(".*.sp:.*")) {
 					changeText(this.jRegisterPanel1.jESPTextField, line.replaceAll(":", "").replaceAll("^.*sp", "").split(" ")[1]);
-				} else if (line.matches(".*.ip:.*")) {
+				}
+				if (line.matches(".*.ip:.*")) {
 					changeText(this.jRegisterPanel1.jEIPTextField, line.replaceAll(":", "").replaceAll("^.*ip", "").split(" ")[1]);
-				} else if (line.matches(".*eflags .*")) {
+				}
+				if (line.matches(".*eflags .*")) {
 					changeText(this.jRegisterPanel1.jEFLAGSTextField, line.replaceAll(":", "").replaceAll("^.*eflags", "").split(" ")[1]);
 				}
 			}
@@ -2669,61 +2741,8 @@ public class Application extends javax.swing.JFrame {
 				int bytes[] = this.getMemory(CommonLib.convertFilesize(this.jMemoryAddressComboBox.getSelectedItem().toString()), totalByte, isPhysicalAddress);
 				jStatusLabel.setText("");
 				jHexTable1.getModel().setCurrentAddress(CommonLib.convertFilesize(this.jMemoryAddressComboBox.getSelectedItem().toString()));
-				jHexTable1.updateUI();
 				jHexTable1.getModel().set(bytes);
-
-				// commandReceiver.clearBuffer();
-				// commandReceiver.shouldShow = false;
-				// sendCommand("xp /" + totalByte + "bx " +
-				// this.jMemoryAddressComboBox.getSelectedItem().toString());
-
-				//
-				// if (totalByte > 0) {
-				// float totalByte2 = totalByte - 1;
-				// totalByte2 = totalByte2 / 8;
-				// int totalByte3 = (int) Math.floor(totalByte2);
-				// String realEndAddressStr;
-				// String realStartAddressStr;
-				// String base =
-				// this.jMemoryAddressComboBox.getSelectedItem().toString();
-				// long realStartAddress = CommonLib.convertFilesize(base);
-				// realStartAddressStr = String.format("%08x",
-				// realStartAddress);
-				// long realEndAddress = realStartAddress + totalByte3 * 8;
-				// realEndAddressStr = String.format("%08x", realEndAddress);
-				// // System.out.println(realStartAddressStr);
-				// // System.out.println(realEndAddressStr);
-				// String result =
-				// commandReceiver.getCommandResult(realStartAddressStr,
-				// realEndAddressStr);
-				// // System.out.println(result);
-				// if (result != null) {
-				// String[] lines = result.split("\n");
-				// String bytes[] = new String[totalByte];
-				// int offset = 0;
-				// // System.out.println(result);
-				// jStatusProgressBar.setMaximum(lines.length - 1);
-				// for (int y = 0; y < lines.length; y++) {
-				// jStatusProgressBar.setValue(y);
-				// String[] b = lines[y].replaceFirst("^.*:", "").split("\t");
-				// // System.out.println(lines[y]);
-				//
-				// for (int x = 1; x < b.length && offset < totalByte; x++) {
-				// // System.out.println(offset + "==" + x);
-				// bytes[offset] = b[x].substring(2).trim();
-				// offset++;
-				// }
-				// // System.out.println();
-				// jStatusLabel.setText("Updating memory " + (y + 1) + "/" +
-				// (lines.length - 1));
-				// }
-				// jHexTable1.getModel().set(bytes);
-				// }
-				// jStatusLabel.setText("");
-				// // System.out.println(lines.length);
-				//
-				// jHexTable1.getModel().setCurrentAddress(CommonLib.convertFilesize(this.jMemoryAddressComboBox.getSelectedItem().toString()));
-				// jHexTable1.updateUI();
+				jHexTable1.getModel().fireTableDataChanged();
 			}
 			// }
 		} catch (Exception ex) {
@@ -2877,6 +2896,7 @@ public class Application extends javax.swing.JFrame {
 
 	private void updateBreakpoint() {
 		try {
+			jStatusLabel.setText("Updating breakpoint");
 			// commandReceiver.setCommandNoOfLine(-1);
 			commandReceiver.clearBuffer();
 			sendCommand("info break");
@@ -2900,6 +2920,7 @@ public class Application extends javax.swing.JFrame {
 			}
 
 			this.jRefreshELFBreakpointButtonActionPerformed(null);
+			jStatusLabel.setText("");
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -3071,22 +3092,22 @@ public class Application extends javax.swing.JFrame {
 
 	private void jBinaryRadioButtonItemStateChanged(ItemEvent evt) {
 		jHexTable1.getModel().setRadix(2);
-		jHexTable1.updateUI();
+		jHexTable1.getModel().fireTableDataChanged();
 	}
 
 	private void jOctRadioButton1ItemStateChanged(ItemEvent evt) {
 		jHexTable1.getModel().setRadix(8);
-		jHexTable1.updateUI();
+		jHexTable1.getModel().fireTableDataChanged();
 	}
 
 	private void jDecRadioButtonItemStateChanged(ItemEvent evt) {
 		jHexTable1.getModel().setRadix(10);
-		jHexTable1.updateUI();
+		jHexTable1.getModel().fireTableDataChanged();
 	}
 
 	private void jHexRadioButtonItemStateChanged(ItemEvent evt) {
 		jHexTable1.getModel().setRadix(16);
-		jHexTable1.updateUI();
+		jHexTable1.getModel().fireTableDataChanged();
 	}
 
 	private JScrollPane getJTableTranslateScrollPane() {
@@ -7513,9 +7534,9 @@ public class Application extends javax.swing.JFrame {
 		System.out.println("jShowInSourceCodeMenuItem.actionPerformed, event=" + evt);
 	}
 
-	private SourceLevelDebugger getSourceLevelDebugger() {
+	private SourceLevelDebugger2 getSourceLevelDebugger() {
 		if (sourceLevelDebugger == null) {
-			sourceLevelDebugger = new SourceLevelDebugger(this);
+			sourceLevelDebugger = new SourceLevelDebugger2(this);
 		}
 		return sourceLevelDebugger;
 	}
@@ -7532,6 +7553,9 @@ public class Application extends javax.swing.JFrame {
 					jSourceLevelDebuggerButtonActionPerformed(evt);
 				}
 			});
+			if (!Global.debug) {
+				jSourceLevelDebuggerButton.setVisible(false);
+			}
 		}
 		return jSourceLevelDebuggerButton;
 	}
@@ -7593,8 +7617,7 @@ public class Application extends javax.swing.JFrame {
 
 	private void jWhereIsHereMenuItemActionPerformed(ActionEvent evt) {
 		jSourceLevelDebuggerButtonActionPerformed(null);
-		sourceLevelDebugger.jMainTabbedPane.setSelectedIndex(1);
-		sourceLevelDebugger.jMapTabbedPane.setSelectedIndex(1);
+		// sourceLevelDebugger.jMainTabbedPane.setSelectedIndex(1);
 		if (Global.clickedWhichInstructionPanel == 0) {
 			sourceLevelDebugger.showWhere(com.petersoft.CommonLib.string2decimal((String) jInstructionTable.getValueAt(jInstructionTable.getSelectedRow(), 1)));
 		} else {
