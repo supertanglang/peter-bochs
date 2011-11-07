@@ -570,7 +570,7 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 
 	public void updateChart() {
 		update2DChart();
-		update3DChart();
+		// update3DChart();
 	}
 
 	public void update2DChart() {
@@ -614,7 +614,6 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 	}
 
 	public void update3DChart() {
-
 		try {
 			long rowCount = Data.getRowCount(CommonLib.convertFilesize((String) jFromComboBox.getSelectedItem()),
 					CommonLib.convertFilesize((String) jToComboBox.getSelectedItem()), CommonLib.convertFilesize((String) jBlockSizeComboBox.getSelectedItem()));
@@ -622,14 +621,6 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 					CommonLib.convertFilesize((String) jToComboBox.getSelectedItem()), CommonLib.convertFilesize((String) jBlockSizeComboBox.getSelectedItem()));
 
 			List<Coord3d> coords = new ArrayList<Coord3d>();
-			//
-			// int dataB[] = new SphereScatterGenerator.generate(
-			// Data.getChartData(
-			// jFromComboBox.getSelectedItem()),
-			// CommonLib.convertFilesize((String)
-			// jToComboBox.getSelectedItem()),
-			// CommonLib.convertFilesize((String)
-			// jBlockSizeComboBox.getSelectedItem()));
 
 			int dataB[] = Data.getChartData(CommonLib.convertFilesize((String) jFromComboBox.getSelectedItem()), CommonLib.convertFilesize((String) jToComboBox.getSelectedItem()),
 					CommonLib.convertFilesize((String) jBlockSizeComboBox.getSelectedItem()));
@@ -640,6 +631,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 					int index = (int) (x + y * columnCount);
 					if (index < dataB.length) {
 						coords.add(new Coord3d(x, y, dataB[index]));
+					} else {
+						coords.add(new Coord3d(x, y, 0));
 					}
 					// coords.add(new Coord3d(x, y, r.nextInt(100)));
 				}
@@ -658,7 +651,6 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			}
 			memory3dChart.getScene().getGraph().add(surface);
 		} catch (Exception ex) {
-
 		}
 	}
 
@@ -723,7 +715,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			try {
 				memory3dChart = createEmptyMemory3DChart();
 				ChartMouseController mouse = new ChartMouseController();
-				// mouse.addControllerEventListener(new ControllerEventListener() {
+				// mouse.addControllerEventListener(new
+				// ControllerEventListener() {
 				//
 				// public void controllerEventFired(ControllerEvent e) {
 				// if (e.getType() == ControllerType.ROTATE) {
@@ -744,20 +737,16 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 
 				// GLCapabilities glCapabilities = new GLCapabilities();
 				// glCapabilities.setHardwareAccelerated(true);
-			} catch (IOException e1) {
-				e1.printStackTrace();
+
 			} catch (UnsatisfiedLinkError e) {
 				jMemory3DPanel = new JPanel();
 				jMemory3DPanel.add(new JLabel("Error : no gluegen-rt in java.library.path, to fix it, please add -Djava.library.path=<directory that contains libgluegen-rt.so>"));
-				if (Global.debug) {
-					e.printStackTrace();
-				}
 			}
 		}
 		return jMemory3DPanel;
 	}
 
-	public static Chart createEmptyMemory3DChart() throws IOException {
+	public static Chart createEmptyMemory3DChart() {
 		memory3dChart = new Chart(Quality.Fastest);
 		return memory3dChart;
 	}

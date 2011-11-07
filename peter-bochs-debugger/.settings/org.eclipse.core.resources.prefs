@@ -1,7 +1,11 @@
-#Sat Jun 11 22:09:56 CST 2011
+#Tue Oct 18 00:33:22 HKT 2011
 eclipse.preferences.version=1
 encoding//src/language_JP.properties=UTF-8
 encoding//src/language_KR.properties=UTF-8
 encoding//src/language_zh_CN.properties=UTF-8
 encoding//src/language_zh_TW.properties=UTF-8
 encoding//src/peter/Application.java=UTF-8
+encoding//src/peter/webservice/MonitorSoftware.java=UTF-8
+encoding//src/peter/webservice/MonitorSoftwareService.java=UTF-8
+encoding//src/peter/webservice/MonitorSoftwareServiceLocator.java=UTF-8
+encoding//src/peter/webservice/MonitorSoftwareSoapBindingStub.java=UTF-8
