@@ -1,5 +1,9 @@
 #summary Changes
 
+=== version 20111116 ===
+
+1) Added "Run and skip breakpoint for N times"
+
 === version 20110614 ===
 
 1) A better bochs step command [http://code.google.com/p/peter-bochs/wiki/SuperStep]
