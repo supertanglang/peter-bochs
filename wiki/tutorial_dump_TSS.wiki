@@ -1,0 +1,12 @@
+#summary Tutorial : How to dump TSS
+
+= Introduction =
+
+!! This tuttorial teachs you how to dump the TSS's info
+
+Please start peter-bochs, when your OS entered protected mode, pause the "pause button". In the GDT panel (the following diagram), you can see there are TSS entries, double click it, it will show the TSS panel on the bottom of peter-bochs screen.
+
+[http://peter-bochs.googlecode.com/files/tss_tutorial_1.png]
+
+At this panel, you can see the TSS structure has already dumped out.
+
