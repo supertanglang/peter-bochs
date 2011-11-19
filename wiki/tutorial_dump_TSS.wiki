@@ -12,5 +12,10 @@ After double clicked the TSS entry, it will show the TSS panel on the bottom of 
 
 [http://peter-bochs.googlecode.com/files/tss_tutorial_2.png]
 
+In the "Info" tab, it show you every bit of the TSS descriptor.
 
 [http://peter-bochs.googlecode.com/files/tss_tutorial_3.png]
+
+[http://peter-bochs.googlecode.com/files/tss_tutorial_4.png]
+
+[http://peter-bochs.googlecode.com/files/tss_tutorial_5.png]
