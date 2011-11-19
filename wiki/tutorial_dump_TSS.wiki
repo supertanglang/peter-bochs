@@ -10,3 +10,4 @@ Please start peter-bochs, when your OS entered protected mode, pause the "pause 
 
 At this panel, you can see the TSS structure has already dumped out.
 
+[http://peter-bochs.googlecode.com/files/tss_tutorial_2.png]
