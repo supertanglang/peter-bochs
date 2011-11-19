@@ -16,6 +16,8 @@ In the "Info" tab, it show you every bit of the TSS descriptor.
 
 [http://peter-bochs.googlecode.com/files/tss_tutorial_3.png]
 
+In the following "Page Table" tab, it will dumps out all "page directories" and "page tables" pointed by the TSS (Not the page table currently use). You may ask why my page table is empty, it is because my TSS has no page table.
 [http://peter-bochs.googlecode.com/files/tss_tutorial_4.png]
 
+If your TSS pointed to a page table, you can do address translate here. Input a virutal address or linear address, it will show you how it will be tranformed to a physical address.
 [http://peter-bochs.googlecode.com/files/tss_tutorial_5.png]
