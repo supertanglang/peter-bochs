@@ -21,3 +21,14 @@ In the following "Page Table" tab, it will dumps out all "page directories" and 
 
 If your TSS pointed to a page table, you can do address translate here. Input a virutal address or linear address, it will show you how it will be tranformed to a physical address.
 [http://peter-bochs.googlecode.com/files/tss_tutorial_5.png]
+
+<table border="0"><tr><td>
+[http://www.kingofcoders.com http://www.kingofcoders.com/images/KOC_logo2.jpg]
+</td>
+<td>
+</td>
+<td>
+[http://www.rmit.edu.au/compsci http://peter-bochs.googlecode.com/files/rmit.gif]
+</td>
+</tr>
+</table>
