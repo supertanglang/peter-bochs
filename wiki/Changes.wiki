@@ -1,5 +1,11 @@
 #summary Changes
 
+=== version 20111120 ===
+
+1) fixed "instruction up", "instruction down" and "instruction down ten" buttons
+2) fixed TSS panel exception
+3) added option "log to petersoft server"
+
 === version 20111116 ===
 
 1) Added "Run and skip breakpoint for N times"
