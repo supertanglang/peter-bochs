@@ -1,3 +1,14 @@
 #summary Tutorial History Panel
 
 [http://peter-bochs.googlecode.com/files/tutorial_historyPanel.png]
+
+<table border="0"><tr><td>
+[http://www.kingofcoders.com http://www.kingofcoders.com/images/KOC_logo2.jpg]
+</td>
+<td>
+</td>
+<td>
+[http://www.rmit.edu.au/compsci http://peter-bochs.googlecode.com/files/rmit.gif]
+</td>
+</tr>
+</table>
