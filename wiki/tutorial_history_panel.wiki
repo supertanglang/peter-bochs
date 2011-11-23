@@ -1,4 +1,4 @@
-#summary Tutorial History Panel
+#summary Tutorial : History Panel
 
 [http://peter-bochs.googlecode.com/files/tutorial_historyPanel.png]
 
