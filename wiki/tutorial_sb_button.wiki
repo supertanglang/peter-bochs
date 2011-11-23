@@ -2,7 +2,7 @@
 
 = Introduction =
 
-In bochs, you can set a breakpoint based on the CPU time(Ptime). It means if CPU do one thing, it increment the ptime by one. Here are the steps to do that in peter-bochs.
+In bochs, you can set a breakpoint based on the CPU time(Ptime). It means if CPU do one thing, it increment the ptime by one. This feature is good for OS developer to quickly resume to the state in last crash. Here are the steps to do that in peter-bochs.
 
 = Details =
 
