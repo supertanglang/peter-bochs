@@ -33,6 +33,3 @@ After the bochs is paused, you can the current ptime (see below)
 </td>
 </tr>
 </table>
-
-<a href="http://www3.clustrmaps.com/user/0eeba94e"><img src="http://www3.clustrmaps.com/stats/maps-no_clusters/code.google.com-p-peter-bochs--thumb.jpg" alt="Locations of visitors to this page" />
-</a>
