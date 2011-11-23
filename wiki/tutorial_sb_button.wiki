@@ -2,7 +2,7 @@
 
 = Introduction =
 
-In bochs, you can set a breakpoint based on the CPU time(Ptime). Here are the steps to do that in peter-bochs
+In bochs, you can set a breakpoint based on the CPU time(Ptime). It means if CPU do one thing, it increment the ptime by one. Here are the steps to do that in peter-bochs.
 
 = Details =
 
@@ -11,3 +11,13 @@ In the following figure, there are two buttons: SB and SB.
 SB button means : Insert a time break point "delta" instructions into the future ("delta" is a 64-bit integer followed by "L", for example 1000L). 
 
 SBA button means: Insert a time break point at "time" ("time" is a 64-bit integer followed by "L", for example 1000L).
+
+[http://peter-bochs.googlecode.com/files/tutorial_sb.png]
+
+Press that button, peter-bochs will ask you for a timestamp you want to break, just input a number in the dialog box (see below)
+
+[http://peter-bochs.googlecode.com/files/tutorial_sb2.png]
+
+After the bochs is paused, you can the current ptime (see below)
+
+[http://peter-bochs.googlecode.com/files/tutorial_sb3.png]
