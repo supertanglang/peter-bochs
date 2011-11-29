@@ -18,6 +18,9 @@ public class Setting {
 	TreeSet<String> memoryCombo = new TreeSet<String>();
 	LinkedList<Breakpoint> breakpoint = new LinkedList<Breakpoint>();
 
+	LinkedHashSet<Long> sbAddress = new LinkedHashSet<Long>();
+	LinkedHashSet<Long> sbaAddress = new LinkedHashSet<Long>();
+
 	String currentLanguage;
 	int fontsize;
 	String fontFamily;
@@ -34,6 +37,25 @@ public class Setting {
 	LinkedList<Long> profileMemoryToAddress = new LinkedList<Long>();
 
 	private Vector<Long> physicalAddress = new Vector<Long>();
+	
+
+	private Vector<Boolean> tss = new Vector<Boolean>();
+	private Vector<Boolean> memoryStart = new Vector<Boolean>();
+	private Vector<Boolean> memoryEnd = new Vector<Boolean>();
+	private Vector<Boolean> register = new Vector<Boolean>();
+	private Vector<Boolean> gdt = new Vector<Boolean>();
+	private Vector<Boolean> idt = new Vector<Boolean>();
+	private Vector<Boolean> ldt = new Vector<Boolean>();
+
+	boolean logToPetersoftServer;
+
+	public boolean isLogToPetersoftServer() {
+		return logToPetersoftServer;
+	}
+
+	public void setLogToPetersoftServer(boolean logToPetersoftServer) {
+		this.logToPetersoftServer = logToPetersoftServer;
+	}
 
 	public Vector<Long> getPhysicalAddress() {
 		return physicalAddress;
@@ -130,14 +152,6 @@ public class Setting {
 	public void addLdt(Boolean ldt) {
 		this.ldt.add(ldt);
 	}
-
-	private Vector<Boolean> tss = new Vector<Boolean>();
-	private Vector<Boolean> memoryStart = new Vector<Boolean>();
-	private Vector<Boolean> memoryEnd = new Vector<Boolean>();
-	private Vector<Boolean> register = new Vector<Boolean>();
-	private Vector<Boolean> gdt = new Vector<Boolean>();
-	private Vector<Boolean> idt = new Vector<Boolean>();
-	private Vector<Boolean> ldt = new Vector<Boolean>();
 
 	public LinkedList<Long> getProfileMemoryFromAddress() {
 		return profileMemoryFromAddress;
@@ -584,7 +598,6 @@ public class Setting {
 			beanReader.registerBeanClass("Setting", Setting.class);
 
 			Setting setting = (Setting) beanReader.parse(reader);
-
 			return setting;
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -652,5 +665,29 @@ public class Setting {
 		// new Setting().save();
 		Setting setting = Setting.getInstance();
 	}
+	
 
+	public LinkedHashSet<Long> getSbAddress() {
+		return sbAddress;
+	}
+
+	public void setSbAddress(LinkedHashSet<Long> sbAddress) {
+		this.sbAddress = sbAddress;
+	}
+	
+	public  void addSbAddress(Long l) {
+		sbAddress.add(l);
+	}
+
+	public LinkedHashSet<Long> getSbaAddress() {
+		return sbaAddress;
+	}
+
+	public void setSbaAddress(LinkedHashSet<Long> sbaAddress) {
+		this.sbaAddress = sbaAddress;
+	}
+	
+	public  void addSbaAddress(Long l) {
+		sbaAddress.add(l);
+	}
 }

@@ -73,6 +73,7 @@ import javax.swing.JProgressBar;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
@@ -81,6 +82,8 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.LayoutStyle;
 import javax.swing.ListSelectionModel;
+import javax.swing.RowFilter;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -96,7 +99,6 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.lang.ArrayUtils;
@@ -124,12 +126,17 @@ import com.petersoft.advancedswing.jmaximizabletabbedpane.JMaximizableTabbedPane
 import com.petersoft.advancedswing.jmaximizabletabbedpane.JMaximizableTabbedPane_BasePanel;
 import com.petersoft.advancedswing.jprogressbardialog.JProgressBarDialog;
 import com.petersoft.advancedswing.jvmdialog.JVMInfoDialog;
+import com.petersoft.advancedswing.searchtextfield.JSearchTextField;
 
 /**
- * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI Builder, which is free for non-commercial use. If Jigloo is being used commercially (ie, by a
- * corporation, company or business for any purpose whatever) then you should purchase a license for each developer using Jigloo. Please visit www.cloudgarden.com for details. Use
- * of Jigloo implies acceptance of these licen sing terms. A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR ANY
- * CORPORATE OR COMMERCIAL PURPOSE.
+ * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
+ * Builder, which is free for non-commercial use. If Jigloo is being used
+ * commercially (ie, by a corporation, company or business for any purpose
+ * whatever) then you should purchase a license for each developer using Jigloo.
+ * Please visit www.cloudgarden.com for details. Use of Jigloo implies
+ * acceptance of these licensing terms. A COMMERCIAL LICENSE HAS NOT BEEN
+ * PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR
+ * ANY CORPORATE OR COMMERCIAL PURPOSE.
  */
 @SuppressWarnings("serial")
 public class Application extends javax.swing.JFrame {
@@ -154,7 +161,7 @@ public class Application extends javax.swing.JFrame {
 	private JMenu jMenu4;
 	private JMenuItem exitMenuItem;
 	private JSeparator jSeparator2;
-	public JButton jRunBochsButton;
+	public JDropDownButton jRunBochsButton;
 	private JButton jStopBochsButton;
 	private JButton jStartBochButton;
 	private JToolBar jToolBar1;
@@ -224,6 +231,18 @@ public class Application extends javax.swing.JFrame {
 	private JPanel jPanel22;
 	private JPanel jPanel24;
 	private JToolBar jPanel26;
+	private JDropDownButton jSBAButton;
+	private JDropDownButton jSBButton;
+	private JLabel jLabel9;
+	private JLabel jLabel8;
+	private JLabel jLabel7;
+	private JSpinner jShowAfterwardSpinner;
+	private JMenuItem jRunBochsAndSkipBreakpointMenuItem;
+	private JSearchTextField jFilterHistoryTableTextField;
+	private JLabel jLabel2;
+	private JLabel jHistoryTableRepeatedLabel;
+	private JButton jClearRunningTextAreaButton;
+	private JButton jClearHistoryTableButton;
 	private ButtonGroup buttonGroup4;
 	public JMenuItem jWhereIsHereMenuItem;
 	private JMenuItem jLoadSystemMapMenuItem;
@@ -443,6 +462,8 @@ public class Application extends javax.swing.JFrame {
 	private String latestVersionURL;
 	private boolean saveToRunDotTxt = true;
 	private boolean processPauseBoch;
+	private int runBochsTime;
+	private boolean isUpdateBochsStatusEnd;
 
 	private static void writeToFile(InputStream is, File file) {
 		BufferedOutputStream fOut = null;
@@ -694,20 +715,6 @@ public class Application extends javax.swing.JFrame {
 			}
 		}.start();
 
-		new Thread("http://peter-bochs.googlecode.com/files/start.txt thread") {
-			public void run() {
-				try {
-					InputStream in = new URL("http://peter-bochs.googlecode.com/files/start.txt").openStream();
-					IOUtils.toString(in);
-					IOUtils.closeQuietly(in);
-				} catch (Exception ex) {
-					if (Global.debug) {
-						ex.printStackTrace();
-					}
-				}
-			}
-		}.start();
-
 		if (Global.debug) {
 			System.out.println(new Date());
 		}
@@ -751,7 +758,6 @@ public class Application extends javax.swing.JFrame {
 			for (String line : versionLines) {
 				if (line.contains("Bochs x86 Emulator")) {
 					version = line.trim();
-					System.out.println("v=" + version);
 					jBochsVersionLabel.setText(version + "     ");
 				}
 				if (line.contains("Peter-bochs instrument")) {
@@ -810,12 +816,13 @@ public class Application extends javax.swing.JFrame {
 		}
 	}
 
-	private synchronized void pauseBochs(boolean pauseBochsManually) {
+	private synchronized void pauseBochs(boolean pauseBochsManually, boolean resumeMainPanel) {
 		if (!processPauseBoch) {
 			processPauseBoch = true;
 			try {
 				if (jRunBochsButton.getText().equals(MyLanguage.getString("Pause_bochs"))) {
 					WebServiceUtil.log("peter-bochs", "pause", null, null, null);
+
 					commandReceiver.clearBuffer();
 					commandReceiver.waitUntilNoInput();
 
@@ -829,19 +836,20 @@ public class Application extends javax.swing.JFrame {
 						}
 					}
 
-					updateBochsStatus();
+					updateBochsStatus(true);
 
-					SwingUtilities.invokeLater(new Runnable() {
-						// this invokeLater prevent openJDK hang my program, I
-						// am using FC15
-						public void run() {
-							CardLayout cl = (CardLayout) (jMainPanel.getLayout());
-							cl.show(jMainPanel, currentPanel);
-						}
-					});
+					if (resumeMainPanel) {
+						SwingUtilities.invokeLater(new Runnable() {
+							// this invokeLater prevent openJDK hang my program, I
+							// am using FC15
+							public void run() {
+								CardLayout cl = (CardLayout) (jMainPanel.getLayout());
+								cl.show(jMainPanel, currentPanel);
+							}
+						});
+					}
 					jRunBochsButton.setText(MyLanguage.getString("Run_bochs"));
 					jRunBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/resultset_next.png")));
-					// jStepBochsButton.setEnabled(true);
 				}
 			} catch (Exception ex) {
 				ex.printStackTrace();
@@ -874,23 +882,31 @@ public class Application extends javax.swing.JFrame {
 							e.printStackTrace();
 						}
 					}
-					pauseBochs(false);
+
+					runBochsTime--;
+					if (runBochsTime > 0) {
+						pauseBochs(false, false);
+						URL url = getClass().getClassLoader().getResource("images/ajax-loader.gif");
+						jRunningLabel.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\"" + url + "\" /><br><br>" + runBochsTime
+								+ "</center></html>");
+						Thread t = new Thread() {
+							public void run() {
+								while (!isUpdateBochsStatusEnd) {
+									try {
+										Thread.currentThread().sleep(200);
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+								}
+								runBochs();
+							}
+						};
+						t.start();
+					} else {
+						pauseBochs(false, true);
+					}
 				}
 			}.start();
-
-			// new
-			// Thread("http://peter-bochs.googlecode.com/files/run.txt thread")
-			// {
-			// public void run() {
-			// try {
-			// InputStream in = new
-			// URL("http://peter-bochs.googlecode.com/files/run.txt").openStream();
-			// String str = IOUtils.toString(in);
-			// IOUtils.closeQuietly(in);
-			// } catch (Exception ex) {
-			// }
-			// }
-			// }.start();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -947,9 +963,11 @@ public class Application extends javax.swing.JFrame {
 					});
 				}
 				{
-					jRunBochsButton = new JButton();
+					jRunBochsButton = new JDropDownButton();
 					jToolBar1.add(jRunBochsButton);
 					jRunBochsButton.setText(MyLanguage.getString("Run_bochs"));
+					jRunBochsButton.setMaximumSize(new java.awt.Dimension(125, 26));
+					jRunBochsButton.add(getJRunBochsAndSkipBreakpointMenuItem());
 					jRunBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/resultset_next.png")));
 					jRunBochsButton.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
@@ -1227,7 +1245,8 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void pauseBochsMenuItemActionPerformed(ActionEvent evt) {
-		pauseBochs(true);
+		runBochsTime = 0;
+		pauseBochs(true, true);
 	}
 
 	private void jStartBochButtonActionPerformed(ActionEvent evt) {
@@ -1239,11 +1258,28 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jRunBochsButtonActionPerformed(ActionEvent evt) {
-		commandReceiver.shouldShow = false;
-		if (jRunBochsButton.getText().equals(MyLanguage.getString("Run_bochs"))) {
-			runBochsMenuItemActionPerformed(null);
+		if (jRunBochsButton.getEventSource() != null) {
+			if (jRunBochsButton.getEventSource() == jRunBochsAndSkipBreakpointMenuItem) {
+				commandReceiver.shouldShow = false;
+				if (jRunBochsButton.getText().equals(MyLanguage.getString("Run_bochs"))) {
+					String s = JOptionPane.showInputDialog(this, "How many time of breakpoint you want to skip?");
+					if (s == null) {
+						return;
+					}
+					runBochsTime = Integer.parseInt(s);
+					runBochsMenuItemActionPerformed(null);
+				} else {
+					pauseBochsMenuItemActionPerformed(null);
+				}
+			}
 		} else {
-			pauseBochsMenuItemActionPerformed(null);
+			runBochsTime = 0;
+			commandReceiver.shouldShow = false;
+			if (jRunBochsButton.getText().equals(MyLanguage.getString("Run_bochs"))) {
+				runBochsMenuItemActionPerformed(null);
+			} else {
+				pauseBochsMenuItemActionPerformed(null);
+			}
 		}
 	}
 
@@ -1303,8 +1339,8 @@ public class Application extends javax.swing.JFrame {
 			new Thread(untilThread, "Step until thread").start();
 		} else {
 			sendCommand("s");
-			String re = commandReceiver.getCommandResult("(").toLowerCase();
-			updateBochsStatus(false, true, re);
+			WebServiceUtil.log("peter-bochs", "step", null, null, null);
+			updateBochsStatus(true);
 			// updateHistoryTable(re);
 		}
 	}
@@ -1321,9 +1357,8 @@ public class Application extends javax.swing.JFrame {
 		}
 
 		private String update(String result, DataOutputStream out) {
-			String re = "";
+			String re = commandReceiver.getCommandResult("(").toLowerCase();
 			if (saveToRunDotTxt || !jDisableAutoUpdateCheckBox.isSelected()) {
-				re = commandReceiver.getCommandResult("(").toLowerCase();
 				if (re.endsWith("\n")) {
 					re = re.substring(0, re.length() - 1);
 				}
@@ -1333,6 +1368,7 @@ public class Application extends javax.swing.JFrame {
 					result = re;
 				}
 			}
+			updatePTime();
 			updateRegister();
 			updateHistoryTable(re);
 			if (saveToRunDotTxt) {
@@ -1382,7 +1418,7 @@ public class Application extends javax.swing.JFrame {
 							sendCommand("s");
 							result = update(result, out);
 						}
-						updateBochsStatus();
+						updateBochsStatus(false);
 					} else if (eventSource == jStep100MenuItem) {
 						String result = "";
 						for (int x = 1; x <= 100 && !shouldStop; x++) {
@@ -1390,7 +1426,7 @@ public class Application extends javax.swing.JFrame {
 							sendCommand("s");
 							result = update(result, out);
 						}
-						updateBochsStatus();
+						updateBochsStatus(false);
 					} else if (eventSource == jStepNMenuItem) {
 						String result = "";
 						jStepCountLabel.setVisible(true);
@@ -1400,7 +1436,7 @@ public class Application extends javax.swing.JFrame {
 							sendCommand("s");
 							result = update(result, out);
 						}
-						updateBochsStatus();
+						updateBochsStatus(false);
 					} else if (eventSource == jStepUntilCallOrJumpMenuItem) {
 						boolean notMatch = true;
 						do {
@@ -1413,7 +1449,7 @@ public class Application extends javax.swing.JFrame {
 								notMatch = false;
 							}
 						} while (notMatch && !shouldStop);
-						updateBochsStatus();
+						updateBochsStatus(true);
 					} else if (eventSource == jStepUntilRetMenuItem) {
 						boolean notMatch = true;
 						do {
@@ -1423,7 +1459,7 @@ public class Application extends javax.swing.JFrame {
 								notMatch = false;
 							}
 						} while (notMatch && !shouldStop);
-						updateBochsStatus();
+						updateBochsStatus(true);
 					} else if (eventSource == jStepUntilIRetMenuItem) {
 						boolean notMatch = true;
 						do {
@@ -1433,7 +1469,7 @@ public class Application extends javax.swing.JFrame {
 								notMatch = false;
 							}
 						} while (notMatch && !shouldStop);
-						updateBochsStatus();
+						updateBochsStatus(true);
 					} else if (eventSource == jStepUntilMovMenuItem) {
 						boolean notMatch = true;
 						do {
@@ -1443,7 +1479,7 @@ public class Application extends javax.swing.JFrame {
 								notMatch = false;
 							}
 						} while (notMatch && !shouldStop);
-						updateBochsStatus();
+						updateBochsStatus(true);
 					} else if (eventSource == jStepUntilIPBigChangeMenuItem) {
 						boolean notMatch = true;
 						long lastIP = -1;
@@ -1531,7 +1567,7 @@ public class Application extends javax.swing.JFrame {
 							}
 							updateRegister();
 						} while (notMatch && !shouldStop);
-						updateBochsStatus();
+						updateBochsStatus(true);
 					}
 				}
 			} catch (Exception ex) {
@@ -1589,19 +1625,22 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jUpdateBochsStatusMenuItemActionPerformed(ActionEvent evt) {
-		updateBochsStatus();
+		updateBochsStatus(true);
 	}
 
-	public void updateBochsStatus() {
-		updateBochsStatus(false, true, null);
-	}
-
-	public void updateBochsStatus(boolean shouldWait, final boolean updateHistoryTable, final String stepResult) {
+	public void updateBochsStatus(final boolean updateHistoryTable) {
+		isUpdateBochsStatusEnd = false;
 		WebServiceUtil.log("peter-bochs", "updateBochsStatus", null, null, null);
 		final JProgressBarDialog d = new JProgressBarDialog(this, true);
 		Thread updateThread = new Thread("updateBochsStatus thread") {
 			public void run() {
 				enableAllButtons(false, false);
+
+				d.jProgressBar.setString("update ptime");
+				if (Global.debug) {
+					System.out.println("update ptime");
+				}
+				updatePTime();
 
 				d.jProgressBar.setString("updateRegister");
 				if (Global.debug) {
@@ -1638,6 +1677,12 @@ public class Application extends javax.swing.JFrame {
 					System.out.println("updateIDT");
 				}
 				updateIDT();
+
+				d.jProgressBar.setString("updateLDT");
+				if (Global.debug) {
+					System.out.println("updateLDT");
+				}
+				updateLDT();
 
 				d.jProgressBar.setString("updatePageTable");
 				if (Global.debug) {
@@ -1694,12 +1739,12 @@ public class Application extends javax.swing.JFrame {
 					if (Global.debug) {
 						System.out.println("updateHistoryTable");
 					}
-					updateHistoryTable(stepResult);
+					sendCommand("disasm");
+					String result = commandReceiver.getCommandResultUntilEnd();
+					updateHistoryTable(result);
 				}
 
 				jStatusLabel.setText("");
-
-				enableAllButtons(true, false);
 
 				if (breakpointLoadedOnce == false && Setting.getInstance().loadBreakpointAtStartup) {
 					jLoadBreakpointButtonActionPerformed(null);
@@ -1714,10 +1759,13 @@ public class Application extends javax.swing.JFrame {
 					}
 				}
 				d.jProgressBar.setString("updateBochsStatus end");
-				if (Global.debug) {
-					System.out.println("updateBochsStatus end");
-				}
 				d.setVisible(false);
+
+				enableAllButtons(true, false);
+				isUpdateBochsStatusEnd = true;
+				if (Global.debug) {
+					System.out.println("updateBochsStatus thread end");
+				}
 			}
 		};
 
@@ -1729,15 +1777,22 @@ public class Application extends javax.swing.JFrame {
 		// d.setVisible(true);
 		updateThread.start();
 
-		if (shouldWait) {
-			try {
-				updateThread.join();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
 		if (Global.debug) {
 			System.out.println("updateBochsStatus() end");
+		}
+	}
+
+	protected void updatePTime() {
+		try {
+			jStatusLabel.setText("Updating general registers");
+			commandReceiver.shouldShow = false;
+			sendCommand("ptime");
+			String result = commandReceiver.getCommandResultUntilEnd();
+			if (result.contains(":") && result.contains("ptime")) {
+				jRegisterPanel1.jPTimeTextField.setText(result.split(":")[2].trim());
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 	}
 
@@ -1874,23 +1929,22 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	public void updateBreakpointTableColor() {
-		long eip = CommonLib.convertFilesize(jRegisterPanel1.jEIPTextField.getText());
-		String eipStr = Long.toHexString(eip);
-
-		for (int x = 0; x < jInstructionTable.getRowCount(); x++) {
-			String value = jInstructionTable.getValueAt(x, 0).toString();
-			if (CommonLib.convertFilesize("0x" + eipStr) == CommonLib.convertFilesize("0x" + jInstructionTable.getValueAt(x, 1))) {
-				jInstructionTable.setValueAt("-" + value, x, 1);
-			} else {
-				if (value.startsWith("-")) {
-					jInstructionTable.setValueAt(value.substring(1), x, 1);
-				}
-			}
-		}
+		//		long eip = CommonLib.convertFilesize(jRegisterPanel1.jEIPTextField.getText());
+		//		String eipStr = Long.toHexString(eip);
+		//		for (int x = 0; x < jInstructionTable.getRowCount(); x++) {
+		//			String value = jInstructionTable.getValueAt(x, 0).toString();
+		//			if (CommonLib.convertFilesize("0x" + eipStr) == CommonLib.convertFilesize("0x" + jInstructionTable.getValueAt(x, 1))) {
+		//				jInstructionTable.setValueAt("-" + value, x, 1);
+		//			} else {
+		//				if (value.startsWith("-")) {
+		//					jInstructionTable.setValueAt(value.substring(1), x, 1);
+		//				}
+		//			}
+		//		}
 
 		for (int x = 0; x < jBreakpointTable.getRowCount(); x++) {
 			String value = jBreakpointTable.getValueAt(x, 0).toString();
-			if (jBreakpointTable.getValueAt(x, 2).toString().contains(eipStr)) {
+			if (CommonLib.convertFilesize(jInstructionTable.getValueAt(x, 1).toString()) == CommonLib.convertFilesize(jBreakpointTable.getValueAt(x, 2).toString())) {
 				int hit = Integer.parseInt(jBreakpointTable.getValueAt(x, 3).toString());
 				jBreakpointTable.setValueAt("-" + value, x, 0);
 				jBreakpointTable.setValueAt(hit + 1, x, 3);
@@ -1909,6 +1963,7 @@ public class Application extends javax.swing.JFrame {
 	private void updateHistoryTable(String instruction) {
 		try {
 			AllRegisters.time.add(new Date());
+			AllRegisters.ptime.add(jRegisterPanel1.jPTimeTextField.getText());
 			AllRegisters.eax.add(CommonLib.hex2decimal(jRegisterPanel1.jEAXTextField.getText()));
 			AllRegisters.ebx.add(CommonLib.hex2decimal(jRegisterPanel1.jEBXTextField.getText()));
 			AllRegisters.ecx.add(CommonLib.hex2decimal(jRegisterPanel1.jECXTextField.getText()));
@@ -1925,7 +1980,7 @@ public class Application extends javax.swing.JFrame {
 			AllRegisters.fs.add(CommonLib.hex2decimal(jRegisterPanel1.jFSTextField.getText()));
 			AllRegisters.gs.add(CommonLib.hex2decimal(jRegisterPanel1.jGSTextField.getText()));
 			AllRegisters.ss.add(CommonLib.hex2decimal(jRegisterPanel1.jSSTextField.getText()));
-			AllRegisters.eflags.add(jRegisterPanel1.jEFlagLabel.getText().trim() + jRegisterPanel1.jEFlagLabel2.getText());
+			AllRegisters.eflags.add(jRegisterPanel1.jEFlagLabel.getText().trim() + jRegisterPanel1.jEFlagLabel2.getText().trim());
 
 			AllRegisters.cr0.add(CommonLib.hex2decimal(jRegisterPanel1.jCR0TextField.getText()));
 			AllRegisters.cr2.add(CommonLib.hex2decimal(jRegisterPanel1.jCR2TextField.getText()));
@@ -1938,7 +1993,7 @@ public class Application extends javax.swing.JFrame {
 
 			AllRegisters.tr.add(CommonLib.hex2decimal(jRegisterPanel1.jTRTextField.getText()));
 
-			AllRegisters.instructions.add(instruction);
+			AllRegisters.instructions.add(instruction.trim());
 
 			Vector<Long> stack = new Vector<Long>();
 			for (int x = 0; x < jRegisterPanel1.jStackList.getModel().getSize(); x++) {
@@ -2040,6 +2095,7 @@ public class Application extends javax.swing.JFrame {
 		pauseBochsMenuItem.setEnabled(b);
 		runBochsMenuItem.setEnabled(b);
 		jUpdateBochsStatusMenuItem.setEnabled(b);
+		jRunBochsAndSkipBreakpointMenuItem.setEnabled(b);
 	}
 
 	public void updatePageTable(long pageDirectoryBaseAddress) {
@@ -2112,73 +2168,136 @@ public class Application extends javax.swing.JFrame {
 		}
 
 		/*
-		 * if (false && Global.debug && jAutoRefreshPageTableGraphCheckBox.isSelected()) { System.out.println("aa"); GraphModel model = new DefaultGraphModel(); GraphLayoutCache
-		 * view = new GraphLayoutCache(model, new DefaultCellViewFactory() { public CellView createView(GraphModel model, Object cell) { CellView view = null; if
-		 * (model.isPort(cell)) { view = new PortView(cell); } else if (model.isEdge(cell)) { view = new EdgeView(cell); } else { if (cell instanceof IA32PageDirectory) { view =
-		 * new PageDirectoryView(cell); } else if (cell instanceof IA32PageTable) { view = new JButtonView(cell, 1); } else { view = new VertexView(cell); } } return view; } });
-		 * JGraph graph = new JGraph(model, view);
+		 * if (false && Global.debug &&
+		 * jAutoRefreshPageTableGraphCheckBox.isSelected()) {
+		 * System.out.println("aa"); GraphModel model = new DefaultGraphModel();
+		 * GraphLayoutCache view = new GraphLayoutCache(model, new
+		 * DefaultCellViewFactory() { public CellView createView(GraphModel
+		 * model, Object cell) { CellView view = null; if (model.isPort(cell)) {
+		 * view = new PortView(cell); } else if (model.isEdge(cell)) { view =
+		 * new EdgeView(cell); } else { if (cell instanceof IA32PageDirectory) {
+		 * view = new PageDirectoryView(cell); } else if (cell instanceof
+		 * IA32PageTable) { view = new JButtonView(cell, 1); } else { view = new
+		 * VertexView(cell); } } return view; } }); JGraph graph = new
+		 * JGraph(model, view);
 		 * 
 		 * // add cells
 		 * 
-		 * // DefaultGraphCell[] cells = new // DefaultGraphCell[ia32_pageDirectories.size() + 1]; Vector<DefaultGraphCell> cells = new Vector<DefaultGraphCell>(); DefaultGraphCell
-		 * root = new DefaultGraphCell("cr3 " + jRegisterPanel1.jCR3TextField.getText()); GraphConstants.setGradientColor(root.getAttributes(), Color.red);
-		 * GraphConstants.setOpaque(root.getAttributes(), true); GraphConstants.setBounds(root.getAttributes(), new Rectangle2D.Double(0, 0, 140, 20)); root.add(new DefaultPort());
+		 * // DefaultGraphCell[] cells = new //
+		 * DefaultGraphCell[ia32_pageDirectories.size() + 1];
+		 * Vector<DefaultGraphCell> cells = new Vector<DefaultGraphCell>();
+		 * DefaultGraphCell root = new DefaultGraphCell("cr3 " +
+		 * jRegisterPanel1.jCR3TextField.getText());
+		 * GraphConstants.setGradientColor(root.getAttributes(), Color.red);
+		 * GraphConstants.setOpaque(root.getAttributes(), true);
+		 * GraphConstants.setBounds(root.getAttributes(), new
+		 * Rectangle2D.Double(0, 0, 140, 20)); root.add(new DefaultPort());
 		 * cells.add(root);
 		 * 
-		 * Vector<IA32PageDirectory> pageDirectoryCells = new Vector<IA32PageDirectory>(); for (int x = 0; x < ia32_pageDirectories.size(); x++) { IA32PageDirectory cell =
-		 * ia32_pageDirectories.get(x); GraphConstants.setGradientColor(cell.getAttributes(), Color.orange); GraphConstants.setOpaque(cell.getAttributes(), true);
-		 * GraphConstants.setBounds(cell.getAttributes(), new Rectangle2D.Double(0, x * 20, 140, 20)); cell.add(new DefaultPort()); pageDirectoryCells.add(cell);
+		 * Vector<IA32PageDirectory> pageDirectoryCells = new
+		 * Vector<IA32PageDirectory>(); for (int x = 0; x <
+		 * ia32_pageDirectories.size(); x++) { IA32PageDirectory cell =
+		 * ia32_pageDirectories.get(x);
+		 * GraphConstants.setGradientColor(cell.getAttributes(), Color.orange);
+		 * GraphConstants.setOpaque(cell.getAttributes(), true);
+		 * GraphConstants.setBounds(cell.getAttributes(), new
+		 * Rectangle2D.Double(0, x * 20, 140, 20)); cell.add(new DefaultPort());
+		 * pageDirectoryCells.add(cell);
 		 * 
-		 * // page table String pageTableAddress = ia32_pageDirectories.get(x).base; sendCommand("xp /4096bx " + pageTableAddress);
+		 * // page table String pageTableAddress =
+		 * ia32_pageDirectories.get(x).base; sendCommand("xp /4096bx " +
+		 * pageTableAddress);
 		 * 
-		 * float totalByte2 = 4096 - 1; totalByte2 = totalByte2 / 8; int totalByte3 = (int) Math.floor(totalByte2); String realEndAddressStr; String realStartAddressStr; String
-		 * baseAddress = pageTableAddress; long realStartAddress = CommonLib.hex2decimal(baseAddress);
+		 * float totalByte2 = 4096 - 1; totalByte2 = totalByte2 / 8; int
+		 * totalByte3 = (int) Math.floor(totalByte2); String realEndAddressStr;
+		 * String realStartAddressStr; String baseAddress = pageTableAddress;
+		 * long realStartAddress = CommonLib.hex2decimal(baseAddress);
 		 * 
-		 * realStartAddressStr = String.format("%08x", realStartAddress); long realEndAddress = realStartAddress + totalByte3 * 8; realEndAddressStr = String.format("%08x",
-		 * realEndAddress);
+		 * realStartAddressStr = String.format("%08x", realStartAddress); long
+		 * realEndAddress = realStartAddress + totalByte3 * 8; realEndAddressStr
+		 * = String.format("%08x", realEndAddress);
 		 * 
-		 * String result = commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr); String[] lines = result.split("\n");
+		 * String result = commandReceiver.getCommandResult(realStartAddressStr,
+		 * realEndAddressStr); String[] lines = result.split("\n");
 		 * 
-		 * Vector<DefaultGraphCell> pageTables = new Vector<DefaultGraphCell>(); for (int y = 1; y < 4; y++) { String[] b =
-		 * lines[y].replaceFirst("			cell.add(new DefaultPort());^.*:", "").trim().split("\t");
+		 * Vector<DefaultGraphCell> pageTables = new Vector<DefaultGraphCell>();
+		 * for (int y = 1; y < 4; y++) { String[] b =
+		 * lines[y].replaceFirst("			cell.add(new DefaultPort());^.*:",
+		 * "").trim().split("\t");
 		 * 
-		 * for (int z = 0; z < 2; z++) { try { int bytes[] = new int[4]; for (int x2 = 0; x2 < 4; x2++) { bytes[x2] = CommonLib.hex2decimal(b[x2 + z *
-		 * 4].substring(2).trim()).intValue(); } long value = CommonLib.getInt(bytes, 0);
+		 * for (int z = 0; z < 2; z++) { try { int bytes[] = new int[4]; for
+		 * (int x2 = 0; x2 < 4; x2++) { bytes[x2] = CommonLib.hex2decimal(b[x2 +
+		 * z * 4].substring(2).trim()).intValue(); } long value =
+		 * CommonLib.getInt(bytes, 0);
 		 * 
-		 * String base = Long.toHexString(value & 0xfffff000); String avl = String.valueOf((value >> 9) & 3); String g = String.valueOf((value >> 8) & 1); String d =
-		 * String.valueOf((value >> 6) & 1); String a = String.valueOf((value >> 5) & 1); String pcd = String.valueOf((value >> 4) & 1); String pwt = String.valueOf((value >> 3) &
-		 * 1); String us = String.valueOf((value >> 2) & 1); String wr = String.valueOf((value >> 1) & 1); String p = String.valueOf((value >> 0) & 1); IA32PageTable pageTableCell
-		 * = new IA32PageTable(base, avl, g, d, a, pcd, pwt, us, wr, p); GraphConstants.setGradientColor(pageTableCell.getAttributes(), Color.orange);
-		 * GraphConstants.setOpaque(pageTableCell.getAttributes(), true); GraphConstants.setBounds(pageTableCell.getAttributes(), new Rectangle2D.Double(0, (z + y) * 20, 140, 20));
-		 * pageTableCell.add(new DefaultPort()); pageTables.add(pageTableCell); } catch (Exception ex) { } } }
+		 * String base = Long.toHexString(value & 0xfffff000); String avl =
+		 * String.valueOf((value >> 9) & 3); String g = String.valueOf((value >>
+		 * 8) & 1); String d = String.valueOf((value >> 6) & 1); String a =
+		 * String.valueOf((value >> 5) & 1); String pcd = String.valueOf((value
+		 * >> 4) & 1); String pwt = String.valueOf((value >> 3) & 1); String us
+		 * = String.valueOf((value >> 2) & 1); String wr = String.valueOf((value
+		 * >> 1) & 1); String p = String.valueOf((value >> 0) & 1);
+		 * IA32PageTable pageTableCell = new IA32PageTable(base, avl, g, d, a,
+		 * pcd, pwt, us, wr, p);
+		 * GraphConstants.setGradientColor(pageTableCell.getAttributes(),
+		 * Color.orange);
+		 * GraphConstants.setOpaque(pageTableCell.getAttributes(), true);
+		 * GraphConstants.setBounds(pageTableCell.getAttributes(), new
+		 * Rectangle2D.Double(0, (z + y) * 20, 140, 20)); pageTableCell.add(new
+		 * DefaultPort()); pageTables.add(pageTableCell); } catch (Exception ex)
+		 * { } } }
 		 * 
-		 * // group it and link it DefaultGraphCell pt[] = pageTables.toArray(new DefaultGraphCell[] {}); DefaultGraphCell vertex1 = new DefaultGraphCell(new String("page table" +
-		 * x), null, pt); vertex1.add(new DefaultPort()); cells.add(vertex1);
+		 * // group it and link it DefaultGraphCell pt[] =
+		 * pageTables.toArray(new DefaultGraphCell[] {}); DefaultGraphCell
+		 * vertex1 = new DefaultGraphCell(new String("page table" + x), null,
+		 * pt); vertex1.add(new DefaultPort()); cells.add(vertex1);
 		 * 
-		 * DefaultEdge edge = new DefaultEdge(); edge.setSource(cell.getChildAt(0)); edge.setTarget(vertex1.getLastChild());
+		 * DefaultEdge edge = new DefaultEdge();
+		 * edge.setSource(cell.getChildAt(0));
+		 * edge.setTarget(vertex1.getLastChild());
 		 * 
-		 * GraphConstants.setLineStyle(edge.getAttributes(), GraphConstants.STYLE_ORTHOGONAL); GraphConstants.setRouting(edge.getAttributes(), GraphConstants.ROUTING_DEFAULT); int
-		 * arrow = GraphConstants.ARROW_CLASSIC; GraphConstants.setLineEnd(edge.getAttributes(), arrow); GraphConstants.setEndFill(edge.getAttributes(), true);
+		 * GraphConstants.setLineStyle(edge.getAttributes(),
+		 * GraphConstants.STYLE_ORTHOGONAL);
+		 * GraphConstants.setRouting(edge.getAttributes(),
+		 * GraphConstants.ROUTING_DEFAULT); int arrow =
+		 * GraphConstants.ARROW_CLASSIC;
+		 * GraphConstants.setLineEnd(edge.getAttributes(), arrow);
+		 * GraphConstants.setEndFill(edge.getAttributes(), true);
 		 * 
 		 * cells.add(edge); }
 		 * 
-		 * if (pageDirectoryCells.toArray().length > 0) { IA32PageDirectory pt[] = pageDirectoryCells.toArray(new IA32PageDirectory[] {}); DefaultGraphCell vertex1 = new
-		 * DefaultGraphCell(new String("Vertex1"), null, pt); vertex1.add(new DefaultPort()); cells.add(vertex1);
+		 * if (pageDirectoryCells.toArray().length > 0) { IA32PageDirectory pt[]
+		 * = pageDirectoryCells.toArray(new IA32PageDirectory[] {});
+		 * DefaultGraphCell vertex1 = new DefaultGraphCell(new
+		 * String("Vertex1"), null, pt); vertex1.add(new DefaultPort());
+		 * cells.add(vertex1);
 		 * 
-		 * DefaultEdge edge = new DefaultEdge(); edge.setSource(root.getChildAt(0)); edge.setTarget(vertex1.getLastChild()); int arrow = GraphConstants.ARROW_CLASSIC;
-		 * GraphConstants.setLineEnd(edge.getAttributes(), arrow); GraphConstants.setEndFill(edge.getAttributes(), true);
+		 * DefaultEdge edge = new DefaultEdge();
+		 * edge.setSource(root.getChildAt(0));
+		 * edge.setTarget(vertex1.getLastChild()); int arrow =
+		 * GraphConstants.ARROW_CLASSIC;
+		 * GraphConstants.setLineEnd(edge.getAttributes(), arrow);
+		 * GraphConstants.setEndFill(edge.getAttributes(), true);
 		 * 
 		 * // lastObj = cells[index]; cells.add(edge); }
 		 * 
-		 * graph.getGraphLayoutCache().insert(cells.toArray()); graph.setDisconnectable(false);
+		 * graph.getGraphLayoutCache().insert(cells.toArray());
+		 * graph.setDisconnectable(false);
 		 * 
-		 * JGraphFacade facade = new JGraphFacade(graph); JGraphLayout layout = new JGraphTreeLayout(); ((JGraphTreeLayout) layout).setOrientation(SwingConstants.WEST); //
-		 * ((JGraphHierarchicalLayout) layout).setNodeDistance(100); layout.run(facade); Map nested = facade.createNestedMap(true, true); graph.getGraphLayoutCache().edit(nested);
+		 * JGraphFacade facade = new JGraphFacade(graph); JGraphLayout layout =
+		 * new JGraphTreeLayout(); ((JGraphTreeLayout)
+		 * layout).setOrientation(SwingConstants.WEST); //
+		 * ((JGraphHierarchicalLayout) layout).setNodeDistance(100);
+		 * layout.run(facade); Map nested = facade.createNestedMap(true, true);
+		 * graph.getGraphLayoutCache().edit(nested);
 		 * 
-		 * // JGraphFacade facade = new JGraphFacade(graph); // JGraphLayout layout = new JGraphFastOrganicLayout(); // layout.run(facade); // Map nested =
-		 * facade.createNestedMap(true, true); // graph.getGraphLayoutCache().edit(nested);
+		 * // JGraphFacade facade = new JGraphFacade(graph); // JGraphLayout
+		 * layout = new JGraphFastOrganicLayout(); // layout.run(facade); // Map
+		 * nested = facade.createNestedMap(true, true); //
+		 * graph.getGraphLayoutCache().edit(nested);
 		 * 
-		 * jPageTableGraphPanel.removeAll(); jPageTableGraphPanel.add(new JScrollPane(graph), BorderLayout.CENTER); }
+		 * jPageTableGraphPanel.removeAll(); jPageTableGraphPanel.add(new
+		 * JScrollPane(graph), BorderLayout.CENTER); }
 		 */
 
 	}
@@ -2352,8 +2471,8 @@ public class Application extends javax.swing.JFrame {
 			commandReceiver.shouldShow = false;
 			int limit = Integer.parseInt(this.jRegisterPanel1.jIDTRLimitTextField.getText().substring(2), 16);
 			limit = (limit + 1) / 8 - 1;
-			if (limit > 25) {
-				limit = 25;
+			if (limit > 200) {
+				limit = 200;
 			}
 			sendCommand("info idt 0 " + limit);
 
@@ -2385,8 +2504,15 @@ public class Application extends javax.swing.JFrame {
 		try {
 			jStatusLabel.setText("Updating LDT");
 			// commandReceiver.setCommandNoOfLine(20);
-			sendCommand("info ldt 0 20");
-			String result = commandReceiver.getCommandResult("XX", "XX");
+
+			int limit = (int) CommonLib.convertFilesize(this.jRegisterPanel1.jLDTRTextField.getText()) & 0xffff;
+			limit = (limit + 1) / 8 - 1;
+			if (limit > 200) {
+				limit = 200;
+			}
+			sendCommand("info ldt 0 " + limit);
+			String limitStr = String.format("0x%02x", limit);
+			String result = commandReceiver.getCommandResult("LDT[0x00]", "LDT[" + limitStr + "]");
 			String lines[] = result.split("\n");
 			JLDTTableModel model = (JLDTTableModel) jLDTTable.getModel();
 			model.clear();
@@ -2401,7 +2527,7 @@ public class Application extends javax.swing.JFrame {
 				} catch (Exception ex) {
 				}
 			}
-			((DefaultTableModel) jLDTTable.getModel()).fireTableDataChanged();
+			model.fireTableDataChanged();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -2811,7 +2937,7 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jUpdateBochsButtonActionPerformed(ActionEvent evt) {
-		updateBochsStatus();
+		updateBochsStatus(true);
 	}
 
 	private void jPageDirectoryTableMouseClicked(MouseEvent evt) {
@@ -3036,6 +3162,7 @@ public class Application extends javax.swing.JFrame {
 		updateBreakpoint();
 		updateBreakpointTableColor();
 		jDisableBreakpointButton.setEnabled(true);
+		this.updateInstruction(null);
 	}
 
 	private void jEnableBreakpointButtonActionPerformed(ActionEvent evt) {
@@ -3047,6 +3174,7 @@ public class Application extends javax.swing.JFrame {
 		updateBreakpoint();
 		updateBreakpointTableColor();
 		jEnableBreakpointButton.setEnabled(true);
+		this.updateInstruction(null);
 	}
 
 	private void jBochsCommandTextFieldKeyPressed(KeyEvent evt) {
@@ -3355,15 +3483,23 @@ public class Application extends javax.swing.JFrame {
 	private JTable getJHistoryTable() {
 		if (jHistoryTable == null) {
 			jHistoryTable = new JTable();
-			jHistoryTable.setModel(new HistoryTableModel());
+			HistoryTableModel model = new HistoryTableModel();
+			jHistoryTable.setModel(model);
+			final MyTableRowSorter<TableModel> sorter = new MyTableRowSorter<TableModel>(model);
+			jHistoryTable.setRowSorter(sorter);
 			jHistoryTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-			for (int x = 1; x <= 14; x++) {
+			for (int x = 1; x <= 15; x++) {
 				jHistoryTable.getColumnModel().getColumn(x).setPreferredWidth(120);
 			}
-			jHistoryTable.getColumnModel().getColumn(2).setPreferredWidth(800);
+			jHistoryTable.getColumnModel().getColumn(3).setPreferredWidth(800);
 		}
 		jHistoryTable.setDefaultRenderer(String.class, new HistoryTableCellRenderer());
 		jHistoryTable.setIntercellSpacing(new Dimension(0, 0));
+		jHistoryTable.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent evt) {
+				jHistoryTableMouseClicked(evt);
+			}
+		});
 		return jHistoryTable;
 	}
 
@@ -3398,6 +3534,14 @@ public class Application extends javax.swing.JFrame {
 			jPanel13.add(getJMMXRadioButton());
 			jPanel13.add(getJButton1());
 			jPanel13.add(getJExportHistoryToExcelButton());
+			jPanel13.add(getJClearHistoryTableButton());
+			jPanel13.add(getJLabel2());
+			jPanel13.add(getJHistoryTableRepeatedLabel());
+			jPanel13.add(getJFilterHistoryTableTextField());
+			jPanel13.add(getJLabel9());
+			jPanel13.add(getJLabel8());
+			jPanel13.add(getJLabel7());
+			jPanel13.add(getJShowAfterwardSpinner());
 		}
 		return jPanel13;
 	}
@@ -3564,6 +3708,12 @@ public class Application extends javax.swing.JFrame {
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
+			if (file.exists()) {
+				int r = JOptionPane.showConfirmDialog(this, "Overwrite?", "Warning", JOptionPane.YES_NO_OPTION);
+				if (r == 1) {
+					return;
+				}
+			}
 			CommonLib.exportRegisterHistory(file);
 		}
 	}
@@ -3786,7 +3936,7 @@ public class Application extends javax.swing.JFrame {
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
 			Workbook wb = new HSSFWorkbook();// Write the output to a file
-			CommonLib.exportRegisterHistory(file, wb);
+			CommonLib.exportRegisterHistory(wb);
 			CommonLib.exportTableModelToExcel(file, this.jGDTTable.getModel(), "GDT", wb);
 			CommonLib.exportTableModelToExcel(file, this.jIDTTable.getModel(), "IDT", wb);
 			CommonLib.exportTableModelToExcel(file, this.jInstructionTable.getModel(), "instruction 0x" + this.jInstructionComboBox.getSelectedItem().toString(), wb);
@@ -4158,6 +4308,8 @@ public class Application extends javax.swing.JFrame {
 						{
 							jLoadBreakpointButton = new JDropDownButton();
 							jPanel12.add(jLoadBreakpointButton);
+							jPanel12.add(getJSBButton());
+							jPanel12.add(getJSBAButton());
 							jLoadBreakpointButton.setText(MyLanguage.getString("Load"));
 							jLoadBreakpointButton.add(loadSystemsMapMenuItem);
 							jLoadBreakpointButton.addActionListener(new ActionListener() {
@@ -4518,12 +4670,12 @@ public class Application extends javax.swing.JFrame {
 						jRunningLabel
 								.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\""
 										+ url
-										+ "\" /><br><br><a style=\"color: #ffffff;  text-decoration:none\" href=\"http://www.kingofcoders.com\">蝺函��雯蝡� www.kingofcoders.com</a></center></html>");
+										+ "\" /><br><br><a style=\"color: #ffffff;  text-decoration:none\" href=\"http://www.kingofcoders.com\">編程王 www.kingofcoders.com</a></center></html>");
 					} else if (Setting.getInstance().getCurrentLanguage().equals("zh_CN")) {
 						jRunningLabel
 								.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\""
 										+ url
-										+ "\" /><br><br><img src=\"http://www.kingofcoders.com/images/KOC_logo2.jpg\" /><br><a style=\"color: #ffffff;  text-decoration:none\" href=\"http://www.kingofcoders.com\">蝻���蝡� www.kingofcoders.com</a></center></html>");
+										+ "\" /><br><br><img src=\"http://www.kingofcoders.com/images/KOC_logo2.jpg\" /><br><a style=\"color: #ffffff;  text-decoration:none\" href=\"http://www.kingofcoders.com\">编程王 www.kingofcoders.com</a></center></html>");
 					} else {
 						jRunningLabel.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\"" + url + "\" /></center></html>");
 					}
@@ -5814,7 +5966,7 @@ public class Application extends javax.swing.JFrame {
 		if (Global.debug) {
 			System.out.println("updateBochsStatus");
 		}
-		updateBochsStatus();
+		updateBochsStatus(true);
 		if (Global.debug) {
 			System.out.println("updateBochsStatus end");
 		}
@@ -6403,7 +6555,7 @@ public class Application extends javax.swing.JFrame {
 	private void jInstructionUpButtonActionPerformed(ActionEvent evt) {
 		if (this.jInstructionTable.getRowCount() > 0) {
 			String firstAddress = this.jInstructionTable.getValueAt(0, 1).toString().replaceAll("^-*", "");
-			firstAddress = Long.toHexString(CommonLib.convertFilesize("0x" + firstAddress) - 1);
+			firstAddress = Long.toHexString(CommonLib.convertFilesize(firstAddress) - 1);
 
 			this.jInstructionComboBox.setSelectedItem("0x" + firstAddress);
 			this.updateInstruction(CommonLib.convertFilesize("0x" + firstAddress));
@@ -6415,8 +6567,8 @@ public class Application extends javax.swing.JFrame {
 		if (this.jInstructionTable.getRowCount() > 10) {
 			String firstAddress = this.jInstructionTable.getValueAt(10, 1).toString().replaceAll("^-*", "");
 
-			this.jInstructionComboBox.setSelectedItem("0x" + firstAddress);
-			this.updateInstruction(CommonLib.convertFilesize("0x" + firstAddress));
+			this.jInstructionComboBox.setSelectedItem(firstAddress);
+			this.updateInstruction(CommonLib.convertFilesize(firstAddress));
 			this.updateBreakpointTableColor();
 		}
 	}
@@ -6436,7 +6588,7 @@ public class Application extends javax.swing.JFrame {
 
 	private void jInstructionUpTenButtonActionPerformed(ActionEvent evt) {
 		String firstAddress = this.jInstructionTable.getValueAt(0, 1).toString().replaceAll("^-*", "");
-		firstAddress = Long.toHexString(CommonLib.convertFilesize("0x" + firstAddress) - 16);
+		firstAddress = Long.toHexString(CommonLib.convertFilesize(firstAddress) - 16);
 
 		this.jInstructionComboBox.setSelectedItem("0x" + firstAddress);
 		this.updateInstruction(CommonLib.convertFilesize("0x" + firstAddress));
@@ -6510,6 +6662,7 @@ public class Application extends javax.swing.JFrame {
 	private void jFastStepButtonActionPerformed(ActionEvent evt) {
 		try {
 			sendCommand("s");
+			WebServiceUtil.log("peter-bochs", "fast step", null, null, null);
 			Thread updateThread = new Thread("Fast step update thread") {
 				public void run() {
 					enableAllButtons(false, false);
@@ -7231,40 +7384,52 @@ public class Application extends javax.swing.JFrame {
 			GroupLayout jRunningPanelLayout = new GroupLayout((JComponent) jRunningPanel);
 			jRunningPanel.setLayout(jRunningPanelLayout);
 			jRunningPanel.setPreferredSize(new java.awt.Dimension(1073, 758));
-			jRunningPanelLayout.setHorizontalGroup(jRunningPanelLayout
-					.createSequentialGroup()
-					.addContainerGap()
-					.addGroup(
-							jRunningPanelLayout
-									.createParallelGroup()
-									.addGroup(
-											GroupLayout.Alignment.LEADING,
-											jRunningPanelLayout
-													.createSequentialGroup()
-													.addComponent(getJButton16xxx(), GroupLayout.PREFERRED_SIZE, 66, GroupLayout.PREFERRED_SIZE)
-													.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-													.addComponent(getJLabel1(), GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
-													.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-													.addComponent(getJMaxRowComboBox(), GroupLayout.PREFERRED_SIZE, 95, GroupLayout.PREFERRED_SIZE)
-													.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-													.addGroup(
-															jRunningPanelLayout
-																	.createParallelGroup()
-																	.addComponent(getJStepCountLabel(), GroupLayout.Alignment.LEADING, 0, 788, Short.MAX_VALUE)
-																	.addGroup(
-																			GroupLayout.Alignment.LEADING,
-																			jRunningPanelLayout.createSequentialGroup().addGap(83)
-																					.addComponent(getJRunningLabel2(), GroupLayout.PREFERRED_SIZE, 679, GroupLayout.PREFERRED_SIZE)
-																					.addGap(0, 26, Short.MAX_VALUE))).addGap(48))
-									.addComponent(getJTextArea1(), GroupLayout.Alignment.LEADING, 0, 1104, Short.MAX_VALUE)
-									.addGroup(
-											GroupLayout.Alignment.LEADING,
-											jRunningPanelLayout.createSequentialGroup().addGap(65)
-													.addComponent(getJCheckBox1(), GroupLayout.PREFERRED_SIZE, 335, GroupLayout.PREFERRED_SIZE)
-													.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-													.addComponent(getJAutoUpdateEvery20LinesCheckBox(), 0, 534, Short.MAX_VALUE)
-													.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-													.addComponent(getJSaveToRunDotTxtCheckBox(), GroupLayout.PREFERRED_SIZE, 158, GroupLayout.PREFERRED_SIZE))).addContainerGap());
+			jRunningPanelLayout
+					.setHorizontalGroup(jRunningPanelLayout
+							.createSequentialGroup()
+							.addContainerGap()
+							.addGroup(
+									jRunningPanelLayout
+											.createParallelGroup()
+											.addGroup(
+													GroupLayout.Alignment.LEADING,
+													jRunningPanelLayout.createSequentialGroup()
+															.addComponent(getJButton16xxx(), GroupLayout.PREFERRED_SIZE, 66, GroupLayout.PREFERRED_SIZE)
+															.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+															.addComponent(getJLabel1(), GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+															.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+															.addComponent(getJMaxRowComboBox(), GroupLayout.PREFERRED_SIZE, 95, GroupLayout.PREFERRED_SIZE)
+															.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+															.addComponent(getJClearRunningTextAreaButton(), GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
+															.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED).addComponent(getJStepCountLabel(), 0, 749, Short.MAX_VALUE)
+															.addGap(48))
+											.addComponent(getJTextArea1(), GroupLayout.Alignment.LEADING, 0, 1116, Short.MAX_VALUE)
+											.addGroup(
+													GroupLayout.Alignment.LEADING,
+													jRunningPanelLayout
+															.createSequentialGroup()
+															.addGap(65)
+															.addComponent(getJCheckBox1(), GroupLayout.PREFERRED_SIZE, 335, GroupLayout.PREFERRED_SIZE)
+															.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+															.addGroup(
+																	jRunningPanelLayout
+																			.createParallelGroup()
+																			.addGroup(
+																					GroupLayout.Alignment.LEADING,
+																					jRunningPanelLayout
+																							.createSequentialGroup()
+																							.addComponent(getJAutoUpdateEvery20LinesCheckBox(), 0, 546, Short.MAX_VALUE)
+																							.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+																							.addComponent(getJSaveToRunDotTxtCheckBox(), GroupLayout.PREFERRED_SIZE, 158,
+																									GroupLayout.PREFERRED_SIZE))
+																			.addGroup(
+																					GroupLayout.Alignment.LEADING,
+																					jRunningPanelLayout
+																							.createSequentialGroup()
+																							.addPreferredGap(getJAutoUpdateEvery20LinesCheckBox(), getJRunningLabel2(),
+																									LayoutStyle.ComponentPlacement.INDENT)
+																							.addComponent(getJRunningLabel2(), GroupLayout.PREFERRED_SIZE, 679,
+																									GroupLayout.PREFERRED_SIZE).addGap(0, 25, Short.MAX_VALUE))))));
 			jRunningPanelLayout.setVerticalGroup(jRunningPanelLayout
 					.createSequentialGroup()
 					.addComponent(getJRunningLabel2(), GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE)
@@ -7276,16 +7441,17 @@ public class Application extends javax.swing.JFrame {
 											GroupLayout.PREFERRED_SIZE)
 									.addComponent(getJLabel1(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 23, GroupLayout.PREFERRED_SIZE)
 									.addComponent(getJMaxRowComboBox(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 23, GroupLayout.PREFERRED_SIZE)
+									.addComponent(getJClearRunningTextAreaButton(), GroupLayout.Alignment.BASELINE, 0, 23, Short.MAX_VALUE)
 									.addComponent(getJStepCountLabel(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 29, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
 					.addGroup(
 							jRunningPanelLayout
 									.createParallelGroup(GroupLayout.Alignment.BASELINE)
 									.addComponent(getJAutoUpdateEvery20LinesCheckBox(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)
-									.addComponent(getJCheckBox1(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)
 									.addComponent(getJSaveToRunDotTxtCheckBox(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,
-											GroupLayout.PREFERRED_SIZE)).addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-					.addComponent(getJTextArea1(), 0, 609, Short.MAX_VALUE).addContainerGap(17, 17));
+											GroupLayout.PREFERRED_SIZE)
+									.addComponent(getJCheckBox1(), GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE))
+					.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED).addComponent(getJTextArea1(), 0, 610, Short.MAX_VALUE).addContainerGap(17, 17));
 		}
 		return jRunningPanel;
 	}
@@ -7631,5 +7797,261 @@ public class Application extends javax.swing.JFrame {
 			buttonGroup4 = new ButtonGroup();
 		}
 		return buttonGroup4;
+	}
+
+	private JButton getJClearHistoryTableButton() {
+		if (jClearHistoryTableButton == null) {
+			jClearHistoryTableButton = new JButton();
+			jClearHistoryTableButton.setText("Clear");
+			jClearHistoryTableButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jClearHistoryTableButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jClearHistoryTableButton;
+	}
+
+	private void jClearHistoryTableButtonActionPerformed(ActionEvent evt) {
+		((HistoryTableModel) this.jHistoryTable.getModel()).clear();
+	}
+
+	private JButton getJClearRunningTextAreaButton() {
+		if (jClearRunningTextAreaButton == null) {
+			jClearRunningTextAreaButton = new JButton();
+			jClearRunningTextAreaButton.setText("Clear");
+			jClearRunningTextAreaButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jClearRunningTextAreaButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jClearRunningTextAreaButton;
+	}
+
+	private void jClearRunningTextAreaButtonActionPerformed(ActionEvent evt) {
+		jTextArea1.setText("");
+	}
+
+	private JLabel getJHistoryTableRepeatedLabel() {
+		if (jHistoryTableRepeatedLabel == null) {
+			jHistoryTableRepeatedLabel = new JLabel();
+		}
+		return jHistoryTableRepeatedLabel;
+	}
+
+	private void jHistoryTableMouseClicked(MouseEvent evt) {
+		try {
+			String instruction = (String) jHistoryTable.getValueAt(jHistoryTable.getSelectedRow(), 2);
+			instruction = instruction.replaceAll("^.*] [0-9]", "").split(":")[2].trim().replaceAll(" .*", "");
+			int count = 0;
+			for (int x = 0; x <= jHistoryTable.getSelectedRow(); x++) {
+				try {
+					String i = (String) jHistoryTable.getValueAt(x, 2);
+					i = i.replaceAll("^.*]", "").split(":")[2].trim().replaceAll(" .*", "");
+					if (instruction.equals(i)) {
+						count++;
+					}
+				} catch (Exception ex) {
+				}
+			}
+			jHistoryTableRepeatedLabel.setText(" " + instruction + " happened " + count + " times ");
+		} catch (Exception ex) {
+			jHistoryTableRepeatedLabel.setText("");
+		}
+	}
+
+	private JLabel getJLabel2() {
+		if (jLabel2 == null) {
+			jLabel2 = new JLabel();
+			jLabel2.setOpaque(true);
+			jLabel2.setBorder(new LineBorder(Color.LIGHT_GRAY));
+			jLabel2.setBackground(new java.awt.Color(0, 0, 0));
+			jLabel2.setMinimumSize(new java.awt.Dimension(2, 15));
+			jLabel2.setMaximumSize(new java.awt.Dimension(2, 15));
+			jLabel2.setPreferredSize(new java.awt.Dimension(2, 15));
+		}
+		return jLabel2;
+	}
+
+	private JTextField getJFilterHistoryTableTextField() {
+		if (jFilterHistoryTableTextField == null) {
+			jFilterHistoryTableTextField = new JSearchTextField();
+			jFilterHistoryTableTextField.setMaximumSize(new java.awt.Dimension(158, 26));
+			jFilterHistoryTableTextField.addKeyListener(new KeyAdapter() {
+				public void keyReleased(KeyEvent evt) {
+					jFilterHistoryTableTextFieldKeyReleased(evt);
+				}
+			});
+		}
+		return jFilterHistoryTableTextField;
+	}
+
+	private void jFilterHistoryTableTextFieldKeyReleased(KeyEvent evt) {
+		MyTableRowSorter<TableModel> sorter = (MyTableRowSorter<TableModel>) jHistoryTable.getRowSorter();
+		sorter.showAfterwardCount = (Integer) jShowAfterwardSpinner.getValue();
+		sorter.setRowFilter(RowFilter.regexFilter(jFilterHistoryTableTextField.getText()));
+		//((MyTableRowSorter<TableModel>) jHistoryTable.getRowSorter()).setRowFilter(genRegexFilter(jFilterHistoryTableTextField.getText()));
+	}
+
+	private JMenuItem getJRunBochsAndSkipBreakpointMenuItem() {
+		if (jRunBochsAndSkipBreakpointMenuItem == null) {
+			jRunBochsAndSkipBreakpointMenuItem = new JMenuItem();
+			jRunBochsAndSkipBreakpointMenuItem.setText("Run and skip breakpoint for N times");
+		}
+		return jRunBochsAndSkipBreakpointMenuItem;
+	}
+
+	private JSpinner getJShowAfterwardSpinner() {
+		if (jShowAfterwardSpinner == null) {
+			SpinnerNumberModel jShowAfterwardSpinnerModel = new SpinnerNumberModel(0, 0, 100, 1);
+			jShowAfterwardSpinner = new JSpinner();
+			jShowAfterwardSpinner.setMaximumSize(new java.awt.Dimension(50, 26));
+			jShowAfterwardSpinner.setModel(jShowAfterwardSpinnerModel);
+			jShowAfterwardSpinner.addChangeListener(new ChangeListener() {
+				public void stateChanged(ChangeEvent evt) {
+					jShowAfterwardSpinnerStateChanged(evt);
+				}
+			});
+		}
+		return jShowAfterwardSpinner;
+	}
+
+	private JLabel getJLabel7() {
+		if (jLabel7 == null) {
+			jLabel7 = new JLabel();
+			jLabel7.setText(" Show afterward");
+		}
+		return jLabel7;
+	}
+
+	private JLabel getJLabel8() {
+		if (jLabel8 == null) {
+			jLabel8 = new JLabel();
+			jLabel8.setBackground(new java.awt.Color(0, 0, 0));
+			jLabel8.setMinimumSize(new java.awt.Dimension(2, 15));
+			jLabel8.setPreferredSize(new java.awt.Dimension(2, 15));
+			jLabel8.setMaximumSize(new java.awt.Dimension(2, 15));
+			jLabel8.setOpaque(true);
+			jLabel8.setBorder(new LineBorder(Color.LIGHT_GRAY));
+		}
+		return jLabel8;
+	}
+
+	private JLabel getJLabel9() {
+		if (jLabel9 == null) {
+			jLabel9 = new JLabel();
+			jLabel9.setText(" ");
+		}
+		return jLabel9;
+	}
+
+	private void jShowAfterwardSpinnerStateChanged(ChangeEvent evt) {
+		jFilterHistoryTableTextFieldKeyReleased(null);
+	}
+
+	private JDropDownButton getJSBButton() {
+		if (jSBButton == null) {
+			jSBButton = new JDropDownButton();
+			jSBButton.setText("SB");
+			jSBButton.setPreferredSize(new java.awt.Dimension(40, 25));
+			loadSBButton();
+			jSBButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jSBButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jSBButton;
+	}
+
+	void loadSBButton() {
+		jSBButton.removeAll();
+		Object[] a = Setting.getInstance().sbAddress.toArray();
+		for (int x = a.length - 1; x >= 0; x--) {
+			JMenuItem menu = new JMenuItem();
+			menu.setText(String.valueOf(a[x]));
+			jSBButton.add(menu);
+		}
+	}
+
+	private JDropDownButton getJSBAButton() {
+		if (jSBAButton == null) {
+			jSBAButton = new JDropDownButton();
+			jSBAButton.setText("SBA");
+			loadSBAButton();
+			jSBAButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jSBAButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jSBAButton;
+	}
+
+	void loadSBAButton() {
+		jSBAButton.removeAll();
+		Object[] a = Setting.getInstance().sbaAddress.toArray();
+		for (int x = a.length - 1; x >= 0; x--) {
+			JMenuItem menu = new JMenuItem();
+			menu.setText(String.valueOf(a[x]));
+			jSBAButton.add(menu);
+		}
+	}
+
+	private void jSBButtonActionPerformed(ActionEvent evt) {
+		if (jSBButton.getEventSource() != null) {
+			long l = Long.parseLong(((JMenuItem) jSBButton.getEventSource()).getText());
+			sendCommand("sb " + l);
+			Setting.getInstance().sbAddress.add(l);
+		} else {
+			String s = JOptionPane.showInputDialog(this, "Please input cycle interval for next stop?");
+			if (s == null) {
+				return;
+			}
+			try {
+				long l = Long.parseLong(s);
+				sendCommand("sb " + l);
+				Setting.getInstance().sbAddress.add(l);
+			} catch (Exception ex) {
+				if (Global.debug) {
+					ex.printStackTrace();
+				}
+			}
+		}
+
+		for (int x = 0; x < Setting.getInstance().sbAddress.size() - 10; x++) {
+			Setting.getInstance().sbAddress.remove(Setting.getInstance().sbAddress.toArray()[x]);
+		}
+		Setting.getInstance().save();
+		loadSBButton();
+	}
+
+	private void jSBAButtonActionPerformed(ActionEvent evt) {
+		if (jSBAButton.getEventSource() != null) {
+			long l = Long.parseLong(((JMenuItem) jSBAButton.getEventSource()).getText());
+			sendCommand("sba " + l);
+			Setting.getInstance().sbaAddress.add(l);
+		} else {
+			String s = JOptionPane.showInputDialog(this, "Please input cycle interval for next stop?");
+			if (s == null) {
+				return;
+			}
+			try {
+				long l = Long.parseLong(s);
+				sendCommand("sba " + l);
+				Setting.getInstance().sbaAddress.add(l);
+			} catch (Exception ex) {
+				if (Global.debug) {
+					ex.printStackTrace();
+				}
+			}
+		}
+
+		for (int x = 0; x < Setting.getInstance().sbaAddress.size() - 10; x++) {
+			Setting.getInstance().sbaAddress.remove(Setting.getInstance().sbaAddress.toArray()[x]);
+		}
+		Setting.getInstance().save();
+		loadSBAButton();
 	}
 }

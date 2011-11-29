@@ -127,8 +127,7 @@ public class TSSPanel extends JPanel {
 						jSplitPane1.add(jScrollPane2, JSplitPane.LEFT);
 						jScrollPane2.setPreferredSize(new java.awt.Dimension(449, 600));
 						{
-							TableModel jTable2Model = new DefaultTableModel(new String[][] {}, new String[] { MyLanguage.getString("Field"),
-									MyLanguage.getString("Value") });
+							TableModel jTable2Model = new DefaultTableModel(new String[][] {}, new String[] { MyLanguage.getString("Field"), MyLanguage.getString("Value") });
 							jTable2 = new JTable();
 							jScrollPane2.setViewportView(jTable2);
 							jTable2.setModel(jTable2Model);
@@ -139,8 +138,8 @@ public class TSSPanel extends JPanel {
 						jSplitPane1.add(jScrollPane3, JSplitPane.RIGHT);
 						jScrollPane3.setPreferredSize(new java.awt.Dimension(457, 600));
 						{
-							TableModel jTSSTableModel = new DefaultTableModel(new String[][] {}, new String[] { MyLanguage.getString("Offset"),
-									MyLanguage.getString("Field"), MyLanguage.getString("Value"), "" });
+							TableModel jTSSTableModel = new DefaultTableModel(new String[][] {}, new String[] { MyLanguage.getString("Offset"), MyLanguage.getString("Field"),
+									MyLanguage.getString("Value"), "" });
 							jTSSTable = new JTable();
 							jScrollPane3.setViewportView(jTSSTable);
 							jTSSTable.setModel(jTSSTableModel);
@@ -509,6 +508,7 @@ public class TSSPanel extends JPanel {
 			if (bit[55] == 1) {
 				limit *= 4096;
 			}
+			limit += 1; //Real TSS limit = TSS limit in descriptor + 1
 			model.addRow(new String[] { "limit", "0x" + Long.toHexString(limit) });
 
 			model.addRow(new String[] { "G", String.valueOf(bit[55]) });
@@ -547,7 +547,7 @@ public class TSSPanel extends JPanel {
 				}
 			}
 
-			long tssValue = CommonLib.getLong(b, 0);
+			//long tssValue = CommonLib.getLong(b, 0);
 
 			DefaultTableModel tssModel = (DefaultTableModel) jTSSTable.getModel();
 			tssModel.addRow(new String[] { "0", "link", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0], tssByte[1], 0, 0, 0, 0, 0, 0)) });
@@ -578,7 +578,8 @@ public class TSSPanel extends JPanel {
 			tssModel.addRow(new String[] { "0x5c", "gs", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x5c], tssByte[0x5d], 0, 0, 0, 0, 0, 0)) });
 			tssModel.addRow(new String[] { "0x60", "ldtr", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x60], tssByte[0x61], 0, 0, 0, 0, 0, 0)) });
 			ldtr = CommonLib.getLong(tssByte[0x60], tssByte[0x61], 0, 0, 0, 0, 0, 0);
-			tssModel.addRow(new String[] { "0x66", "iobp", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x66], tssByte[0x67], 0, 0, 0, 0, 0, 0)) });
+			tssModel.addRow(new String[] { "0x64", "T", "0x" + Long.toHexString(CommonLib.getBit(tssByte[0x64], 0)) });
+			tssModel.addRow(new String[] { "0x66", "iobp offset", "0x" + Long.toHexString(CommonLib.getLong(tssByte[0x66], tssByte[0x67], 0, 0, 0, 0, 0, 0)) });
 
 			updatePageTable(cr3);
 		} catch (Exception ex) {
