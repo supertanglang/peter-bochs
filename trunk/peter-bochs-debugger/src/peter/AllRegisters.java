@@ -5,6 +5,7 @@ import java.util.Vector;
 
 public class AllRegisters {
 	public static Vector<Date> time = new Vector<Date>();
+	public static Vector<String> ptime = new Vector<String>();
 
 	public static Vector<Long> eax = new Vector<Long>();
 	public static Vector<Long> ebx = new Vector<Long>();
@@ -65,4 +66,67 @@ public class AllRegisters {
 	public static Vector<String> mm6 = new Vector<String>();
 	public static Vector<String> mm7 = new Vector<String>();
 
+	public static void clear() {
+		time.clear();
+		ptime.clear();
+
+		eax.clear();
+		ebx.clear();
+		ecx.clear();
+		edx.clear();
+		esi.clear();
+		edi.clear();
+		ebp.clear();
+		esp.clear();
+
+		cs.clear();
+		eip.clear();
+		ds.clear();
+		es.clear();
+		fs.clear();
+		gs.clear();
+		ss.clear();
+		eflags.clear();
+
+		cr0.clear();
+		cr2.clear();
+		cr3.clear();
+		cr4.clear();
+
+		stack.clear();
+
+		gdtr.clear();
+		idtr.clear();
+		ldtr.clear();
+
+		gdt.clear();
+		idt.clear();
+		ldt.clear();
+
+		tr.clear();
+
+		instructions.clear();
+
+		st0.clear();
+		st1.clear();
+		st2.clear();
+		st3.clear();
+		st4.clear();
+		st5.clear();
+		st6.clear();
+		st7.clear();
+		fpu_status.clear();
+		fpu_control.clear();
+		fpu_tag.clear();
+		fpu_operand.clear();
+
+		mm0.clear();
+		mm1.clear();
+		mm2.clear();
+		mm3.clear();
+		mm4.clear();
+		mm5.clear();
+		mm6.clear();
+		mm7.clear();
+	}
 }

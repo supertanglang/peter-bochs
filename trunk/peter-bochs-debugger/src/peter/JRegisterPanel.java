@@ -78,6 +78,8 @@ public class JRegisterPanel extends javax.swing.JPanel {
 	public JTextField jCR4TextField;
 	public JTextField jCR3TextField;
 	private JLabel jST1Label;
+	public JTextField jPTimeTextField;
+	private JLabel jPTimeLabel;
 	public JTextField jFPUOperandTextField;
 	public JTextField jFPUTagTextField;
 	public JTextField jFPUControlTextField;
@@ -607,7 +609,7 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				}
 				{
 					jLDTRTextField = new JTextField();
-					jPanel99.add(jLDTRTextField, new CellConstraints("10, 9, 3, 1, default, default"));
+					jPanel99.add(jLDTRTextField, new CellConstraints("10, 9, 1, 1, default, default"));
 					jLDTRTextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jLDTRTextFieldKeyTyped(evt);
@@ -1001,6 +1003,15 @@ public class JRegisterPanel extends javax.swing.JPanel {
 				{
 					jFPUOperandTextField = new JTextField();
 					jPanel99.add(jFPUOperandTextField, new CellConstraints("4, 23, 4, 1, default, default"));
+				}
+				{
+					jPTimeLabel = new JLabel();
+					jPanel99.add(jPTimeLabel, new CellConstraints("6, 9, 1, 1, default, default"));
+					jPTimeLabel.setText("ptime");
+				}
+				{
+					jPTimeTextField = new JTextField();
+					jPanel99.add(jPTimeTextField, new CellConstraints("7, 9, 1, 1, default, default"));
 				}
 			}
 

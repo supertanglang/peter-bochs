@@ -32,6 +32,7 @@ import javax.swing.WindowConstants;
 public class JSettingDialog extends javax.swing.JDialog {
 	private JCheckBox jCheckBox1;
 	private JCheckBox jCheckBox2;
+	private JCheckBox jLogToPetersoftServerCheckBox;
 	private JCheckBox jInterruptProfilingCheckBox;
 	private JLabel jProfileInfoLabel;
 	private JLabel jLabel1;
@@ -95,7 +96,7 @@ public class JSettingDialog extends javax.swing.JDialog {
 				{
 					jPanel3 = new JPanel();
 					TableLayout jPanel3Layout = new TableLayout(new double[][] { { TableLayout.FILL, TableLayout.FILL, TableLayout.FILL, TableLayout.FILL },
-							{ TableLayout.FILL, TableLayout.FILL, 99.0, TableLayout.FILL, 70.0 } });
+							{ TableLayout.FILL, TableLayout.FILL, 99.0, TableLayout.FILL, 70.0, TableLayout.FILL, TableLayout.FILL } });
 					jPanel3Layout.setHGap(5);
 					jPanel3Layout.setVGap(5);
 					jPanel3.setLayout(jPanel3Layout);
@@ -323,6 +324,16 @@ public class JSettingDialog extends javax.swing.JDialog {
 							});
 						}
 					}
+					{
+						jLogToPetersoftServerCheckBox = new JCheckBox();
+						jPanel3.add(jLogToPetersoftServerCheckBox, "0, 5, 1, 5");
+						jLogToPetersoftServerCheckBox.setText("Log to Petersoft Server?");
+						jLogToPetersoftServerCheckBox.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent evt) {
+								jLogToPetersoftServerCheckBoxActionPerformed(evt);
+							}
+						});
+					}
 				}
 				{
 					jProfilingPanel = new JPanel();
@@ -391,48 +402,62 @@ public class JSettingDialog extends javax.swing.JDialog {
 							}
 						});
 					}
-					jProfilingPanelLayout.setHorizontalGroup(jProfilingPanelLayout.createSequentialGroup()
-						.addContainerGap()
-						.addGroup(jProfilingPanelLayout.createParallelGroup()
-						    .addGroup(GroupLayout.Alignment.LEADING, jProfilingPanelLayout.createSequentialGroup()
-						        .addComponent(jInterruptProfilingCheckBox, GroupLayout.PREFERRED_SIZE, 203, GroupLayout.PREFERRED_SIZE)
-						        .addGap(0, 208, Short.MAX_VALUE))
-						    .addGroup(GroupLayout.Alignment.LEADING, jProfilingPanelLayout.createSequentialGroup()
-						        .addComponent(jUpdateGraphCheckBox, GroupLayout.PREFERRED_SIZE, 143, GroupLayout.PREFERRED_SIZE)
-						        .addGap(0, 268, Short.MAX_VALUE))
-						    .addGroup(GroupLayout.Alignment.LEADING, jProfilingPanelLayout.createSequentialGroup()
-						        .addComponent(jJmpProfilingCheckBox, GroupLayout.PREFERRED_SIZE, 160, GroupLayout.PREFERRED_SIZE)
-						        .addGap(0, 251, Short.MAX_VALUE))
-						    .addGroup(GroupLayout.Alignment.LEADING, jProfilingPanelLayout.createSequentialGroup()
-						        .addComponent(jMemoryProfilingCheckBox, GroupLayout.PREFERRED_SIZE, 212, GroupLayout.PREFERRED_SIZE)
-						        .addGap(0, 199, Short.MAX_VALUE))
-						    .addComponent(jLabel1, GroupLayout.Alignment.LEADING, 0, 411, Short.MAX_VALUE)
-						    .addComponent(jProfileInfoLabel, GroupLayout.Alignment.LEADING, 0, 411, Short.MAX_VALUE)
-						    .addGroup(GroupLayout.Alignment.LEADING, jProfilingPanelLayout.createSequentialGroup()
-						        .addGap(19)
-						        .addComponent(jHitZoneCheckBox, GroupLayout.PREFERRED_SIZE, 92, GroupLayout.PREFERRED_SIZE)
-						        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-						        .addComponent(jCustomZoneCheckBox, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE)
-						        .addGap(0, 167, Short.MAX_VALUE)))
-						.addContainerGap());
-					jProfilingPanelLayout.setVerticalGroup(jProfilingPanelLayout.createSequentialGroup()
-						.addContainerGap()
-						.addComponent(jProfileInfoLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addGap(24)
-						.addComponent(jLabel1, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-						.addComponent(jMemoryProfilingCheckBox, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-						.addGroup(jProfilingPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-						    .addComponent(jHitZoneCheckBox, GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
-						    .addComponent(jCustomZoneCheckBox, GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE))
-						.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-						.addComponent(jJmpProfilingCheckBox, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-						.addComponent(jInterruptProfilingCheckBox, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-						.addComponent(jUpdateGraphCheckBox, GroupLayout.PREFERRED_SIZE, 19, GroupLayout.PREFERRED_SIZE)
-						.addContainerGap(50, Short.MAX_VALUE));
+					jProfilingPanelLayout.setHorizontalGroup(jProfilingPanelLayout
+							.createSequentialGroup()
+							.addContainerGap()
+							.addGroup(
+									jProfilingPanelLayout
+											.createParallelGroup()
+											.addGroup(
+													GroupLayout.Alignment.LEADING,
+													jProfilingPanelLayout.createSequentialGroup()
+															.addComponent(jInterruptProfilingCheckBox, GroupLayout.PREFERRED_SIZE, 203, GroupLayout.PREFERRED_SIZE)
+															.addGap(0, 208, Short.MAX_VALUE))
+											.addGroup(
+													GroupLayout.Alignment.LEADING,
+													jProfilingPanelLayout.createSequentialGroup()
+															.addComponent(jUpdateGraphCheckBox, GroupLayout.PREFERRED_SIZE, 143, GroupLayout.PREFERRED_SIZE)
+															.addGap(0, 268, Short.MAX_VALUE))
+											.addGroup(
+													GroupLayout.Alignment.LEADING,
+													jProfilingPanelLayout.createSequentialGroup()
+															.addComponent(jJmpProfilingCheckBox, GroupLayout.PREFERRED_SIZE, 160, GroupLayout.PREFERRED_SIZE)
+															.addGap(0, 251, Short.MAX_VALUE))
+											.addGroup(
+													GroupLayout.Alignment.LEADING,
+													jProfilingPanelLayout.createSequentialGroup()
+															.addComponent(jMemoryProfilingCheckBox, GroupLayout.PREFERRED_SIZE, 212, GroupLayout.PREFERRED_SIZE)
+															.addGap(0, 199, Short.MAX_VALUE))
+											.addComponent(jLabel1, GroupLayout.Alignment.LEADING, 0, 411, Short.MAX_VALUE)
+											.addComponent(jProfileInfoLabel, GroupLayout.Alignment.LEADING, 0, 411, Short.MAX_VALUE)
+											.addGroup(
+													GroupLayout.Alignment.LEADING,
+													jProfilingPanelLayout.createSequentialGroup().addGap(19)
+															.addComponent(jHitZoneCheckBox, GroupLayout.PREFERRED_SIZE, 92, GroupLayout.PREFERRED_SIZE)
+															.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+															.addComponent(jCustomZoneCheckBox, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE)
+															.addGap(0, 167, Short.MAX_VALUE))).addContainerGap());
+					jProfilingPanelLayout.setVerticalGroup(jProfilingPanelLayout
+							.createSequentialGroup()
+							.addContainerGap()
+							.addComponent(jProfileInfoLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addGap(24)
+							.addComponent(jLabel1, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+							.addComponent(jMemoryProfilingCheckBox, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+							.addGroup(
+									jProfilingPanelLayout
+											.createParallelGroup(GroupLayout.Alignment.BASELINE)
+											.addComponent(jHitZoneCheckBox, GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,
+													GroupLayout.PREFERRED_SIZE)
+											.addComponent(jCustomZoneCheckBox, GroupLayout.Alignment.BASELINE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE,
+													GroupLayout.PREFERRED_SIZE)).addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+							.addComponent(jJmpProfilingCheckBox, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+							.addComponent(jInterruptProfilingCheckBox, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+							.addComponent(jUpdateGraphCheckBox, GroupLayout.PREFERRED_SIZE, 19, GroupLayout.PREFERRED_SIZE).addContainerGap(50, Short.MAX_VALUE));
 				}
 			}
 			this.addWindowListener(new WindowAdapter() {
@@ -440,9 +465,10 @@ public class JSettingDialog extends javax.swing.JDialog {
 					thisWindowClosing(evt);
 				}
 			});
-			jProfileInfoLabel.setText("Memory profile port : " + Global.profilingMemoryPort + " , jmp profile port : " + Global.profilingJmpPort+ " , interrupt profile port : " + Global.profilingInterruptPort);
-			
-			setSize(450, 300);
+			jProfileInfoLabel.setText("Memory profile port : " + Global.profilingMemoryPort + " , jmp profile port : " + Global.profilingJmpPort + " , interrupt profile port : "
+					+ Global.profilingInterruptPort);
+
+			setSize(450, 350);
 			initValue();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -479,6 +505,8 @@ public class JSettingDialog extends javax.swing.JDialog {
 		jJmpProfilingCheckBox.setSelected(Setting.getInstance().isJmpProfiling());
 		jInterruptProfilingCheckBox.setSelected(Setting.getInstance().isInterruptProfiling());
 		jUpdateGraphCheckBox.setSelected(Setting.getInstance().isProfilingUpdateGraph());
+
+		jLogToPetersoftServerCheckBox.setSelected(Setting.getInstance().isLogToPetersoftServer());
 	}
 
 	private void jCheckBox1ActionPerformed(ActionEvent evt) {
@@ -583,6 +611,10 @@ public class JSettingDialog extends javax.swing.JDialog {
 
 	private void jUpdateGraphCheckBoxActionPerformed(ActionEvent evt) {
 		Setting.getInstance().setProfilingUpdateGraph(jUpdateGraphCheckBox.isSelected());
+	}
+
+	private void jLogToPetersoftServerCheckBoxActionPerformed(ActionEvent evt) {
+		Setting.getInstance().setLogToPetersoftServer(jLogToPetersoftServerCheckBox.isSelected());
 	}
 
 }
