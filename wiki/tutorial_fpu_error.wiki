@@ -1,0 +1,6 @@
+#summary Tutorial : Floating point error
+
+= Introduction =
+
+When you developing your OS, if you got an floating point error, it will dump to int 16. Just set a breakpoint on the interrupt handler, when you get there, look at fcs,fip,fdp,fds registers, it will give you some hints
+
