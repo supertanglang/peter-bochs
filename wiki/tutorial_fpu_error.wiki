@@ -4,5 +4,15 @@
 
 When you developing your OS, if you got an floating point error, it will dump to int 16. Just set a breakpoint on the interrupt handler, when you get there, look at fcs,fip,fdp,fds registers, it will give you some hints.
 
-
 [http://peter-bochs.googlecode.com/files/fpu_bug.png]
+
+<table border="0"><tr><td>
+[http://www.kingofcoders.com http://www.kingofcoders.com/images/KOC_logo2.jpg]
+</td>
+<td>
+</td>
+<td>
+[http://www.rmit.edu.au/compsci http://peter-bochs.googlecode.com/files/rmit.gif]
+</td>
+</tr>
+</table>
