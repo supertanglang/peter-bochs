@@ -5,10 +5,14 @@
 When you developing your OS, if you got an floating point error, it will dump to int 16. Just set a breakpoint on the interrupt handler, when you get there, look at fcs,fip,fdp,fds registers, it will give you some hints.
 
 
-fip     : Instruction pointer offset
-fcs     : Code segment selector
-fopoff  : Operand pointer offset
-fopsel  : Operand pointer selector
+fip  : Instruction pointer offset
+
+fcs  : Code segment selector
+
+fdp  : Operand pointer offset
+
+fds  : Operand pointer selector
+
 
 [http://peter-bochs.googlecode.com/files/fpu_bug.png]
 
