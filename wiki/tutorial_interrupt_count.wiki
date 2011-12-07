@@ -10,6 +10,13 @@ To compile bochs with peter-bochs-instrument, please download the peter-bochs-in
 
 [http://peter-bochs.googlecode.com/files/interrupt_tutorial1.png]
 
+Then compile bochs with "./configure --enable-logging --enable-debugger --enable-instrumentation=instrument/peter-bochs-instrument/"
+
+After compiling the bochs, please start peter-bochs and enable the "Profiling feature" (see below)
+
+[http://peter-bochs.googlecode.com/files/interrupt_tutorial2.png]
+
+
 
 <table border="0"><tr><td>
 [http://www.kingofcoders.com http://www.kingofcoders.com/images/KOC_logo2.jpg]
