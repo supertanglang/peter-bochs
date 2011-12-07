@@ -16,9 +16,9 @@ After compiling the bochs, please start peter-bochs and enable the "Profiling fe
 
 [http://peter-bochs.googlecode.com/files/interrupt_tutorial2.png]
 
-OK, All are done, just start peter-bochs and see how it capture the interrupt information (see below). 
+OK, All are done, just start peter-bochs and see how it captures the interrupt information (see below). In the bottom-right table, you can see the fired count of each interrupt.
 
-[http://peter-bochs.googlecode.com/files/interrupt_tutorial2.png]
+[http://peter-bochs.googlecode.com/files/interrupt_tutorial3.png]
 
 
 <table border="0"><tr><td>
