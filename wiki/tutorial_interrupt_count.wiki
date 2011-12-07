@@ -2,12 +2,22 @@
 
 = Introduction =
 
-Add your content here.
+During operating system development, it is valuable to see when the interrupt happened, because your OS may crash because of interrupt and some interrupts (such as IRQ) fired unpredictably. You can trace the interrupt using peter-bochs with peter-bochs-instrument.
+
+Everybody know bochs built-in debugger can let use viewing the status of the CPU or memory, but some of the information are missed. peter-bochs-instrument improve bochs and bringing more CPU information to peter-bochs.
+
+To compile bochs with peter-bochs-instrument, please download the peter-bochs-instrument here [http://code.google.com/p/peter-bochs/downloads/list]. Place it in the directory instrument with bochs source, see below:
+
+[http://peter-bochs.googlecode.com/files/interrupt_tutorial1.png]
 
 
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+<table border="0"><tr><td>
+[http://www.kingofcoders.com http://www.kingofcoders.com/images/KOC_logo2.jpg]
+</td>
+<td>
+</td>
+<td>
+[http://www.rmit.edu.au/compsci http://peter-bochs.googlecode.com/files/rmit.gif]
+</td>
+</tr>
+</table>
