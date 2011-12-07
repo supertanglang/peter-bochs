@@ -16,6 +16,9 @@ After compiling the bochs, please start peter-bochs and enable the "Profiling fe
 
 [http://peter-bochs.googlecode.com/files/interrupt_tutorial2.png]
 
+OK, All are done, just start peter-bochs and see how it capture the interrupt information (see below). 
+
+[http://peter-bochs.googlecode.com/files/interrupt_tutorial2.png]
 
 
 <table border="0"><tr><td>
