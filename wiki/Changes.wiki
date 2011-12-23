@@ -1,5 +1,9 @@
 #summary Changes
 
+=== version 20111224 ===
+
+Added SaveMemoryToXLSDialog
+
 === version 20111120 ===
 
 1) fixed "instruction up", "instruction down" and "instruction down ten" buttons
