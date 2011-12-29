@@ -1,0 +1,81 @@
+# minix.bxrc 
+# for Minix 2.0.4 on Bochs 2.1.1
+# ASW 2004-03-09
+
+# Explanations of entries in this file as well as examples of alternative
+# settings and of other entries not used in this file can be found in
+# the bochsrc-sample.txt file in the main Bochs directory.
+
+# The first entries in this file should work for any system without 
+# editing:
+
+megs: 40
+#romimage: file=$BXSHARE/BIOS-bochs-latest, address=0xf0000
+#romimage: file=$BXSHARE/BIOS-bochs-latest
+#vgaromimage: file=$BXSHARE/VGABIOS-elpin-2.40
+romimage: file=BIOS-bochs-latest #, address=0xf0000
+vgaromimage: file=VGABIOS-lgpl-latest
+
+ata0-master: type=disk, path=minix.img, cylinders=200, heads=16, spt=32
+log: bochsout.txt
+panic: action=ask
+error: action=report
+info: action=report
+debug: action=ignore
+clock: sync=realtime, time0=1
+#ips: 1000000
+mouse: enabled=0
+user_shortcut: keys=ctrlaltdel
+
+boot: disk
+# to change the boot device comment out the above line and uncomment one 
+# of these:
+#boot: floppy
+#boot: cdrom
+
+# The remaining entries in minix.bxrc need to be edited for the 
+# configuration of each computer
+ 
+# If you have a Windows 2000 host you can uncomment one or both of these
+# lines if you have one or two floppy disk drives, or you can use one or
+# two virtual floppy disks (next item)
+#floppya: 1_44=a:, status=inserted
+#floppyb: 1_44=b:, status=inserted
+
+# If you are on a Windows 98 host system or do not have physical floppy
+# disk drives you can use files as virtual floppy disks (uncomment, edit
+# file name)  
+floppya: 1_44=vfloppya.img, status=inserted
+#floppyb: 1_44=vfloppyb.img, status=inserted
+
+# If your CD-ROM drive is the slave device on the primary IDE channel
+# uncomment this line, and edit the path parameter if necessary:
+ata0-slave: type=cdrom, path=d:, status=inserted 
+
+# If your CD-ROM is either master or slave device on the secondary IDE
+# channel uncomment the next line, and also uncomment either the second 
+# or third line below, editing the path if necessary
+#ata1: enabled=1, ioaddr1=0x170, ioaddr2=0x370, irq=15
+#ata1-master: type=cdrom, path=d:, status=inserted
+#ata1-slave: type=cdrom, path=d:, status=inserted 
+
+# If you want to use networking you must have WinPCap v. 2.3 installed
+# on your Windows host, and you must add an ne2k entry to minix.bxrc
+# See the Minix on Bochs on Windows web page for more information. The 
+# niclist.exe utility also requires WinPCap. It will determine the 
+# configuration of your physical network interfaces and will suggest
+# parameters to enter in the ne2k line.
+
+# Note the following ne2k lines are very long but have been split for
+# ease in reading this file. The "ethdev" parameter is actually part
+# of the preceding line.
+
+# This line is typical for a Windows 98 host:
+#ne2k: ioaddr=0x300, irq=3, mac=b0:c4:20:00:00:00, ethmod=win32, 
+#     ethdev=NE2000
+
+# For Windows 2000 you need to find a magic identifier for the ethernet
+# card using the niclist.exe utility provided with Bochs. The line 
+# you get will look something like this:
+#ne2k: ioaddr=0x300, irq=3, mac=b0:c4:20:00:00:00, ethmod=win32,   
+#     ethdev=\Device\Packet_{4EE14003-E9D7-47AB-9FE3-4399406E3756}

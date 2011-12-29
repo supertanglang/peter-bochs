@@ -1,0 +1,241 @@
+<!-- locethad.html 22 Feb 2004 created by mkhtml:(Sep 14 2003) -->
+<!-- template-head1 rev 2003-09-07 -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html lang="en">
+<head>
+<!-- title for bookmarks goes here -->
+<title>
+Choosing your own ethernet address
+</title>
+<!-- template-head2 rev 2003-09-07 -->
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta name="keywords" content="">
+<meta name="description" content="">
+<link rel="SHORTCUT ICON" href="/favicon.ico">
+</head>
+
+<body bgcolor="#ccccff">
+
+<center>
+<!-- this is small image, use m4-2.png if bigger one needed. May require
+  additional breaks.
+-->
+<img src="/m4-4.png" align=left height=60 width=52 alt="[MINIX LOGO]">
+<h2>
+<i>
+<!-- title for on-page display goes here -->
+Choosing your own ethernet address
+<!-- template-head3 rev 2003-09-07 -->
+</i>
+</h2>
+<h4>
+<!-- last rev date goes here -->
+modified: 22 Feb 2004
+<!-- template-head4 rev 2003-09-07 -->
+</h4>
+</center>
+<!-- break with clear needed with large logo image
+<br clear=left>
+-->
+<!-- linktable or hr come next --> 
+<hr>
+
+Normally one does not change the ethernet address assigned to a node.
+Every manufactured ethernet adapter has a unique address, so why change
+it?  Well, that's fine for real ethernet hardware, but when you start
+to use a system like the Bochs emulator it's different.  Bochs presents
+a virtual ethernet interface to the guest operating system, and Bochs
+presents the ethernet address you assign to this virtual interface to
+the real network to which you connect.  So you need to have some way to
+decide what address to use.
+
+<p>
+
+If you are only working with one emulated system, there's no problem.
+The niclist program supplied with Bochs will suggest using
+b0:c4:20:00:00:00 as your address.  And chances are, if you need several
+addresses for several emulated systems and you just use
+b0:c4:20:00:00:01, b0:c4:20:00:00:02, etc., you'll be OK. 
+
+<p>
+
+But, there is a better way to choose your own ethernet addresses.  The
+rest of this page is from an e-mail Kees Bot sent me describing his
+system.  This seems like a good way to manage multiple virtual
+addresses.
+
+<p>
+
+Kees Bot &lt;kjb@cs.vu.nl&gt; wrote on 12 Feb 2004:
+
+<p>
+
+IEEE 802.3 section 3.2.3 defines the Ethernet (MAC) address format.  A
+48-bit address starts with a broadcast bit (octet 0, bit 0) that is set
+to 1 for a broadcast and is followed by a "global/local administration"
+flag bit (octet 0, bit 1).
+
+<p>
+
+If octet 0, bit 1 is clear then the address must be globally unique,
+otherwise locally unique.  So one can administer one's own ethernet
+addresses with octet 0, bit 1 set.
+
+<p>
+
+I wanted to make sure I had this right, so I searched for this
+information with Google first, only to find out that there are a few
+vendor IDs that have the G/L admin bit set.  So I checked the copy
+of 802.3 on good old dead tree format that one of my collegues has and
+it confirmed what I thought I knew.
+
+<p>
+
+I'm going with the standard personally and declare all ethernet
+addresses that have (addr[0] &amp; 2) set to be mine to use.  Bochs could
+request their own vendor ID, of course, and choose the low 24 bits at
+random, but then they'd no longer be globally unique as they should be.
+
+<p>
+
+(I'm using 42:NN:XX:XX:XX:XX, where XX is the IP address of the system
+I'm running Bochs on in hex, and NN is the N-th .bxrc file I got, so I
+can run two or more simulations at the same time.)
+
+<p>
+Examples:
+<table>
+<tr>
+<td width="20%"></td>
+<td>IP address of the real machine:</td> 
+<td>192.168.23.6</td>
+</tr>
+<tr>
+<td></td>
+<td>Changed to hex:</td>                 
+<td>c0:a8:17:06</td>
+</tr>
+<tr>
+<td></td>
+<td>Prepend "local use" prefix:</td>
+<td>42:00:c0:a8:17:06</td>
+</tr>
+<tr>
+<td></td>
+<td>Another .bxrc?</td>
+<td>42:01:c0:a8:17:06</td>
+</tr>
+<tr>
+<td></td>
+<td>And another?</td>
+<td>42:02:c0:a8:17:06</td>
+</tr>
+<tr>
+<td></td>
+<td>etc.</td>
+<td></td>
+</tr>
+</table>             
+<p>
+Return to the
+<a href="/faq/bxmxhowto.html">
+Minix on Bochs on Windows How-to</a>
+<!-- linktable 2003-09-03 -->
+<!-- Use [..] brackets around items to improve appearance with lynx -->
+<hr>
+<center>
+<table bgcolor="#cccccc" >
+  <tr>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/"
+       title="Al Woodhull's minix1.hampshire.edu or minix1.bio.umass.edu site">
+       [HOME]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/hints.html" 
+       title="Main page for Minix technical info">
+       [HINTS/FAQ]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/mxdownld.html" 
+       title="Download Minix installation packages, executables, and source">
+       [MINIX DOWNLOADS]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/contrib.html"
+       title="Download applications and add-ons for Minix">
+       [CONTRIB SOFTWARE]</a>
+    </b>
+    </td>
+  </tr>
+  <tr>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/mxinet.html"
+       title="Download networking applications for Minix">
+       [NET SOFTWARE]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/minixvmd.html"
+       title="Super-Minix with virtual memory and X-Window support">
+       [MINIX-VMD]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/osdi2/"
+       title="Operating Systems Design and Implementation, 2nd. ed., by Tanenbaum and Woodhull">
+       [TEXTBOOK]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/links.html"
+       title="Other Minix and related websites">
+       [LINKS]</a>
+    </b>
+    </td>
+  </tr>
+</table>
+</center>
+<hr>
+<!-- end of linktable -->
+<!-- template-foot2 2004-01-09 -->
+<center>
+All material on this site not otherwise attributed is copyright
+&copy;1994-2004 Albert S. Woodhull
+<br>
+Click here for 
+<a href="/copyinfo.html">
+information on copying and other use</a>. 
+<br>
+Mail comments on this page to: Al Woodhull
+<a href="mailto:awoodhull@hampshire.edu">
+&lt;awoodhull@hampshire.edu&gt;</a>  
+</center>
+
+<center>
+<a href="http://www.anybrowser.org/campaign/"> 
+<img src="/anybrowser.png" width="88" height="31" 
+  alt="Viewable With Any Browser" border="0"></a>
+
+<!-- disable comments around following link if W3C validation fails -->
+<!--  -->
+&nbsp;&nbsp;
+<a href="http://validator.w3.org/">
+<img border="0" src="/validh_40.png" alt="[Valid HTML 4.0!]" 
+     height="31" width="88"> </a>
+<!--  -->
+</center>
+</body>
+</html>
+

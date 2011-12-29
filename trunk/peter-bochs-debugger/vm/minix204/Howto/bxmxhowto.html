@@ -1,0 +1,1789 @@
+<!-- bxmxhowto.html 07 Mar 2004  -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html lang="en">
+<head>
+
+<title>
+Minix on Bochs on Windows How-to
+</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta name="keywords" content="">
+<meta name="description" content="">
+<link rel="SHORTCUT ICON" href="/favicon.ico">
+</head>
+
+<body bgcolor="#ccccff">
+
+<center>
+<img src="/m4-4.png" align=left height=60 width=52 alt="[MINIX LOGO]">
+<h2>
+<i>
+Minix on Bochs on Windows How-to
+</i>
+</h2>
+
+<h4>
+modified: 7 Mar 2004
+</h4>
+</center>
+
+<!-- linktable 2003-09-03 -->
+<hr>
+<center>
+<table bgcolor="#cccccc" >
+  <tr>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/"
+       title="Al Woodhull's minix1.hampshire.edu or minix1.bio.umass.edu site">
+       [HOME]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/hints.html" 
+       title="Main page for Minix technical info">
+       [HINTS/FAQ]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/mxdownld.html" 
+       title="Download Minix installation packages, executables, and source">
+       [MINIX DOWNLOADS]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/contrib.html"
+       title="Download applications and add-ons for Minix">
+       [CONTRIB SOFTWARE]</a>
+    </b>
+    </td>
+  </tr>
+  <tr>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/mxinet.html"
+       title="Download networking applications for Minix">
+       [NET SOFTWARE]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/minixvmd.html"
+       title="Super-Minix with virtual memory and X-Window support">
+       [MINIX-VMD]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/osdi2/"
+       title="Operating Systems Design and Implementation, 2nd. ed., by Tanenbaum and Woodhull">
+       [TEXTBOOK]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/links.html"
+       title="Other Minix and related websites">
+       [LINKS]</a>
+    </b>
+    </td>
+  </tr>
+</table>
+</center>
+<hr>
+<!-- end of linktable -->
+
+<a name="docidx">
+<b>Index of this document</b>
+</a>
+<ul>
+<li>
+<a href="#intro">
+Introduction</a>
+<li>
+<a href="#install">
+Installing Bochs on Windows 2000</a>
+<li>
+<a href="#instmx">
+Installing Minix 2.0.4 on Bochs using the DOSMinix image</a>
+<li>
+<a href="#mxbxrc">
+The Bochs run-time configuration file minix.bxrc</a>
+<li>
+<a href="#runmx1st">
+Running Minix-on-Bochs: first time</a>
+<li>
+<a href="#timing">
+Timekeeping in Bochs and Minix-on-Bochs</a>
+<li>
+<a href="#runmxb">
+Running Minix-on-Bochs</a>
+<li>
+<a href="#extflop">
+Adding external floppy disk access</a>
+<li>
+<a href="#cdrom">
+CD-ROM access</a>
+<li>
+<a href="#updat">
+Updating the DOSMinix image</a>
+<li>
+<a href="#netmob">
+Networking Minix-on-Bochs</a>
+<li>
+<a href="#virflop">
+Using virtual floppy and CD-ROM drives</a>
+<li>
+<a href="#altinst">
+Alternative installation methods</a>
+<li>
+<a href="#mkbat">
+Making a run.bat and a Minix-on-Bochs shortcut</a>
+<li>
+<a href="#serpar">
+Using serial and parallel ports</a>
+<li>
+<a href="#acks">
+Acknowledgements</a>
+</ul>
+
+<a name="intro"></a>
+<a href="#docidx">Back to index</a>
+<p>
+<b>Introduction:</b>
+
+<p>
+
+"Bochs is a highly portable open source IA-32 (x86) PC emulator written
+in C++, that runs on most popular platforms.  It includes emulation of
+the Intel x86 CPU, common I/O devices, and a custom BIOS.  Currently,
+Bochs can be compiled to emulate a 386, 486, Pentium, Pentium Pro or
+AMD64 CPU, including optional MMX, SSE, SSE2 and 3DNow instructions.
+Bochs is capable of running most Operating Systems inside the emulation
+including Linux, Windows&reg; 95, DOS, and Windows&reg; NT 4." 
+
+<p>
+-- from the 
+<a href="http://bochs.sourceforge.net/">Bochs home page.</a>
+
+<p>
+
+Bochs is an emulator, interpreting every CPU instruction.  So it is
+slow.  The dhrystone benchmark indicates the slowdown factor is about
+100; Minix on Bochs on a 400 Mhz AMD K-6 yields a dhrystone score about
+equal to what I measured some years ago on 386 system.  But that's not
+really too bad. Since Minix has only a text-mode console interface it
+doesn't need to waste a lot of CPU power doing graphics.
+
+<p>
+
+Minix can be run as a guest OS on top of Bochs.  This allows Minix to
+be used on just about any common computer, with any host hardware and
+operating system, including Unix, Linux, Windows, and MacIntosh
+systems.  In a teaching lab students can experiment with alterations to
+the Minix operating system without danger of corrupting the host OS or
+applications that may be needed for other classes.  If the host
+computer on which Bochs is running has a network interface you can have
+a guest operating system share that interface on most host platforms.
+When this is set up correctly the host and the guest have distinct
+identities on the network.  On a Windows host they can even connect to
+each other and other guest systems.
+
+<p>
+
+This document describes how to install Bochs and how to install and
+configure Minix on Bochs.  It is written as a tutorial, with the idea
+you will read it through from beginning to end as you work with Minix
+on Bochs.  Everything you might want to know about some particular
+topic may not be in the same place, as it might be in a reference
+document.  Tutorials are not always good as reference documents, and
+<i>vice versa</i>. 
+
+<p>
+
+I have not investigated everything one might want to know about using
+Minix on Bochs, and I would welcome additional information from anyone
+who wants to look into things I have left out.  Corrections where I got
+something wrong would also be appreciated.  Nothing here is guaranteed
+to be correct, and since we are talking about a free operating system
+(Minix) running on a free emulator (Bochs), and taking advantage of
+other free packages (WinPCap, DiskExplorer), there is always a chance that
+a newer version of any one of these pieces may work differently from
+the way it is described here.
+
+<p> 
+
+This document is mostly based on experience running Bochs on Windows
+2000, Service Pack 4.  Some testing has been done on Windows 98 as
+well.  I expect some of the information here will be applicable to
+running Minix on Bochs on other operating systems.
+
+<p>
+<a name="install"></a>
+<a href="#docidx">Back to index</a>
+<p>
+<b>Installing Bochs on Windows 2000:</b>
+
+<p>
+
+Read the introduction to the Bochs project on the Bochs home page,  
+<a href="http://bochs.sourceforge.net/">
+http://bochs.sourceforge.net/</a>
+
+and click on the link to the Bochs project page to see what is
+available for download.  The rest of this description is based on the
+Bochs-2.1.1.exe binary installation package for 32-bit Windows released
+2004-02-07.  (Earlier releases, as well as source packages and binary
+packages for Bochs versions that will run on Linux, Unix, and Mac OS
+are also available here.) You can also view Release Notes and the
+ChangeLog on the Bochs project page.  When you click on a file to
+download you will have to select a mirror site to download from.
+Choose one, and then download the file to your Windows machine.
+
+<p>
+
+If you have previously installed another version of Bochs you may want
+to uninstall it before proceeding.  If you added any files or a Minix
+subdirectory to what was installed by the earlier Bochs version they
+should be left after the uninstallation is complete, but to be sure you
+may want to move them to another directory or to the Windows desktop
+temporarily.
+
+<p>
+
+Installation is like most Windows installations.  For Windows 2000 you
+should be logged in to Windows as an Administrator or Power User.
+Double-click the file you downloaded and agree to the license terms.
+The default "Normal" installation requires 3.2 MBytes of hard disk
+space.  I suggest that you opt for the "Full" installation if you have
+plenty of disk space.  This requires 10 MBytes more to install a small
+demonstration Linux system.  The Linux demo may come in handy later, it
+gives you a way to see if a problem you encounter with Minix on Bochs
+is a Minix problem or whether it also occurs when running a different
+guest operating system on the Bochs host.  Be aware, however, that you
+are going to need another 50 MBytes of disk space to run Minix on Bochs
+(actually, you can do it with less space, but the procedure I will
+suggest here requires another 50 MBytes for a full Minix-on-Bochs
+installation).
+
+<p>
+
+After installation is complete the installer will offer to let you view
+the CHANGES.txt and README.txt files.  The installer will create a
+Bochs 2.1.1 folder in your Start: Programs menu, with various
+shortcuts, including links to a sample Bochs configuration file, and
+links to programs to create a new virtual disk and to find and identify
+network adapters so they can be specified in the configuration file and
+accessed by a guest operating system. 
+
+<p>
+
+Installing Bochs on your Windows system will also make the Bochs HTML
+Documentation available.  The documentation is extensive, but
+there are many gaps where sections are planned but not yet written.
+The top-level page should be at
+
+<a href="file://localhost/C:/Program Files/Bochs-2.1.1/docs/index.html">
+C:\Program Files\Bochs-2.1.1\docs\index.html</a>.
+
+(Note that this link may not work if you did not install Bochs in
+the suggested directory or if your Bochs version is different, but it
+should be a good guide to finding the pages. Also try  cutting and pasting 
+the URL into your browser's address window if clicking on it doesn't work).
+
+
+<p>
+
+If you installed the Linux demo system you can run it now.  For more
+information go to the page on 
+<a href="rundlx.html">
+Running the DLX Linux Demo on Bochs</a>
+
+<p>
+<a name="instmx"></a>
+<a href="#docidx">Back to index</a>
+<p>
+<b>Installing Minix 2.0.4 on Bochs using the DOSMinix image</b>
+
+<p>
+
+There is more than one way to get Minix running on Bochs. The super-easy way 
+will be to use an image package downloaded from the Bochs site. A collection of
+disk images can be found at   
+
+<a href="http://bochs.sourceforge.net/diskimages.html">
+http://bochs.sourceforge.net/diskimages.html</a>.
+
+Unfortunately, at the time of writing this document (Feb 2004) a Minix
+2.0.4 image is not in this collection. Another SourceForge site 
+
+<a href="http://prdownloads.sourceforge.net/bochs/">
+(http://prdownloads.sourceforge.net/bochs/)</a>
+
+has a Minix 2.0.3 image in two different formats, but it is old (Dec.
+2002, about the time of the release of Bochs 2.0).  If you can find an
+up-to-date Minix image package for Bochs somewhere, use it, but read
+what follows anyway.  And if a newer  Minix release is
+available you may want to get the latest DOSMinix image and install it
+yourself as described below.
+
+<p>
+
+The next easiest way is to use the DOSMinix image, which was originally
+designed to run Minix from a simulated disk using a large MS-DOS/Windows
+file.  This also works very well as a simulated disk for use with
+Bochs.  For more about DOSMinix read the 
+
+<a href="http://www.cs.vu.nl/pub/minix/2.0.4/dosminix.html">
+dosminix.txt file</a>
+available from the 
+<a href="http://www.cs.vu.nl/pub/minix/">
+Minix home page in the Netherlands</a>, 
+or at other sites that distribute Minix, such as 
+<a href="/mxdownld.html">
+this one</a>. 
+
+<p>
+
+The rest of this section describes installation using the DOSMinix image.
+Other methods are described in a later
+<a href="#altinst">
+alternative installation methods</a>
+section.
+ 
+<p>
+Download the ready made 2.0.4 DOSMinix from
+<a href="http://www.cs.vu.nl/pub/minix/2.0.4/i386/DOSMINIX.ZIP">
+http://www.cs.vu.nl/pub/minix/2.0.4/i386/DOSMINIX.ZIP</a>
+or another site, and then use WinZip or a similar program to unzip
+the archive. Assuming you installed Bochs in the default location, 
+C:\Program Files\Bochs-2.1.1, specify that the files should be extracted
+into C:\Program Files\Bochs-2.1.1\minix204. Winzip will create the new 
+directory for you.
+
+<p>
+
+Now use Windows Explorer to look at the newly created C:\Program
+Files\Bochs-2.1.1\minix204 directory.  Here's a DOS-style directory
+listing of what you'll see:
+ 
+<pre>
+    09/14/2003  02:03p              20,800 BOOT.COM
+    04/05/2003  12:22p                 481 minix.bxrc
+    12/20/1998  04:06p                 766 MINIX.ICO
+    11/09/2003  05:47p          52,428,800 MINIX.MNX
+    09/14/2003  02:03p               2,848 MKFILE.COM
+    05/22/2001  10:31p               1,650 README.HTM
+    05/22/2001  10:31p               1,327 README.TXT
+</pre>
+
+The most important file here is MINIX.MNX, which is a simulated 50
+MByte hard disk containing Minix.  The other file of importance to us
+now is minix.bxrc, the Minix Bochs run-time commands file that tells
+Bochs how to start Minix.  It is discussed in the next section.
+BOOT.COM won't be needed here, it is used to start Minix on DOS.
+MKFILE.COM may be useful later if you want to make a new Minix
+simulated disk, although Bochs provides another tool for this.
+MINIX.ICO is a Minix icon, so you can impress people with a custom icon
+on your Windows desktop for starting Minix on Bochs.  That's not
+essential, but it's cool, and I'll discuss that further down.
+
+<p>
+<a name="mxbxrc"></a>
+<a href="#docidx">Back to index</a>
+<p>
+<b>The Bochs run-time configuration file minix.bxrc</b>
+
+<p>
+
+The minix.bxrc included  with the Minix 2.0.4 DOSMINIX.ZIP looks like this:
+<pre>
+    romimage: file=$BXSHARE/BIOS-bochs-latest, address=0xf0000
+    megs: 64
+    vgaromimage: $BXSHARE/VGABIOS-elpin-2.40
+    ata0-master: type=disk, path=MINIX.MNX, cylinders=200, heads=16, spt=32
+    boot: disk
+    log: bochsout.txt
+    panic: action=ask
+    error: action=report
+    info: action=report
+    debug: action=ignore
+    ips: 1000000
+    mouse: enabled=0
+    pit: realtime=1
+    user_shortcut: keys=ctrlaltdel
+    #ne2k: ioaddr=0x280, irq=3, mac=42:00:XX:XX:XX:XX, ethmod=win32, ethdev=XXXX
+</pre>
+    
+This was written for an earlier version of Bochs.  As it stands this
+file will work, but the "pit:" (programmable interval timer) parameter
+is going to be removed from future releases of Bochs, and a warning
+message will be seen on startup if this line is left in.  You can
+delete this line, or comment it out by placing a '#" character at the
+start of the line, and then add the following line:
+
+<pre>
+    clock: sync=realtime, time0=1
+</pre>
+
+to make the bxrc file be interpreted without warnings.  Also note that
+the line beginning "#ne2k:" is commented out.  This line configures the
+virtual NE2000 ethernet card that Bochs provides for the guest
+operating system, and it will need to be edited and activated to make
+Minix networking functional. This will be discussed further down.
+
+<p>	
+
+The meaning of the other parameters defined in the minix.bxrc file
+should be clear from their names.  For detailed explanations of all of
+them, as well as of other parameters that can be used in a Bochsrc
+file, see the file bochsrc-sample.txt in the main Bochs directory.
+Later in this document I'll discuss modifying the minix.bxrc to allow
+you to use the network, floppy disks and CD-ROMs with Minix-on-Bochs.
+
+<p>
+
+<a name="runmx1st"></a>
+<a href="#docidx">Back to index</a>
+<p>
+<b>Running Minix-on-Bochs: first time</b>
+
+<p>
+
+Now you can run Minix-on-Bochs by navigating to the Bochs-2.1.1/minix204
+directory and double-clicking on minix.bxrc. (It's more elegant to use a 
+shortcut on the desktop and/or the Start menu, setting these up will be 
+discussed in a later section).
+
+<p>
+
+Bochs and Minix will start up.  There will be two text-mode windows.
+First a Bochs Window will open.  It tells you what Bochs itself is
+doing -- initially, it will just show you where Bochs is writing its
+log file.  Then the guest OS window will open, probably overlapping the
+Bochs Window.  
+
+<p>
+
+At the top of the guest OS window will be a line of icons.  The three
+rightmost ones are the most important ones to know about initially.
+The third from the right is marked Config.  This halts the emulated OS
+and activates the Bochs window, allowing you to change various
+configuration options and restart or to quit.  The next to rightmost
+button is Reset, it will reboot the emulated OS just like a hardware
+reboot of a real system (including possibly messing up your emulated
+file system if files were being written at the time).  Finally the
+rightmost button marked Power shuts down the emulated system and causes
+Bochs to exit, too, just like powering down real hardware (and with the
+same possible effects on the emulated file system).
+
+<p>
+
+
+Within the guest OS window you'll first see some messages related to the
+emulated BIOS used by Bochs, then you'll see the Minix boot menu, with
+an invitation to press the '<b>=</b>' key to start Minix.  When you press 
+'<b>=</b>' Minix will start loading.  If you have used Minix previously the
+messages you will see about loading the various components of Minix
+will be familiar.  If you haven't used Minix before, did you read the 
+
+<a href="/pub/minix.2.0/2.0.4/wwwman/man8/usage.8.html">
+usage(8)</a>
+
+document you were advised to read first when you went to the Minix
+download site?  If not you should read some documentation using Minix.
+Log in as root (just hit Enter when asked for a password, no password
+is required yet) and at the '<b>#</b>' prompt enter 
+
+<pre>
+   <b>man usage</b>
+</pre>
+
+to read the usage(8) page.  The <b>man</b> command reads documentation
+(man pages).  You may want to read some other man pages as well at this
+time.  A Minix on Bochs installation has many similarities to a
+DOSMinix installation, and the
+
+<a href="/pub/minix.2.0/2.0.4/wwwman/man8/dosminix.8.html">
+dosminix(8)</a> 
+
+page is also recommended.  Check out the <b>apropos</b> command, too,
+it helps you find man pages using keywords.  If you want hard copy of a
+man page, I'm sorry but at the moment you're not ready for that, you'll
+have to go to the online man pages at the site where you downloaded
+DOSMINIX.ZIP and print from your browser. 
+
+<p>
+
+<b>Warning:</b> This first time you run Minix on Bochs you should not
+try to change the Minix configuration or edit any files on the emulated
+disk.  The reason for this is that time-keeping with Bochs 2.1.1 is a
+little strange, and date-stamps of new or changed files may be
+inaccurate if they are written.  The next section discusses this and how 
+to live with it.
+
+<p>
+
+If Minix didn't start up correctly you might want to run the DLX Linux 
+demonstration system to confirm that Bochs is installed correctly. There
+is more information on the
+<a href="rundlx.html">
+Running the DLX Linux Demo on Bochs</a>
+page.
+
+<p>
+<a name="timing"></a>
+<a href="#docidx">Back to index</a>
+<p>
+<b>Timekeeping in Bochs and Minix-on-Bochs</b>
+
+<p> 
+
+
+Although the Minix real time clock keeps accurate time relative to the
+time Minix receives from the emulated BIOS when Minix is started,
+underneath Minix the Bochs emulation of the hardware clock is not
+accurate, and the time Bochs keeps will rapidly race ahead of the real
+time.  A few experiments will show you the problem:
+
+<ul>
+<li>
+
+Experiment 1: At the Minix '<b>#</b>' prompt type <b>date</b>.  You'll
+probably see that the time displayed by Minix is somewhat ahead of the
+time Windows is showing at the lower right corner of the Windows
+screen.  The reason for the difference is that, if this is your first
+time using Minix, you probably delayed a minute or two before pressing
+the '<b>=</b>' key to start Minix.  Bochs received the correct time from
+Windows at the instant it was started, but then the time maintained by
+Bochs started to race ahead, and may have been off by some minutes if
+you delayed even a few seconds in pressing the '<b>=</b>' key.  Once you start
+Minix, Minix accurately keeps track of elapsed time, but it will be off
+by a fixed amount caused by the initial delay between starting Bochs
+and Minix.
+
+<p>
+<li>
+
+Experiment 2: at the Minix '<b>#</b>' prompt type <b>date</b> again, then type
+<b>readclock</b>.  In Minix running directly on hardware
+<b>readclock</b> resynchronizes Minix time with the time being kept by
+the hardware.  But when running on top of Bochs <b>readclock</b> gets
+the time from the Bochs emulation of the hardware clock, which is
+racing madly ahead.  You may find the result of a <b>readclock</b>
+command is that the time indicated by Minix jumps ahead by hours or
+even days.
+
+<p>
+<li>
+
+Experiment 3: Note the Minix time again by using <b>date</b>, then
+reboot Minix without stopping Bochs by entering the command <b>shutdown
+-r now</b>.  After logging in as root again, type <b>date</b>.  You'll 
+probably see another big jump ahead.
+
+<p>
+<li>
+
+Experiment 4: This is similar to the previous experiment, but this time
+shutdown Minix using <b>shutdown -h now</b>.  (In the previous
+experiment the <b>-r</b> parameter causes a reboot, in this case the
+<b>-h</b> causes a system halt.)  Now use the Reset icon on the top of
+the Bochs guest OS window to reset the emulated hardware.  When Minix
+starts log on and use <b>date</b>.  You'll see that even a reset did
+not get the time back in synch with Windows time.
+
+</ul>
+
+<b>Dealing with the time-keeping problems</b>: Perhaps a future release of
+Bochs will provide a way to keep the Bochs time in synchrony with real
+time, but for now we have to live with it.  From the experiments above
+it should be clear that are a few things that should be avoided when
+using Minix on top of Bochs:
+
+<ul>
+
+<li>
+
+Avoid any delay in starting Minix -- press the '<b>=</b>' key as soon as you
+see the boot menu.  This is easy to say now, but later, when you may
+want to make the boot menu more complex in order to be able to start
+alternative configurations, keep in mind that a delay in making a
+boot menu choice may cause an error in timekeeping.
+
+<p>
+<li>
+
+Never use the <b>readclock</b> command when running Bochs on Minix.
+When you start to look at Minix configuration you'll see that
+<b>readclock</b> is called by the /etc/rc script as part of system
+initialization.  This happens quickly enough at startup that it won't
+cause a serious problem, but don't try to test modifications to /etc/rc
+by running the script by hand or invoke <b>readclock</b> from the
+command line unless you are prepared to accept a major disruption of
+timekeeping.
+
+<p>
+<li>
+
+Don't restart Minix on Bochs by using <b>shutdown -r</b> or by using
+the Bochs Reset button.  Use <b>shutdown -h</b> and then shut down
+Bochs using the Power icon on the guest OS window.  (And don't use the
+Bochs Power icon without doing shutdown first, that can result in file
+damage).
+
+</ul>
+
+In defense of Bochs, please remember that what appears to be a bug can
+be a feature in a different context.  Emulators like Bochs are useful
+for debugging operating system code -- you may want to use it yourself
+this way for experimenting with modifications to Minix.  Bochs does not
+use a hardware clock, it keeps track of time by counting cycles of the
+emulated CPU.  This makes possible exact repetition of a sequence of
+instructions that are timing related.  This can be very valuable when
+debugging, but the downside is difficulty in tracking real time.
+
+
+
+<p>
+<a name="runmxb"></a>
+<a href="#docidx">Back to index</a>
+<p>
+<b>Running Minix-on-Bochs</b>
+
+<p>
+
+After the first run and now with an understanding of the timekeeping
+problems you are ready to run Minix seriously.  Start up Bochs by
+double-clicking on your minix.bxrc and press '<b>=</b>' as soon as the
+boot menu appears.
+
+<p>
+
+You may want to type <b>man usage</b> again.  Some of the usage(8) man
+page is not relevant if you used the DOSMinix image to get started; all
+that stuff about installing is already done.  As the page suggests for
+DOSMinix users, you should skip ahead to section 9 of the man page to
+see relevant material.  One thing you will want to do is assign your
+emulated machine a name by editing /etc/hostname.file.  Another change
+you'll want to make is to edit /etc/profile to specify your own
+timezone.  Remember, to test whether changes in boot-time configuration
+work right shut down Bochs itself after halting Minix.  If you reboot
+Minix without restarting Bochs Minix will get a very strange idea of
+the time and date.
+
+<p>
+
+Pay attention to what usage(8) says about working as root.  Read the
+man page for <b>adduser</b> and make an account for yourself.  The best
+way to log in is as an ordinary user.  Then you can use <b>su</b> to
+make yourself bin to work on editing and compiling program files, or to
+make yourself root when and only when you must work as root to do
+system configuration.  Also, note that root's home directory is the
+system root, and bin's home directory is the root of the source code
+directory tree.  These are not good places to leave poetry, short
+stories, or other documents you may create while learning to use a text
+editor.  <b>Adduser</b> will make a home directory for you to store
+your personal files in. 
+
+<p> 
+
+Another thing you will want to do is to learn to use one of the editors
+available, <b>elle</b>, <b>elvis</b>, and <b>mined</b>.  <b>Elle</b> is
+a simple emacs clone, <b>elvis</b> is a vi clone, and <b>mined</b> is
+unique to Minix, but easy to learn and use.  See the man pages.  If you
+are not familiar with either of the standard Unix editors vi or emacs,
+<b>mined</b> will be the easiest one to use at first.  [Some personal
+opinions: if you want to work in the Unix world you should become
+familiar with vi, even if you find you don't like it very much.  If you
+already know emacs you may like <b>elle</b>, but rename or delete the
+.ellepro.b1 file in your home directory so it won't work like
+<b>mined</b>.  If you want to use <b>mined</b>, use <b>mined</b>.  But
+keep in mind that <b>mined</b> can not handle large files, so some day
+you'll be forced to learn one of the other editors if you are going to
+do serious work.]
+
+<p>
+<a name="extflop"></a>
+<a href="#docidx">Back to index</a>
+<p>
+<b>Adding external floppy disk access</b>
+
+<p>
+
+There is an update available for Minix 2.0.4 that was not ready when
+the DOSMINIX.ZIP file for Minix 2.0.4 was prepared.  To install it you
+will need some way to get some more files onto your Minix system.  Even
+if you don't need to add an update, some way of importing and exporting
+data from Minix on Bochs will be necessary for most uses.  Later we'll
+consider networking, but first we'll consider how to configure Minix
+running on Bochs to access floppy disks.  Accessing CD-ROMs is similar,
+and is discussed in the next section.
+
+<p>
+
+Note that this section applies only to Bochs on Windows 2000, on
+Windows 98 access to the real (hardware) floppy drive is not supported.
+On Windows 98 access to floppy disks simulated by files is the only
+method supported.  
+
+<p> 
+
+Edit minix.bxrc to add this line:
+
+<pre>
+    floppya: 1_44=a:, status=inserted
+</pre>
+
+Now when you start Bochs and Minix again you'll be able to access the
+floppy disk drive known to Windows as A:.  But there are some
+peculiar aspects to floppy disk access:
+
+<ul>
+<li>
+
+If a floppy disk is in the drive at the time Bochs and Minix are
+started, then the disk can be accessed as soon you log onto Minix.  If
+the disk is a DOS-formatted one you can use the <b>mtools</b> utility
+(successor to the <b>dosdir</b>/<b>dosread</b>/<b>doswrite</b> commands
+provided with 16-bit Minix and earlier Minix versions) to access the
+disk, for instance, <b>mtools dir /dev/fd0:</b> to read the directory.
+If the disk has a Minix file system, then it can be mounted using
+<b>mount /dev/fd0 /fd0</b> or the short command <b>M fd0</b>.  
+
+<p> 
+
+<li>
+
+If no disk is in the drive when Bochs and Minix are started, you'll
+notice that the A: floppy disk icon, the leftmost icon at the top of
+the Bochs guest OS window, has a big X through it.  When you first
+insert a floppy disk it will not be accessible, whether it is a DOS or
+Minix disk.  But after inserting a disk you can click on the A: icon
+and get a "first floppy image/device" dialogue box.  If you check the
+"Inserted" box and then "OK" the X over the icon will disappear and
+you'll be able to access the disk just as when a disk is present at
+startup.  So far this is reasonable.  Since Minix doesn't directly
+access the hardware when running on Bochs it makes sense that Bochs can
+detect a disk at startup, but you have to interrupt the emulation and
+force Bochs to try again to detect a disk that was not present at
+startup.  
+
+<p>
+<li>
+
+But now it starts to get interesting.  If the first disk was a
+DOS-formatted floppy you can't just swap it for another disk, as you
+can under DOS or Windows.  If you try to swap disks you will see an
+error message (apparently from Windows, not Bochs) saying the wrong
+disk is in the drive.  To change disks you have to click on the A: icon
+again, clear the "Inserted" check box, close the dialogue, swap floppy
+disks, and then click on the A: icon and check "Inserted" again.  You
+may also have to type "a:" into the "Path" box, this information seems
+to get lost.  Then click on "OK" again, and the new disk can be
+accessed.  
+
+<p>
+<li>
+
+There's more.  If the floppy disk in the drive has a Minix
+file system on it you can mount it, as mentioned above, then dismount
+it (with <b>umount /dev/fd0</b> or <b>U fd0</b>), and then mount and
+dismount additional Minix floppies without using the A: icon to tell Bochs
+about it.  (Sometimes it seems that it takes several tries to mount a
+Minix floppy after it has been swapped in following removal of a DOS
+disk, but once you have mounted the first Minix disk, dismounting and
+mounting additional ones causes no problems.) 
+
+<p>
+<li>
+
+There is yet one more twist to the disk-swapping story.  If the first
+disk encountered is a Minix-formatted floppy, whether at startup time,
+or after using the A: dialogue box to accept a new disk, additional
+DOS-formatted disks can be swapped in and out and accessed with mtools
+without further use of the A: dialogue box.  [Comment: This seems
+so inconsistent it must be a bug, and I would expect this behavior to
+change with a future release of Bochs.  A possibly related behavior,
+clearly a bug, is that after removing a floppy disk from the drive I
+mistakenly issued a <b>readall</b> command with no disk in the drive.
+With no complaints Minix proceeded to report successfully reading
+successive blocks of data.] 
+
+</ul>
+
+<p>
+
+You will probably find, by the way, that accessing files on floppy
+disks from Minix on Bochs is painfully slow.  (A command <b>readall
+/dev/fd0</b> which takes slightly over 30 seconds on a standard Minix
+installation took almost 10 minutes on one of my Minix-on-Bochs test
+systems.  Interestingly, there was also an interaction between reading
+the floppy disk and timekeeping, such that the Minix <b>date</b>
+command only recorded 2 minutes elapsed time during the <b>readall</b>
+run.) When you need to access entire disks, as described in the next
+paragraph, the time required can be excruciating.  But for now you have
+to live with it.  If you need to do a lot of data transfer into or out
+of Minix on Bochs you'll find using a network connection much more
+convenient.
+
+<p> 
+
+<b>Booting from floppy disk</b>: You can boot into Minix on Bochs from
+a floppy disk.  If a floppy is in the drive at the time you start Minix
+on Bochs, and you already have Minix installed, when the Minix boot
+menu appears press Esc and then type boot fd0.  In a short while you'll
+see the boot menu from the floppy disk, press <b>=</b> to boot.  If the
+disk was not in the drive you'll have to use the A: icon to get access
+to the disk.  (You can also start a new installation by changing the
+boot: parameter value in minix.bxrc to "floppy"; this will be discussed
+in the section on alternate installation methods.)
+
+<p>
+
+<b>Raw floppy disk access</b>: When working with Minix sometimes you
+need to access a floppy disk as a raw block of data, with neither an
+MS-DOS nor a Minix file system.  Examples of tasks that call for this
+kind of access are when testing a disk with the <b>readall</b> command,
+when writing out the MINIX.MNX and USR.MNX files with <b>cat </b> to
+make a boot disk for conventional installation of Minix from floppy
+disks, or when using the <b>vol</b> command to read in or write out a
+large file that is larger than the capacity of a single floppy disk.
+As above, if there was no disk in the drive when Bochs started or the
+previous disk was an MS-DOS disk, you'll have to use the Bochs A: icon
+dialogue to get the first disk recognized.  With a command that
+accesses multiple disks (such as <b>vol</b>) you can then insert
+additional disks as requested by the program.  This can be a very slow
+process, you'll be happy you don't have to do it often.
+
+<p>
+
+[Note: On one occasion, when I was testing reading in a file from
+multiple floppy disks using <b>vol</b>, when the program asked me to
+insert a new disk and press Enter, my key press wasn't interpreted as
+Enter -- instead a non-English character was echoed on the screen.  In
+fact, no keypresses were interpreted correctly.  I discovered after a
+certain amount of frustration that pressing Alt-F2 to switch to the
+second virtual console and then pressing Alt-F1 to switch back to the
+first virtual console got things working again.  My hypothesis about
+what happened is that somehow the input queue for the console got corrupted
+and switching virtual consoles reset it.]
+
+<p>
+<a name="cdrom"></a>
+<a href="#docidx">Back to index</a>
+<p>
+
+<p>
+
+Adding one additional line to the minix.bxrc file may be all you need to 
+be able to access a CD-ROM.  This worked on one of my systems:
+
+<pre>
+    ata0-slave: type=cdrom, path=d:, status=inserted
+</pre>
+
+This example is for a system on which the CD-ROM drive is the slave on
+the first IDE controller.  But, an IDE CD-ROM drive can be in one of
+three positions on a PC-type system; it can be the slave on the first
+IDE controller or either the master or the slave on the second
+controller.  An important point which is mentioned in the Bochs
+documentation but is easily overlooked is that the primary IDE channel
+is enabled by default, but the secondary channel is not.  So if your
+CD-ROM drive is either the master or slave device on the secondary IDE,
+you need to add two lines to minix.bxrc; one to enable the interface
+and one to enable the drive, for example:
+
+<pre>
+    ata1: enabled=1, ioaddr1=0x170, ioaddr2=0x370, irq=15
+    ata1-master: type=cdrom, path=d:, status=inserted
+</pre>
+
+<p>
+
+Currently only the <b>isoinfo</b>/<b>isodir</b>/<b>isoread</b> family
+of commands exist for accessing CD-ROMs from Minix.  There is no such
+thing as a Minix file system on a CD-ROM, and CD-ROMs thus cannot be
+mounted onto a Minix file system.  CDs work somewhat like DOS-formatted
+floppies, but the user interaction is easier.  If a CD is in the drive
+when Bochs and Minix start up it can be accessed immediately after
+Minix starts up.  If there is no CD in the drive at startup, the Bochs
+CD icon (third from left at the top of the Bochs guest OS window) will
+show a large X.  You just have to insert a CD-ROM and click on the icon
+to enable access, there is no user dialogue with this icon.  Clicking
+on the icon when a CD is already accessible will eject it, again with
+no further interaction.  
+
+<p>
+
+As with floppy disks, reading a CD-ROM is not very fast under Bochs.
+In one test I ran it took about 8 minutes to read a 3.4 MByte file from
+a CD-ROM with Minix on Bochs and about 10 seconds to read the same file
+with Minix running directly on the hardware on the same system.
+
+<p> 
+
+Unlike the case of floppy disks, which are not supported by Bochs on
+Windows 95 and 98, access to CD-ROMs should work on all Win32
+platforms.  I've tested it successfully on both Windows 98 and Windows
+2000. 
+
+<p>
+
+<a name="updat"></a>
+<a href="#docidx">Back to index</a>
+<p>
+<b>Updating the DOSMinix image</b>
+
+<p>
+
+Now that you can read from a floppy disk you can update your Minix
+image.  You should do this before recompiling Minix.  At the time of
+writing there is already a set of source code updates for Minix 2.0.4
+available as src/FIX.TAZ on the Minix distribution sites.  It is
+possible there will be other updates available by the time you read
+this.  Because packaging the DOSMINIX.ZIP file is a big job, it
+generally won't be revised between Minix releases.  
+
+<p>
+
+If you don't have another Minix system available you'll probably
+download patches and updates with Windows.  Copy the downloaded file to
+an MS-DOS formatted floppy disk, and after starting Minix on Bochs you
+can copy the files you need to your Minix system using <b>mtools</b>. 
+The /usr/tmp directory is usually a good place to copy to:
+
+
+<pre>
+    <b>mtools copy /dev/fd0:/FIX.TAZ /usr/tmp</b>
+</pre> 
+
+<p>
+
+Usually official source file packages or patches will be archived so
+they will be unpacked into the proper directories in the source tree if you
+make the /usr directory the default directory and unpack the archive
+there.  To test the paths stored into FIX.TAZ use <b>tar</b> with the
+'<b>t</b>' (table) option to generate a table of contents of the tar
+archive. 
+
+<pre>
+    <b>zcat < /usr/tmp/FIX.TAZ | tar tvfp -</b>
+</pre>
+
+In this case you will see:
+<pre>
+    src/kernel/rtl8139.c 0164 tape blocks
+    src/kernel/pci_table.c 021 tape blocks
+    src/kernel/pci.c 071 tape blocks
+    /tmp/DONE 0 tape blocks
+</pre> 
+
+So if you change to /usr and extract the archive files using <b>tar</b>
+with the '<b>x</b>' (extract) option your source tree will be updated.
+<pre>
+    <b>cd /usr
+    zcat < /usr/tmp/FIX.TAZ | tar xvfp -</b>
+</pre>
+
+<p>
+
+<p> 
+
+<b>Keeping track of updates</b>: I like to be able to keep track of
+updates and sometimes I may want to undo an update.  An easy way to
+mark that an update has been added to a source directory is to rename
+the original files in a distinctive way before before adding new files
+or to make a copy of the original files with a new name before applying
+a patch.  I usually add a suffix to the name of the original file that
+indicates its origin -- for instance, for the FIX.TAZ package I renamed
+the pci.c that was part of the original Minix 2.0.4 distribution as
+pci.c204.
+
+
+
+<p>
+<a name="netmob"></a>
+<a href="#docidx">Back to index</a>
+<p>
+<b>Networking Minix-on-Bochs</b>
+
+<p>
+
+If the host computer on which you are running Bochs has a network
+interface you can have a guest operating system share that interface.
+When this is set up correctly the host and the guest have distinct
+identities on the network.  They can even connect to each other.
+
+<p>
+
+The Windows version of Bochs uses library routines from a package
+called WinPCap to capture host system packets so they can be presented
+to the guest system via the simulated ethernet interface.  WinPCap
+support is also used by a utility called niclist to extract information
+needed in configuring Bochs for accessing the real ethernet card.
+WinPCap is available from 
+
+<a href="http://winpcap.polito.it">
+http://winpcap.polito.it</a>. 
+
+You can read more about it on that site before you download it.  It is
+not a large program and it is easy to install.  One caveat, though: at
+the time of writing, only an older version, 2.3, works correctly with
+Bochs with no fuss at all. Both WinPCap and Bochs are constantly being 
+debugged and improved, so please check the 
+<a href="mxbxwpcap.html">
+Minix-Bochs-WinPCap page</a>
+for more and perhaps newer information.
+
+<p>
+
+Before getting deeper into networking, here's another caveat: I have
+only successfully tested this on host machines with ethernet
+connections, and only with a limited number of different ethernet cards
+(although every ethernet card I've tried has worked well).  I don't
+know if this will work with home broadband connections (cable or DSL)
+or with a modem through the Windows Dialup Adapter.  In my own home I
+have ethernet connections from the computers on which I have
+experimented with Minix on Bochs to a hub, and through this I can
+connect to my DSL modem.  
+
+<p>
+
+I did not have success making external connections by sharing an
+802.11b wireless connection with a Minix guest on Bochs on a Windows
+2000 laptop.  Although network support appeared to initialize exactly
+the same as with an ethernet connection, external nodes were
+unreachable over the network.  However, the network-enabled
+Minix-on-Bochs was able to be connected to by telnet and ftp from the
+Windows host itself, a useful feature.
+
+<p>
+
+The Minix system provided as /minix/2.0.4 with the DOSMinix disk image
+does not have network support compiled into the kernel.  The quick and
+dirty way to get a networked kernel is to fetch the NET.TAZ file from
+the 2.0.4/i386 directory on your Minix download site, copy it to a
+DOS-formatted floppy disk, and then use the floppy to transfer it to
+your Minix on Bochs system with <b>mtools</b>.  The /usr/tmp directory
+is a good place to put it.  Then rename the existing Minix system file
+/minix/2.0.4 so it won't be overwritten (I suggest calling it
+2.0.4nonet).  Make / your working directory and use <b>zcat</b> and
+<b>tar</b> to extract minix/2.0.4. 
+
+<pre><b>
+    mtools copy /dev/fd0:/NET.TAZ /usr/tmp
+    mv /minix/2.0.4 /minix/2.0.4nonet
+    cd /
+    zcat < /usr/tmp/NET.TAZ | tar xvfp - minix/2.0.4</b>
+</pre>
+
+It turns out in this case that the networked 2.0.4 system is newer than
+the original one, so it will be the one that will be booted when you
+start Minix the next time.  If you want to be sure, or you want to be
+able to select either image, you can modify the boot parameters to add
+a second choice to the boot menu.  If you take the time to do this by
+using ESC at boot time Minix will receive an advanced time-of-day from
+Bochs when it starts, so it is better to use <b>edparams</b> and modify the
+boot parameters while Minix is running.
+
+<p>
+
+Of course, a better way to get a Minix kernel that supports networking
+is to recompile a new Minix system configured for your needs.  Login as
+bin (or use <b>su</b> to change your identity to bin).  Edit
+/usr/include/minix/config.h to turn on ethernet support.  [* See hint
+below.] Set ENABLE_DP8390 to 1 and be sure NE2000 is also 1.  The other
+ethernet-related settings in config.h can be set to 0 -- regardless of
+the type of ethernet interface the host computer has, to the guest OS
+on Bochs it looks like an NE2000.  If you will want to connect remotely
+to your Minix system with telnet or rlogin, also change NR_PTYS to
+something more than 0.  Then "<b>cd /usr/src/tools</b>" and type
+"<b>make hdboot</b>".  This will install a new system in /minix; since
+it is the newest one it is the one that will be activated when Minix is
+started the next time.
+ 
+<p>
+
+[<b>* Hint</b>: In the course of working with Minix you'll probably
+edit /usr/include/minix/config.h many times.  I like to make a
+reference copy of the original version -- for Minix 2.0.4 I name it
+config.h204 -- so I can quickly use the <b>diff</b> command to see the
+differences between the original and the current version.] 
+
+<p>
+
+You have to make a few other changes before you can boot with a networked 
+Minix. Change /etc/inet.conf to look like this:
+<pre>
+    eth0 DP8390 0 { default; };
+</pre>
+
+Modify the boot parameters to include:
+<pre>
+    DPETH0=300:3
+    servers=inet
+</pre>
+
+(again, this is best done using <b>edparams</b> while Minix is running,
+if you do it at boot time Minix time will be off).
+
+<p>
+
+If you have a DHCP server on your local network the default Minix
+bootup procedure will get you an IP address using DHCP.  (Ask the local
+system manager, you may have to provide your ethernet address and wait
+for the DHCP server to be configured.  And see below, your ethernet
+address when using Bochs is not the same as that of the host computer.)
+If you do not have a DHCP server or you don't want to use one, you need
+to provide a /etc/rc.net file to do this for you.  As an example, if
+your IP address is to be 192.168.1.75 and the local gateway on your
+network is 192.168.1.1, here is a simple /etc/rc.net:
+
+<pre>
+    ifconfig -h 192.168.1.75 -n 255.255.255.0
+    add_route -g 192.168.1.1 -m 25
+    daemonize nonamed
+    daemonize tcpd  telnet in.telnetd
+    daemonize tcpd  ftp in.ftpd
+</pre>
+
+(This example only starts two services, telnet and ftp.  See
+/usr/etc/rc for examples of starting other services.)
+
+<p> 
+
+The above completes the configuration you must do within Minix to
+support networking.  There is one more thing needed, an addition to
+your minix.bxrc that tells Bochs how to connect to the real ethernet
+adapter in the host computer.  To find the values to put into
+minix.bxrc you need to use the Windows utility program niclist.exe
+which is in the main Bochs 2.1.1 directory.  Niclist uses the WinPCap
+libraries described earlier.  If you haven't already installed WinPCap
+2.3, you need it now.
+
+<p>
+
+Once WinPCap is installed you can run niclist.exe.  It is a command
+line program, and I suggest opening a Windows command line window by
+typing "<b>cmd</b>" in the Windows Start: Run dialogue, then running
+"<b>niclist > niclist.out</b>" to capture the output to a file.  This
+will make it easy to paste the parts of the output you need into your
+minix.bxrc.  Niclist normally just displays to the screen and finishes
+with a "Press any key to continue" message to allow its output to be
+read, so when you redirect its output you'll need to press Enter to
+force it to exit.
+
+<p>
+
+On one of my test systems niclist.out looks like this:
+<pre>
+1: Intel DC21041 PCI Ethernet Adapter
+     Device: \Device\Packet_{C6D40CF4-FCDD-4587-B3AC-B64E49F9E4EF}
+2: VMware Virtual Ethernet Adapter
+     Device: \Device\Packet_{5121F245-5B89-4CE8-82BB-87BEA8448574}
+
+Example config for bochsrc:
+ne2k: ioaddr=0x300, irq=3, mac=b0:c4:20:00:00:00, ethmod=win32, ethdev=\Device\Packet_{C6D40CF4-FCDD-4587-B3AC-B64E49F9E4EF}
+
+Press any key to continue
+</pre>
+
+Note that the "Example config for bochsrc" line is a very long line,
+but your web browser may wrap what you see to a second line.
+You'll need to paste it as a single long line into your minix.bxrc.
+Note also that on my system two ethernet interfaces are detected, but
+one is a virtual one for VMWare.  In other cases you may see NdisWan
+adapters or other virtual adapters listed.  One of these may be
+suggested as the ethdev to use in your minix.bxrc.  Don't believe this.
+The ethdev specification you enter in your minix.bxrc must be one that
+corresponds to a real physical ethernet card. 
+
+<p>
+
+By the way, if you want to 
+
+<a href="rundlx.html">
+network the DLX Linux demo</a> 
+
+guest OS supplied with Bochs (and I recommend that you do this) you
+need to enter an ne2k: parameter line in the bochsrc.bxrc file in the
+dlxlinux directory.  The format is the same for every guest system.
+If you want to run more than one emulated system on your network at
+the same time you will need to give them different ethernet addresses
+to use.  However, Bochs will always suggest the same ethernet address.
+On my test system (host IP address 192.169.1.95) I chose ethernet
+addresses 42:00:c0:a9:01:5f and 42:01:c0:a9:01:5f for the Linux and
+Minix emulated systems.  The c0:a9:01:5f part is 192.169.1.95 in
+hexadecimal.  I followed a procedure suggested by Kees Bot to generate
+these addresses.  This is explained on the
+
+<a href="locethad.html">
+choosing an ethernet address</a> 
+
+page on this site.
+
+<p>
+
+<b>Ethernet errors:</b> If you have configured Bochs and Minix as
+described above Minix should start up normally, and should report
+finding an NE2000 ethernet card at 300:3.  Then you should see it
+report that it is starting network daemons.  But at some point in the
+startup sequence (as soon as Minix tries to send an ethernet packet) you
+will probably see a dialogue box that looks like this:
+
+<pre>
+              +-------------------------------------------+
+              |PANIC                                   |X||
+              +-------------------------------------------+
+              |  Device  [NE2K]                           |
+              |  Message CR write - tx start, dev in reset|
+              |                                           |
+              |                                +--------+ |
+              |  Continue                      |   OK   | |
+              |  Continue and don't ask again  +--------+ |
+              |  Kill simulation               +--------+ |
+              |  Abort (dump core)             | Cancel | |
+              |                                +--------+ |
+              +-------------------------------------------+
+</pre>
+
+I have seen this on every Windows 98 and Windows 2000 system I have
+tested but it seems harmless.  So, don't panic!  Highlight the
+"Continue and don't ask again" choice and click OK.  If you press F5
+from the console to see ethernet statistics you will see equal numbers
+in the packetT and transDef fields.  I believe this means that there is
+some kind of timing problem in the interface between Minix and Bochs
+and each attempt to send a packet requires a retry.  Each such event is
+also recorded in the bochsout.txt log file, but you can't view that
+file until you stop Bochs.  These errors probably affect performance,
+but I haven't tried to measure an effect.  In casual use with telnet
+and transferring small files by ftp I haven't noticed any degradation.
+I have not seen such errors with networked DLX Linux on Bochs.
+
+<p>
+<a name="virflop"></a>
+<a href="#docidx">Back to index</a>
+<p>
+<b>Using virtual floppy and CD-ROM drives</b>
+
+<p>
+
+You can also use disk image files as virtual floppy disks.  For instance,
+copy the standard boot floppy images for Minix, ROOT.MNX and USR.MNX to
+your Bochs-2.1.1\minix204 directory and modify the minix.bxrc file to
+replace these lines:
+
+<pre>
+    boot: disk
+    ...
+    floppya: 1_44=a:, status=inserted
+</pre>
+
+with these lines:
+
+<pre>
+    boot: floppy
+    ...
+    floppya: 1_44=ROOT.MNX, status=inserted
+</pre>
+
+Now when you start Bochs it will boot from the ROOT.MNX image. When it asks
+for the disk to mount as /usr you can do a virtual disk swap as follows:
+
+<ul>
+<li>
+"eject" the ROOT.MNX image: click on the A: icon and clear the 
+"Inserted" checkbox
+<li>
+click OK, the A: icon will reappear with a large X superimposed
+<li>
+"insert" the USR.MNX image: click the A: icon again, enter USR.MNX in the 
+path box, check "Inserted", then click OK
+</ul>
+
+Now you can fill in fd0 as the disk to mount and press Enter.  One
+possible pitfall: be sure the USR.MNX file is not marked read-only by
+Minix, which it may be if you have copied it from a CD-ROM.  The Minix
+startup script /etc/rc, will complain vigorously if you try to mount a
+read-only floppy disk.
+
+<p>
+
+Of course, you could also have set a floppyb: line in your minix.bxrc
+with USR.MNX specified, but I wanted to illustrate that you can change
+virtual floppies on the fly.  You can also transfer files between Minix
+and a virtual MS-DOS floppy.  Windows by itself can't create or read
+such a virtual disk, but see the note below about DiskExplorer.  Or you
+can use a Minix (or other Unix-like system) to read into a virtual disk
+file from real floppy disk or to write a virtual disk file to a real
+disk. 
+
+<p>
+
+Some additional notes about virtual disks:
+
+<ul>
+
+<li>
+
+If you do much work with virtual floppy images you should name them as
+.img files.  Files with that suffix will be recognized as disk images
+when you browse from the dialogue box opened by the Bochs A: and B:
+icons.
+
+<p>
+
+<li>
+Kees Bot has suggested some ways to use virtual hard disks to facilitate
+a Minix on Bochs installation, these are on the
+
+<a href="vdiskfun.html">
+Fun with Virtual Disks</a>
+page.
+<p>
+
+<li>
+Virtual MS-DOS floppy disks can be used to transfer small files between
+a Minix on Bochs system and the Windows host using <b>mtools</b> and the 
+free Windows program <b>DiskExplorer</b>. More information is on the 
+<a href="diskexpl.html">
+DiskExplorer page</a>.
+
+<p>
+
+<li>
+
+You can create a new virtual floppy disk from the A: or B: buttons on
+the Bochs toolbar, and then you can use the Minix <b>mkfs</b> command to
+put a Minix file system on it. Or you can use <b>mtools format</b> 
+to create an MS-DOS file system on  a new virtual disk.
+
+<p>
+<li>
+
+You may want to store a virtual disk in compressed form, as in a ZIP
+file.  Even though the virtual disk directory shows it to be nearly
+empty it may not compress well unless you make a special effort to fill
+unallocated space with data that will compress easily.  Read the
+dosdisk(8) man page to learn one way to do this.
+
+</ul>
+
+<p> 
+
+<b>Virtual CD-ROMs</b>: As of this writing I haven't tested access to
+virtual CD-ROMs, but I presume an ISO image can be used similarly to a
+floppy disk image file. 
+
+
+
+
+<p>
+<a name="altinst"></a>
+<a href="#docidx">Back to index</a>
+<p>
+<b>Alternative installation methods</b>
+
+<p>
+
+If you want to install a customized Minix system, or one for which a
+DOSMinix archive is not available, you can install directly into a
+simulated hard disk.  The previous section suggests how to boot into
+Bochs using ROOT.MNX and USR.MNX image files.  All you need is a
+simulated hard disk to install to.
+
+<p>
+
+<b>Making the virtual hard disk</b>: This is easy.  Here are three ways
+to do it: 
+
+<ul> 
+
+<li> 
+
+Start with the 50 MByte virtual disk from a DOSMinix image and
+repartition it.  The sample minix.bxrc packaged in DOSMINIX.ZIP already
+has an ata0-master specification with the proper cylinders, heads, and
+spt values for the virtual disk.
+
+<p>
+
+<li>
+
+Use the MS-DOS <b>mkfile.com</b> program included in DOSMINIX.ZIP.  The
+cylinders, heads, and spt values for an N megabyte disk will be
+cylinders=4*N, heads=16, sectors=32.  For example, if you issue the
+command <b>mkfile 40m 40MDISK.img</b> the parameters to use in the
+ata0-master line of your minix.bxrc file will be cylinders=160,
+heads=16, and spt=32.  The total capacity of the virtual disk will be
+41,943,040 bytes.
+
+
+<p>
+
+<li>
+
+Use the <b>bximage.exe</b> program provided with Bochs.  It will
+generate an at0-master line with disk parameters that you can paste
+into a new .bxrc file.  <b>Bximage</b> is menu driven: it asks whether
+you want to make a floppy disk or hard disk image, the kind of image
+(flat is the default) and the size in megabytes.  But it uses a
+different disk geometry than <b>mkfile</b>, and will produce a slightly
+different size virtual disk.  For instance, if you ask for a 40 MByte
+disk, <b>bximage</b> will use a geometry of 81 cylinders, 16 heads, and
+63 sectors per track.  The total capacity will be 41,803,776
+bytes,which the program will report as 39.87 Mbytes. 
+
+</ul>
+
+
+
+<p>
+
+<b>Installing from floppy disks</b>: Using the ROOT.MNX disk image as a
+virtual boot disk and then mounting the USR.MNX disk image has already
+been described.  This is identical to the start of the "standard" Minix
+installation procedure described in the usage(8) man page, except for
+using virtual floppy disks. At this point you can use either the
+<b>setup</b> script or the manual procedure described in usage(8).
+
+<p>
+
+When it comes to adding programs and source files to /usr you can use a
+set of real floppy disks, onto which you have previously copied the
+USR.TAZ, SYS.TAZ, and CMD.TAZ files as in a standard installation.
+This will be annoying because of the slowness of the floppy disk
+interface.  Also, this method is not available if your host system is
+Windows 98, which supports access only to virtual floppy disks, not to
+real floppies.  An easier way is to make these files into virtual disks. 
+
+<p>
+
+Making virtual disks for loading the large .TAZ files is easy if you
+have another Unix-like system available on which you can run the
+<b>dd</b> command.  All you need to do is chop each file into chunks of
+a size no more than the size of the emulated floppy disk specified in
+minix.bxrc.  For instance, the size of USR.TAZ as provided with Minix
+release 2.0.4 is 4098899 bytes, which will fit on three 1.44M virtual
+disks.  Use <b>dd</b> like this:
+
+<pre>
+    dd if=USR.TAZ of=systaz1.img bs=512 count=2880
+    dd if=USR.TAZ of=systaz2.img bs=512 count=2880 skip=2880 
+    dd if=USR.TAZ of=systaz3.img bs=512 count=2880 skip=5760
+</pre>
+
+With these files in the Bochs-2.1.1/minix204 directory, you can run
+<b>setup /usr</b> as you would to install onto a hard disk from real
+floppy disks.  When asked to insert the first disk, use the Bochs A:
+button to simulate insertion of a floppy disk using systaz1.img.  Each
+time the program tells you to change disks use the A: button again
+twice: clear the "Inserted" checkbox to signal ejection of the first
+disk, then click the A: button again to simulate insertion of of the
+second disk using systaz2.img.  If your image files are named with the
+".img" suffix the Browse button in the dialogue will list available
+virtual disks.
+
+<p>
+
+To do a full installation you can make a set of virtual 1.44 MByte
+floppies for the other archives, SYS.TAZ and CMD.TAZ and install them
+in the same way, using <b>setup /usr</b>.
+
+<p>
+
+You can read into Minix any file that is smaller than 1.44 MBytes by
+treating it as a virtual disk.  This makes it easy to add the contents
+of NET.TAZ if you want to get a quick start with networking, or of
+FIX.TAZ, which contains some replacement source files.  Bochs also has
+support for 2.88 MByte floppies, and in some cases declaring one of
+your disk drives to be a 2.88 MByte drive will simplify things -- for
+instance, currently the SYS.TAZ archive could be read in as a single
+simulated disk if Bochs expects one of your drives to be capable of
+handling a 2.88 MByte disk, and USR.TAZ and CMD.TAZ would require only
+two virtual disks each in this case. Although your hardware may only have 
+one physical floppy drive, you could configure Bochs and Minix to recognize 
+a B: drive using a virtual drive.
+
+<p> 
+
+Some suggestions from Kees Bot on using virtual disks for facilitating
+Minix installation can be found on the
+
+<a href="vdiskfun.html">
+Fun with Virtual Disks</a>
+page.
+
+
+
+<p>
+
+<b>Installation of Minix on Bochs from CD-ROM</b>: Bochs can boot a guest
+operating system from a CD-ROM.  Assuming you have the minix.bxrc configured
+to recognize a CD-ROM you just need to change the boot entry:
+
+<pre>
+    boot: cdrom
+</pre>
+
+I have tested this with the bootable Minix 2.0.3 CD-ROM package developed
+by Alexander Korzynski and his colleagues, described at 
+
+<a href=" http://studia.elka.pw.edu.pl/prog/minix">
+http://studia.elka.pw.edu.pl/prog/minix</a> 
+
+(and also here at 
+<a href="/faq/minixcd08.html">
+http://minix1.bio.umass.edu/faq/minixcd08.html</a>.)
+
+<p>
+
+This package is intended for classroom use to boot a complete Minix
+system onto a 32 MByte RAM disk, but once the system has started (and
+it takes a while to read the complete system in from a CD-ROM under
+Bochs) you can then use Minix on the RAM disk on Bochs or you can partition
+a virtual hard disk and install Minix on it. This might be the easiest
+way to install Minix on Bochs on a Windows 98 system that is not on a network.
+Even though the Korzynski <i>et al</i> package installs Minix 2.0.3 you can
+easily burn a custom CD-ROM that also has a complete Minix 2.0.4 (or later)
+installation file set in an additional directory, and use these files for the 
+installation on a virtual hard disk. 
+
+  
+
+.
+
+
+<p>
+<a name="mkbat"></a>
+<a href="#docidx">Back to index</a>
+<p>
+<b>Making a run.bat and a Minix-on-Bochs shortcut</b>
+
+<p>
+
+You can run Minix on Bochs by navigating to the Bochs-2.1.1/minix204
+directory and double-clicking on minix.bxrc, but it's more elegant to
+have a shortcut on the desktop and/or the Start menu.  Here's how to do
+it:
+
+<ol>
+<li>
+
+Make a <b>run.bat</b> file to start Minix-on-Bochs.  My <b>run.bat</b>
+looks like this:
+
+<pre>
+    rem run.bat for Minix 2.0.4 on Bochs 2.1.1 on W2K
+    cd "C:\Program Files\Bochs-2.1.1\minix204"
+    ..\bochs -q -f minix.bxrc
+</pre>
+
+The first non-commented line changes to the correct directory and the
+next line starts Bochs using the correct Bochsrc file.  The -q means
+quick start, without interactive setting of options.  (There is a
+<b>run.bat</b> in the Bochs-2.1.1/dlxlinux directory if you want to see
+another model).
+<p>
+<li>
+
+Make a shortcut on the desktop: 
+<ul>
+<li>
+Right click on the desktop icon for "Linux Demo in Bochs 2.1.1", drag to 
+a blank spot, release the mouse button, and select "Copy Here".  
+<li>
+Right click on the new icon, then click Properties.  
+<li>
+In the General tab edit the name of the shortcut to read "Minix 2.0.4 on 
+Bochs 2.1.1". 
+<li>
+In the Shortcut tab edit the Target field to read 
+"C:\Program Files\Bochs-2.1.1\minix204\run.bat"
+<li>
+Click on "Change Icon", enter "%ProgramFiles%\Bochs-2.1.1\minix204\minix.ico"
+and click OK, Apply, OK. 
+</ul>
+</ol>
+
+<p>
+<a name="serpar"></a>
+<a href="#docidx">Back to index</a>
+<p>
+<b>Printing and using serial ports</b>
+
+<p>
+
+The Bochs emulator can provide access to parallel and serial ports for a
+guest operating system. Adding lines like 
+
+<pre>
+    parport1: enabled=1, file="lpt1:"
+    com1: enabled=1, dev=com1:
+</pre>
+
+should enable access to the printer port and the first serial port,
+according to the documentation in bochsrc-sample.txt.  I haven't tried
+either of these yet, I don't have any serial or parallel port peripherals
+on any of the Windows computers where I have experimented with Bochs.
+
+<p>
+
+The parport1 file parameter can also be a filename, in which case Minix
+printer output can be appended to a file in the Windows host directory.
+But, the default Minix configuration does not have a printer driver
+compiled into the kernel, so compling a new system and additional
+configuration (such as adding an /etc/printcap file) is necessary.  So
+although using printing to a file seems like a possible way to transfer
+Minix output to the Windows host, setting it up is beyond the scope of
+this article -- but see the next paragraph.
+
+<p>
+
+<b>Quick and dirty network printing</b>: There is a way to
+print over the network, and it works with a networked Minix on Bochs as
+well as on a conventional networked Minix installation.  Because I have
+several computers in my home office I have one of them, a PC named
+tomato running Linux, set up as a print server.  I defined a two line
+script which I call <b>rlpr</b>:
+
+<pre>
+    #!/bin/sh
+    rsh tomato lpr
+</pre>
+
+With <b>rlpr</b> in the path on a Minix system, and with an entry for
+each Minix system from which I want to print in /etc/hosts.equiv on the
+print server, I can pipe any text I want to print to <b>rlpr</b> to be
+printed on the default printer on the print server. 
+
+<p>
+<a name="acks"></a>
+<a href="#docidx">Back to index</a>
+<p>
+<b>Acknowledgements</b>
+
+<p> 
+
+Kees Bot offered suggestions and answered several questions
+about using Minix on Bochs. Rob van der Leek posted to comp.os.minix an 
+article 
+<a href="b21-lxmx.html">
+(available on this site)</a>
+similar to this one about using Minix on Bochs 2.1 on a Linux platform.
+Other people, some of whom are referred to in 
+other articles referenced in the 
+<a href="/hints.html#nonintel">
+non-Intel platforms and virtual or emulated hardware</a> 
+pages on this site, have also written about their experiences using various 
+Minix versions on various Bochs versions. I've been helped by all of these in 
+writing the current article.
+<p>
+<a href="#docidx">Back to index</a>
+<br>
+<a href="bxmxhowto.html">Top of page</a>
+<!-- linktable 2003-09-03 -->
+<!-- Use [..] brackets around items to improve appearance with lynx -->
+<hr>
+<center>
+<table bgcolor="#cccccc" >
+  <tr>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/"
+       title="Al Woodhull's minix1.hampshire.edu or minix1.bio.umass.edu site">
+       [HOME]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/hints.html" 
+       title="Main page for Minix technical info">
+       [HINTS/FAQ]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/mxdownld.html" 
+       title="Download Minix installation packages, executables, and source">
+       [MINIX DOWNLOADS]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/contrib.html"
+       title="Download applications and add-ons for Minix">
+       [CONTRIB SOFTWARE]</a>
+    </b>
+    </td>
+  </tr>
+  <tr>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/mxinet.html"
+       title="Download networking applications for Minix">
+       [NET SOFTWARE]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/minixvmd.html"
+       title="Super-Minix with virtual memory and X-Window support">
+       [MINIX-VMD]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/osdi2/"
+       title="Operating Systems Design and Implementation, 2nd. ed., by Tanenbaum and Woodhull">
+       [TEXTBOOK]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/links.html"
+       title="Other Minix and related websites">
+       [LINKS]</a>
+    </b>
+    </td>
+  </tr>
+</table>
+</center>
+<hr>
+<!-- end of linktable -->
+<!-- template-foot2 2004-01-09 -->
+<center>
+All material on this site not otherwise attributed is copyright
+&copy;1994-2004 Albert S. Woodhull
+<br>
+Click here for 
+<a href="/copyinfo.html">
+information on copying and other use</a>. 
+<br>
+Mail comments on this page to: Al Woodhull
+<a href="mailto:awoodhull@hampshire.edu">
+&lt;awoodhull@hampshire.edu&gt;</a>  
+</center>
+
+<center>
+<a href="http://www.anybrowser.org/campaign/"> 
+<img src="/anybrowser.png" width="88" height="31" 
+  alt="Viewable With Any Browser" border="0"></a>
+
+<!-- disable comments around following link if W3C validation fails -->
+<!--  -->
+&nbsp;&nbsp;
+<a href="http://validator.w3.org/">
+<img border="0" src="/validh_40.png" alt="[Valid HTML 4.0!]" 
+     height="31" width="88"> </a>
+<!--  -->
+</center>
+</body>
+</html>
+

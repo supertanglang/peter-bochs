@@ -1,0 +1,277 @@
+<!-- rundlx.html 28 Feb 2004 created by mkhtml:(Sep 14 2003) -->
+<!-- template-head1 rev 2003-09-07 -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html lang="en">
+<head>
+<!-- title for bookmarks goes here -->
+<title>
+Running the DLX Linux Demo on Bochs
+</title>
+<!-- template-head2 rev 2003-09-07 -->
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta name="keywords" content="">
+<meta name="description" content="">
+<link rel="SHORTCUT ICON" href="/favicon.ico">
+</head>
+
+<body bgcolor="#ccccff">
+
+<center>
+<!-- this is small image, use m4-2.png if bigger one needed. May require
+  additional breaks.
+-->
+<img src="/m4-4.png" align=left height=60 width=52 alt="[MINIX LOGO]">
+<h2>
+<i>
+<!-- title for on-page display goes here -->
+Running the DLX Linux Demo on Bochs
+<!-- template-head3 rev 2003-09-07 -->
+</i>
+</h2>
+<h4>
+<!-- last rev date goes here -->
+modified: 28 Feb 2004
+<!-- template-head4 rev 2003-09-07 -->
+</h4>
+</center>
+<!-- break with clear needed with large logo image
+<br clear=left>
+-->
+<!-- linktable or hr come next --> <hr>
+
+<b>Starting DLX Linux</b>
+
+<p>
+
+After installing Bochs, the start menu folder will include a shortcut
+to DLX Linux, the small Linux demo included with Bochs.  A similar
+shortcut will be left on your desktop.  If you want to get a first peek
+at how Bochs works, double-click on this.  
+
+<p>
+
+You will see two text-mode windows open.  The first one will tell you
+what Bochs itself is doing -- initially, it will just show you where
+Bochs is writing its log file.  Overlapping this window will be the
+window in which the guest OS is running.  
+
+<p>
+
+You'll see a line of icons at the top of the guest OS window.  The
+three rightmost ones are the most important ones to know about
+initially.  The third from the right is marked Config.  This halts the
+emulated OS and activates the Bochs window, allowing you to change
+various configuration options and restart or to quit.  The next to
+rightmost button is Reset, it will reboot the emulated OS just like a
+hardware reboot of a real system (including possibly messing up your
+emulated file system if files were being written at the time).  Finally
+the rightmost button marked Power shuts down the emulated system and
+causes Bochs to exit, too, just like powering down real hardware (and
+with the same possible effects on the emulated file system). 
+
+<p>
+
+Initially the guest OS window will show some information about the
+emulated BIOS being used by Bochs, then this will scroll off as DLX
+Linux boots.  Soon a "dlx login" prompt will appear.  Type root, hit
+enter when asked for a password, and you are running DLX Linux on
+Bochs.  This guest OS is configured to start a screen saver with a very
+short delay so don't be alarmed if the guest OS window goes all black
+in a few seconds.  Just press any key (even the shift key will do) to
+restore the display.
+
+<p>
+
+<b>Networking the DLX Linux demo</b>
+
+<p>
+
+The DLX Linux demo supports networking, too. To make it active on your network
+do the following:
+<ul>
+<li>
+Add an ne2k: line to the bochs.bxrc file in the 
+Program Files\Bochs-2.1.1\dlxlinux folder.
+(See the 
+<a href="/faq/bxmxhowto.html#netmob">
+networking section in the Minix on Bochs How-to</a>
+article to learn how to generate this line.)
+<li>
+Determine an IP address you can use (if you are not using an isolated network 
+you'll have to consult your local net administrator).
+<li>
+After starting the DLX Linux system enter the following commands at the
+Linux command prompt  (substitute the appropriate IP addresses for your
+emulated system, your local network, and your gateway):
+<ul>
+<li>
+<b>ifconfig eth0 192.168.1.120</b>
+<li>
+<b>route add -net 192.168.1.0 eth0</b>
+<li>
+<b>route add -net 0.0.0.0 gw 192.168.1.1</b>
+</ul> 
+<li>
+If there is a name server on your local network (a networked Minix system 
+with a hosts file will do) you can create a /etc/resolv.conf file containing
+this line (with the IP address of your nameserver).:
+<pre>
+        nameserver 192.168.1.89
+</pre>
+<li>
+If you intend to use the DLX Linux demo system much you can add the 
+<b>ifconfig</b> and <b>route</b> commands to /etc/rc.d/rc.local so they'll
+be run at every startup.  
+
+</ul>
+
+<p>
+
+The DLX Linux demo is provided to help you verify that Bochs is working
+correctly, and I recommend installing it because Bochs, being a
+program that is in constant development, may sometimes not work as
+expected.  If your real interest is running Minix on Bochs and
+something seems wrong, having a second guest system may help you to
+determine whether the problem you see is specific to Minix, or whether
+it is a more general problem with Bochs.  And, if you want to report a
+problem to the Bochs developers, few of them will have experience with
+Minix but most of them will have experience with DLX Linux.  So presenting
+information about a problem in terms of how it affects the Linux demo
+may be more useful to the Bochs developer group.
+
+<p>
+<b>Documentation</b>
+
+<p>
+
+Other questions you have about using DLX Linux on Bochs may be answered 
+somewhere in the main 
+<a href="/faq/bxmxhowto.html">
+Minix on Bochs on Windows How-to</a>
+
+article, or through another link in the 
+<a href="/hints.html#nonintel">
+virtual and emulated systems section of the Hints/FAQ page</a>.
+
+<p>
+
+Also, if you have already installed Bochs on your Windows computer, 
+the HTML documentation that came with Bochs should be available.
+(Note that the links below may not work if you did not install in the
+suggested directory or if your Bochs version is different, but they
+should be a good guide to finding the pages.  Also, if clicking on
+these file URLs doesn't work, try copying and pasting into your
+browser's address window, or just navigate with Windows Explorer to 
+the files and double click to open them in another browser window.) 
+
+<ul>
+<li>
+General Bochs Documentation should be at 
+<a href="file:///C:/Program%20Files/Bochs-2.1.1/docs/index.html">
+file:///C:/Program Files/Bochs-2.1.1/docs/index.html</a>.
+<li>
+Networking DLX Linux info is at 
+<a href="file:///C:/Program%20Files/Bochs-2.1.1/docs/user/dlxlinux-networking.html">
+file:///C:/Program Files/Bochs-2.1.1/docs/user/dlxlinux-networking.html</a>
+<br>
+</ul>
+
+<!-- linktable 2003-09-03 -->
+<!-- Use [..] brackets around items to improve appearance with lynx -->
+<hr>
+<center>
+<table bgcolor="#cccccc" >
+  <tr>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/"
+       title="Al Woodhull's minix1.hampshire.edu or minix1.bio.umass.edu site">
+       [HOME]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/hints.html" 
+       title="Main page for Minix technical info">
+       [HINTS/FAQ]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/mxdownld.html" 
+       title="Download Minix installation packages, executables, and source">
+       [MINIX DOWNLOADS]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/contrib.html"
+       title="Download applications and add-ons for Minix">
+       [CONTRIB SOFTWARE]</a>
+    </b>
+    </td>
+  </tr>
+  <tr>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/mxinet.html"
+       title="Download networking applications for Minix">
+       [NET SOFTWARE]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/minixvmd.html"
+       title="Super-Minix with virtual memory and X-Window support">
+       [MINIX-VMD]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/osdi2/"
+       title="Operating Systems Design and Implementation, 2nd. ed., by Tanenbaum and Woodhull">
+       [TEXTBOOK]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/links.html"
+       title="Other Minix and related websites">
+       [LINKS]</a>
+    </b>
+    </td>
+  </tr>
+</table>
+</center>
+<hr>
+<!-- end of linktable -->
+<!-- template-foot2 2004-01-09 -->
+<center>
+All material on this site not otherwise attributed is copyright
+&copy;1994-2004 Albert S. Woodhull
+<br>
+Click here for 
+<a href="/copyinfo.html">
+information on copying and other use</a>. 
+<br>
+Mail comments on this page to: Al Woodhull
+<a href="mailto:awoodhull@hampshire.edu">
+&lt;awoodhull@hampshire.edu&gt;</a>  
+</center>
+
+<center>
+<a href="http://www.anybrowser.org/campaign/"> 
+<img src="/anybrowser.png" width="88" height="31" 
+  alt="Viewable With Any Browser" border="0"></a>
+
+<!-- disable comments around following link if W3C validation fails -->
+<!--  -->
+&nbsp;&nbsp;
+<a href="http://validator.w3.org/">
+<img border="0" src="/validh_40.png" alt="[Valid HTML 4.0!]" 
+     height="31" width="88"> </a>
+<!--  -->
+</center>
+</body>
+</html>
+

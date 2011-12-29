@@ -1,0 +1,215 @@
+<!-- mxbxwpcap.html 04 Mar 2004 created by mkhtml:(Sep 14 2003) -->
+<!-- template-head1 rev 2003-09-07 -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html lang="en">
+<head>
+<!-- title for bookmarks goes here -->
+<title>
+The Minix-Bochs-WinPCap page
+</title>
+<!-- template-head2 rev 2003-09-07 -->
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta name="keywords" content="">
+<meta name="description" content="">
+<link rel="SHORTCUT ICON" href="/favicon.ico">
+</head>
+
+<body bgcolor="#ccccff">
+
+<center>
+<!-- this is small image, use m4-2.png if bigger one needed. May require
+  additional breaks.
+-->
+<img src="/m4-4.png" align=left height=60 width=52 alt="[MINIX LOGO]">
+<h2>
+<i>
+<!-- title for on-page display goes here -->
+The Minix-Bochs-WinPCap page
+<!-- template-head3 rev 2003-09-07 -->
+</i>
+</h2>
+<h4>
+<!-- last rev date goes here -->
+modified: 04 Mar 2004
+<!-- template-head4 rev 2003-09-07 -->
+</h4>
+</center>
+<!-- break with clear needed with large logo image
+<br clear=left>
+-->
+<!-- linktable or hr come next --> <hr>
+
+"WinPcap is an architecture for packet capture and network analysis for
+the Win32 platforms.  It includes a kernel-level packet filter, a
+low-level dynamic link library (packet.dll), and a high-level and
+system-independent library (wpcap.dll, based on libpcap version 0.6.2)."
+<p>
+-- from the WinPCap home page, 
+<a href="http://winpcap.polito.it">
+http://winpcap.polito.it</a>
+<p>
+
+WinDump is the porting to the Windows platform of tcpdump, the most
+used network sniffer/analyzer for UNIX.  WinDump is fully compatible
+with tcpdump and can be used to watch and diagnose network traffic
+according to various complex rules.  It can run under Windows 95/98/ME,
+and under Windows NT/2000/XP.
+<p>
+-- from the WinDump home page, 
+<a href=" http://windump.polito.it">
+ http://windump.polito.it</a>
+<p>
+
+Niclist lists the network interface cards that you can use in the
+"ethdev" field of the ne2k line in your bochsrc.
+<p>
+-- comment from the niclist.c source at 
+<a href="http://cvs.sourceforge.net/viewcvs.py/bochs/bochs/misc/">
+http://cvs.sourceforge.net/viewcvs.py/bochs/bochs/misc/</a>
+
+<p> 
+
+Bochs uses the WinPCap link libraries (dlls) to capture host system
+packets so they can be presented to the guest system via the simulated
+ethernet interface.  WinPCap was developed for other purposes, probably
+its most important use is with WinDump, described above.  So if you
+have any problems with WinPCap you'll probably want to test it with WinDump
+before reporting problems to the WinPCap developers.
+
+At the time of writing three versions of WinPCap were available:
+
+<ul>
+<li> 
+
+WinPCap 2.3 is the only one that worked correctly with the version of
+niclist.exe distributed with Bochs 2.1 and 2.1.1, as well as with Bochs itself.
+
+<p>
+<li>
+
+WinPCap 3.0 appears to work with the Bochs 2.1.1 niclist, although the
+output format is slightly different and the suggested ne2k line for the
+.bxrc file won't work without editing.  And, in any case, Bochs 2.1.1 itself
+will not work properly with WinPCap 3.0 -- it will appear to start OK,
+but will eventually crash.
+
+<p>
+<li>
+
+WinPCap 3.1 beta doesn't work with either Bochs 2.1.1 or the niclist 
+in the 2.1.1 package.
+
+</ul>
+
+The above conclusions were based on tests with binary distributions of
+Bochs 2.1 and 2.1.1 for Windows downloaded in February 2004.  It may be
+the differences are due to a redefinition of the interface between the
+WinPCap libraries and applications, and it may be that recompilation of
+the applications with newer header files is all that is needed.  If
+this is the case, I'd expect the next release of Bochs would work with
+the newer WinPCap, and possibly would no longer work with WinPCap 2.3.
+
+<p>
+
+Both WinPCap and Bochs are constantly being debugged and improved. I will 
+try to keep up with changes and update this page if the situation changes.
+
+<!-- linktable 2003-09-03 -->
+<!-- Use [..] brackets around items to improve appearance with lynx -->
+<hr>
+<center>
+<table bgcolor="#cccccc" >
+  <tr>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/"
+       title="Al Woodhull's minix1.hampshire.edu or minix1.bio.umass.edu site">
+       [HOME]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/hints.html" 
+       title="Main page for Minix technical info">
+       [HINTS/FAQ]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/mxdownld.html" 
+       title="Download Minix installation packages, executables, and source">
+       [MINIX DOWNLOADS]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/contrib.html"
+       title="Download applications and add-ons for Minix">
+       [CONTRIB SOFTWARE]</a>
+    </b>
+    </td>
+  </tr>
+  <tr>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/mxinet.html"
+       title="Download networking applications for Minix">
+       [NET SOFTWARE]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/minixvmd.html"
+       title="Super-Minix with virtual memory and X-Window support">
+       [MINIX-VMD]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/osdi2/"
+       title="Operating Systems Design and Implementation, 2nd. ed., by Tanenbaum and Woodhull">
+       [TEXTBOOK]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/links.html"
+       title="Other Minix and related websites">
+       [LINKS]</a>
+    </b>
+    </td>
+  </tr>
+</table>
+</center>
+<hr>
+<!-- end of linktable -->
+<!-- template-foot2 2004-01-09 -->
+<center>
+All material on this site not otherwise attributed is copyright
+&copy;1994-2004 Albert S. Woodhull
+<br>
+Click here for 
+<a href="/copyinfo.html">
+information on copying and other use</a>. 
+<br>
+Mail comments on this page to: Al Woodhull
+<a href="mailto:awoodhull@hampshire.edu">
+&lt;awoodhull@hampshire.edu&gt;</a>  
+</center>
+
+<center>
+<a href="http://www.anybrowser.org/campaign/"> 
+<img src="/anybrowser.png" width="88" height="31" 
+  alt="Viewable With Any Browser" border="0"></a>
+
+<!-- disable comments around following link if W3C validation fails -->
+<!--  -->
+&nbsp;&nbsp;
+<a href="http://validator.w3.org/">
+<img border="0" src="/validh_40.png" alt="[Valid HTML 4.0!]" 
+     height="31" width="88"> </a>
+<!--  -->
+</center>
+</body>
+</html>
+

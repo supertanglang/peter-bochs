@@ -1,0 +1,209 @@
+<!-- /usr2/www/faq/diskexpl.html.html 04 Mar 2004 created by mkhtml:(Sep 14 2003) -->
+<!-- template-head1 rev 2003-09-07 -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html lang="en">
+<head>
+<!-- title for bookmarks goes here -->
+<title>
+About DiskExplorer
+</title>
+<!-- template-head2 rev 2003-09-07 -->
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta name="keywords" content="">
+<meta name="description" content="">
+<link rel="SHORTCUT ICON" href="/favicon.ico">
+</head>
+
+<body bgcolor="#ccccff">
+
+<center>
+<!-- this is small image, use m4-2.png if bigger one needed. May require
+  additional breaks.
+-->
+<img src="/m4-4.png" align=left height=60 width=52 alt="[MINIX LOGO]">
+<h2>
+<i>
+<!-- title for on-page display goes here -->
+About DiskExplorer
+<!-- template-head3 rev 2003-09-07 -->
+</i>
+</h2>
+<h4>
+<!-- last rev date goes here -->
+modified: 04 Mar 2004
+<!-- template-head4 rev 2003-09-07 -->
+</h4>
+</center>
+<!-- break with clear needed with large logo image
+<br clear=left>
+-->
+<!-- linktable or hr come next --> <hr>
+
+DiskExplorer (also sometimes referred to as DiskEdit) allows you to
+open a disk image of a Windows floppy or hard disk in a two-pane window
+similar to the familiar Windows Explorer.  You can also create
+directories and delete, rename, import, and export files.  Importing
+and exporting can also be done by using the mouse to drag files between
+the DiskExplorer window and the desktop or other folders. 
+
+<p>
+DiskExplorer can be found at
+<a href="http://hp.vector.co.jp/authors/VA013937/editdisk/index_e.html">
+http://hp.vector.co.jp/authors/VA013937/editdisk/index_e.html</a>.
+The version I have experimented with is 1.65E, downloaded as  
+editd165e.zip. 
+
+<p>
+
+This program can be used as a tool to transfer files between your Minix
+on Bochs system and the Windows host.  Just use <b>mtools</b> on the
+Minix side and <b>DiskExplorer</b> on the Windows side.  You will have
+to "eject" a virtual disk from Bochs to be able to open it on the
+Windows side.
+
+
+<p>
+
+Minix on Bochs can create empty disk image files, and the Minix
+<b>mkfs</b> command can create a Minix file system on a new virtual
+disk.  But how about making a new MS-DOS formatted virtual disk?  One
+way to do this is take a newly formatted MS-DOS disk, put it in the
+drive on a standard (non-Bochs) Minix or Linux system, and read it in
+as a raw device:
+
+<pre><b>
+    cat &lt; /dev/fd0 &gt; dosdisk.img
+</b></pre>
+
+You can then transfer this to the Windows system using ftp, or by
+compressing the image file, and using <b>mtools</b> to write the
+compressed image of the MS-DOS virtual disk to a real MS-DOS disk.  On
+the Windows side, <b>WinZip</b> and other common Windows archiving
+tools can decompress files compressed by Unix-style compression
+programs.
+
+<p>
+
+I haven't explored all the possibilities of DiskExplorer yet. It can also 
+be used to manipulate virtual hard disks.
+
+<p>
+
+I learned about DiskExplorer from Chapter 8 of the Bochs User Manual, in a
+section called "Win32 only: Tools to manipulate disk images." A commercial 
+program called WinImage is also mentioned there. 
+It is available from 
+<a href="http://www.winimage.com">
+http://www.winimage.com</a>, 
+and is available with a 30-day trial. I haven't tried this product.
+
+
+
+
+<!-- linktable 2003-09-03 -->
+<!-- Use [..] brackets around items to improve appearance with lynx -->
+<hr>
+<center>
+<table bgcolor="#cccccc" >
+  <tr>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/"
+       title="Al Woodhull's minix1.hampshire.edu or minix1.bio.umass.edu site">
+       [HOME]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/hints.html" 
+       title="Main page for Minix technical info">
+       [HINTS/FAQ]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/mxdownld.html" 
+       title="Download Minix installation packages, executables, and source">
+       [MINIX DOWNLOADS]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/contrib.html"
+       title="Download applications and add-ons for Minix">
+       [CONTRIB SOFTWARE]</a>
+    </b>
+    </td>
+  </tr>
+  <tr>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/mxinet.html"
+       title="Download networking applications for Minix">
+       [NET SOFTWARE]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/minixvmd.html"
+       title="Super-Minix with virtual memory and X-Window support">
+       [MINIX-VMD]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/osdi2/"
+       title="Operating Systems Design and Implementation, 2nd. ed., by Tanenbaum and Woodhull">
+       [TEXTBOOK]</a>
+    </b>
+    </td>
+    <td width="10%" align="center" >
+    <b>
+    <a href="/links.html"
+       title="Other Minix and related websites">
+       [LINKS]</a>
+    </b>
+    </td>
+  </tr>
+</table>
+</center>
+<hr>
+<!-- end of linktable -->
+<!-- template-foot2 2004-01-09 -->
+<center>
+All material on this site not otherwise attributed is copyright
+&copy;1994-2004 Albert S. Woodhull
+<br>
+Click here for 
+<a href="/copyinfo.html">
+information on copying and other use</a>. 
+<br>
+Mail comments on this page to: Al Woodhull
+<a href="mailto:awoodhull@hampshire.edu">
+&lt;awoodhull@hampshire.edu&gt;</a>  
+</center>
+
+<center>
+<a href="http://www.anybrowser.org/campaign/"> 
+<img src="/anybrowser.png" width="88" height="31" 
+  alt="Viewable With Any Browser" border="0"></a>
+
+<!-- disable comments around following link if W3C validation fails -->
+<!--  -->
+&nbsp;&nbsp;
+<a href="http://validator.w3.org/">
+<img border="0" src="/validh_40.png" alt="[Valid HTML 4.0!]" 
+     height="31" width="88"> </a>
+<!--  -->
+</center>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
