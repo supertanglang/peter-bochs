@@ -9,6 +9,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -21,7 +23,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -29,6 +30,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.io.RandomAccessFile;
 import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
@@ -119,6 +121,7 @@ import peter.osdebuginformation.OSDebugInfoHelper;
 import peter.sourceleveldebugger.SourceLevelDebugger2;
 import peter.webservice.WebServiceUtil;
 
+import com.petersoft.CommonLib;
 import com.petersoft.advancedswing.diskpanel.DiskPanel;
 import com.petersoft.advancedswing.enhancedtextarea.EnhancedTextArea;
 import com.petersoft.advancedswing.jdropdownbutton.JDropDownButton;
@@ -153,7 +156,7 @@ public class Application extends javax.swing.JFrame {
 	public static CommandReceiver commandReceiver;
 
 	private JSplitPane jSplitPane1;
-	private JRegisterPanel jRegisterPanel1;
+	private RegisterPanel jRegisterPanel1;
 	private JMenuItem runBochsMenuItem;
 	private JSeparator jSeparator1;
 	private JMenuItem stopBochsMenuItem;
@@ -163,7 +166,7 @@ public class Application extends javax.swing.JFrame {
 	private JSeparator jSeparator2;
 	public JDropDownButton jRunBochsButton;
 	private JButton jStopBochsButton;
-	private JButton jStartBochButton;
+	private JButton jStartBochsButton;
 	private JToolBar jToolBar1;
 	private JPanel jPanel7;
 	private JPanel jPanel6;
@@ -231,6 +234,11 @@ public class Application extends javax.swing.JFrame {
 	private JPanel jPanel22;
 	private JPanel jPanel24;
 	private JToolBar jPanel26;
+	private JMenuItem jRunCustomCommandMenuItem;
+	private JButton jButton4;
+	private EnhancedTextArea bochsoutTextArea;
+	private JPanel jPanel31;
+	private JMenuItem jShortcutHelpMenuItem;
 	private JDropDownButton jSBAButton;
 	private JDropDownButton jSBButton;
 	private JLabel jLabel9;
@@ -460,25 +468,12 @@ public class Application extends javax.swing.JFrame {
 	private ButtonGroup buttonGroup2 = new ButtonGroup();
 	private JMenuItem loadSystemsMapMenuItem = new JMenuItem("Load system.map");
 	private String latestVersionURL;
-	private boolean saveToRunDotTxt = true;
+	private boolean saveToRunDotTxt;
 	private boolean processPauseBoch;
-	private int runBochsTime;
+	private int skipBreakpointTime;
 	private boolean isUpdateBochsStatusEnd;
-
-	private static void writeToFile(InputStream is, File file) {
-		BufferedOutputStream fOut = null;
-		try {
-			fOut = new BufferedOutputStream(new FileOutputStream(file));
-			byte[] buffer = new byte[32 * 1024];
-			int bytesRead = 0;
-			while ((bytesRead = is.read(buffer)) != -1) {
-				fOut.write(buffer, 0, bytesRead);
-			}
-			fOut.close();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-	}
+	Vector<CustomCommand> customCommandQueue = new Vector<CustomCommand>();
+	URL url = getClass().getClassLoader().getResource("images/ajax-loader.gif");
 
 	/**
 	 * Auto-generated main method to display this JFrame
@@ -534,18 +529,18 @@ public class Application extends javax.swing.JFrame {
 						if (Global.debug) {
 							System.out.println("Loading linux 64 bits jogl");
 						}
-						writeToFile(jarFile.getInputStream(new JarEntry("jogl_dll/linux_amd64/libgluegen-rt.so")), new File("libgluegen-rt.so"));
-						writeToFile(jarFile.getInputStream(new JarEntry("jogl_dll/linux_amd64/libjogl_awt.so")), new File("libjogl_awt.so"));
-						writeToFile(jarFile.getInputStream(new JarEntry("jogl_dll/linux_amd64/libjogl_cg.so")), new File("libjogl_cg.so"));
-						writeToFile(jarFile.getInputStream(new JarEntry("jogl_dll/linux_amd64/libjogl.so")), new File("libjogl.so"));
+						CommonLib.writeFile(jarFile.getInputStream(new JarEntry("jogl_dll/linux_amd64/libgluegen-rt.so")), new File("libgluegen-rt.so"));
+						CommonLib.writeFile(jarFile.getInputStream(new JarEntry("jogl_dll/linux_amd64/libjogl_awt.so")), new File("libjogl_awt.so"));
+						CommonLib.writeFile(jarFile.getInputStream(new JarEntry("jogl_dll/linux_amd64/libjogl_cg.so")), new File("libjogl_cg.so"));
+						CommonLib.writeFile(jarFile.getInputStream(new JarEntry("jogl_dll/linux_amd64/libjogl.so")), new File("libjogl.so"));
 					} else {
 						if (Global.debug) {
 							System.out.println("Loading linux 32 bits jogl");
 						}
-						writeToFile(jarFile.getInputStream(new JarEntry("jogl_dll/linux_i586/libgluegen-rt.so")), new File("libgluegen-rt.so"));
-						writeToFile(jarFile.getInputStream(new JarEntry("jogl_dll/linux_i586/libjogl_awt.so")), new File("libjogl_awt.so"));
-						writeToFile(jarFile.getInputStream(new JarEntry("jogl_dll/linux_i586/libjogl_cg.so")), new File("libjogl_cg.so"));
-						writeToFile(jarFile.getInputStream(new JarEntry("jogl_dll/linux_i586/libjogl.so")), new File("libjogl.so"));
+						CommonLib.writeFile(jarFile.getInputStream(new JarEntry("jogl_dll/linux_i586/libgluegen-rt.so")), new File("libgluegen-rt.so"));
+						CommonLib.writeFile(jarFile.getInputStream(new JarEntry("jogl_dll/linux_i586/libjogl_awt.so")), new File("libjogl_awt.so"));
+						CommonLib.writeFile(jarFile.getInputStream(new JarEntry("jogl_dll/linux_i586/libjogl_cg.so")), new File("libjogl_cg.so"));
+						CommonLib.writeFile(jarFile.getInputStream(new JarEntry("jogl_dll/linux_i586/libjogl.so")), new File("libjogl.so"));
 					}
 					try {
 						File f = new File(".");
@@ -560,26 +555,26 @@ public class Application extends javax.swing.JFrame {
 						System.err.println("Solution : Please add \"-Djava.library.path=.\" to start peter-bochs\n" + e);
 					}
 				} else if (System.getProperty("os.name").toLowerCase().startsWith("windows")) {
-					writeToFile(jarFile.getInputStream(new JarEntry("exe/PauseBochs.exe")), new File("PauseBochs.exe"));
-					writeToFile(jarFile.getInputStream(new JarEntry("exe/StopBochs.exe")), new File("StopBochs.exe"));
-					writeToFile(jarFile.getInputStream(new JarEntry("exe/ndisasm.exe")), new File("ndisasm.exe"));
+					CommonLib.writeFile(jarFile.getInputStream(new JarEntry("exe/PauseBochs.exe")), new File("PauseBochs.exe"));
+					CommonLib.writeFile(jarFile.getInputStream(new JarEntry("exe/StopBochs.exe")), new File("StopBochs.exe"));
+					CommonLib.writeFile(jarFile.getInputStream(new JarEntry("exe/ndisasm.exe")), new File("ndisasm.exe"));
 
 					if (System.getProperty("os.arch").contains("64")) {
 						if (Global.debug) {
 							System.out.println("Loading windows 64 bits jogl");
 						}
-						writeToFile(jarFile.getInputStream(new JarEntry("jogl_dll/windows_amd64/jogl.dll")), new File("jogl.dll"));
-						writeToFile(jarFile.getInputStream(new JarEntry("jogl_dll/windows_amd64/jogl_awt.dll")), new File("jogl_awt.dll"));
-						writeToFile(jarFile.getInputStream(new JarEntry("jogl_dll/windows_amd64/jogl_cg.dll")), new File("jogl_cg.dll"));
-						writeToFile(jarFile.getInputStream(new JarEntry("jogl_dll/windows_amd64/gluegen-rt.dll")), new File("gluegen-rt.dll"));
+						CommonLib.writeFile(jarFile.getInputStream(new JarEntry("jogl_dll/windows_amd64/jogl.dll")), new File("jogl.dll"));
+						CommonLib.writeFile(jarFile.getInputStream(new JarEntry("jogl_dll/windows_amd64/jogl_awt.dll")), new File("jogl_awt.dll"));
+						CommonLib.writeFile(jarFile.getInputStream(new JarEntry("jogl_dll/windows_amd64/jogl_cg.dll")), new File("jogl_cg.dll"));
+						CommonLib.writeFile(jarFile.getInputStream(new JarEntry("jogl_dll/windows_amd64/gluegen-rt.dll")), new File("gluegen-rt.dll"));
 					} else {
 						if (Global.debug) {
 							System.out.println("Loading windows 32 bits jogl");
 						}
-						writeToFile(jarFile.getInputStream(new JarEntry("jogl_dll/windows_i586/jogl.dll")), new File("jogl.dll"));
-						writeToFile(jarFile.getInputStream(new JarEntry("jogl_dll/windows_i586/jogl_awt.dll")), new File("jogl_awt.dll"));
-						writeToFile(jarFile.getInputStream(new JarEntry("jogl_dll/windows_i586/jogl_cg.dll")), new File("jogl_cg.dll"));
-						writeToFile(jarFile.getInputStream(new JarEntry("jogl_dll/windows_i586/gluegen-rt.dll")), new File("gluegen-rt.dll"));
+						CommonLib.writeFile(jarFile.getInputStream(new JarEntry("jogl_dll/windows_i586/jogl.dll")), new File("jogl.dll"));
+						CommonLib.writeFile(jarFile.getInputStream(new JarEntry("jogl_dll/windows_i586/jogl_awt.dll")), new File("jogl_awt.dll"));
+						CommonLib.writeFile(jarFile.getInputStream(new JarEntry("jogl_dll/windows_i586/jogl_cg.dll")), new File("jogl_cg.dll"));
+						CommonLib.writeFile(jarFile.getInputStream(new JarEntry("jogl_dll/windows_i586/gluegen-rt.dll")), new File("gluegen-rt.dll"));
 					}
 					try {
 						File f = new File(".");
@@ -697,7 +692,7 @@ public class Application extends javax.swing.JFrame {
 		initChineseFont();
 		new Thread("checkLatestVersion thread") {
 			public void run() {
-				HashMap<String, String> map = CommonLib.checkLatestVersion();
+				HashMap<String, String> map = PeterBochsCommonLib.checkLatestVersion();
 				if (Global.debug) {
 					System.out.println("finished checkLatestVersion()");
 					System.out.println("checkLatestVersion()=" + map.get("latestVersion"));
@@ -848,8 +843,10 @@ public class Application extends javax.swing.JFrame {
 							}
 						});
 					}
-					jRunBochsButton.setText(MyLanguage.getString("Run_bochs"));
-					jRunBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/resultset_next.png")));
+					if (skipBreakpointTime <= 0 && customCommandQueue.size() <= 0) {
+						jRunBochsButton.setText(MyLanguage.getString("Run_bochs"));
+						jRunBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/resultset_next.png")));
+					}
 				}
 			} catch (Exception ex) {
 				ex.printStackTrace();
@@ -866,6 +863,19 @@ public class Application extends javax.swing.JFrame {
 				CardLayout cl = (CardLayout) (jMainPanel.getLayout());
 				cl.show(jMainPanel, "Running Label");
 			}
+
+			if (skipBreakpointTime > 0) {
+				jRunningLabel.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\"" + url + "\" /><br><br>" + skipBreakpointTime
+						+ "</center></html>");
+			} else if (customCommandQueue.size() > 0) {
+				String nextCommands = "";
+				for (int x = 0; x < customCommandQueue.size() && x < 10; x++) {
+					nextCommands += customCommandQueue.get(x);
+				}
+				jRunningLabel.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\"" + url + "\" /><br><br>"
+						+ customCommandQueue.size() + "</center></html>");
+			}
+
 			Data.memoryProfilingZone.needToTellBochsToUpdateZone = true;
 			commandReceiver.clearBuffer();
 			sendCommand("c");
@@ -883,32 +893,50 @@ public class Application extends javax.swing.JFrame {
 						}
 					}
 
-					runBochsTime--;
-					if (runBochsTime > 0) {
-						pauseBochs(false, false);
-						URL url = getClass().getClassLoader().getResource("images/ajax-loader.gif");
-						jRunningLabel.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\"" + url + "\" /><br><br>" + runBochsTime
-								+ "</center></html>");
-						Thread t = new Thread() {
-							public void run() {
-								while (!isUpdateBochsStatusEnd) {
-									try {
-										Thread.currentThread().sleep(200);
-									} catch (Exception e) {
-										e.printStackTrace();
-									}
-								}
+					skipBreakpointTime--;
+					if (skipBreakpointTime > 0) {
+						pauseBochs(false, false); // update register, not really want to pause because it already paused
+						waitUpdateFinish();
+
+						runBochs();
+					} else if (customCommandQueue.size() > 0) {
+						pauseBochs(false, false); // update register, not really want to pause because it already paused
+						waitUpdateFinish();
+
+						while (customCommandQueue.size() > 0) {
+							String command = customCommandQueue.get(0).command;
+							customCommandQueue.remove(0);
+
+							commandReceiver.clearBuffer();
+							if (command.equals("s")) {
+								sendCommand("s");
+								updateBochsStatus(true);
+								waitUpdateFinish();
+							} else if (command.equals("c")) {
 								runBochs();
+								return;
 							}
-						};
-						t.start();
+						}
+						//						pauseBochs(false, true);
+						//						waitUpdateFinish();
 					} else {
 						pauseBochs(false, true);
+						waitUpdateFinish();
 					}
 				}
 			}.start();
 		} catch (Exception ex) {
 			ex.printStackTrace();
+		}
+	}
+
+	private void waitUpdateFinish() {
+		while (!isUpdateBochsStatusEnd) {
+			try {
+				Thread.currentThread().sleep(200);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -941,13 +969,13 @@ public class Application extends javax.swing.JFrame {
 				jToolBar1 = new JToolBar();
 				getContentPane().add(jToolBar1, BorderLayout.NORTH);
 				{
-					jStartBochButton = new JButton();
-					jToolBar1.add(jStartBochButton);
-					jStartBochButton.setText(MyLanguage.getString("Start_bochs"));
-					jStartBochButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/accept.png")));
-					jStartBochButton.addActionListener(new ActionListener() {
+					jStartBochsButton = new JButton();
+					jToolBar1.add(jStartBochsButton);
+					jStartBochsButton.setText(MyLanguage.getString("Start_bochs"));
+					jStartBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/accept.png")));
+					jStartBochsButton.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
-							jStartBochButtonActionPerformed(evt);
+							jStartBochsButtonActionPerformed(evt);
 						}
 					});
 				}
@@ -968,6 +996,7 @@ public class Application extends javax.swing.JFrame {
 					jRunBochsButton.setText(MyLanguage.getString("Run_bochs"));
 					jRunBochsButton.setMaximumSize(new java.awt.Dimension(125, 26));
 					jRunBochsButton.add(getJRunBochsAndSkipBreakpointMenuItem());
+					jRunBochsButton.add(getJRunCustomCommandMenuItem());
 					jRunBochsButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/resultset_next.png")));
 					jRunBochsButton.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
@@ -999,7 +1028,7 @@ public class Application extends javax.swing.JFrame {
 				{
 					jUpdateBochsButton = new JButton();
 					jToolBar1.add(jUpdateBochsButton);
-					jToolBar1.add(getJButton13());
+					jToolBar1.add(getJExportToExcelButton());
 					jToolBar1.add(getJSettingButton());
 					jToolBar1.add(getJRegisterToggleButton());
 					jToolBar1.add(getJSourceLevelDebuggerButton());
@@ -1122,6 +1151,7 @@ public class Application extends javax.swing.JFrame {
 						jMenu5.add(aboutUsMenuItem);
 						jMenu5.add(getJHelpRequestMenuItem());
 						jMenu5.add(getJJVMMenuItem());
+						jMenu5.add(getJShortcutHelpMenuItem());
 						aboutUsMenuItem.setText(MyLanguage.getString("About_us"));
 						aboutUsMenuItem.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent evt) {
@@ -1156,6 +1186,44 @@ public class Application extends javax.swing.JFrame {
 			// prevent null jmenuitem
 			getJInstructionPanelPopupMenu();
 			// end prevent null jmenuitem
+
+			KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
+				public boolean dispatchKeyEvent(KeyEvent e) {
+					if (e.getID() == KeyEvent.KEY_RELEASED) {
+						int keycode = e.getKeyCode();
+						if (keycode == 112) {
+							jTabbedPane3.setSelectedIndex(0);
+						} else if (keycode == 113) {
+							jTabbedPane3.setSelectedIndex(1);
+						} else if (keycode == 114) {
+							jTabbedPane3.setSelectedIndex(2);
+						} else if (keycode == 115) {
+							jTabbedPane3.setSelectedIndex(3);
+						} else if (keycode == 116) {
+							if (jStartBochsButton.isEnabled()) {
+								jStartBochsButtonActionPerformed(null);
+							}
+						} else if (keycode == 117) {
+							if (jStopBochsButton.isEnabled()) {
+								jStopBochsButtonActionPerformed(null);
+							}
+						} else if (keycode == 118) {
+							if (jRunBochsButton.isEnabled()) {
+								jRunBochsButtonActionPerformed(null);
+							}
+						} else if (keycode == 119) {
+							if (jStepBochsButton.isEnabled()) {
+								jStepBochsButtonActionPerformed(null);
+							}
+						}
+					}
+
+					// If the key should not be dispatched to the
+					// focused component, set discardEvent to true
+					boolean discardEvent = false;
+					return discardEvent;
+				}
+			});
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(ERROR);
@@ -1245,11 +1313,11 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void pauseBochsMenuItemActionPerformed(ActionEvent evt) {
-		runBochsTime = 0;
+		skipBreakpointTime = 0;
 		pauseBochs(true, true);
 	}
 
-	private void jStartBochButtonActionPerformed(ActionEvent evt) {
+	private void jStartBochsButtonActionPerformed(ActionEvent evt) {
 		startBochs();
 	}
 
@@ -1260,20 +1328,59 @@ public class Application extends javax.swing.JFrame {
 	private void jRunBochsButtonActionPerformed(ActionEvent evt) {
 		if (jRunBochsButton.getEventSource() != null) {
 			if (jRunBochsButton.getEventSource() == jRunBochsAndSkipBreakpointMenuItem) {
+				customCommandQueue.clear();
 				commandReceiver.shouldShow = false;
-				if (jRunBochsButton.getText().equals(MyLanguage.getString("Run_bochs"))) {
-					String s = JOptionPane.showInputDialog(this, "How many time of breakpoint you want to skip?");
-					if (s == null) {
-						return;
+				String s = JOptionPane.showInputDialog(this, "How many time of breakpoint you want to skip?");
+				if (s == null) {
+					return;
+				}
+				skipBreakpointTime = Integer.parseInt(s);
+				runBochsMenuItemActionPerformed(null);
+			} else if (jRunBochsButton.getEventSource() == jRunCustomCommandMenuItem) {
+				CustomCommandDialog d = new CustomCommandDialog(this);
+				d.setVisible(true);
+				customCommandQueue.clear();
+				if (d.ok) {
+					for (int z = 0; z < (Integer) d.jRepeatSpinner.getValue(); z++) {
+						if (!d.jComboBox1.getSelectedItem().toString().equals("")) {
+							for (int x = 0; x < (Integer) d.jSpinner1.getValue(); x++) {
+								customCommandQueue.add(new CustomCommand(d.jComboBox1.getSelectedItem().toString()));
+							}
+						}
+						if (!d.jComboBox2.getSelectedItem().toString().equals("")) {
+							for (int x = 0; x < (Integer) d.jSpinner2.getValue(); x++) {
+								customCommandQueue.add(new CustomCommand(d.jComboBox2.getSelectedItem().toString()));
+							}
+						}
+						if (!d.jComboBox3.getSelectedItem().toString().equals("")) {
+							for (int x = 0; x < (Integer) d.jSpinner3.getValue(); x++) {
+								customCommandQueue.add(new CustomCommand(d.jComboBox3.getSelectedItem().toString()));
+							}
+						}
+						if (!d.jComboBox4.getSelectedItem().toString().equals("")) {
+							for (int x = 0; x < (Integer) d.jSpinner4.getValue(); x++) {
+								customCommandQueue.add(new CustomCommand(d.jComboBox4.getSelectedItem().toString()));
+							}
+						}
+						if (!d.jComboBox5.getSelectedItem().toString().equals("")) {
+							for (int x = 0; x < (Integer) d.jSpinner5.getValue(); x++) {
+								customCommandQueue.add(new CustomCommand(d.jComboBox5.getSelectedItem().toString()));
+							}
+						}
+						if (!d.jComboBox6.getSelectedItem().toString().equals("")) {
+							for (int x = 0; x < (Integer) d.jSpinner6.getValue(); x++) {
+								customCommandQueue.add(new CustomCommand(d.jComboBox6.getSelectedItem().toString()));
+							}
+						}
 					}
-					runBochsTime = Integer.parseInt(s);
+
+					skipBreakpointTime = 0;
+					commandReceiver.shouldShow = false;
 					runBochsMenuItemActionPerformed(null);
-				} else {
-					pauseBochsMenuItemActionPerformed(null);
 				}
 			}
 		} else {
-			runBochsTime = 0;
+			customCommandQueue.clear();
 			commandReceiver.shouldShow = false;
 			if (jRunBochsButton.getText().equals(MyLanguage.getString("Run_bochs"))) {
 				runBochsMenuItemActionPerformed(null);
@@ -1435,6 +1542,7 @@ public class Application extends javax.swing.JFrame {
 							jStepCountLabel.setText("Step " + x + " / " + instructionCount);
 							sendCommand("s");
 							result = update(result, out);
+							jBochsEditorPane.setText("");
 						}
 						updateBochsStatus(false);
 					} else if (eventSource == jStepUntilCallOrJumpMenuItem) {
@@ -1634,7 +1742,7 @@ public class Application extends javax.swing.JFrame {
 		final JProgressBarDialog d = new JProgressBarDialog(this, true);
 		Thread updateThread = new Thread("updateBochsStatus thread") {
 			public void run() {
-				enableAllButtons(false, false);
+				enableAllButtons(false, skipBreakpointTime > 0);
 
 				d.jProgressBar.setString("update ptime");
 				if (Global.debug) {
@@ -1761,7 +1869,7 @@ public class Application extends javax.swing.JFrame {
 				d.jProgressBar.setString("updateBochsStatus end");
 				d.setVisible(false);
 
-				enableAllButtons(true, false);
+				enableAllButtons(true, skipBreakpointTime > 0 || customCommandQueue.size() > 0);
 				isUpdateBochsStatusEnd = true;
 				if (Global.debug) {
 					System.out.println("updateBochsStatus thread end");
@@ -1929,22 +2037,9 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	public void updateBreakpointTableColor() {
-		//		long eip = CommonLib.convertFilesize(jRegisterPanel1.jEIPTextField.getText());
-		//		String eipStr = Long.toHexString(eip);
-		//		for (int x = 0; x < jInstructionTable.getRowCount(); x++) {
-		//			String value = jInstructionTable.getValueAt(x, 0).toString();
-		//			if (CommonLib.convertFilesize("0x" + eipStr) == CommonLib.convertFilesize("0x" + jInstructionTable.getValueAt(x, 1))) {
-		//				jInstructionTable.setValueAt("-" + value, x, 1);
-		//			} else {
-		//				if (value.startsWith("-")) {
-		//					jInstructionTable.setValueAt(value.substring(1), x, 1);
-		//				}
-		//			}
-		//		}
-
 		for (int x = 0; x < jBreakpointTable.getRowCount(); x++) {
 			String value = jBreakpointTable.getValueAt(x, 0).toString();
-			if (CommonLib.convertFilesize(jInstructionTable.getValueAt(x, 1).toString()) == CommonLib.convertFilesize(jBreakpointTable.getValueAt(x, 2).toString())) {
+			if (CommonLib.convertFilesize(jInstructionTable.getValueAt(0, 1).toString()) == CommonLib.convertFilesize(jBreakpointTable.getValueAt(x, 2).toString())) {
 				int hit = Integer.parseInt(jBreakpointTable.getValueAt(x, 3).toString());
 				jBreakpointTable.setValueAt("-" + value, x, 0);
 				jBreakpointTable.setValueAt(hit + 1, x, 3);
@@ -2013,6 +2108,10 @@ public class Application extends javax.swing.JFrame {
 			AllRegisters.fpu_control.add(jRegisterPanel1.jFPUControlTextField.getText());
 			AllRegisters.fpu_tag.add(jRegisterPanel1.jFPUTagTextField.getText());
 			AllRegisters.fpu_operand.add(jRegisterPanel1.jFPUOperandTextField.getText());
+			AllRegisters.fip.add(jRegisterPanel1.jFIPTextField.getText());
+			AllRegisters.fcs.add(jRegisterPanel1.jFCSTextField.getText());
+			AllRegisters.fdp.add(jRegisterPanel1.jFDPTextField.getText());
+			AllRegisters.fds.add(jRegisterPanel1.jFDSTextField.getText());
 
 			AllRegisters.mm0.add(jRegisterPanel1.jMMX0TextField.getText());
 			AllRegisters.mm1.add(jRegisterPanel1.jMMX1TextField.getText());
@@ -2096,6 +2195,7 @@ public class Application extends javax.swing.JFrame {
 		runBochsMenuItem.setEnabled(b);
 		jUpdateBochsStatusMenuItem.setEnabled(b);
 		jRunBochsAndSkipBreakpointMenuItem.setEnabled(b);
+		jRunCustomCommandMenuItem.setEnabled(b);
 	}
 
 	public void updatePageTable(long pageDirectoryBaseAddress) {
@@ -2168,136 +2268,73 @@ public class Application extends javax.swing.JFrame {
 		}
 
 		/*
-		 * if (false && Global.debug &&
-		 * jAutoRefreshPageTableGraphCheckBox.isSelected()) {
-		 * System.out.println("aa"); GraphModel model = new DefaultGraphModel();
-		 * GraphLayoutCache view = new GraphLayoutCache(model, new
-		 * DefaultCellViewFactory() { public CellView createView(GraphModel
-		 * model, Object cell) { CellView view = null; if (model.isPort(cell)) {
-		 * view = new PortView(cell); } else if (model.isEdge(cell)) { view =
-		 * new EdgeView(cell); } else { if (cell instanceof IA32PageDirectory) {
-		 * view = new PageDirectoryView(cell); } else if (cell instanceof
-		 * IA32PageTable) { view = new JButtonView(cell, 1); } else { view = new
-		 * VertexView(cell); } } return view; } }); JGraph graph = new
-		 * JGraph(model, view);
+		 * if (false && Global.debug && jAutoRefreshPageTableGraphCheckBox.isSelected()) { System.out.println("aa"); GraphModel model = new DefaultGraphModel(); GraphLayoutCache
+		 * view = new GraphLayoutCache(model, new DefaultCellViewFactory() { public CellView createView(GraphModel model, Object cell) { CellView view = null; if
+		 * (model.isPort(cell)) { view = new PortView(cell); } else if (model.isEdge(cell)) { view = new EdgeView(cell); } else { if (cell instanceof IA32PageDirectory) { view =
+		 * new PageDirectoryView(cell); } else if (cell instanceof IA32PageTable) { view = new JButtonView(cell, 1); } else { view = new VertexView(cell); } } return view; } });
+		 * JGraph graph = new JGraph(model, view);
 		 * 
 		 * // add cells
 		 * 
-		 * // DefaultGraphCell[] cells = new //
-		 * DefaultGraphCell[ia32_pageDirectories.size() + 1];
-		 * Vector<DefaultGraphCell> cells = new Vector<DefaultGraphCell>();
-		 * DefaultGraphCell root = new DefaultGraphCell("cr3 " +
-		 * jRegisterPanel1.jCR3TextField.getText());
-		 * GraphConstants.setGradientColor(root.getAttributes(), Color.red);
-		 * GraphConstants.setOpaque(root.getAttributes(), true);
-		 * GraphConstants.setBounds(root.getAttributes(), new
-		 * Rectangle2D.Double(0, 0, 140, 20)); root.add(new DefaultPort());
+		 * // DefaultGraphCell[] cells = new // DefaultGraphCell[ia32_pageDirectories.size() + 1]; Vector<DefaultGraphCell> cells = new Vector<DefaultGraphCell>(); DefaultGraphCell
+		 * root = new DefaultGraphCell("cr3 " + jRegisterPanel1.jCR3TextField.getText()); GraphConstants.setGradientColor(root.getAttributes(), Color.red);
+		 * GraphConstants.setOpaque(root.getAttributes(), true); GraphConstants.setBounds(root.getAttributes(), new Rectangle2D.Double(0, 0, 140, 20)); root.add(new DefaultPort());
 		 * cells.add(root);
 		 * 
-		 * Vector<IA32PageDirectory> pageDirectoryCells = new
-		 * Vector<IA32PageDirectory>(); for (int x = 0; x <
-		 * ia32_pageDirectories.size(); x++) { IA32PageDirectory cell =
-		 * ia32_pageDirectories.get(x);
-		 * GraphConstants.setGradientColor(cell.getAttributes(), Color.orange);
-		 * GraphConstants.setOpaque(cell.getAttributes(), true);
-		 * GraphConstants.setBounds(cell.getAttributes(), new
-		 * Rectangle2D.Double(0, x * 20, 140, 20)); cell.add(new DefaultPort());
-		 * pageDirectoryCells.add(cell);
+		 * Vector<IA32PageDirectory> pageDirectoryCells = new Vector<IA32PageDirectory>(); for (int x = 0; x < ia32_pageDirectories.size(); x++) { IA32PageDirectory cell =
+		 * ia32_pageDirectories.get(x); GraphConstants.setGradientColor(cell.getAttributes(), Color.orange); GraphConstants.setOpaque(cell.getAttributes(), true);
+		 * GraphConstants.setBounds(cell.getAttributes(), new Rectangle2D.Double(0, x * 20, 140, 20)); cell.add(new DefaultPort()); pageDirectoryCells.add(cell);
 		 * 
-		 * // page table String pageTableAddress =
-		 * ia32_pageDirectories.get(x).base; sendCommand("xp /4096bx " +
-		 * pageTableAddress);
+		 * // page table String pageTableAddress = ia32_pageDirectories.get(x).base; sendCommand("xp /4096bx " + pageTableAddress);
 		 * 
-		 * float totalByte2 = 4096 - 1; totalByte2 = totalByte2 / 8; int
-		 * totalByte3 = (int) Math.floor(totalByte2); String realEndAddressStr;
-		 * String realStartAddressStr; String baseAddress = pageTableAddress;
-		 * long realStartAddress = CommonLib.hex2decimal(baseAddress);
+		 * float totalByte2 = 4096 - 1; totalByte2 = totalByte2 / 8; int totalByte3 = (int) Math.floor(totalByte2); String realEndAddressStr; String realStartAddressStr; String
+		 * baseAddress = pageTableAddress; long realStartAddress = CommonLib.hex2decimal(baseAddress);
 		 * 
-		 * realStartAddressStr = String.format("%08x", realStartAddress); long
-		 * realEndAddress = realStartAddress + totalByte3 * 8; realEndAddressStr
-		 * = String.format("%08x", realEndAddress);
+		 * realStartAddressStr = String.format("%08x", realStartAddress); long realEndAddress = realStartAddress + totalByte3 * 8; realEndAddressStr = String.format("%08x",
+		 * realEndAddress);
 		 * 
-		 * String result = commandReceiver.getCommandResult(realStartAddressStr,
-		 * realEndAddressStr); String[] lines = result.split("\n");
+		 * String result = commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr); String[] lines = result.split("\n");
 		 * 
-		 * Vector<DefaultGraphCell> pageTables = new Vector<DefaultGraphCell>();
-		 * for (int y = 1; y < 4; y++) { String[] b =
-		 * lines[y].replaceFirst("			cell.add(new DefaultPort());^.*:",
-		 * "").trim().split("\t");
+		 * Vector<DefaultGraphCell> pageTables = new Vector<DefaultGraphCell>(); for (int y = 1; y < 4; y++) { String[] b =
+		 * lines[y].replaceFirst("			cell.add(new DefaultPort());^.*:", "").trim().split("\t");
 		 * 
-		 * for (int z = 0; z < 2; z++) { try { int bytes[] = new int[4]; for
-		 * (int x2 = 0; x2 < 4; x2++) { bytes[x2] = CommonLib.hex2decimal(b[x2 +
-		 * z * 4].substring(2).trim()).intValue(); } long value =
-		 * CommonLib.getInt(bytes, 0);
+		 * for (int z = 0; z < 2; z++) { try { int bytes[] = new int[4]; for (int x2 = 0; x2 < 4; x2++) { bytes[x2] = CommonLib.hex2decimal(b[x2 + z *
+		 * 4].substring(2).trim()).intValue(); } long value = CommonLib.getInt(bytes, 0);
 		 * 
-		 * String base = Long.toHexString(value & 0xfffff000); String avl =
-		 * String.valueOf((value >> 9) & 3); String g = String.valueOf((value >>
-		 * 8) & 1); String d = String.valueOf((value >> 6) & 1); String a =
-		 * String.valueOf((value >> 5) & 1); String pcd = String.valueOf((value
-		 * >> 4) & 1); String pwt = String.valueOf((value >> 3) & 1); String us
-		 * = String.valueOf((value >> 2) & 1); String wr = String.valueOf((value
-		 * >> 1) & 1); String p = String.valueOf((value >> 0) & 1);
-		 * IA32PageTable pageTableCell = new IA32PageTable(base, avl, g, d, a,
-		 * pcd, pwt, us, wr, p);
-		 * GraphConstants.setGradientColor(pageTableCell.getAttributes(),
-		 * Color.orange);
-		 * GraphConstants.setOpaque(pageTableCell.getAttributes(), true);
-		 * GraphConstants.setBounds(pageTableCell.getAttributes(), new
-		 * Rectangle2D.Double(0, (z + y) * 20, 140, 20)); pageTableCell.add(new
-		 * DefaultPort()); pageTables.add(pageTableCell); } catch (Exception ex)
-		 * { } } }
+		 * String base = Long.toHexString(value & 0xfffff000); String avl = String.valueOf((value >> 9) & 3); String g = String.valueOf((value >> 8) & 1); String d =
+		 * String.valueOf((value >> 6) & 1); String a = String.valueOf((value >> 5) & 1); String pcd = String.valueOf((value >> 4) & 1); String pwt = String.valueOf((value >> 3) &
+		 * 1); String us = String.valueOf((value >> 2) & 1); String wr = String.valueOf((value >> 1) & 1); String p = String.valueOf((value >> 0) & 1); IA32PageTable pageTableCell
+		 * = new IA32PageTable(base, avl, g, d, a, pcd, pwt, us, wr, p); GraphConstants.setGradientColor(pageTableCell.getAttributes(), Color.orange);
+		 * GraphConstants.setOpaque(pageTableCell.getAttributes(), true); GraphConstants.setBounds(pageTableCell.getAttributes(), new Rectangle2D.Double(0, (z + y) * 20, 140, 20));
+		 * pageTableCell.add(new DefaultPort()); pageTables.add(pageTableCell); } catch (Exception ex) { } } }
 		 * 
-		 * // group it and link it DefaultGraphCell pt[] =
-		 * pageTables.toArray(new DefaultGraphCell[] {}); DefaultGraphCell
-		 * vertex1 = new DefaultGraphCell(new String("page table" + x), null,
-		 * pt); vertex1.add(new DefaultPort()); cells.add(vertex1);
+		 * // group it and link it DefaultGraphCell pt[] = pageTables.toArray(new DefaultGraphCell[] {}); DefaultGraphCell vertex1 = new DefaultGraphCell(new String("page table" +
+		 * x), null, pt); vertex1.add(new DefaultPort()); cells.add(vertex1);
 		 * 
-		 * DefaultEdge edge = new DefaultEdge();
-		 * edge.setSource(cell.getChildAt(0));
-		 * edge.setTarget(vertex1.getLastChild());
+		 * DefaultEdge edge = new DefaultEdge(); edge.setSource(cell.getChildAt(0)); edge.setTarget(vertex1.getLastChild());
 		 * 
-		 * GraphConstants.setLineStyle(edge.getAttributes(),
-		 * GraphConstants.STYLE_ORTHOGONAL);
-		 * GraphConstants.setRouting(edge.getAttributes(),
-		 * GraphConstants.ROUTING_DEFAULT); int arrow =
-		 * GraphConstants.ARROW_CLASSIC;
-		 * GraphConstants.setLineEnd(edge.getAttributes(), arrow);
-		 * GraphConstants.setEndFill(edge.getAttributes(), true);
+		 * GraphConstants.setLineStyle(edge.getAttributes(), GraphConstants.STYLE_ORTHOGONAL); GraphConstants.setRouting(edge.getAttributes(), GraphConstants.ROUTING_DEFAULT); int
+		 * arrow = GraphConstants.ARROW_CLASSIC; GraphConstants.setLineEnd(edge.getAttributes(), arrow); GraphConstants.setEndFill(edge.getAttributes(), true);
 		 * 
 		 * cells.add(edge); }
 		 * 
-		 * if (pageDirectoryCells.toArray().length > 0) { IA32PageDirectory pt[]
-		 * = pageDirectoryCells.toArray(new IA32PageDirectory[] {});
-		 * DefaultGraphCell vertex1 = new DefaultGraphCell(new
-		 * String("Vertex1"), null, pt); vertex1.add(new DefaultPort());
-		 * cells.add(vertex1);
+		 * if (pageDirectoryCells.toArray().length > 0) { IA32PageDirectory pt[] = pageDirectoryCells.toArray(new IA32PageDirectory[] {}); DefaultGraphCell vertex1 = new
+		 * DefaultGraphCell(new String("Vertex1"), null, pt); vertex1.add(new DefaultPort()); cells.add(vertex1);
 		 * 
-		 * DefaultEdge edge = new DefaultEdge();
-		 * edge.setSource(root.getChildAt(0));
-		 * edge.setTarget(vertex1.getLastChild()); int arrow =
-		 * GraphConstants.ARROW_CLASSIC;
-		 * GraphConstants.setLineEnd(edge.getAttributes(), arrow);
-		 * GraphConstants.setEndFill(edge.getAttributes(), true);
+		 * DefaultEdge edge = new DefaultEdge(); edge.setSource(root.getChildAt(0)); edge.setTarget(vertex1.getLastChild()); int arrow = GraphConstants.ARROW_CLASSIC;
+		 * GraphConstants.setLineEnd(edge.getAttributes(), arrow); GraphConstants.setEndFill(edge.getAttributes(), true);
 		 * 
 		 * // lastObj = cells[index]; cells.add(edge); }
 		 * 
-		 * graph.getGraphLayoutCache().insert(cells.toArray());
-		 * graph.setDisconnectable(false);
+		 * graph.getGraphLayoutCache().insert(cells.toArray()); graph.setDisconnectable(false);
 		 * 
-		 * JGraphFacade facade = new JGraphFacade(graph); JGraphLayout layout =
-		 * new JGraphTreeLayout(); ((JGraphTreeLayout)
-		 * layout).setOrientation(SwingConstants.WEST); //
-		 * ((JGraphHierarchicalLayout) layout).setNodeDistance(100);
-		 * layout.run(facade); Map nested = facade.createNestedMap(true, true);
-		 * graph.getGraphLayoutCache().edit(nested);
+		 * JGraphFacade facade = new JGraphFacade(graph); JGraphLayout layout = new JGraphTreeLayout(); ((JGraphTreeLayout) layout).setOrientation(SwingConstants.WEST); //
+		 * ((JGraphHierarchicalLayout) layout).setNodeDistance(100); layout.run(facade); Map nested = facade.createNestedMap(true, true); graph.getGraphLayoutCache().edit(nested);
 		 * 
-		 * // JGraphFacade facade = new JGraphFacade(graph); // JGraphLayout
-		 * layout = new JGraphFastOrganicLayout(); // layout.run(facade); // Map
-		 * nested = facade.createNestedMap(true, true); //
-		 * graph.getGraphLayoutCache().edit(nested);
+		 * // JGraphFacade facade = new JGraphFacade(graph); // JGraphLayout layout = new JGraphFastOrganicLayout(); // layout.run(facade); // Map nested =
+		 * facade.createNestedMap(true, true); // graph.getGraphLayoutCache().edit(nested);
 		 * 
-		 * jPageTableGraphPanel.removeAll(); jPageTableGraphPanel.add(new
-		 * JScrollPane(graph), BorderLayout.CENTER); }
+		 * jPageTableGraphPanel.removeAll(); jPageTableGraphPanel.add(new JScrollPane(graph), BorderLayout.CENTER); }
 		 */
 
 	}
@@ -2375,7 +2412,7 @@ public class Application extends javax.swing.JFrame {
 			jStatusLabel.setText("Updating instruction");
 			if (address == null) {
 				Long cs = CommonLib.hex2decimal(this.jRegisterPanel1.jCSTextField.getText());
-				Long eip = CommonLib.hex2decimal(this.jRegisterPanel1.jEIPTextField.getText()) + 75;
+				Long eip = CommonLib.hex2decimal(this.jRegisterPanel1.jEIPTextField.getText());
 				command = "disasm cs:eip 0x" + Long.toHexString(cs) + ":0x" + Long.toHexString(eip + 200);
 			} else {
 				command = "disasm " + address + " " + (address + 200);
@@ -2813,6 +2850,14 @@ public class Application extends javax.swing.JFrame {
 					changeTextStr(this.jRegisterPanel1.jFPUTagTextField, ss[ss.length - 1].trim());
 				} else if (line.matches(".*operand.*")) {
 					changeTextStr(this.jRegisterPanel1.jFPUOperandTextField, ss[ss.length - 1].trim());
+				} else if (line.matches("fip.*")) {
+					changeTextStr(this.jRegisterPanel1.jFIPTextField, line.split(":")[1].trim());
+				} else if (line.matches("fcs.*")) {
+					changeTextStr(this.jRegisterPanel1.jFCSTextField, line.split(":")[1].trim());
+				} else if (line.matches("fdp.*")) {
+					changeTextStr(this.jRegisterPanel1.jFDPTextField, line.split(":")[1].trim());
+				} else if (line.matches("fds.*")) {
+					changeTextStr(this.jRegisterPanel1.jFDSTextField, line.split(":")[1].trim());
 				}
 			}
 
@@ -2864,7 +2909,7 @@ public class Application extends javax.swing.JFrame {
 				currentMemoryWindowsAddress = CommonLib.convertFilesize(this.jMemoryAddressComboBox.getSelectedItem().toString());
 				jStatusLabel.setText("Updating memory");
 				int totalByte = 200;
-				int bytes[] = this.getMemory(CommonLib.convertFilesize(this.jMemoryAddressComboBox.getSelectedItem().toString()), totalByte, isPhysicalAddress);
+				int bytes[] = getMemory(CommonLib.convertFilesize(this.jMemoryAddressComboBox.getSelectedItem().toString()), totalByte, isPhysicalAddress);
 				jStatusLabel.setText("");
 				jHexTable1.getModel().setCurrentAddress(CommonLib.convertFilesize(this.jMemoryAddressComboBox.getSelectedItem().toString()));
 				jHexTable1.getModel().set(bytes);
@@ -2913,14 +2958,14 @@ public class Application extends javax.swing.JFrame {
 	private void jLDTTableMouseClicked(MouseEvent evt) {
 		if (evt.getClickCount() == 2) {
 			for (int x = 0; x < jTabbedPane2.getTabCount(); x++) {
-				if (jTabbedPane2.getTitleAt(x).equals(("LDT " + jLDTTable.getSelectedRow()))) {
+				if (jTabbedPane2.getTitleAt(x).equals(("LDT " + jLDTTable.getSelectedRow() + 1))) {
 					jTabbedPane2.setSelectedIndex(x);
 					return;
 				}
 			}
 			JScrollPane temp = new JScrollPane();
-			temp.setViewportView(new GDTLDTPanel(this, 1, CommonLib.hex2decimal(this.jRegisterPanel1.jGDTRTextField.getText()), jLDTTable.getSelectedRow()));
-			jTabbedPane2.addTab("LDT " + jLDTTable.getSelectedRow(), temp);
+			temp.setViewportView(new GDTLDTPanel(this, 1, CommonLib.hex2decimal(this.jRegisterPanel1.jLDTRTextField.getText()), jLDTTable.getSelectedRow() + 1));
+			jTabbedPane2.addTabWithCloseButton("LDT " + jLDTTable.getSelectedRow(), null, temp, null);
 			jTabbedPane2.setSelectedIndex(jTabbedPane2.getTabCount() - 1);
 		}
 	}
@@ -2930,7 +2975,10 @@ public class Application extends javax.swing.JFrame {
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			if (!CommonLib.saveImage(jHexTable1, file)) {
+			if (!file.getName().toLowerCase().endsWith(".png")) {
+				file = new File(file.getAbsolutePath() + ".png");
+			}
+			if (!PeterBochsCommonLib.saveImage(jHexTable1, file)) {
 				JOptionPane.showMessageDialog(this, "Cannot save image.", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
@@ -3511,7 +3559,7 @@ public class Application extends javax.swing.JFrame {
 			jRegRadioButton.setSelected(true);
 			jRegRadioButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
-					jRadioButton1ActionPerformed(evt);
+					jRegRadioButtonActionPerformed(evt);
 				}
 			});
 		}
@@ -3553,7 +3601,7 @@ public class Application extends javax.swing.JFrame {
 			getButtonGroup2().add(jTblRadioButton);
 			jTblRadioButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
-					jRadioButton2ActionPerformed(evt);
+					jTblRadioButtonActionPerformed(evt);
 				}
 			});
 		}
@@ -3567,16 +3615,16 @@ public class Application extends javax.swing.JFrame {
 		return buttonGroup2;
 	}
 
-	private void jRadioButton1ActionPerformed(ActionEvent evt) {
+	private void jRegRadioButtonActionPerformed(ActionEvent evt) {
 		HistoryTableModel model = (HistoryTableModel) this.jHistoryTable.getModel();
 		model.setView("reg");
-		for (int x = 1; x < model.getColumnCount(); x++) {
+		for (int x = 1; x <= 15; x++) {
 			jHistoryTable.getColumnModel().getColumn(x).setPreferredWidth(120);
 		}
-		jHistoryTable.getColumnModel().getColumn(2).setPreferredWidth(800);
+		jHistoryTable.getColumnModel().getColumn(3).setPreferredWidth(800);
 	}
 
-	private void jRadioButton2ActionPerformed(ActionEvent evt) {
+	private void jTblRadioButtonActionPerformed(ActionEvent evt) {
 		HistoryTableModel model = (HistoryTableModel) this.jHistoryTable.getModel();
 		model.setView("tbl");
 		for (int x = 1; x < model.getColumnCount(); x++) {
@@ -3684,7 +3732,7 @@ public class Application extends javax.swing.JFrame {
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			if (!CommonLib.saveImage(jInstructionTable, file)) {
+			if (!PeterBochsCommonLib.saveImage(jInstructionTable, file)) {
 				JOptionPane.showMessageDialog(this, "Cannot save image.", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
@@ -3708,13 +3756,32 @@ public class Application extends javax.swing.JFrame {
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
+			if (!file.getName().endsWith(".xls")) {
+				file = new File(file.getParent() + File.separator + file.getName() + ".xls");
+			}
 			if (file.exists()) {
-				int r = JOptionPane.showConfirmDialog(this, "Overwrite?", "Warning", JOptionPane.YES_NO_OPTION);
+				int r = JOptionPane.showConfirmDialog(this, "Overwrite " + file.getName() + "?", "Warning", JOptionPane.YES_NO_OPTION);
 				if (r == 1) {
 					return;
 				}
 			}
-			CommonLib.exportRegisterHistory(file);
+			final JProgressBarDialog d = new JProgressBarDialog(this, "Exporting to XLS", true);
+			d.jProgressBar.setIndeterminate(true);
+			d.jProgressBar.setStringPainted(true);
+
+			class MyThread extends Thread {
+				File file;
+
+				public MyThread(File file) {
+					this.file = file;
+				}
+
+				public void run() {
+					PeterBochsCommonLib.exportRegisterHistory(file, d);
+				}
+			}
+			d.thread = new MyThread(file);
+			d.setVisible(true);
 		}
 	}
 
@@ -3732,11 +3799,21 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jButton5ActionPerformed(ActionEvent evt) {
-		JFileChooser fc = new JFileChooser();
-		int returnVal = fc.showSaveDialog(this);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			File file = fc.getSelectedFile();
-			CommonLib.exportTableModelToExcel(file, this.jHexTable1.getModel(), jMemoryAddressComboBox.getSelectedItem().toString());
+		SaveMemoryToXLSDialog d = new SaveMemoryToXLSDialog(this);
+		long currentMemoryAddress = CommonLib.convertFilesize(jMemoryAddressComboBox.getSelectedItem().toString());
+		d.jFromTextField.setText("0x" + Long.toHexString(currentMemoryAddress));
+		d.jToTextField.setText("0x" + Long.toHexString(currentMemoryAddress + 64 * 1024));
+		d.setVisible(true);
+		if (d.ok) {
+			JFileChooser fc = new JFileChooser();
+			int returnVal = fc.showSaveDialog(this);
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				File file = fc.getSelectedFile();
+				if (!file.getName().toLowerCase().endsWith(".xls")) {
+					file = new File(file.getAbsolutePath() + ".xls");
+				}
+				PeterBochsCommonLib.exportTableModelToExcel(file, jHexTable1.getModel(), jMemoryAddressComboBox.getSelectedItem().toString());
+			}
 		}
 	}
 
@@ -3768,7 +3845,7 @@ public class Application extends javax.swing.JFrame {
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			if (!CommonLib.saveImage(this.jGDTTable, file)) {
+			if (!PeterBochsCommonLib.saveImage(this.jGDTTable, file)) {
 				JOptionPane.showMessageDialog(this, "Cannot save image.", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
@@ -3792,7 +3869,7 @@ public class Application extends javax.swing.JFrame {
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			CommonLib.exportTableModelToExcel(file, this.jGDTTable.getModel(), "GDT");
+			PeterBochsCommonLib.exportTableModelToExcel(file, this.jGDTTable.getModel(), "GDT");
 		}
 	}
 
@@ -3832,7 +3909,7 @@ public class Application extends javax.swing.JFrame {
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			CommonLib.exportTableModelToExcel(file, this.jIDTTable.getModel(), "IDT");
+			PeterBochsCommonLib.exportTableModelToExcel(file, this.jIDTTable.getModel(), "IDT");
 		}
 	}
 
@@ -3854,7 +3931,7 @@ public class Application extends javax.swing.JFrame {
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			if (!CommonLib.saveImage(this.jIDTTable, file)) {
+			if (!PeterBochsCommonLib.saveImage(this.jIDTTable, file)) {
 				JOptionPane.showMessageDialog(this, "Cannot save image.", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
@@ -3912,11 +3989,11 @@ public class Application extends javax.swing.JFrame {
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			CommonLib.exportTableModelToExcel(file, this.jInstructionTable.getModel(), "instruction 0x" + this.jInstructionComboBox.getSelectedItem().toString());
+			PeterBochsCommonLib.exportTableModelToExcel(file, this.jInstructionTable.getModel(), "instruction 0x" + this.jInstructionComboBox.getSelectedItem().toString());
 		}
 	}
 
-	private JButton getJButton13() {
+	private JButton getJExportToExcelButton() {
 		if (jButton13 == null) {
 			jButton13 = new JButton();
 			jButton13.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/excel.gif")));
@@ -3935,20 +4012,39 @@ public class Application extends javax.swing.JFrame {
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			Workbook wb = new HSSFWorkbook();// Write the output to a file
-			CommonLib.exportRegisterHistory(wb);
-			CommonLib.exportTableModelToExcel(file, this.jGDTTable.getModel(), "GDT", wb);
-			CommonLib.exportTableModelToExcel(file, this.jIDTTable.getModel(), "IDT", wb);
-			CommonLib.exportTableModelToExcel(file, this.jInstructionTable.getModel(), "instruction 0x" + this.jInstructionComboBox.getSelectedItem().toString(), wb);
-			CommonLib.exportTableModelToExcel(file, this.jHexTable1.getModel(), jMemoryAddressComboBox.getSelectedItem().toString(), wb);
-			FileOutputStream fileOut;
-			try {
-				fileOut = new FileOutputStream(file);
-				wb.write(fileOut);
-				fileOut.close();
-			} catch (Exception e) {
-				e.printStackTrace();
+			final JProgressBarDialog d = new JProgressBarDialog(this, "Exporting to XLS", true);
+			d.jProgressBar.setIndeterminate(true);
+			d.jProgressBar.setStringPainted(true);
+
+			class MyThread extends Thread {
+				File file;
+				Application application;
+
+				public MyThread(Application application, File file) {
+					this.application = application;
+					this.file = file;
+				}
+
+				public void run() {
+					Workbook wb = new HSSFWorkbook();// Write the output to a file
+					PeterBochsCommonLib.exportRegisterHistory(wb, d);
+					PeterBochsCommonLib.exportTableModelToExcel(file, application.jGDTTable.getModel(), "GDT", wb);
+					PeterBochsCommonLib.exportTableModelToExcel(file, application.jIDTTable.getModel(), "IDT", wb);
+					PeterBochsCommonLib.exportTableModelToExcel(file, application.jInstructionTable.getModel(), "instruction 0x"
+							+ application.jInstructionComboBox.getSelectedItem().toString(), wb);
+					PeterBochsCommonLib.exportTableModelToExcel(file, application.jHexTable1.getModel(), jMemoryAddressComboBox.getSelectedItem().toString(), wb);
+					FileOutputStream fileOut;
+					try {
+						fileOut = new FileOutputStream(file);
+						wb.write(fileOut);
+						fileOut.close();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
 			}
+			d.thread = new MyThread(this, file);
+			d.setVisible(true);
 		}
 	}
 
@@ -4224,8 +4320,8 @@ public class Application extends javax.swing.JFrame {
 						jScrollPane9 = new JScrollPane();
 						jPanel4.add(jScrollPane9, BorderLayout.CENTER);
 						{
-							TableModel jTable1Model = new DefaultTableModel(new String[][] {}, new String[] { MyLanguage.getString("No"), MyLanguage.getString("Address_type"),
-									"Disp Enb Address", MyLanguage.getString("Hit") }) {
+							TableModel jBreakpointTableModel = new DefaultTableModel(new String[][] {}, new String[] { MyLanguage.getString("No"),
+									MyLanguage.getString("Address_type"), "Disp Enb Address", MyLanguage.getString("Hit") }) {
 								public boolean isCellEditable(int row, int col) {
 									return false;
 								}
@@ -4233,13 +4329,16 @@ public class Application extends javax.swing.JFrame {
 							jBreakpointTable = new JTable();
 							jBreakpointTable.getTableHeader().setReorderingAllowed(false);
 							jScrollPane9.setViewportView(jBreakpointTable);
-							jBreakpointTable.setModel(jTable1Model);
+							jBreakpointTable.setModel(jBreakpointTableModel);
+							jBreakpointTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
 							jBreakpointTable.getColumnModel().getColumn(0).setCellRenderer(new JBreakpointTableCellRenderer());
 							jBreakpointTable.addMouseListener(new MouseAdapter() {
 								public void mouseClicked(MouseEvent evt) {
 									jBreakpointTableMouseClicked(evt);
 								}
 							});
+							jBreakpointTable.getColumnModel().getColumn(2).setPreferredWidth(100);
+							jBreakpointTable.getColumnModel().getColumn(3).setPreferredWidth(20);
 						}
 					}
 					{
@@ -4572,6 +4671,7 @@ public class Application extends javax.swing.JFrame {
 					jTabbedPane3.addTab(MyLanguage.getString("LDT"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/ldt.png")), jPanel7, null);
 					jTabbedPane3.addTab(MyLanguage.getString("Search_memory"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/memory.png")),
 							getJPanel17(), null);
+					jTabbedPane3.addTab("bochsout.txt", new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/script.png")), getJPanel31(), null);
 					{
 						jScrollPane11 = new JScrollPane();
 						jPanel7.add(jScrollPane11, BorderLayout.CENTER);
@@ -4617,7 +4717,7 @@ public class Application extends javax.swing.JFrame {
 				jTabbedPane2.addTab(MyLanguage.getString("Register"), new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/text_kerning.png")), jScrollPane1,
 						null);
 				{
-					jRegisterPanel1 = new JRegisterPanel(this);
+					jRegisterPanel1 = new RegisterPanel(this);
 					jScrollPane1.setViewportView(jRegisterPanel1);
 				}
 			}
@@ -4665,7 +4765,6 @@ public class Application extends javax.swing.JFrame {
 
 			new Thread("JRunningLabel thread") {
 				public void run() {
-					URL url = getClass().getClassLoader().getResource("images/ajax-loader.gif");
 					if (Setting.getInstance().getCurrentLanguage().equals("zh_TW")) {
 						jRunningLabel
 								.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\""
@@ -4741,7 +4840,7 @@ public class Application extends javax.swing.JFrame {
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			if (!CommonLib.saveImage(jSplitPane3, file)) {
+			if (!PeterBochsCommonLib.saveImage(jSplitPane3, file)) {
 				JOptionPane.showMessageDialog(this, "Cannot save image.", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
@@ -4979,7 +5078,7 @@ public class Application extends javax.swing.JFrame {
 			model.segNo.add(segNo);
 
 			// read GDT descriptor
-			int descriptor[] = CommonLib.getMemoryFromBochs(CommonLib.convertFilesize(this.jRegisterPanel1.jGDTRTextField.getText()) + (segNo * 8), 8);
+			int descriptor[] = PeterBochsCommonLib.getMemoryFromBochs(CommonLib.convertFilesize(this.jRegisterPanel1.jGDTRTextField.getText()) + (segNo * 8), 8);
 			long baseAddress = CommonLib.getLong(descriptor[2], descriptor[3], descriptor[4], descriptor[7], 0, 0, 0, 0);
 			long linearAddress = baseAddress + address;
 			model.baseAddress.add(baseAddress);
@@ -4987,22 +5086,22 @@ public class Application extends javax.swing.JFrame {
 
 			long pdNo = CommonLib.getValue(linearAddress, 31, 22);
 			model.pdNo.add(pdNo);
-			int pdeBytes[] = CommonLib.getMemoryFromBochs(CommonLib.convertFilesize(this.jRegisterPanel1.jCR3TextField.getText()) + (pdNo * 4), 4);
+			int pdeBytes[] = PeterBochsCommonLib.getMemoryFromBochs(CommonLib.convertFilesize(this.jRegisterPanel1.jCR3TextField.getText()) + (pdNo * 4), 4);
 			long pde = CommonLib.getInt(pdeBytes, 0);
 			model.pde.add(pde);
 
 			long ptNo = CommonLib.getValue(linearAddress, 21, 12);
 			model.ptNo.add(ptNo);
 			long pageTableBaseAddress = pde & 0xfffff000;
-			int pteBytes[] = CommonLib.getMemoryFromBochs(pageTableBaseAddress + (ptNo * 4), 4);
+			int pteBytes[] = PeterBochsCommonLib.getMemoryFromBochs(pageTableBaseAddress + (ptNo * 4), 4);
 			long pte = CommonLib.getInt(pteBytes, 0);
 			long pagePhysicalAddress = pte & 0xfffff000;
 			model.pte.add(pte);
 
 			long physicalAddress = pagePhysicalAddress + CommonLib.getValue(linearAddress, 11, 0);
 			model.physicalAddress.add(physicalAddress);
-			int bytesAtPhysicalAddress[] = CommonLib.getMemoryFromBochs(physicalAddress, 8);
-			model.bytes.add(CommonLib.convertToString(bytesAtPhysicalAddress));
+			int bytesAtPhysicalAddress[] = PeterBochsCommonLib.getMemoryFromBochs(physicalAddress, 8);
+			model.bytes.add(PeterBochsCommonLib.convertToString(bytesAtPhysicalAddress));
 
 			model.fireTableDataChanged();
 		} else if (jSearchAddressRadioButton2.isSelected()) {
@@ -5025,22 +5124,22 @@ public class Application extends javax.swing.JFrame {
 
 			long pdNo = CommonLib.getValue(linearAddress, 31, 22);
 			model.pdNo.add(pdNo);
-			int pdeBytes[] = CommonLib.getMemoryFromBochs(CommonLib.convertFilesize(this.jRegisterPanel1.jCR3TextField.getText()) + (pdNo * 4), 4);
+			int pdeBytes[] = PeterBochsCommonLib.getMemoryFromBochs(CommonLib.convertFilesize(this.jRegisterPanel1.jCR3TextField.getText()) + (pdNo * 4), 4);
 			long pde = CommonLib.getInt(pdeBytes, 0);
 			model.pde.add(pde);
 
 			long ptNo = CommonLib.getValue(linearAddress, 21, 12);
 			model.ptNo.add(ptNo);
 			long pageTableBaseAddress = pde & 0xfffff000;
-			int pteBytes[] = CommonLib.getMemoryFromBochs(pageTableBaseAddress + (ptNo * 4), 4);
+			int pteBytes[] = PeterBochsCommonLib.getMemoryFromBochs(pageTableBaseAddress + (ptNo * 4), 4);
 			long pte = CommonLib.getInt(pteBytes, 0);
 			long pagePhysicalAddress = pte & 0xfffff000;
 			model.pte.add(pte);
 
 			long physicalAddress = pagePhysicalAddress + CommonLib.getValue(linearAddress, 11, 0);
 			model.physicalAddress.add(physicalAddress);
-			int bytesAtPhysicalAddress[] = CommonLib.getMemoryFromBochs(physicalAddress, 8);
-			model.bytes.add(CommonLib.convertToString(bytesAtPhysicalAddress));
+			int bytesAtPhysicalAddress[] = PeterBochsCommonLib.getMemoryFromBochs(physicalAddress, 8);
+			model.bytes.add(PeterBochsCommonLib.convertToString(bytesAtPhysicalAddress));
 
 			model.fireTableDataChanged();
 		} else if (jSearchAddressRadioButton3.isSelected()) {
@@ -5088,7 +5187,7 @@ public class Application extends javax.swing.JFrame {
 				model.segNo.set(x, model.searchSegSelector.get(x) >> 3);
 				model.virtualAddress.set(x, model.searchAddress.get(x));
 
-				long gdtBase = CommonLib.getPhysicalAddress(CommonLib.convertFilesize(this.jRegisterPanel1.jCR3TextField.getText()),
+				long gdtBase = PeterBochsCommonLib.getPhysicalAddress(CommonLib.convertFilesize(this.jRegisterPanel1.jCR3TextField.getText()),
 						CommonLib.convertFilesize(this.jRegisterPanel1.jGDTRTextField.getText()));
 				System.out.println("gdtBase=" + Long.toHexString(gdtBase));
 				commandReceiver.clearBuffer();
@@ -6094,7 +6193,8 @@ public class Application extends javax.swing.JFrame {
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			CommonLib.exportTableModelToExcel(file, this.jPageDirectoryTable.getModel(), this.jPageTableTable.getModel(), jMemoryAddressComboBox.getSelectedItem().toString());
+			PeterBochsCommonLib.exportTableModelToExcel(file, this.jPageDirectoryTable.getModel(), this.jPageTableTable.getModel(), jMemoryAddressComboBox.getSelectedItem()
+					.toString());
 		}
 	}
 
@@ -6103,7 +6203,7 @@ public class Application extends javax.swing.JFrame {
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			if (!CommonLib.saveImage(jHistoryTable, file)) {
+			if (!PeterBochsCommonLib.saveImage(jHistoryTable, file)) {
 				JOptionPane.showMessageDialog(this, "Cannot save image.", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
@@ -6114,7 +6214,7 @@ public class Application extends javax.swing.JFrame {
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			if (!CommonLib.saveImage(jAddressTranslateTable2, file)) {
+			if (!PeterBochsCommonLib.saveImage(jAddressTranslateTable2, file)) {
 				JOptionPane.showMessageDialog(this, "Cannot save image.", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
@@ -6125,7 +6225,7 @@ public class Application extends javax.swing.JFrame {
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			CommonLib.exportTableModelToExcel(file, this.jAddressTranslateTable2.getModel(), jMemoryAddressComboBox.getSelectedItem().toString());
+			PeterBochsCommonLib.exportTableModelToExcel(file, this.jAddressTranslateTable2.getModel(), jMemoryAddressComboBox.getSelectedItem().toString());
 		}
 	}
 
@@ -6166,7 +6266,7 @@ public class Application extends javax.swing.JFrame {
 		return getMemory(address, totalByte, false);
 	}
 
-	private static int[] getMemory(long address, int totalByte, boolean isPhysicalAddress) {
+	public static int[] getMemory(long address, int totalByte, boolean isPhysicalAddress) {
 		try {
 			commandReceiver.clearBuffer();
 			commandReceiver.shouldShow = false;
@@ -6248,7 +6348,7 @@ public class Application extends javax.swing.JFrame {
 		if (diskPanel == null) {
 			diskPanel = new DiskPanel();
 			try {
-				String line = CommonLib.findLineInFile(new File(bochsrc), "ata0-master");
+				String line = PeterBochsCommonLib.findLineInFile(new File(bochsrc), "ata0-master");
 				if (line != null) {
 					String strs[] = line.split(",");
 					for (String str : strs) {
@@ -6632,13 +6732,13 @@ public class Application extends javax.swing.JFrame {
 	private void jIDTTableMouseClicked(MouseEvent evt) {
 		if (evt.getClickCount() == 2) {
 			for (int x = 0; x < jTabbedPane2.getTabCount(); x++) {
-				if (jTabbedPane2.getTitleAt(x).equals(("IDT " + String.format("0x%02x", jGDTTable.getSelectedRow() + 1)))) {
+				if (jTabbedPane2.getTitleAt(x).equals(("IDT " + String.format("0x%02x", jIDTTable.getSelectedRow())))) {
 					jTabbedPane2.setSelectedIndex(x);
 					return;
 				}
 			}
-			jTabbedPane2.addTabWithCloseButton("IDT " + String.format("0x%02x", jIDTTable.getSelectedRow() + 1), null,
-					new IDTDescriptorPanel(this, CommonLib.hex2decimal(this.jRegisterPanel1.jIDTRTextField.getText()), jIDTTable.getSelectedRow() + 1), null);
+			jTabbedPane2.addTabWithCloseButton("IDT " + String.format("0x%02x", jIDTTable.getSelectedRow()), null,
+					new IDTDescriptorPanel(this, CommonLib.hex2decimal(this.jRegisterPanel1.jIDTRTextField.getText()), jIDTTable.getSelectedRow()), null);
 			jTabbedPane2.setSelectedIndex(jTabbedPane2.getTabCount() - 1);
 		}
 	}
@@ -7462,7 +7562,7 @@ public class Application extends javax.swing.JFrame {
 			URL url = getClass().getClassLoader().getResource("images/ajax-loader_red.gif");
 			if (Setting.getInstance().getCurrentLanguage().equals("zh_TW")) {
 				jRunningLabel2.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\"" + url
-						+ "\" /><br><br><a style=\"color: #000000;  text-decoration:none\" href=\"http://www.kingofcoders.com\">蝺函��雯蝡� www.kingofcoders.com</a></center></html>");
+						+ "\" /><br><br><a style=\"color: #000000;  text-decoration:none\" href=\"http://www.kingofcoders.com\">操作系统开发社区 www.kingofcoders.com</a></center></html>");
 			} else if (Setting.getInstance().getCurrentLanguage().equals("zh_CN")) {
 				jRunningLabel2
 						.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\""
@@ -7525,6 +7625,7 @@ public class Application extends javax.swing.JFrame {
 	private JCheckBox getJAutoUpdateEvery20LinesCheckBox() {
 		if (jAutoUpdateEvery20LinesCheckBox == null) {
 			jAutoUpdateEvery20LinesCheckBox = new JCheckBox();
+			jAutoUpdateEvery20LinesCheckBox.setSelected(true);
 			jAutoUpdateEvery20LinesCheckBox.setText("Update the following instruction box every 20 lines, this make bochs runs faster");
 		}
 		return jAutoUpdateEvery20LinesCheckBox;
@@ -7534,7 +7635,6 @@ public class Application extends javax.swing.JFrame {
 		if (jSaveToRunDotTxtCheckBox == null) {
 			jSaveToRunDotTxtCheckBox = new JCheckBox();
 			jSaveToRunDotTxtCheckBox.setText("Append to run.txt");
-			jSaveToRunDotTxtCheckBox.setSelected(true);
 			jSaveToRunDotTxtCheckBox.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jSaveToRunDotTxtCheckBoxActionPerformed(evt);
@@ -7561,6 +7661,7 @@ public class Application extends javax.swing.JFrame {
 			ComboBoxModel jMaxRowComboBoxModel = new DefaultComboBoxModel(new String[] { "infinite", "10", "100", "200", "500", "1000", "2000" });
 			jMaxRowComboBox = new JComboBox();
 			jMaxRowComboBox.setModel(jMaxRowComboBoxModel);
+			jMaxRowComboBox.setSelectedItem("100");
 		}
 		return jMaxRowComboBox;
 	}
@@ -7662,9 +7763,11 @@ public class Application extends javax.swing.JFrame {
 	private void jFPURadioButtonActionPerformed(ActionEvent evt) {
 		HistoryTableModel model = (HistoryTableModel) this.jHistoryTable.getModel();
 		model.setView("fpu");
-		for (int x = 0; x < model.getColumnCount(); x++) {
+		for (int x = 1; x < model.getColumnCount(); x++) {
 			jHistoryTable.getColumnModel().getColumn(x).setPreferredWidth(200);
 		}
+		jHistoryTable.getColumnModel().getColumn(9).setPreferredWidth(600);
+		jHistoryTable.getColumnModel().getColumn(10).setPreferredWidth(500);
 	}
 
 	private void jTabbedPane1StateChanged(ChangeEvent evt) {
@@ -7785,10 +7888,9 @@ public class Application extends javax.swing.JFrame {
 		jSourceLevelDebuggerButtonActionPerformed(null);
 		// sourceLevelDebugger.jMainTabbedPane.setSelectedIndex(1);
 		if (Global.clickedWhichInstructionPanel == 0) {
-			sourceLevelDebugger.showWhere(com.petersoft.CommonLib.string2decimal((String) jInstructionTable.getValueAt(jInstructionTable.getSelectedRow(), 1)));
+			sourceLevelDebugger.showWhere(CommonLib.string2decimal((String) jInstructionTable.getValueAt(jInstructionTable.getSelectedRow(), 1)));
 		} else {
-			sourceLevelDebugger.showWhere(com.petersoft.CommonLib.string2decimal((String) sourceLevelDebugger.jAssemblyTable.getValueAt(
-					sourceLevelDebugger.jAssemblyTable.getSelectedRow(), 1)));
+			sourceLevelDebugger.showWhere(CommonLib.string2decimal((String) sourceLevelDebugger.jAssemblyTable.getValueAt(sourceLevelDebugger.jAssemblyTable.getSelectedRow(), 1)));
 		}
 	}
 
@@ -7891,7 +7993,7 @@ public class Application extends javax.swing.JFrame {
 		MyTableRowSorter<TableModel> sorter = (MyTableRowSorter<TableModel>) jHistoryTable.getRowSorter();
 		sorter.showAfterwardCount = (Integer) jShowAfterwardSpinner.getValue();
 		sorter.setRowFilter(RowFilter.regexFilter(jFilterHistoryTableTextField.getText()));
-		//((MyTableRowSorter<TableModel>) jHistoryTable.getRowSorter()).setRowFilter(genRegexFilter(jFilterHistoryTableTextField.getText()));
+		// ((MyTableRowSorter<TableModel>) jHistoryTable.getRowSorter()).setRowFilter(genRegexFilter(jFilterHistoryTableTextField.getText()));
 	}
 
 	private JMenuItem getJRunBochsAndSkipBreakpointMenuItem() {
@@ -8053,5 +8155,131 @@ public class Application extends javax.swing.JFrame {
 		}
 		Setting.getInstance().save();
 		loadSBAButton();
+	}
+
+	private JMenuItem getJShortcutHelpMenuItem() {
+		if (jShortcutHelpMenuItem == null) {
+			jShortcutHelpMenuItem = new JMenuItem();
+			jShortcutHelpMenuItem.setText("Shortcut");
+			jShortcutHelpMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jShortcutHelpMenuItemActionPerformed(evt);
+				}
+			});
+		}
+		return jShortcutHelpMenuItem;
+	}
+
+	private void jShortcutHelpMenuItemActionPerformed(ActionEvent evt) {
+		String s = "F1 : Show memory\n" + "F2 : Show GDT\n" + "F3 : Show IDT\n" + "F4 : Show LDT\n" + "F5 : Start bochs\n" + "F6 : Stop bochs\n" + "F7 : Run/Pause bochs\n"
+				+ "F8 : Step\n";
+		JOptionPane.showMessageDialog(this, s);
+	}
+
+	private JPanel getJPanel31() {
+		if (jPanel31 == null) {
+			jPanel31 = new JPanel();
+			BorderLayout jPanel31Layout = new BorderLayout();
+			jPanel31.setLayout(jPanel31Layout);
+			jPanel31.add(getBochsoutTextArea(), BorderLayout.CENTER);
+		}
+		return jPanel31;
+	}
+
+	private EnhancedTextArea getBochsoutTextArea() {
+		if (bochsoutTextArea == null) {
+			bochsoutTextArea = new EnhancedTextArea();
+			// bochsoutTextArea.setMaxRow(20);
+			// bochsoutTextArea.addTrailListener(new File("bochsout.txt"), 0, false);
+
+			new Thread(new BochsoutTimer()).start();
+			getBochsoutTextArea().jToolBar.add(getJButton4(), -1);
+		}
+		return bochsoutTextArea;
+	}
+
+	class BochsoutTimer implements Runnable {
+		long originalLengeh;
+
+		int x = 0;
+
+		@Override
+		public void run() {
+			while (true) {
+				try {
+					File file = new File("bochsout.txt");
+					long newLength = file.length();
+					if (originalLengeh != newLength) {
+						bochsoutTextArea.setText(tail2(file, 80));
+						bochsoutTextArea.jTextArea.setCaretPosition(bochsoutTextArea.jTextArea.getDocument().getLength());
+						originalLengeh = newLength;
+					}
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+				try {
+					Thread.currentThread().sleep(500);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	public String tail2(File file, int lines) {
+		try {
+			RandomAccessFile fileHandler = new RandomAccessFile(file, "r");
+			long fileLength = file.length() - 1;
+			StringBuilder sb = new StringBuilder();
+			int line = 0;
+
+			for (long filePointer = fileLength; filePointer != -1; filePointer--) {
+				fileHandler.seek(filePointer);
+				int readByte = fileHandler.readByte();
+
+				if (readByte == 0xA) {
+					line = line + 1;
+					if (line == lines) {
+						if (filePointer == fileLength) {
+							continue;
+						} else {
+							break;
+						}
+					}
+				}
+				sb.append((char) readByte);
+			}
+
+			sb.deleteCharAt(sb.length() - 1);
+			String lastLine = sb.reverse().toString();
+			return lastLine;
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	private JButton getJButton4() {
+		if (jButton4 == null) {
+			jButton4 = new JButton();
+			jButton4.setText("Help");
+			jButton4.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jButton4ActionPerformed(evt);
+				}
+			});
+		}
+		return jButton4;
+	}
+
+	private void jButton4ActionPerformed(ActionEvent evt) {
+		JOptionPane.showMessageDialog(this, "To enable bochsout.txt, add \"log: bochsout.txt\" to your bochsrc.bxrc");
+	}
+
+	private JMenuItem getJRunCustomCommandMenuItem() {
+		if (jRunCustomCommandMenuItem == null) {
+			jRunCustomCommandMenuItem = new JMenuItem();
+			jRunCustomCommandMenuItem.setText("Run custom commands");
+		}
+		return jRunCustomCommandMenuItem;
 	}
 }

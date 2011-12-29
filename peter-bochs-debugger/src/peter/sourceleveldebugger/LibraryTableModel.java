@@ -5,10 +5,9 @@ import java.util.HashSet;
 
 import javax.swing.table.AbstractTableModel;
 
-import com.petersoft.CommonLib;
-
-import peter.Application;
 import peter.MyLanguage;
+
+import com.petersoft.CommonLib;
 
 public class LibraryTableModel extends AbstractTableModel {
 	private String[] columnNames = { MyLanguage.getString("Library") + "/" + MyLanguage.getString("Object"), MyLanguage.getString("Size"), MyLanguage.getString("Path") };

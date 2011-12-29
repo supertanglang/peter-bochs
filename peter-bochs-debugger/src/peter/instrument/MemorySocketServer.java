@@ -11,8 +11,9 @@ import java.util.TreeSet;
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 
-import peter.CommonLib;
 import peter.Global;
+
+import com.petersoft.CommonLib;
 
 public class MemorySocketServer implements Runnable {
 	int port;

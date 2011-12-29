@@ -69,7 +69,7 @@ public class CommandReceiver implements Runnable {
 					return str;
 				}
 				long diff = new Date().getTime() - startTime;
-				if (diff / 1000 >= 4) {
+				if (diff / 1000 >= timeoutSecond) {
 					return str;
 				}
 			}

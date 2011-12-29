@@ -14,6 +14,8 @@ import javax.swing.table.TableModel;
 
 import peter.architecture.DescriptorParser;
 
+import com.petersoft.CommonLib;
+
 /**
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
  * Builder, which is free for non-commercial use. If Jigloo is being used
@@ -95,8 +97,7 @@ public class IDTDescriptorPanel extends JPanel {
 						jScrollPane2 = new JScrollPane();
 						jPanel3.add(jScrollPane2, BorderLayout.CENTER);
 						{
-							TableModel jTable2Model = new DefaultTableModel(new String[][] {}, new String[] { MyLanguage.getString("Field"),
-									MyLanguage.getString("Value") });
+							TableModel jTable2Model = new DefaultTableModel(new String[][] {}, new String[] { MyLanguage.getString("Field"), MyLanguage.getString("Value") });
 							jFieldTable = new JTable();
 							jScrollPane2.setViewportView(jFieldTable);
 							jFieldTable.setModel(jTable2Model);
@@ -106,13 +107,15 @@ public class IDTDescriptorPanel extends JPanel {
 			}
 			// Application.commandReceiver.setCommandNoOfLine(2);
 			String result;
-			Application.sendCommand("info idt " + idtNo);
-			String idtNoHex = String.format("0x%02x", idtNo);
-			result = Application.commandReceiver.getCommandResult("IDT[" + idtNoHex + "]");
+			//			Application.sendCommand("info idt " + idtNo);
+			//			String idtNoHex = String.format("0x%02x", idtNo);
+			//			result = Application.commandReceiver.getCommandResult("IDT[" + idtNoHex + "]");
 
 			Application.commandReceiver.clearBuffer();
 			Application.sendCommand("x /8bx " + String.format("0x%08x", idtAddress + (idtNo * 8)));
 			result = Application.commandReceiver.getCommandResult(String.format("%08x", idtAddress + (idtNo * 8)));
+			System.out.println("idtNo=" + idtNo + " , idtAddress+" + idtAddress + " , " + (idtAddress + (idtNo * 8)));
+			System.out.println(result);
 			String lines[] = result.split("\n");
 
 			String byteStr[] = lines[0].replaceFirst("^.*>:\t", "").split("\t");

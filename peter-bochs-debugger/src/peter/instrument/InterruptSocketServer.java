@@ -11,8 +11,9 @@ import java.util.Hashtable;
 
 import javax.swing.JOptionPane;
 
-import peter.CommonLib;
 import peter.Global;
+
+import com.petersoft.CommonLib;
 
 public class InterruptSocketServer implements Runnable {
 	private int port;
@@ -65,10 +66,8 @@ public class InterruptSocketServer implements Runnable {
 
 				while (!shouldStop) {
 					long intNo = CommonLib.readLongFromInputStream(in);
-					// System.out.println("intNo==" + intNo);
 
 					if (interruptRecords.get(intNo) != null) {
-						// System.out.println(interruptRecords.get(intNo));
 						interruptRecords.put(intNo, interruptRecords.get(intNo) + 1);
 					} else {
 						interruptRecords.put(intNo, 1);

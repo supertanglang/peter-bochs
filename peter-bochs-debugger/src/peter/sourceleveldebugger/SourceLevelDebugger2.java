@@ -36,19 +36,18 @@ import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import org.apache.commons.io.FileUtils;
 
 import peter.Application;
-import peter.CommonLib;
 import peter.JInstructionTableCellRenderer;
 import peter.MyLanguage;
+import peter.PeterBochsCommonLib;
 import peter.Setting;
 
+import com.petersoft.CommonLib;
 import com.petersoft.advancedswing.enhancedtextarea.EnhancedTextArea;
 import com.petersoft.advancedswing.jmaximizabletabbedpane.JMaximizableTabbedPane;
 import com.petersoft.advancedswing.jmaximizabletabbedpane.JMaximizableTabbedPane_BasePanel;
@@ -581,7 +580,7 @@ public class SourceLevelDebugger2 extends JMaximizableTabbedPane_BasePanel imple
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			if (!CommonLib.saveImage(jAssemblyTable, file)) {
+			if (!PeterBochsCommonLib.saveImage(jAssemblyTable, file)) {
 				JOptionPane.showMessageDialog(this, "Cannot save image.", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
@@ -592,7 +591,7 @@ public class SourceLevelDebugger2 extends JMaximizableTabbedPane_BasePanel imple
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			CommonLib.exportTableModelToExcel(file, this.jAssemblyTable.getModel(), "instruction 0x" + this.jInstructionComboBox.getSelectedItem().toString());
+			PeterBochsCommonLib.exportTableModelToExcel(file, this.jAssemblyTable.getModel(), "instruction 0x" + this.jInstructionComboBox.getSelectedItem().toString());
 		}
 	}
 

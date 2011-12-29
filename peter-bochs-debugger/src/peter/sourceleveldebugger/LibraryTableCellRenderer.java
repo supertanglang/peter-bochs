@@ -7,7 +7,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
-import javax.swing.border.LineBorder;
 import javax.swing.table.TableCellRenderer;
 
 public class LibraryTableCellRenderer extends JLabel implements TableCellRenderer {

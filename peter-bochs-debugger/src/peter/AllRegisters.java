@@ -56,6 +56,10 @@ public class AllRegisters {
 	public static Vector<String> fpu_control = new Vector<String>();
 	public static Vector<String> fpu_tag = new Vector<String>();
 	public static Vector<String> fpu_operand = new Vector<String>();
+	public static Vector<String> fip = new Vector<String>();
+	public static Vector<String> fcs = new Vector<String>();
+	public static Vector<String> fdp = new Vector<String>();
+	public static Vector<String> fds = new Vector<String>();
 
 	public static Vector<String> mm0 = new Vector<String>();
 	public static Vector<String> mm1 = new Vector<String>();
@@ -119,6 +123,10 @@ public class AllRegisters {
 		fpu_control.clear();
 		fpu_tag.clear();
 		fpu_operand.clear();
+		fip.clear();
+		fcs.clear();
+		fdp.clear();
+		fds.clear();
 
 		mm0.clear();
 		mm1.clear();

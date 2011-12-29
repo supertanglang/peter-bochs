@@ -1,22 +1,19 @@
 package peter.sourceleveldebugger;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.UIManager;
-import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.tree.TreeCellRenderer;
 
 import com.petersoft.CommonLib;
-
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Color;
-import java.awt.BorderLayout;
 
 public class ObjectFileTreeRenderer extends JPanel implements TreeCellRenderer {
 	ImageIcon rootIcon = new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/script.png"));

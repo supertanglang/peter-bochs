@@ -39,7 +39,6 @@ import java.util.TimerTask;
 import java.util.TreeSet;
 import java.util.Vector;
 
-import javax.media.opengl.GLCapabilities;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
@@ -88,22 +87,17 @@ import org.jfree.data.xy.DefaultXYZDataset;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYZDataset;
 import org.jzy3d.chart.Chart;
-import org.jzy3d.chart.controllers.ControllerType;
 import org.jzy3d.chart.controllers.mouse.ChartMouseController;
 import org.jzy3d.colors.ColorMapper;
 import org.jzy3d.colors.colormaps.ColorMapRainbow;
-import org.jzy3d.events.ControllerEvent;
-import org.jzy3d.events.ControllerEventListener;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.plot3d.builder.Builder;
 import org.jzy3d.plot3d.primitives.AbstractDrawable;
 import org.jzy3d.plot3d.primitives.Shape;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 
-import peter.CommonLib;
-import peter.Global;
-import peter.JRegisterPanel;
 import peter.MyLanguage;
+import peter.RegisterPanel;
 import peter.Setting;
 import peter.TSSPanel;
 import peter.instrument.callgraph.CallGraphConfigTableCellEditor;
@@ -132,18 +126,24 @@ import com.mxgraph.util.png.mxPngEncodeParam;
 import com.mxgraph.util.png.mxPngImageEncoder;
 import com.mxgraph.view.mxCellState;
 import com.mxgraph.view.mxGraph;
+import com.petersoft.CommonLib;
 import com.petersoft.advancedswing.combo_color_renderer.ComboBoxRenderer;
 import com.petersoft.advancedswing.searchtextfield.JSearchTextField;
 
 /**
- * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI Builder, which is free for non-commercial use. If Jigloo is being used commercially (ie, by a
- * corporation, company or business for any purpose whatever) then you should purchase a license for each developer using Jigloo. Please visit www.cloudgarden.com for details. Use
- * of Jigloo implies acceptance of these licensing terms. A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR ANY
- * CORPORATE OR COMMERCIAL PURPOSE.
+ * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
+ * Builder, which is free for non-commercial use. If Jigloo is being used
+ * commercially (ie, by a corporation, company or business for any purpose
+ * whatever) then you should purchase a license for each developer using Jigloo.
+ * Please visit www.cloudgarden.com for details. Use of Jigloo implies
+ * acceptance of these licensing terms. A COMMERCIAL LICENSE HAS NOT BEEN
+ * PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR
+ * ANY CORPORATE OR COMMERCIAL PURPOSE.
  */
 public class InstrumentPanel extends JPanel implements ChartChangeListener, ChartMouseListener {
 	private JTabbedPane jTabbedPane1;
 	private JPanel jMemoryPanel;
+	private JButton jClearInterruptButton;
 	private JButton jInvisible3dChartButton;
 	private JPanel jPanel15;
 	private JPanel jPanel14;
@@ -171,7 +171,7 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 	private JLabel jLabel12;
 	private JLabel jLabel11;
 	private JScrollPane jScrollPane5;
-	private JRegisterPanel jCallGraphRegisterPanel;
+	private RegisterPanel jCallGraphRegisterPanel;
 	private JPanel jPanel10;
 	private JPanel jPanel9;
 	private JPanel jPanel8;
@@ -2259,9 +2259,9 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 		return jPanel10;
 	}
 
-	private JRegisterPanel getJCallGraphRegisterPanel() {
+	private RegisterPanel getJCallGraphRegisterPanel() {
 		if (jCallGraphRegisterPanel == null) {
-			jCallGraphRegisterPanel = new JRegisterPanel();
+			jCallGraphRegisterPanel = new RegisterPanel();
 		}
 		return jCallGraphRegisterPanel;
 	}
@@ -2336,42 +2336,47 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 		if (interruptTimer != null) {
 			interruptTimer.cancel();
 		}
+
 		interruptTimer = new Timer();
 		interruptTimer.schedule(new TimerTask() {
+			Hashtable<Long, Integer> oldInterruptRecords;
+
 			public void run() {
 				try {
-					ArrayList<Long> list = Collections.list(InterruptSocketServer.interruptRecords.keys());
-					Date d = new Date();
-					// int noOfFrame = getTimeframe() / getSpeed();
-					InterruptTableModel.interruptRecords = (Hashtable<Long, Integer>) InterruptSocketServer.interruptRecords.clone();
-					((InterruptTableModel) jInterruptTable.getModel()).fireTableDataChanged();
+					synchronized (allSeries) {
+						ArrayList<Long> list = Collections.list(InterruptSocketServer.interruptRecords.keys());
+						Date d = new Date();
+						// int noOfFrame = getTimeframe() / getSpeed();
+						oldInterruptRecords = (Hashtable<Long, Integer>) InterruptSocketServer.interruptRecords.clone();
+						((InterruptTableModel) jInterruptTable.getModel()).fireTableDataChanged();
 
-					for (int x = 0; x < list.size(); x++) {
-						long interuptNoL = list.get(x);
-						int interruptNo = (int) interuptNoL;
-						if (allSeries.get(interruptNo) != null) {
-							TimeSeries series = allSeries.get(interruptNo);
-							List<TimeSeriesDataItem> items = series.getItems();
-							for (int z = items.size() - 1; z >= 0; z--) {
-								RegularTimePeriod pd = items.get(z).getPeriod();
-								Calendar cal1 = Calendar.getInstance();
-								cal1.add(Calendar.MILLISECOND, -1 * getTimeframe());
-								Calendar cal2 = Calendar.getInstance();
-								cal2.setTime(pd.getEnd());
-								if (cal1.after(cal2)) {
-									series.delete(pd);
+						for (int x = 0; x < list.size(); x++) {
+							long interuptNoL = list.get(x);
+							int interruptNo = (int) interuptNoL;
+							if (allSeries.get(interruptNo) != null) {
+								TimeSeries series = allSeries.get(interruptNo);
+								List<TimeSeriesDataItem> items = series.getItems();
+								for (int z = items.size() - 1; z >= 0; z--) {
+									RegularTimePeriod pd = items.get(z).getPeriod();
+									Calendar cal1 = Calendar.getInstance();
+									cal1.add(Calendar.MILLISECOND, -1 * getTimeframe());
+									Calendar cal2 = Calendar.getInstance();
+									cal2.setTime(pd.getEnd());
+									if (cal1.after(cal2)) {
+										series.delete(pd);
+									}
 								}
+								series.add(new Millisecond(d), InterruptSocketServer.interruptRecords.get(interuptNoL) - oldInterruptRecords.get(interuptNoL));
+								//							InterruptSocketServer.interruptRecords.put(interuptNoL, 0);
+							} else {
+								TimeSeries newSeries = new TimeSeries("Int 0x" + Integer.toHexString(interruptNo));
+								interruptDataset.addSeries(newSeries);
+								allSeries.put(interruptNo, newSeries);
 							}
-							series.add(new Millisecond(d), InterruptSocketServer.interruptRecords.get(interuptNoL));
-							InterruptSocketServer.interruptRecords.put(interuptNoL, 0);
-						} else {
-							TimeSeries newSeries = new TimeSeries("Int 0x" + Integer.toHexString(interruptNo));
-							interruptDataset.addSeries(newSeries);
-							allSeries.put(interruptNo, newSeries);
 						}
-					}
 
-					interruptChart.fireChartChanged();
+						interruptChart.fireChartChanged();
+					}
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				}
@@ -2380,14 +2385,7 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 	}
 
 	private TimeSeriesCollection createInterruptChartDataset() {
-		final TimeSeriesCollection dataset = new TimeSeriesCollection();
-
-		// for (int x = 0; x < 32; x++) {
-		// TimeSeries series1 = new TimeSeries("Int " + x);
-		// Date d = new Date();
-		// series1.add(new Millisecond(d), 1.0);
-		// dataset.addSeries(series1);
-		// }
+		TimeSeriesCollection dataset = new TimeSeriesCollection();
 		return dataset;
 	}
 
@@ -2462,6 +2460,7 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			jPanel13.add(getJChartBackgroundComboBox());
 			jPanel13.add(getJLabel16());
 			jPanel13.add(getJChartGirdColorComboBox());
+			jPanel13.add(getJClearInterruptButton());
 		}
 		return jPanel13;
 	}
@@ -2480,6 +2479,7 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			jTimeframeComboBox = new JComboBox();
 			jTimeframeComboBox.setModel(jTimeframeComboBoxModel);
 			jTimeframeComboBox.setPreferredSize(new java.awt.Dimension(84, 22));
+			jTimeframeComboBox.setSelectedItem("10s");
 			jTimeframeComboBox.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
 					jTimeframeComboBoxActionPerformed(evt);
@@ -2724,5 +2724,22 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			jMemory3DPanel.repaint();
 		}
 		jMemory3DPanel.revalidate();
+	}
+
+	private JButton getJClearInterruptButton() {
+		if (jClearInterruptButton == null) {
+			jClearInterruptButton = new JButton();
+			jClearInterruptButton.setText("Clear");
+			jClearInterruptButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jClearInterruptButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jClearInterruptButton;
+	}
+
+	private void jClearInterruptButtonActionPerformed(ActionEvent evt) {
+		InterruptSocketServer.interruptRecords.clear();
 	}
 }
