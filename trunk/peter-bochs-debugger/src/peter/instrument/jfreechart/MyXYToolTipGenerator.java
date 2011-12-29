@@ -4,9 +4,10 @@ import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYZDataset;
 
-import peter.CommonLib;
 import peter.instrument.Data;
 import peter.instrument.InstrumentPanel;
+
+import com.petersoft.CommonLib;
 
 public class MyXYToolTipGenerator implements XYToolTipGenerator {
 	@Override

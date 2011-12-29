@@ -8,10 +8,12 @@ import java.io.InputStreamReader;
 
 import org.apache.commons.io.FileUtils;
 
+import com.petersoft.CommonLib;
+
 public class Disassemble {
 	public static String disassemble(long address, int bits) {
 		try {
-			int bytes[] = CommonLib.getMemoryFromBochs(address, 100);
+			int bytes[] = PeterBochsCommonLib.getMemoryFromBochs(address, 100);
 			FileUtils.writeByteArrayToFile(new File("temp"), CommonLib.intArrayToByteArray(bytes));
 
 			ProcessBuilder pb;

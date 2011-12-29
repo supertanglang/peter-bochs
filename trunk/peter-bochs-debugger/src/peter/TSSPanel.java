@@ -40,6 +40,7 @@ import peter.architecture.IA32PageDirectory;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
+import com.petersoft.CommonLib;
 
 /**
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
@@ -828,7 +829,7 @@ public class TSSPanel extends JPanel {
 			model.segNo.add(segNo);
 
 			// read GDT descriptor
-			int descriptor[] = CommonLib.getMemoryFromBochs(ldtr + (segNo * 8), 8);
+			int descriptor[] = PeterBochsCommonLib.getMemoryFromBochs(ldtr + (segNo * 8), 8);
 			long baseAddress = CommonLib.getLong(descriptor[2], descriptor[3], descriptor[4], descriptor[7], 0, 0, 0, 0);
 			long linearAddress = baseAddress + address;
 			model.baseAddress.add(baseAddress);
@@ -836,22 +837,22 @@ public class TSSPanel extends JPanel {
 
 			long pdNo = CommonLib.getValue(linearAddress, 31, 22);
 			model.pdNo.add(pdNo);
-			int pdeBytes[] = CommonLib.getMemoryFromBochs(cr3 + (pdNo * 4), 4);
+			int pdeBytes[] = PeterBochsCommonLib.getMemoryFromBochs(cr3 + (pdNo * 4), 4);
 			long pde = CommonLib.getInt(pdeBytes, 0);
 			model.pde.add(pde);
 
 			long ptNo = CommonLib.getValue(linearAddress, 21, 12);
 			model.ptNo.add(ptNo);
 			long pageTableBaseAddress = pde & 0xfffff000;
-			int pteBytes[] = CommonLib.getMemoryFromBochs(pageTableBaseAddress + (ptNo * 4), 4);
+			int pteBytes[] = PeterBochsCommonLib.getMemoryFromBochs(pageTableBaseAddress + (ptNo * 4), 4);
 			long pte = CommonLib.getInt(pteBytes, 0);
 			long pagePhysicalAddress = pte & 0xfffff000;
 			model.pte.add(pte);
 
 			long physicalAddress = pagePhysicalAddress + CommonLib.getValue(linearAddress, 11, 0);
 			model.physicalAddress.add(physicalAddress);
-			int bytesAtPhysicalAddress[] = CommonLib.getMemoryFromBochs(physicalAddress, 8);
-			model.bytes.add(CommonLib.convertToString(bytesAtPhysicalAddress));
+			int bytesAtPhysicalAddress[] = PeterBochsCommonLib.getMemoryFromBochs(physicalAddress, 8);
+			model.bytes.add(PeterBochsCommonLib.convertToString(bytesAtPhysicalAddress));
 
 			model.fireTableDataChanged();
 		} else if (jSearchAddressRadioButton2.isSelected()) {
@@ -875,22 +876,22 @@ public class TSSPanel extends JPanel {
 			long pdNo = CommonLib.getValue(linearAddress, 31, 22);
 			System.out.println(linearAddress + "==" + pdNo);
 			model.pdNo.add(pdNo);
-			int pdeBytes[] = CommonLib.getMemoryFromBochs(cr3 + (pdNo * 4), 4);
+			int pdeBytes[] = PeterBochsCommonLib.getMemoryFromBochs(cr3 + (pdNo * 4), 4);
 			long pde = CommonLib.getInt(pdeBytes, 0);
 			model.pde.add(pde);
 
 			long ptNo = CommonLib.getValue(linearAddress, 21, 12);
 			model.ptNo.add(ptNo);
 			long pageTableBaseAddress = pde & 0xfffff000;
-			int pteBytes[] = CommonLib.getMemoryFromBochs(pageTableBaseAddress + (ptNo * 4), 4);
+			int pteBytes[] = PeterBochsCommonLib.getMemoryFromBochs(pageTableBaseAddress + (ptNo * 4), 4);
 			long pte = CommonLib.getInt(pteBytes, 0);
 			long pagePhysicalAddress = pte & 0xfffff000;
 			model.pte.add(pte);
 
 			long physicalAddress = pagePhysicalAddress + CommonLib.getValue(linearAddress, 11, 0);
 			model.physicalAddress.add(physicalAddress);
-			int bytesAtPhysicalAddress[] = CommonLib.getMemoryFromBochs(physicalAddress, 8);
-			model.bytes.add(CommonLib.convertToString(bytesAtPhysicalAddress));
+			int bytesAtPhysicalAddress[] = PeterBochsCommonLib.getMemoryFromBochs(physicalAddress, 8);
+			model.bytes.add(PeterBochsCommonLib.convertToString(bytesAtPhysicalAddress));
 
 			model.fireTableDataChanged();
 		} else if (jSearchAddressRadioButton3.isSelected()) {
@@ -927,7 +928,7 @@ public class TSSPanel extends JPanel {
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			if (!CommonLib.saveImage(jAddressTranslateTable2, file)) {
+			if (!PeterBochsCommonLib.saveImage(jAddressTranslateTable2, file)) {
 				JOptionPane.showMessageDialog(this, "Cannot save image.", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
@@ -938,7 +939,7 @@ public class TSSPanel extends JPanel {
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			CommonLib.exportTableModelToExcel(file, this.jAddressTranslateTable2.getModel(), String.valueOf(cr3));
+			PeterBochsCommonLib.exportTableModelToExcel(file, this.jAddressTranslateTable2.getModel(), String.valueOf(cr3));
 		}
 	}
 
@@ -949,7 +950,7 @@ public class TSSPanel extends JPanel {
 				model.segNo.set(x, model.searchSegSelector.get(x) >> 3);
 				model.virtualAddress.set(x, model.searchAddress.get(x));
 
-				long gdtBase = CommonLib.getPhysicalAddress(cr3, ldtr);
+				long gdtBase = PeterBochsCommonLib.getPhysicalAddress(cr3, ldtr);
 				System.out.println("gdtBase=" + Long.toHexString(gdtBase));
 				Application.commandReceiver.clearBuffer();
 				gdtBase += model.segNo.get(x) * 8;

@@ -2,7 +2,7 @@ package peter.architecture;
 
 import java.util.LinkedHashMap;
 
-import peter.CommonLib;
+import com.petersoft.CommonLib;
 
 public class DescriptorParser {
 	public static LinkedHashMap<String, String> parseDescriptor(long value) {

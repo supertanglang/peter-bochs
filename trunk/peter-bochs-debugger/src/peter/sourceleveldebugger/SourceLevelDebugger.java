@@ -16,8 +16,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.regex.Matcher;
@@ -40,19 +38,19 @@ import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.text.Document;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import org.apache.commons.io.FileUtils;
 
 import peter.Application;
-import peter.CommonLib;
 import peter.Global;
 import peter.JInstructionTableCellRenderer;
 import peter.MyLanguage;
+import peter.PeterBochsCommonLib;
 import peter.Setting;
 
+import com.petersoft.CommonLib;
 import com.petersoft.advancedswing.enhancedtextarea.EnhancedTextArea;
 import com.petersoft.advancedswing.jmaximizabletabbedpane.JMaximizableTabbedPane;
 import com.petersoft.advancedswing.jprogressbardialog.JProgressBarDialog;
@@ -61,10 +59,14 @@ import com.petersoft.advancedswing.pager.PagerEventListener;
 import com.petersoft.advancedswing.searchtextfield.JSearchTextField;
 
 /**
- * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI Builder, which is free for non-commercial use. If Jigloo is being used commercially (ie, by a
- * corporation, company or business for any purpose whatever) then you should purchase a license for each developer using Jigloo. Please visit www.cloudgarden.com for details. Use
- * of Jigloo implies acceptance of these licensing terms. A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR ANY
- * CORPORATE OR COMMERCIAL PURPOSE.
+ * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
+ * Builder, which is free for non-commercial use. If Jigloo is being used
+ * commercially (ie, by a corporation, company or business for any purpose
+ * whatever) then you should purchase a license for each developer using Jigloo.
+ * Please visit www.cloudgarden.com for details. Use of Jigloo implies
+ * acceptance of these licensing terms. A COMMERCIAL LICENSE HAS NOT BEEN
+ * PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR
+ * ANY CORPORATE OR COMMERCIAL PURPOSE.
  */
 public class SourceLevelDebugger extends JPanel {
 	private JPanel jAssemblyPanel;
@@ -742,7 +744,7 @@ public class SourceLevelDebugger extends JPanel {
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			if (!CommonLib.saveImage(jAssemblyTable, file)) {
+			if (!PeterBochsCommonLib.saveImage(jAssemblyTable, file)) {
 				JOptionPane.showMessageDialog(this, "Cannot save image.", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
@@ -753,7 +755,7 @@ public class SourceLevelDebugger extends JPanel {
 		int returnVal = fc.showSaveDialog(this);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			CommonLib.exportTableModelToExcel(file, this.jAssemblyTable.getModel(), "instruction 0x" + this.jInstructionComboBox.getSelectedItem().toString());
+			PeterBochsCommonLib.exportTableModelToExcel(file, this.jAssemblyTable.getModel(), "instruction 0x" + this.jInstructionComboBox.getSelectedItem().toString());
 		}
 	}
 

@@ -9,6 +9,7 @@ public class HistoryTableModel extends DefaultTableModel {
 	String pattern;
 	String regColumn[] = { "No.", "Time", "Ptime", "instruction", "eax", "ebx", "ecx", "edx", "esi", "edi", "ebp", "esp", "cs", "eip", "ds", "es", "fs", "gs", "ss", "cr0", "cr2",
 			"cr3", "cr4" };
+	String fpuColumn[] = { "No.", "st0", "st1", "st2", "st3", "st4", "st5", "st6", "st7", "status", "control", "tag", "operand", "fip", "fcs", "fdp", "fds" };
 
 	public void setView(String view) {
 		this.view = view;
@@ -58,36 +59,7 @@ public class HistoryTableModel extends DefaultTableModel {
 				return "";
 			}
 		} else if (view.equals("fpu")) {
-			switch (column) {
-			case 0:
-				return "No.";
-			case 1:
-				return "st0";
-			case 2:
-				return "st1";
-			case 3:
-				return "st2";
-			case 4:
-				return "st3";
-			case 5:
-				return "st4";
-			case 6:
-				return "st5";
-			case 7:
-				return "st6";
-			case 8:
-				return "st7";
-			case 9:
-				return "status";
-			case 10:
-				return "control";
-			case 11:
-				return "tag";
-			case 12:
-				return "operand";
-			default:
-				return "";
-			}
+			return fpuColumn[column];
 		} else if (view.equals("mmx")) {
 			switch (column) {
 			case 0:
@@ -122,7 +94,7 @@ public class HistoryTableModel extends DefaultTableModel {
 		} else if (view.equals("tbl")) {
 			return 17;
 		} else if (view.equals("fpu")) {
-			return 13;
+			return fpuColumn.length;
 		} else if (view.equals("mmx")) {
 			return 9;
 		} else {
@@ -254,6 +226,14 @@ public class HistoryTableModel extends DefaultTableModel {
 					return AllRegisters.fpu_tag.get(row);
 				case 12:
 					return AllRegisters.fpu_operand.get(row);
+				case 13:
+					return AllRegisters.fip.get(row);
+				case 14:
+					return AllRegisters.fcs.get(row);
+				case 15:
+					return AllRegisters.fdp.get(row);
+				case 16:
+					return AllRegisters.fds.get(row);
 				default:
 					return "";
 				}

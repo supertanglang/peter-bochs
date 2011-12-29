@@ -12,9 +12,10 @@ import java.util.Vector;
 
 import javax.swing.JOptionPane;
 
-import peter.CommonLib;
 import peter.Global;
 import peter.instrument.callgraph.JmpData;
+
+import com.petersoft.CommonLib;
 
 public class JmpSocketServer implements Runnable {
 	private int port;

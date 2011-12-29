@@ -1,15 +1,10 @@
 package peter.sourceleveldebugger;
 
-import java.io.File;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Vector;
 
 import javax.swing.table.AbstractTableModel;
 
 import peter.MyLanguage;
-
-import com.petersoft.CommonLib;
 
 public class MapDataTableModel extends AbstractTableModel {
 	private String[] columnNames = { MyLanguage.getString("Object"), MyLanguage.getString("Segment"), MyLanguage.getString("Location"), MyLanguage.getString("Length"),

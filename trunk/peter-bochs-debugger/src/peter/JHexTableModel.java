@@ -2,6 +2,8 @@ package peter;
 
 import javax.swing.table.AbstractTableModel;
 
+import com.petersoft.CommonLib;
+
 public class JHexTableModel extends AbstractTableModel {
 	private String[] columnNames = { MyLanguage.getString("Offset"), "0", "1", "2", "3", "4", "5", "6", "7", MyLanguage.getString("String") };
 	private int qw[] = new int[(getColumnCount() - 2) * getRowCount()];

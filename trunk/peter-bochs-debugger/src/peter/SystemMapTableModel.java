@@ -6,6 +6,8 @@ import java.util.Vector;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 
+import com.petersoft.CommonLib;
+
 public class SystemMapTableModel extends AbstractTableModel {
 	private String[] columnNames = { MyLanguage.getString("No."), MyLanguage.getString("Address"), MyLanguage.getString("Symbol type"), MyLanguage.getString("Symbol") };
 	private Vector<Boolean> value = new Vector<Boolean>();

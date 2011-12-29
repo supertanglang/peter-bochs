@@ -14,6 +14,8 @@ import javax.swing.table.TableModel;
 
 import peter.architecture.DescriptorParser;
 
+import com.petersoft.CommonLib;
+
 /**
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
  * Builder, which is free for non-commercial use. If Jigloo is being used
@@ -97,8 +99,7 @@ public class GDTLDTPanel extends JPanel {
 						jScrollPane2 = new JScrollPane();
 						jPanel3.add(jScrollPane2, BorderLayout.CENTER);
 						{
-							TableModel jTable2Model = new DefaultTableModel(new String[][] {}, new String[] { MyLanguage.getString("Field"),
-									MyLanguage.getString("Value") });
+							TableModel jTable2Model = new DefaultTableModel(new String[][] {}, new String[] { MyLanguage.getString("Field"), MyLanguage.getString("Value") });
 							jFieldTable = new JTable();
 							jScrollPane2.setViewportView(jFieldTable);
 							jFieldTable.setModel(jTable2Model);
