@@ -9,10 +9,13 @@ import javax.swing.tree.TreeNode;
 
 import com.petersoft.CommonLib;
 
-public class ObjectFileTreeNode implements MutableTreeNode {
+public class ObjectFileTreeNode implements MyMutableTreeNode {
 	File file;
 	String name;
-	Vector<ObjectFileTreeNode> children = new Vector<ObjectFileTreeNode>();
+	Vector<MyMutableTreeNode> children = new Vector<MyMutableTreeNode>();
+	public MutableTreeNode parent;
+	public String type = "";
+	boolean visible = true;
 
 	public ObjectFileTreeNode(File file) {
 		this.file = file;
@@ -24,18 +27,33 @@ public class ObjectFileTreeNode implements MutableTreeNode {
 
 	@Override
 	public TreeNode getChildAt(int childIndex) {
-		return this.children.get(childIndex);
+		int count = -1;
+		for (MyMutableTreeNode node : children) {
+			if (node.isVisible()) {
+				count++;
+			}
+			if (count == childIndex) {
+				return node;
+			}
+
+		}
+		return null;
 	}
 
 	@Override
 	public int getChildCount() {
-		return children.size();
+		int count = 0;
+		for (MyMutableTreeNode node : children) {
+			if (node.isVisible()) {
+				count++;
+			}
+		}
+		return count;
 	}
 
 	@Override
 	public TreeNode getParent() {
-		// return new ObjectFileTreeNode(file.getParentFile());
-		return null;
+		return parent;
 	}
 
 	@Override
@@ -55,7 +73,7 @@ public class ObjectFileTreeNode implements MutableTreeNode {
 
 	@Override
 	public boolean isLeaf() {
-		return children.size() == 0 ? true : false;
+		return children.size() == 0 || visible == false ? true : false;
 	}
 
 	@Override
@@ -95,6 +113,21 @@ public class ObjectFileTreeNode implements MutableTreeNode {
 			return name;
 		}
 		return file.getName();
+	}
+
+	@Override
+	public boolean isVisible() {
+		return visible;
+	}
+
+	@Override
+	public void setVisible(boolean b) {
+		visible = b;
+	}
+
+	@Override
+	public Vector<MyMutableTreeNode> getChildren() {
+		return children;
 	}
 
 }

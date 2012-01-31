@@ -1,7 +1,7 @@
 package peter.sourceleveldebugger;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -14,15 +14,20 @@ import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.TreeSet;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
@@ -31,17 +36,26 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import org.apache.commons.io.FileUtils;
 
 import peter.Application;
+import peter.CacheStructure;
+import peter.Global;
 import peter.JInstructionTableCellRenderer;
 import peter.MyLanguage;
 import peter.PeterBochsCommonLib;
@@ -58,31 +72,25 @@ import com.petersoft.advancedswing.pager.PagerEventListener;
 import com.petersoft.advancedswing.searchtextfield.JSearchTextField;
 
 /**
- * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
- * Builder, which is free for non-commercial use. If Jigloo is being used
- * commercially (ie, by a corporation, company or business for any purpose
- * whatever) then you should purchase a license for each developer using Jigloo.
- * Please visit www.cloudgarden.com for details. Use of Jigloo implies
- * acceptance of these licensing terms. A COMMERCIAL LICENSE HAS NOT BEEN
- * PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR
- * ANY CORPORATE OR COMMERCIAL PURPOSE.
+ * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI Builder, which is free for non-commercial use. If Jigloo is being used commercially (ie, by a
+ * corporation, company or business for any purpose whatever) then you should purchase a license for each developer using Jigloo. Please visit www.cloudgarden.com for details. Use
+ * of Jigloo implies acceptance of these licensing terms. A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR ANY
+ * CORPORATE OR COMMERCIAL PURPOSE.
  */
 public class SourceLevelDebugger2 extends JMaximizableTabbedPane_BasePanel implements JProgressBarDialogEventListener {
 	private JSplitPane jSplitPane1;
 	private JPanel jPanel1;
-	private JPanel jPanel8;
+	private JPanel jBreakpointPanel;
 	private JMaximizableTabbedPane jTabbedPane2;
 	private JPanel jPanel7;
 	private JPanel jPanel6;
 	private JSplitPane jSplitPane3;
-	private JPanel jPanel5;
 	private JPanel jPanel4;
-	private JSplitPane jSplitPane2;
 	private JScrollPane jScrollPane1;
 	private JButton jDisassembleButton;
 	private JButton jButton14;
 	private JComboBox jInstructionComboBox;
-	private EnhancedTextArea jMapTextArea;
+	private EnhancedTextArea jRawTextArea;
 	private JScrollPane jScrollPane5;
 	private JPanel jPanel14;
 	private MemoryMap memoryMap;
@@ -93,7 +101,6 @@ public class SourceLevelDebugger2 extends JMaximizableTabbedPane_BasePanel imple
 	private JScrollPane jScrollPane4;
 	private JPanel jPanel11;
 	private JPanel jPanel10;
-	private JMaximizableTabbedPane jTabbedPane4;
 	public JTable jAssemblyTable;
 	private JScrollPane jScrollPane3;
 	private JButton jButton12;
@@ -101,24 +108,72 @@ public class SourceLevelDebugger2 extends JMaximizableTabbedPane_BasePanel imple
 	private JButton jInstructionDownButton;
 	private JButton jInstructionUpButton;
 	private JButton jInstructionUpTenButton;
-	private JTable jLibraryTable;
-	private JScrollPane jScrollPane6;
-	private JPanel jLibraryPanel;
 	private JPanel jInstructionControlPanel;
 	private JPanel jASMPanel;
 	private EnhancedTextArea cSourceTextArea;
 	private JPanel jSourcePanel;
-	private JMaximizableTabbedPane jTabbedPane3;
+	private JPanel jFunctionListPanel;
+	private JSearchTextField jSearchProjectTextField;
+	private JToolBar jProjectToolBar;
+	private JMaximizableTabbedPane jMainTabbedPane;
 	private JTree jFileTree;
 	private JPanel jPanel3;
 	private JMaximizableTabbedPane jTabbedPane1;
-	private JPanel jPanel2;
 	private JPopupMenu jCppPopupMenu;
 	private JMenuItem jShowMeTheCodeMenuItem;
 
 	private MapDataTableModel mapDataTableModel = new MapDataTableModel();
 	Application application;
 	private File mapFile;
+
+	private TextTreeNode root;
+	private JTable jCodeTable;
+	private JCheckBox jAllFunctionsExactCheckBox;
+	private JSearchTextField jSearchAllFunctionsTextField;
+	private JToolBar jToolBar1;
+	private JTable jAllFunctionsTable;
+	private JScrollPane jScrollPane11;
+	private JSearchTextField jSearchFunctionTextField;
+	private JSearchTextField jSearchDwarfTextField;
+	private JCheckBox jExactMatchCheckBox;
+	private JComboBox jDwarfComboBox;
+	private JButton jRefreshDwarfTableButton;
+	private JPanel jPanel22;
+	private JTable jDwarfTable;
+	private JScrollPane jScrollPane10;
+	private JPanel jPanel21;
+	private JSearchTextField jSearchSymbolTextField;
+	private JButton jRefreshParsedFunctionButton;
+	private JPanel jPanel20;
+	private JPanel jPanel19;
+	private JTable jParsedFunctionTable;
+	private JButton jRefreshArchiveFileButton;
+	private JPanel jPanel18;
+	private JPanel jPanel17;
+	private JButton jRefreshFunctionButton;
+	private JPanel jPanel16;
+	private JPanel jPanel15;
+	private JButton jRefreshSymbolButton;
+	private JPanel jPanel9;
+	private JPanel jPanel8;
+	private JButton jRefreshCodeButton;
+	private JPanel jPanel5;
+	private JPanel jPanel2;
+	private JTable jArchiveFileTable;
+	private JTable jFunctionTable;
+	private JTable jSymbolTable;
+	private JScrollPane jScrollPane9;
+	private JScrollPane jScrollPane8;
+	private JScrollPane jScrollPane7;
+	private JScrollPane Symbol;
+	private JScrollPane jScrollPane6;
+	private JTabbedPane jTabbedPane3;
+	private JPanel jStructurePanel;
+	private JPanel jThreadPanel;
+	private JPanel jVariablePanel;
+	private JTable jRawSourceTable;
+	private JScrollPane jScrollPane2;
+	private JPanel jRawSourcePanel;
 
 	public SourceLevelDebugger2(Application application) {
 		this.application = application;
@@ -133,223 +188,157 @@ public class SourceLevelDebugger2 extends JMaximizableTabbedPane_BasePanel imple
 				this.add(jSplitPane1, "MAIN");
 				jSplitPane1.setDividerLocation(300);
 				{
-					jPanel1 = new JPanel();
-					BorderLayout jPanel1Layout = new BorderLayout();
-					jPanel1.setLayout(jPanel1Layout);
-					jSplitPane1.add(jPanel1, JSplitPane.LEFT);
+					jPanel4 = new JPanel();
+					jSplitPane1.add(jPanel4, JSplitPane.RIGHT);
+					BorderLayout jPanel4Layout = new BorderLayout();
+					jPanel4.setLayout(jPanel4Layout);
 					{
-						jTabbedPane1 = new JMaximizableTabbedPane();
-						jPanel1.add(jTabbedPane1, BorderLayout.CENTER);
+						jSplitPane3 = new JSplitPane();
+						jPanel4.add(jSplitPane3, BorderLayout.CENTER);
+						jSplitPane3.setOrientation(JSplitPane.VERTICAL_SPLIT);
+						jSplitPane3.setDividerLocation(500);
 						{
-							jPanel3 = new JPanel();
-							BorderLayout jPanel3Layout = new BorderLayout();
-							jPanel3.setLayout(jPanel3Layout);
-							jTabbedPane1.addTab("Project", null, jPanel3, null);
+							jPanel6 = new JPanel();
+							BorderLayout jPanel6Layout = new BorderLayout();
+							jPanel6.setLayout(jPanel6Layout);
+							jSplitPane3.add(jPanel6, JSplitPane.LEFT);
 							{
-								jScrollPane1 = new JScrollPane();
-								jPanel3.add(jScrollPane1, BorderLayout.CENTER);
+								jMainTabbedPane = new JMaximizableTabbedPane();
+								jPanel6.add(jMainTabbedPane, BorderLayout.CENTER);
 								{
-									jFileTree = new JTree();
-									jScrollPane1.setViewportView(jFileTree);
-									jFileTree.setModel(new ObjectFileTreeModel(null));
-									jFileTree.setShowsRootHandles(true);
-									jFileTree.setCellRenderer(new ObjectFileTreeRenderer());
-									jFileTree.addMouseListener(new MouseAdapter() {
-										public void mouseClicked(MouseEvent evt) {
-											jFileTreeMouseClicked(evt);
-										}
-									});
-								}
-							}
-						}
-					}
-				}
-				{
-					jPanel2 = new JPanel();
-					BorderLayout jPanel2Layout = new BorderLayout();
-					jPanel2.setLayout(jPanel2Layout);
-					jSplitPane1.add(jPanel2, JSplitPane.RIGHT);
-					{
-						jSplitPane2 = new JSplitPane();
-						jPanel2.add(jSplitPane2, BorderLayout.CENTER);
-						jSplitPane2.setDividerLocation(550);
-						{
-							jPanel4 = new JPanel();
-							BorderLayout jPanel4Layout = new BorderLayout();
-							jPanel4.setLayout(jPanel4Layout);
-							jSplitPane2.add(jPanel4, JSplitPane.LEFT);
-							{
-								jSplitPane3 = new JSplitPane();
-								jPanel4.add(jSplitPane3, BorderLayout.CENTER);
-								jSplitPane3.setOrientation(JSplitPane.VERTICAL_SPLIT);
-								jSplitPane3.setDividerLocation(400);
-								{
-									jPanel6 = new JPanel();
-									BorderLayout jPanel6Layout = new BorderLayout();
-									jPanel6.setLayout(jPanel6Layout);
-									jSplitPane3.add(jPanel6, JSplitPane.LEFT);
+									jASMPanel = new JPanel();
+									jMainTabbedPane.addTab(MyLanguage.getString("ASM/C"), null, jASMPanel, null);
+									BorderLayout jASMPanelLayout = new BorderLayout();
+									jASMPanel.setLayout(jASMPanelLayout);
 									{
-										jTabbedPane3 = new JMaximizableTabbedPane();
-										jPanel6.add(jTabbedPane3, BorderLayout.CENTER);
+										jInstructionControlPanel = new JPanel();
+										jASMPanel.add(jInstructionControlPanel, BorderLayout.NORTH);
 										{
-											jSourcePanel = new JPanel();
-											BorderLayout jPanel9Layout = new BorderLayout();
-											jSourcePanel.setLayout(jPanel9Layout);
-											jTabbedPane3.addTab("Source", new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/memory.png")), jSourcePanel,
-													null);
-											{
-												cSourceTextArea = new EnhancedTextArea();
-												jSourcePanel.add(cSourceTextArea, BorderLayout.CENTER);
-												cSourceTextArea.pager.addPagerEventListener(new PagerEventListener() {
-													public void clicked(PagerEvent evt) {
-														pagerClicked(evt);
-													}
-												});
-											}
+											jInstructionComboBox = new JComboBox();
+											jInstructionControlPanel.add(jInstructionComboBox);
+											jInstructionComboBox.setEditable(true);
+											jInstructionComboBox.addActionListener(new ActionListener() {
+												public void actionPerformed(ActionEvent evt) {
+													jInstructionComboBoxActionPerformed(evt);
+												}
+											});
 										}
 										{
-											jASMPanel = new JPanel();
-											BorderLayout jASMPanelLayout = new BorderLayout();
-											jASMPanel.setLayout(jASMPanelLayout);
-											jTabbedPane3.addTab("ASM", null, jASMPanel, null);
-											{
-												jInstructionControlPanel = new JPanel();
-												jASMPanel.add(jInstructionControlPanel, BorderLayout.NORTH);
-												{
-													jInstructionComboBox = new JComboBox();
-													jInstructionControlPanel.add(jInstructionComboBox);
-													jInstructionComboBox.setEditable(true);
-													jInstructionComboBox.addActionListener(new ActionListener() {
-														public void actionPerformed(ActionEvent evt) {
-															jInstructionComboBoxActionPerformed(evt);
-														}
-													});
+											jButton14 = new JButton();
+											jInstructionControlPanel.add(jButton14);
+											jButton14.setText(MyLanguage.getString("Disassemble"));
+											jButton14.addActionListener(new ActionListener() {
+												public void actionPerformed(ActionEvent evt) {
+													jButton14ActionPerformed(evt);
 												}
-												{
-													jButton14 = new JButton();
-													jInstructionControlPanel.add(jButton14);
-													jButton14.setText(MyLanguage.getString("Disassemble"));
-													jButton14.addActionListener(new ActionListener() {
-														public void actionPerformed(ActionEvent evt) {
-															jButton14ActionPerformed(evt);
-														}
-													});
+											});
+										}
+										{
+											jDisassembleButton = new JButton();
+											jInstructionControlPanel.add(jDisassembleButton);
+											jDisassembleButton.setText(MyLanguage.getString("Disassemble") + " cs:eip");
+											jDisassembleButton.setEnabled(true);
+											jDisassembleButton.addActionListener(new ActionListener() {
+												public void actionPerformed(ActionEvent evt) {
+													jDisassembleButtonActionPerformed(evt);
 												}
-												{
-													jDisassembleButton = new JButton();
-													jInstructionControlPanel.add(jDisassembleButton);
-													jDisassembleButton.setText(MyLanguage.getString("Disassemble") + " cs:eip");
-													jDisassembleButton.setEnabled(true);
-													jDisassembleButton.addActionListener(new ActionListener() {
-														public void actionPerformed(ActionEvent evt) {
-															jDisassembleButtonActionPerformed(evt);
-														}
-													});
+											});
+										}
+										{
+											jInstructionUpTenButton = new JButton();
+											jInstructionControlPanel.add(jInstructionUpTenButton);
+											jInstructionUpTenButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/arrow_up10.png")));
+											jInstructionUpTenButton.addActionListener(new ActionListener() {
+												public void actionPerformed(ActionEvent evt) {
+													jInstructionUpTenButtonActionPerformed(evt);
 												}
-												{
-													jInstructionUpTenButton = new JButton();
-													jInstructionControlPanel.add(jInstructionUpTenButton);
-													jInstructionUpTenButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/arrow_up10.png")));
-													jInstructionUpTenButton.addActionListener(new ActionListener() {
-														public void actionPerformed(ActionEvent evt) {
-															jInstructionUpTenButtonActionPerformed(evt);
-														}
-													});
+											});
+										}
+										{
+											jInstructionUpButton = new JButton();
+											jInstructionControlPanel.add(jInstructionUpButton);
+											jInstructionUpButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/arrow_up1.png")));
+											jInstructionUpButton.addActionListener(new ActionListener() {
+												public void actionPerformed(ActionEvent evt) {
+													jInstructionUpButtonActionPerformed(evt);
 												}
-												{
-													jInstructionUpButton = new JButton();
-													jInstructionControlPanel.add(jInstructionUpButton);
-													jInstructionUpButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/arrow_up1.png")));
-													jInstructionUpButton.addActionListener(new ActionListener() {
-														public void actionPerformed(ActionEvent evt) {
-															jInstructionUpButtonActionPerformed(evt);
-														}
-													});
+											});
+										}
+										{
+											jInstructionDownButton = new JButton();
+											jInstructionControlPanel.add(jInstructionDownButton);
+											jInstructionDownButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/arrow_down.png")));
+											jInstructionDownButton.addActionListener(new ActionListener() {
+												public void actionPerformed(ActionEvent evt) {
+													jInstructionDownButtonActionPerformed(evt);
 												}
-												{
-													jInstructionDownButton = new JButton();
-													jInstructionControlPanel.add(jInstructionDownButton);
-													jInstructionDownButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/arrow_down.png")));
-													jInstructionDownButton.addActionListener(new ActionListener() {
-														public void actionPerformed(ActionEvent evt) {
-															jInstructionDownButtonActionPerformed(evt);
-														}
-													});
+											});
+										}
+										{
+											jButton3 = new JButton();
+											jInstructionControlPanel.add(jButton3);
+											jButton3.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/disk.png")));
+											jButton3.addActionListener(new ActionListener() {
+												public void actionPerformed(ActionEvent evt) {
+													jButton3ActionPerformed(evt);
 												}
-												{
-													jButton3 = new JButton();
-													jInstructionControlPanel.add(jButton3);
-													jButton3.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/disk.png")));
-													jButton3.addActionListener(new ActionListener() {
-														public void actionPerformed(ActionEvent evt) {
-															jButton3ActionPerformed(evt);
-														}
-													});
+											});
+										}
+										{
+											jButton12 = new JButton();
+											jInstructionControlPanel.add(jButton12);
+											jButton12.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/excel.gif")));
+											jButton12.addActionListener(new ActionListener() {
+												public void actionPerformed(ActionEvent evt) {
+													jButton12ActionPerformed(evt);
 												}
-												{
-													jButton12 = new JButton();
-													jInstructionControlPanel.add(jButton12);
-													jButton12.setIcon(new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/excel.gif")));
-													jButton12.addActionListener(new ActionListener() {
-														public void actionPerformed(ActionEvent evt) {
-															jButton12ActionPerformed(evt);
-														}
-													});
+											});
+										}
+									}
+									{
+										jScrollPane3 = new JScrollPane();
+										jASMPanel.add(jScrollPane3, BorderLayout.CENTER);
+										{
+											jAssemblyTable = new JTable();
+											jScrollPane3.setViewportView(jAssemblyTable);
+											jAssemblyTable.setModel(Application.jInstructionTable.getModel());
+											jAssemblyTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+											jAssemblyTable.getTableHeader().setReorderingAllowed(false);
+											jAssemblyTable.getColumnModel().getColumn(0).setMaxWidth(20);
+											jAssemblyTable.getColumnModel().getColumn(1).setPreferredWidth(40);
+											jAssemblyTable.getColumnModel().getColumn(2).setPreferredWidth(200);
+											jAssemblyTable.getColumnModel().getColumn(3).setPreferredWidth(40);
+											jAssemblyTable.setShowGrid(false);
+											jAssemblyTable.setDefaultRenderer(String.class, new JInstructionTableCellRenderer());
+											jAssemblyTable.addMouseListener(new MouseAdapter() {
+												public void mouseClicked(MouseEvent evt) {
+													jAssemblyTableMouseClicked(evt);
 												}
-											}
-											{
-												jScrollPane3 = new JScrollPane();
-												jASMPanel.add(jScrollPane3, BorderLayout.CENTER);
-												{
-													jAssemblyTable = new JTable();
-													jScrollPane3.setViewportView(jAssemblyTable);
-													jAssemblyTable.setModel(Application.jInstructionTable.getModel());
-													jAssemblyTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
-													jAssemblyTable.getTableHeader().setReorderingAllowed(false);
-													jAssemblyTable.getColumnModel().getColumn(0).setMaxWidth(20);
-													jAssemblyTable.getColumnModel().getColumn(1).setPreferredWidth(40);
-													jAssemblyTable.getColumnModel().getColumn(2).setPreferredWidth(200);
-													jAssemblyTable.getColumnModel().getColumn(3).setPreferredWidth(40);
-													jAssemblyTable.setDefaultRenderer(String.class, new JInstructionTableCellRenderer());
-													jAssemblyTable.addMouseListener(new MouseAdapter() {
-														public void mouseClicked(MouseEvent evt) {
-															jAssemblyTableMouseClicked(evt);
-														}
-													});
-												}
-											}
+											});
 										}
 									}
 								}
 								{
-									jPanel7 = new JPanel();
-									BorderLayout jPanel7Layout = new BorderLayout();
-									jPanel7.setLayout(jPanel7Layout);
-									jSplitPane3.add(jPanel7, JSplitPane.BOTTOM);
+									jSourcePanel = new JPanel();
+									jMainTabbedPane.addTab(MyLanguage.getString("Source"), null, jSourcePanel, null);
+									BorderLayout jPanel9Layout = new BorderLayout();
+									jSourcePanel.setLayout(jPanel9Layout);
 									{
-										jTabbedPane2 = new JMaximizableTabbedPane();
-										jPanel7.add(jTabbedPane2, BorderLayout.CENTER);
-										{
-											jPanel8 = new JPanel();
-											jTabbedPane2.addTab("Breakpoint", null, jPanel8, null);
-										}
+										cSourceTextArea = new EnhancedTextArea();
+										jSourcePanel.add(cSourceTextArea, BorderLayout.CENTER);
+										cSourceTextArea.pager.addPagerEventListener(new PagerEventListener() {
+											public void clicked(PagerEvent evt) {
+												pagerClicked(evt);
+											}
+										});
 									}
 								}
-							}
-						}
-						{
-							jPanel5 = new JPanel();
-							BorderLayout jPanel5Layout = new BorderLayout();
-							jSplitPane2.add(jPanel5, JSplitPane.RIGHT);
-							jPanel5.setLayout(jPanel5Layout);
-							{
-								jTabbedPane4 = new JMaximizableTabbedPane();
-								jPanel5.add(jTabbedPane4, BorderLayout.CENTER);
 								{
 									jPanel10 = new JPanel();
-									jTabbedPane4.addTab("Map", null, jPanel10, null);
-									jTabbedPane4.addTab("Raw", null, getJPanel14(), null);
-									jTabbedPane4.addTab("Library / Object", null, getJLibraryPanel(), null);
+									jMainTabbedPane.addTab(MyLanguage.getString("Raw"), null, getJPanel14(), null);
+									jMainTabbedPane.addTab(MyLanguage.getString("Map"), null, jPanel10, null);
+									jMainTabbedPane.addTab(MyLanguage.getString("Raw_source"), null, getJRawSourcePanel(), null);
+									jMainTabbedPane.addTab(MyLanguage.getString("Structure"), null, getJStructurePanel(), null);
 									BorderLayout jPanel10Layout = new BorderLayout();
 									jPanel10.setLayout(jPanel10Layout);
 									{
@@ -412,6 +401,61 @@ public class SourceLevelDebugger2 extends JMaximizableTabbedPane_BasePanel imple
 								}
 							}
 						}
+						{
+							jPanel7 = new JPanel();
+							BorderLayout jPanel7Layout = new BorderLayout();
+							jPanel7.setLayout(jPanel7Layout);
+							jSplitPane3.add(jPanel7, JSplitPane.BOTTOM);
+							{
+								jTabbedPane2 = new JMaximizableTabbedPane();
+								jPanel7.add(jTabbedPane2, BorderLayout.CENTER);
+								{
+									jBreakpointPanel = new JPanel();
+									jTabbedPane2.addTab("Breakpoint", null, jBreakpointPanel, null);
+									jTabbedPane2.addTab("Variable", null, getJVariablePanel(), null);
+									jTabbedPane2.addTab("Thread", null, getJThreadPanel(), null);
+								}
+							}
+						}
+					}
+				}
+				{
+					jPanel1 = new JPanel();
+					jSplitPane1.add(jPanel1, JSplitPane.LEFT);
+					BorderLayout jPanel1Layout = new BorderLayout();
+					jPanel1.setLayout(jPanel1Layout);
+					{
+						jTabbedPane1 = new JMaximizableTabbedPane();
+						jPanel1.add(jTabbedPane1, BorderLayout.CENTER);
+						jTabbedPane1.addChangeListener(new ChangeListener() {
+							public void stateChanged(ChangeEvent evt) {
+								jTabbedPane1StateChanged(evt);
+							}
+						});
+						{
+							jPanel3 = new JPanel();
+							BorderLayout jPanel3Layout = new BorderLayout();
+							jPanel3.setLayout(jPanel3Layout);
+							jTabbedPane1.addTab(MyLanguage.getString("Project"), null, jPanel3, null);
+							jTabbedPane1.addTab(MyLanguage.getString("Functions"), null, getJFunctionListPanel(), null);
+							{
+								jScrollPane1 = new JScrollPane();
+								jPanel3.add(jScrollPane1, BorderLayout.CENTER);
+								jPanel3.add(getJProjectToolBar(), BorderLayout.NORTH);
+								{
+									jFileTree = new JTree();
+									jScrollPane1.setViewportView(jFileTree);
+									jFileTree.setModel(new ObjectFileTreeModel(null));
+									jFileTree.setShowsRootHandles(true);
+									jFileTree.setCellRenderer(new ObjectFileTreeRenderer());
+									jFileTree.addMouseListener(new MouseAdapter() {
+										public void mouseClicked(MouseEvent evt) {
+											jFileTreeMouseClicked(evt);
+										}
+									});
+								}
+							}
+						}
 					}
 				}
 			}
@@ -446,7 +490,6 @@ public class SourceLevelDebugger2 extends JMaximizableTabbedPane_BasePanel imple
 		} else {
 			file = new File(mapFile.getParent() + File.separator + path);
 		}
-		System.out.println(file.getAbsolutePath());
 		if (file.exists()) {
 			TreePath p = com.petersoft.CommonLib.findTreeNode((TreeNode) jFileTree.getModel().getRoot(), file.getName(), new TreePath(jFileTree.getModel().getRoot()));
 			jFileTree.setSelectionPath(p);
@@ -457,15 +500,110 @@ public class SourceLevelDebugger2 extends JMaximizableTabbedPane_BasePanel imple
 	}
 
 	private void jFileTreeMouseClicked(MouseEvent evt) {
-		handleProjectTreeClick(jFileTree.getSelectionPath());
+		if (jFileTree.getSelectionPath() != null) {
+			Object node = jFileTree.getSelectionPath().getLastPathComponent();
+			if (node instanceof FunctionTreeNode) {
+				FunctionTreeNode funcNode = (FunctionTreeNode) node;
+				Symbol symbol = MapStructure.findSymbolByFilenameOrObjectName(funcNode.function.name);
+				if (symbol != null) {
+					jInstructionComboBox.setSelectedItem("0x" + Long.toHexString(symbol.memoryOffset));
+				} else {
+					JOptionPane.showMessageDialog(this, "Symbol not found");
+				}
+				jMainTabbedPane.setSelectedIndex(0);
+			} /*
+			 * else if (evt.getClickCount() == 2) { boolean isExpand = jFileTree.isExpanded(jFileTree.getSelectionPath()); jFileTree.setEnabled(false);
+			 * handleProjectTreeClick(jFileTree.getSelectionPath()); jFileTree.setEnabled(true); if (!isExpand) { jFileTree.expandPath(jFileTree.getSelectionPath()); } else {
+			 * jFileTree.collapsePath(jFileTree.getSelectionPath()); } }
+			 */
+		}
+	}
+
+	private void updateRawSourceTable(String functionName) {
+		RawSourceTableModel model = (RawSourceTableModel) jRawSourceTable.getModel();
+		model.functionName = functionName;
+		model.codes = MapStructure.disassembledCodes.get(functionName);
+		model.fireTableDataChanged();
+
+		jMainTabbedPane.setSelectedComponent(this.getJRawSourcePanel());
+	}
+
+	private void parseCodeIntoDisassembledCodes(Function function) {
+		try {
+			if (MapStructure.parsedFunctions.contains(function.file.getAbsolutePath() + "+" + function.name)) {
+				return;
+			}
+			if (Global.debug) {
+				System.out.println("parseCode : " + function.file.getAbsolutePath() + ", function name : " + function.name);
+			}
+			MapStructure.disassembledCodes.remove(function.name);
+			Vector<DisassembledCode> codeLines = new Vector<DisassembledCode>();
+
+			String lines[] = function.code.split("\n");
+			System.out.println(function.code);
+			boolean start = false;
+			String cCode = null;
+			for (String line : lines) {
+				Matcher matcher = Pattern.compile("^ +.*[0123456789abcdef]+:.*").matcher(line);
+				if (start) {
+					if (matcher.matches()) {
+						DisassembledCode dc = parseLine(function, line, cCode);
+						if (dc != null) {
+							codeLines.add(dc);
+						}
+					} else {
+						cCode = line.trim();
+					}
+				} else {
+					if (matcher.matches()) {
+						start = true;
+
+						DisassembledCode dc = parseLine(function, line, cCode);
+						if (dc != null) {
+							codeLines.add(dc);
+						}
+						continue;
+					}
+					cCode = line.trim();
+				}
+			}
+			MapStructure.disassembledCodes.put(function.name, codeLines);
+			MapStructure.parsedFunctions.add(function.file.getAbsolutePath() + "+" + function.name);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	DisassembledCode parseLine(Function function, String line, String cCode) {
+		DisassembledCode dc = new DisassembledCode();
+		String s[] = line.split("\t");
+		if (s.length >= 3) {
+			try {
+				dc.cCode = cCode;
+				dc.offset = Integer.parseInt(s[0].trim().replaceAll(":", ""), 16);
+				String bytes[] = s[1].trim().split(" ");
+				dc.bytes = new int[bytes.length];
+				for (int x = 0; x < bytes.length; x++) {
+					dc.bytes[x] = Integer.parseInt(bytes[x], 16);
+				}
+				dc.asmCode = s[2];
+				dc.file = function.file;
+				return dc;
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+		return null;
 	}
 
 	void handleProjectTreeClick(TreePath treePath) {
-		jFileTree.setEnabled(false);
 		try {
 			if (treePath != null) {
 				final ObjectFileTreeNode selectedTreeNode = (ObjectFileTreeNode) jFileTree.getSelectionPath().getLastPathComponent();
 				if (selectedTreeNode != null) {
+					if (selectedTreeNode.file == null) {
+						return;
+					}
 					if (selectedTreeNode.file.length() >= 1024 * 1024 * 10) {
 						int n = JOptionPane.showConfirmDialog(application, "File too large, continue?", "Warning", JOptionPane.YES_NO_OPTION);
 						if (n == JOptionPane.NO_OPTION) {
@@ -499,10 +637,9 @@ public class SourceLevelDebugger2 extends JMaximizableTabbedPane_BasePanel imple
 								input.close();
 								dialog.jProgressBar.setString("Setting the result to textarea, please be patient");
 								cSourceTextArea.pager.setVisible(true);
+								cSourceTextArea.pageSize = 10000;
 								cSourceTextArea.loadLargeFile(str);
 								cSourceTextArea.refreshPage();
-
-								jFileTree.setEnabled(true);
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
@@ -523,7 +660,11 @@ public class SourceLevelDebugger2 extends JMaximizableTabbedPane_BasePanel imple
 	private void jButton14ActionPerformed(ActionEvent evt) {
 		this.addInstructionComboBox(this.jInstructionComboBox.getSelectedItem().toString());
 		jDisassembleButton.setEnabled(false);
-		application.updateInstruction(CommonLib.convertFilesize(this.jInstructionComboBox.getSelectedItem().toString()));
+		try {
+			application.updateInstruction(CommonLib.string2decimal(this.jInstructionComboBox.getSelectedItem().toString()));
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 		application.updateBreakpointTableColor();
 		jDisassembleButton.setEnabled(true);
 	}
@@ -546,33 +687,15 @@ public class SourceLevelDebugger2 extends JMaximizableTabbedPane_BasePanel imple
 	}
 
 	private void jInstructionUpTenButtonActionPerformed(ActionEvent evt) {
-		String firstAddress = this.jAssemblyTable.getValueAt(0, 1).toString().replaceAll("^-*", "");
-		firstAddress = Long.toHexString(CommonLib.convertFilesize("0x" + firstAddress) - 16);
-
-		this.jInstructionComboBox.setSelectedItem("0x" + firstAddress);
-		application.updateInstruction(CommonLib.convertFilesize("0x" + firstAddress));
-		application.updateBreakpointTableColor();
+		application.jInstructionUpTenButtonActionPerformed(evt);
 	}
 
 	private void jInstructionUpButtonActionPerformed(ActionEvent evt) {
-		if (this.jAssemblyTable.getRowCount() > 0) {
-			String firstAddress = this.jAssemblyTable.getValueAt(0, 1).toString().replaceAll("^-*", "");
-			firstAddress = Long.toHexString(CommonLib.convertFilesize("0x" + firstAddress) - 1);
-
-			this.jInstructionComboBox.setSelectedItem("0x" + firstAddress);
-			application.updateInstruction(CommonLib.convertFilesize("0x" + firstAddress));
-			application.updateBreakpointTableColor();
-		}
+		application.jInstructionUpButtonActionPerformed(evt);
 	}
 
 	private void jInstructionDownButtonActionPerformed(ActionEvent evt) {
-		if (this.jAssemblyTable.getRowCount() > 10) {
-			String firstAddress = this.jAssemblyTable.getValueAt(10, 1).toString().replaceAll("^-*", "");
-
-			this.jInstructionComboBox.setSelectedItem("0x" + firstAddress);
-			application.updateInstruction(CommonLib.convertFilesize("0x" + firstAddress));
-			application.updateBreakpointTableColor();
-		}
+		application.jInstructionDownButtonActionPerformed(evt);
 	}
 
 	private void jButton3ActionPerformed(ActionEvent evt) {
@@ -620,6 +743,9 @@ public class SourceLevelDebugger2 extends JMaximizableTabbedPane_BasePanel imple
 	}
 
 	public void loadSystemMap(File mapFile) {
+		if (Global.debug) {
+			System.out.println("loadSystemMap");
+		}
 		try {
 			if (!mapFile.isFile()) {
 				JOptionPane.showMessageDialog(this, mapFile.getAbsolutePath() + " is not a file !!!");
@@ -627,86 +753,227 @@ public class SourceLevelDebugger2 extends JMaximizableTabbedPane_BasePanel imple
 				JOptionPane.showMessageDialog(this, mapFile.getAbsolutePath() + " not exist !!!");
 			}
 			this.mapFile = mapFile;
-			String mapFileContent = FileUtils.readFileToString(mapFile);
-			jMapTextArea.setText(mapFileContent);
-			jMapTextArea.jTextArea.setCaretPosition(0);
+			MapStructure.mapFileContent = FileUtils.readFileToString(mapFile);
+			jRawTextArea.setText(MapStructure.mapFileContent);
+			jRawTextArea.jTextArea.setCaretPosition(0);
 
-			Pattern p = Pattern.compile("[0-9a-zA-Z/\\.-]+\\.[oa]");
-			Matcher myMatcher = p.matcher(jMapTextArea.getText());
-			LibraryTableModel model = (LibraryTableModel) jLibraryTable.getModel();
-			model.data.clear();
-			while (myMatcher.find()) {
-				File f = new File(myMatcher.group());
-				if (f.exists()) {
-					model.data.add(f);
-				}
-			}
-			model.fireTableDataChanged();
-
-			// load "Archive member included because of file"
-			ObjectFileTreeNode root = new ObjectFileTreeNode(mapFile.getName());
-			ObjectFileTreeNode archiveNode = new ObjectFileTreeNode("Archive member");
-			root.children.add(archiveNode);
-
-			HashSet<File> hs = new HashSet<File>();
-			try {
-				String line;
-				BufferedReader br = new BufferedReader(new FileReader(mapFile));
-				boolean start = false;
-				while ((line = br.readLine()) != null) {
-					if (line.toLowerCase().contains("Allocating common symbols".toLowerCase())) {
-						break;
-					}
-					if (start) {
-						Matcher matcher = Pattern.compile("^[^ \t].*").matcher(line);
-						if (matcher.matches()) {
-							hs.add(new File(line.replaceAll("\\(.*", "")));
-						}
-					} else if (line.toLowerCase().contains("Archive member included because of file".toLowerCase())) {
-						start = true;
-					}
-				}
-				Iterator<File> it = hs.iterator();
-				while (it.hasNext()) {
-					File f = it.next();
-					archiveNode.children.add(new ObjectFileTreeNode(f));
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			// end "Archive member included because of file"
-
-			// load all (*)
-			Pattern pattern = Pattern.compile(".*\\(\\*\\).*");
-			Matcher lm = pattern.matcher(mapFileContent);
-			ObjectFileTreeNode objectsNode = new ObjectFileTreeNode("Objects");
-			root.children.add(objectsNode);
-			while (lm.find()) {
-				String filepath = lm.group().replaceAll("\\(.*", "").trim();
-				File file;
-				if (filepath.startsWith(File.separator)) {
-					file = new File(filepath);
-				} else {
-					file = new File(mapFile.getParent() + File.separator + filepath);
-				}
-				if (!hs.contains(file)) {
-					ObjectFileTreeNode tempNode = new ObjectFileTreeNode(file);
-					objectsNode.children.add(tempNode);
-				}
-			}
-			// end load all (*)
-
-			((ObjectFileTreeModel) jFileTree.getModel()).setRoot(root);
-			jFileTree.updateUI();
+			initProjectTree();
 			initMemoryMap();
+			loadDwarfLine();
 
 			application.jShowInSourceCodeMenuItem.setEnabled(true);
 			application.jWhereIsHereMenuItem.setEnabled(true);
 			application.jSourceLevelDebuggerButtonActionPerformed(null);
 			// jMainTabbedPane.setSelectedIndex(1);
 			com.petersoft.CommonLib.expandAll(jFileTree, true);
+			collapseAllFunction(jFileTree);
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+		if (Global.debug) {
+			System.out.println("loadSystemMap end");
+		}
+	}
+
+	private void loadDwarfLine() {
+		// load line information from dwarfdump
+		MapStructure.dwarfLines.clear();
+		for (File file : MapStructure.archiveAndObjectFiles) {
+			String command = "dwarfdump -l " + file.getAbsolutePath();
+			String results = CommonLib.runCommand(command);
+			if (Global.debug) {
+				System.out.println(command);
+			}
+			String lines[] = results.split("\n");
+			Vector<DwarfLine> linesVector = new Vector<DwarfLine>();
+			String archiveMember = "";
+			for (int x = 0; x < lines.length; x++) {
+				lines[x] = lines[x].replaceAll("\\[", "").replaceAll("\\]", "");
+				String words[] = lines[x].split("[ \\t]+");
+				if (lines[x].contains("archive member")) {
+					archiveMember = lines[x].replace("archive member", "").trim();
+				} else if (words.length >= 4) {
+					if (archiveMember.equals("")) {
+						archiveMember = file.getName();
+					}
+					Symbol symbol = MapStructure.findSymbolByArchiveMember(archiveMember, ".text");
+					File sourceFile = new File(words[0].replaceAll(":", ""));
+					if (symbol != null && sourceFile.exists()) {
+						try {
+							DwarfLine dLine = new DwarfLine();
+							dLine.file = sourceFile;
+							dLine.lineNo = Integer.parseInt(words[1].split(",")[0]);
+							dLine.pc = symbol.memoryOffset + CommonLib.string2decimal(words[2]);
+							dLine.archiveMember = archiveMember;
+							linesVector.add(dLine);
+						} catch (Exception ex) {
+							if (Global.debug) {
+								ex.printStackTrace();
+							}
+						}
+
+					}
+				}
+			}
+
+			MapStructure.dwarfLines.put(file, linesVector);
+		}
+		// end load line information from dwarfdump
+	}
+
+	private void initProjectTree() {
+		if (Global.debug) {
+			System.out.println("--initProjectTree");
+		}
+		MapStructure.archiveAndObjectFiles.clear();
+
+		// load "Archive member included because of file" into JTree
+		TextTreeNode archiveNode = new TextTreeNode("Archive member");
+		root = new TextTreeNode(mapFile.getName());
+		archiveNode.parent = root;
+		root.children.add(archiveNode);
+
+		try {
+			String line;
+			BufferedReader br = new BufferedReader(new FileReader(mapFile));
+			boolean start = false;
+			while ((line = br.readLine()) != null) {
+				if (line.toLowerCase().contains("Allocating common symbols".toLowerCase())) {
+					break;
+				}
+				if (start) {
+					Matcher matcher = Pattern.compile("^[^ \t].*").matcher(line);
+					if (matcher.matches()) {
+						File file = new File(line.replaceAll("\\(.*", ""));
+						if (file.exists() && !MapStructure.archiveAndObjectFiles.contains(file)) {
+							MapStructure.archiveAndObjectFiles.add(file);
+							ArchiveFileTreeNode node = new ArchiveFileTreeNode(file);
+							node.parent = archiveNode;
+							archiveNode.children.add(node);
+							loadFunctionList(node, file);
+						}
+					}
+				} else if (line.toLowerCase().contains("Archive member included because of file".toLowerCase())) {
+					start = true;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		// end "Archive member included because of file" into JTree
+
+		// load all (*) into JTree
+		Pattern pattern = Pattern.compile(".*\\(\\*\\).*");
+		Matcher lm = pattern.matcher(MapStructure.mapFileContent);
+		TextTreeNode objectsNode = new TextTreeNode("Objects");
+		objectsNode.parent = root;
+		root.children.add(objectsNode);
+		while (lm.find()) {
+			String filepath = lm.group().replaceAll("\\(.*", "").trim();
+			File file;
+			if (filepath.startsWith(File.separator)) {
+				file = new File(filepath);
+			} else {
+				file = new File(mapFile.getParent() + File.separator + filepath);
+			}
+			if (file.exists() && !MapStructure.archiveAndObjectFiles.contains(file)) {
+				MapStructure.archiveAndObjectFiles.add(file);
+				ObjectFileTreeNode node = new ObjectFileTreeNode(file);
+				node.parent = objectsNode;
+				objectsNode.children.add(node);
+				loadFunctionList(node, file);
+			}
+		}
+		// end load all (*) into JTree
+
+		((ObjectFileTreeModel) jFileTree.getModel()).setRoot(root);
+		jFileTree.updateUI();
+
+		if (Global.debug) {
+			System.out.println("--initProjectTree end");
+		}
+	}
+
+	private void loadFunctionList(MyMutableTreeNode node, File f) {
+		try {
+			String command = "objdump -t " + f.getAbsolutePath();
+			String str = CommonLib.runCommand(command);
+			if (Global.debug) {
+				System.out.println(command);
+			}
+			String lines[] = str.split("\n");
+			TreeSet<Function> hs = new TreeSet<Function>();
+			for (String line : lines) {
+				if (line.contains(".text") && !line.endsWith(".text")) {
+					try {
+						Function function = new Function();
+						String words[] = line.split("\\s");
+						List<String> list = new ArrayList<String>(Arrays.asList(words));
+						list.removeAll(Arrays.asList(""));
+						words = list.toArray(words);
+						function.file = f;
+						function.name = words[words.length - 1].trim();
+						function.fileOffset = Integer.parseInt(words[0], 16);
+						if (words[words.length - 2].contains(".hidden")) {
+							function.size = Integer.parseInt(words[words.length - 3], 16);
+						} else {
+							function.size = Integer.parseInt(words[words.length - 2], 16);
+						}
+
+						hs.add(function);
+						MapStructure.functions.add(function);
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
+				}
+			}
+			for (Function s : hs) {
+				FunctionTreeNode childNode = new FunctionTreeNode(s);
+				childNode.parent = node;
+				node.getChildren().add(childNode);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	private void loadCode(Function function) {
+		if (function.file == null) {
+			JOptionPane.showMessageDialog(this, "Internal error, \"function.file\" is null", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		Symbol symbol = MapStructure.findSymbolByFile(function.file);
+		if (symbol == null) {
+			JOptionPane.showMessageDialog(this, "Internal error, \"symbol(" + function.file.getAbsolutePath() + ")\" is null", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		long vmaAddress = symbol.memoryOffset;
+		String code = CommonLib.runCommand("objdump -S " + function.file.getAbsolutePath() + " --adjust-vma=" + vmaAddress + " --start-address="
+				+ (function.fileOffset + vmaAddress) + " --stop-address=" + (function.fileOffset + function.size + vmaAddress), 12);
+		System.out.println("objdump -S " + function.file.getAbsolutePath() + " --adjust-vma=" + vmaAddress + " --start-address=" + (function.fileOffset + vmaAddress)
+				+ " --stop-address=" + (function.fileOffset + function.size + vmaAddress));
+		function.code = code;
+		parseCodeIntoDisassembledCodes(function);
+	}
+
+	public void collapseAllFunction(JTree tree) {
+		// from bottom up
+		int row = tree.getRowCount() - 1;
+		while (row >= 0) {
+			Object obj = tree.getPathForRow(row).getLastPathComponent();
+			if (obj instanceof ObjectFileTreeNode) {
+				ObjectFileTreeNode node = (ObjectFileTreeNode) obj;
+				if (node.file != null) {
+					tree.collapseRow(row);
+				}
+			}
+			if (obj instanceof ArchiveFileTreeNode) {
+				ArchiveFileTreeNode node = (ArchiveFileTreeNode) obj;
+				if (node.file != null) {
+					tree.collapseRow(row);
+				}
+			}
+			row--;
 		}
 	}
 
@@ -739,20 +1006,19 @@ public class SourceLevelDebugger2 extends JMaximizableTabbedPane_BasePanel imple
 	}
 
 	private void initMemoryMap() {
-		String str = jMapTextArea.getText();
+		if (Global.debug) {
+			System.out.println("--initMemoryMap");
+		}
+		String str = jRawTextArea.getText();
 		str = str.replaceFirst("(?s).*Linker script and memory map", "Linker script and memory map");
 
 		String lines[] = str.split("\n");
 		boolean captureStart = false;
 		String objectName = null;
 
-		mapDataTableModel.objects.clear();
-		mapDataTableModel.segments.clear();
-		mapDataTableModel.locations.clear();
-		mapDataTableModel.lengths.clear();
-		mapDataTableModel.attributes.clear();
+		MapStructure.symbols.clear();
 		String lastSegment = "";
-
+		String archiveMember = "";
 		for (int x = 0; x < lines.length; x++) {
 			String line = lines[x];
 
@@ -762,53 +1028,71 @@ public class SourceLevelDebugger2 extends JMaximizableTabbedPane_BasePanel imple
 				if (t[0].contains("(*)")) {
 					if (!captureStart) {
 						captureStart = true;
-						objectName = t[0];
+						objectName = t[0].trim();
 					} else {
-						objectName = t[0];
+						objectName = t[0].trim();
 					}
+					archiveMember = objectName.replaceAll("\\(.*", "");
 					continue;
 				}
 			}
 			try {
 				if (captureStart) {
 					if (t.length >= 3) {
-						mapDataTableModel.objects.add(objectName);
-						if (t[0].equals("")) {
-							mapDataTableModel.segments.add(lastSegment);
+						Symbol symbol = new Symbol();
+						if (new File(objectName.replaceAll("\\(.*", "")).exists()) {
+							symbol.file = new File(objectName.replaceAll("\\(.*", ""));
 						} else {
-							mapDataTableModel.segments.add(t[0]);
+							symbol.file = new File(mapFile.getParent() + File.separator + objectName.replaceAll("\\(.*", ""));
+						}
+						if (!symbol.file.exists()) {
+							System.out.println("Warning : symbol.file " + symbol.file.getAbsolutePath() + " not exist");
+							continue;
+						}
+						if (t[0].equals("")) {
+							symbol.segment = lastSegment.trim();
+						} else {
+							symbol.segment = t[0].trim();
 							lastSegment = t[0];
 						}
-						mapDataTableModel.locations.add(t[1]);
+						symbol.memoryOffset = CommonLib.string2decimal(t[1]);
 						if (t[2].contains(" ")) {
-							mapDataTableModel.lengths.add(t[2].split(" ")[0]);
-							mapDataTableModel.attributes.add(t[2].split(" ")[1]);
+							try {
+								symbol.length = CommonLib.string2decimal(t[2].split(" ")[0]);
+							} catch (Exception ex) {
+								symbol.length = -1;
+							}
+							symbol.functionNameOrObjectName = t[2].split(" ")[1].trim();
 						} else {
-							mapDataTableModel.lengths.add("");
-							mapDataTableModel.attributes.add(t[2]);
+							symbol.length = -1;
+							symbol.functionNameOrObjectName = t[2].trim();
 						}
+						if (symbol.functionNameOrObjectName.contains("(")) {
+							archiveMember = symbol.functionNameOrObjectName.replaceAll("^.*\\(", "").replaceAll("\\)", "");
+						}
+						symbol.archiveMember = archiveMember;
+						MapStructure.symbols.add(symbol);
 					} else {
 						if (line.equals("")) {
 							continue;
 						} else {
-							lastSegment = t[0];
+							lastSegment = t[0].trim();
 						}
-						// System.out.println(">>>>>>>>>" + line);
 					}
 				}
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
+
 		}
+
+		mapDataTableModel.setSearchPattern(null);
 		mapDataTableModel.fireTableDataChanged();
 
 		memoryMap.model = mapDataTableModel;
 		memoryMap.repaint();
-
-		Pattern p = Pattern.compile("0x[0-9abcdef]+");
-		Matcher myMatcher = p.matcher(str);
-		while (myMatcher.find()) {
-			// System.out.println(myMatcher.group());
+		if (Global.debug) {
+			System.out.println("--initMemoryMap end");
 		}
 	}
 
@@ -825,91 +1109,16 @@ public class SourceLevelDebugger2 extends JMaximizableTabbedPane_BasePanel imple
 	private JScrollPane getJScrollPane5() {
 		if (jScrollPane5 == null) {
 			jScrollPane5 = new JScrollPane();
-			jScrollPane5.setViewportView(getJMapTextArea());
+			jScrollPane5.setViewportView(getJRawTextArea());
 		}
 		return jScrollPane5;
 	}
 
-	private EnhancedTextArea getJMapTextArea() {
-		if (jMapTextArea == null) {
-			jMapTextArea = new EnhancedTextArea();
+	private EnhancedTextArea getJRawTextArea() {
+		if (jRawTextArea == null) {
+			jRawTextArea = new EnhancedTextArea();
 		}
-		return jMapTextArea;
-	}
-
-	private JPanel getJLibraryPanel() {
-		if (jLibraryPanel == null) {
-			jLibraryPanel = new JPanel();
-			BorderLayout jLibraryPanelLayout = new BorderLayout();
-			jLibraryPanel.setLayout(jLibraryPanelLayout);
-			jLibraryPanel.add(getJScrollPane6(), BorderLayout.CENTER);
-		}
-		return jLibraryPanel;
-	}
-
-	private JScrollPane getJScrollPane6() {
-		if (jScrollPane6 == null) {
-			jScrollPane6 = new JScrollPane();
-			jScrollPane6.setViewportView(getJLibraryTable());
-		}
-		return jScrollPane6;
-	}
-
-	private JTable getJLibraryTable() {
-		if (jLibraryTable == null) {
-			jLibraryTable = new JTable();
-			jLibraryTable.setModel(new LibraryTableModel());
-			jLibraryTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-			jLibraryTable.getColumnModel().getColumn(0).setPreferredWidth(120);
-			jLibraryTable.getColumnModel().getColumn(1).setPreferredWidth(100);
-			jLibraryTable.getColumnModel().getColumn(2).setPreferredWidth(400);
-			jLibraryTable.setDefaultRenderer(String.class, new LibraryTableCellRenderer());
-			jLibraryTable.addMouseListener(new MouseAdapter() {
-				public void mouseClicked(MouseEvent evt) {
-					jLibraryTableMouseClicked(evt);
-				}
-			});
-		}
-		return jLibraryTable;
-	}
-
-	private void jLibraryTableMouseClicked(MouseEvent evt) {
-		jLibraryTable.setEnabled(false);
-		final JProgressBarDialog dialog = new JProgressBarDialog(application, "Dumping object/library", true);
-		dialog.jProgressBar.setIndeterminate(true);
-		dialog.jProgressBar.setStringPainted(true);
-		dialog.setSize(new Dimension(750, 150));
-		dialog.addCancelEventListener(this);
-		CommonLib.centerDialog(dialog);
-
-		Thread thread = new Thread() {
-			public void run() {
-				try {
-					String objectFile = jLibraryTable.getValueAt(jLibraryTable.getSelectedRow(), 2).toString();
-					Process process = Runtime.getRuntime().exec("objdump -dlS " + objectFile);
-					InputStream input = process.getInputStream();
-
-					String str = "";
-					byte b[] = new byte[1024000];
-					int len;
-					int x = 0;
-					while ((len = input.read(b)) > 0) {
-						str += new String(b, 0, len);
-						x += len;
-						dialog.jProgressBar.setString("objdump -dlS " + objectFile + ", " + String.valueOf(x));
-					}
-					input.close();
-					dialog.jProgressBar.setString("Setting the result to textarea, please be patient");
-					final String str2 = str;
-					// jObjdumpTextArea.setText(str);
-					jLibraryTable.setEnabled(true);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		};
-		dialog.thread = thread;
-		dialog.setVisible(true);
+		return jRawTextArea;
 	}
 
 	public void showWhere(long address) {
@@ -934,6 +1143,690 @@ public class SourceLevelDebugger2 extends JMaximizableTabbedPane_BasePanel imple
 	@Override
 	public void cancelled() {
 		jFileTree.setEnabled(true);
-		jLibraryTable.setEnabled(false);
+	}
+
+	private JToolBar getJProjectToolBar() {
+		if (jProjectToolBar == null) {
+			jProjectToolBar = new JToolBar();
+			jProjectToolBar.add(getJSearchProjectTextField());
+			jProjectToolBar.add(getJExactMatchCheckBox());
+		}
+		return jProjectToolBar;
+	}
+
+	private JSearchTextField getJSearchProjectTextField() {
+		if (jSearchProjectTextField == null) {
+			jSearchProjectTextField = new JSearchTextField();
+			jSearchProjectTextField.addKeyListener(new KeyAdapter() {
+				public void keyReleased(KeyEvent evt) {
+					jSearchProjectTextFieldKeyReleased(evt);
+				}
+			});
+		}
+		return jSearchProjectTextField;
+	}
+
+	private JPanel getJFunctionListPanel() {
+		if (jFunctionListPanel == null) {
+			jFunctionListPanel = new JPanel();
+			BorderLayout jFunctionListPanelLayout = new BorderLayout();
+			jFunctionListPanel.setLayout(jFunctionListPanelLayout);
+			jFunctionListPanel.add(getJScrollPane11(), BorderLayout.CENTER);
+			jFunctionListPanel.add(getJToolBar1(), BorderLayout.NORTH);
+		}
+		return jFunctionListPanel;
+	}
+
+	private void jSearchProjectTextFieldKeyReleased(KeyEvent evt) {
+		if (jSearchProjectTextField.getText() != null) {
+			setNodeVisible(root, jSearchProjectTextField.getText().toLowerCase());
+			jFileTree.updateUI();
+			CommonLib.expandAll(jFileTree, true);
+		}
+	}
+
+	private void setNodeVisible(MyMutableTreeNode node, String str) {
+		if (!this.jExactMatchCheckBox.isSelected() && node.toString().toLowerCase().contains(str)) {
+			visibleNode(node);
+		} else if (node.toString().toLowerCase().equals(str)) {
+			visibleNode(node);
+		} else {
+			node.setVisible(false);
+		}
+		for (int x = 0; x < node.getChildren().size(); x++) {
+			setNodeVisible(node.getChildren().get(x), str);
+		}
+	}
+
+	private void visibleNode(MyMutableTreeNode node) {
+		node.setVisible(true);
+		if (node.getParent() != null) {
+			visibleNode((MyMutableTreeNode) node.getParent());
+		}
+	}
+
+	private JPanel getJRawSourcePanel() {
+		if (jRawSourcePanel == null) {
+			jRawSourcePanel = new JPanel();
+			BorderLayout jRawSourcePanelLayout = new BorderLayout();
+			jRawSourcePanel.setLayout(jRawSourcePanelLayout);
+			jRawSourcePanel.add(getJScrollPane2(), BorderLayout.CENTER);
+		}
+		return jRawSourcePanel;
+	}
+
+	private JScrollPane getJScrollPane2() {
+		if (jScrollPane2 == null) {
+			jScrollPane2 = new JScrollPane();
+			jScrollPane2.setViewportView(getJRawSourceTable());
+		}
+		return jScrollPane2;
+	}
+
+	private JTable getJRawSourceTable() {
+		if (jRawSourceTable == null) {
+			jRawSourceTable = new JTable();
+			jRawSourceTable.setModel(new RawSourceTableModel());
+			jRawSourceTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			jRawSourceTable.getColumnModel().getColumn(0).setPreferredWidth(100);
+			jRawSourceTable.getColumnModel().getColumn(1).setPreferredWidth(800);
+			jRawSourceTable.setDefaultRenderer(String.class, new RawSourceTableCellRenderer());
+			jRawSourceTable.setShowHorizontalLines(false);
+		}
+		return jRawSourceTable;
+	}
+
+	private JPanel getJVariablePanel() {
+		if (jVariablePanel == null) {
+			jVariablePanel = new JPanel();
+		}
+		return jVariablePanel;
+	}
+
+	private JPanel getJThreadPanel() {
+		if (jThreadPanel == null) {
+			jThreadPanel = new JPanel();
+		}
+		return jThreadPanel;
+	}
+
+	private JPanel getJStructurePanel() {
+		if (jStructurePanel == null) {
+			jStructurePanel = new JPanel();
+			BorderLayout jStructurePanelLayout = new BorderLayout();
+			jStructurePanel.setLayout(jStructurePanelLayout);
+			jStructurePanel.add(getJTabbedPane3(), BorderLayout.CENTER);
+		}
+		return jStructurePanel;
+	}
+
+	private JTabbedPane getJTabbedPane3() {
+		if (jTabbedPane3 == null) {
+			jTabbedPane3 = new JTabbedPane();
+			jTabbedPane3.setTabPlacement(JTabbedPane.LEFT);
+			jTabbedPane3.addChangeListener(new ChangeListener() {
+				public void stateChanged(ChangeEvent evt) {
+					jTabbedPane3StateChanged(evt);
+				}
+			});
+			jTabbedPane3.addTab("Symbol", null, getJPanel8(), null);
+			jTabbedPane3.addTab("Function", null, getJPanel15(), null);
+			jTabbedPane3.addTab("Archive file", null, getJPanel17(), null);
+			jTabbedPane3.addTab("Code", null, getJPanel2(), null);
+			jTabbedPane3.addTab("Parsed func", null, getJPanel19(), null);
+			jTabbedPane3.addTab("Dwarf", null, getJPanel21(), null);
+		}
+		return jTabbedPane3;
+	}
+
+	private JScrollPane getJScrollPane6() {
+		if (jScrollPane6 == null) {
+			jScrollPane6 = new JScrollPane();
+			jScrollPane6.setViewportView(getJFunctionTable());
+		}
+		return jScrollPane6;
+	}
+
+	private JScrollPane getSymbol() {
+		if (Symbol == null) {
+			Symbol = new JScrollPane();
+			Symbol.setViewportView(getJSymbolTable());
+		}
+		return Symbol;
+	}
+
+	private JScrollPane getJScrollPane7() {
+		if (jScrollPane7 == null) {
+			jScrollPane7 = new JScrollPane();
+			jScrollPane7.setViewportView(getJArchiveFileTable());
+		}
+		return jScrollPane7;
+	}
+
+	private JScrollPane getJScrollPane8() {
+		if (jScrollPane8 == null) {
+			jScrollPane8 = new JScrollPane();
+			jScrollPane8.setViewportView(getJCodeTable());
+		}
+		return jScrollPane8;
+	}
+
+	private JScrollPane getJScrollPane9() {
+		if (jScrollPane9 == null) {
+			jScrollPane9 = new JScrollPane();
+			jScrollPane9.setViewportView(getJParsedFunctionTable());
+		}
+		return jScrollPane9;
+	}
+
+	private JTable getJSymbolTable() {
+		if (jSymbolTable == null) {
+			jSymbolTable = new JTable();
+			jSymbolTable.setModel(new SymbolTableModel());
+			jSymbolTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			jSymbolTable.getColumnModel().getColumn(0).setPreferredWidth(400);
+			jSymbolTable.getColumnModel().getColumn(1).setPreferredWidth(160);
+			jSymbolTable.getColumnModel().getColumn(3).setPreferredWidth(120);
+			jSymbolTable.getColumnModel().getColumn(5).setPreferredWidth(400);
+		}
+		return jSymbolTable;
+	}
+
+	private JTable getJFunctionTable() {
+		if (jFunctionTable == null) {
+			jFunctionTable = new JTable();
+			jFunctionTable.setModel(new FunctionTableModel());
+			jFunctionTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			jFunctionTable.getColumnModel().getColumn(0).setPreferredWidth(400);
+			jFunctionTable.getColumnModel().getColumn(3).setPreferredWidth(250);
+			jFunctionTable.getColumnModel().getColumn(4).setPreferredWidth(250);
+		}
+		return jFunctionTable;
+	}
+
+	private JTable getJArchiveFileTable() {
+		if (jArchiveFileTable == null) {
+			jArchiveFileTable = new JTable();
+			jArchiveFileTable.setModel(new ArchiveFileTableModel());
+			jArchiveFileTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			jArchiveFileTable.getColumnModel().getColumn(0).setPreferredWidth(600);
+		}
+		return jArchiveFileTable;
+	}
+
+	private JTable getJCodeTable() {
+		if (jCodeTable == null) {
+			jCodeTable = new JTable();
+			jCodeTable.setModel(new CodeTableModel());
+			jCodeTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			jCodeTable.getColumnModel().getColumn(0).setPreferredWidth(100);
+			jCodeTable.getColumnModel().getColumn(1).setPreferredWidth(400);
+			jCodeTable.getColumnModel().getColumn(2).setPreferredWidth(300);
+			jCodeTable.getColumnModel().getColumn(3).setPreferredWidth(300);
+			jCodeTable.getColumnModel().getColumn(4).setPreferredWidth(100);
+			jCodeTable.getColumnModel().getColumn(5).setPreferredWidth(150);
+		}
+		return jCodeTable;
+	}
+
+	private JPanel getJPanel2() {
+		if (jPanel2 == null) {
+			jPanel2 = new JPanel();
+			BorderLayout jPanel2Layout = new BorderLayout();
+			jPanel2.setLayout(jPanel2Layout);
+			jPanel2.setPreferredSize(new java.awt.Dimension(542, 467));
+			jPanel2.add(getJScrollPane8(), BorderLayout.CENTER);
+			jPanel2.add(getJPanel5(), BorderLayout.NORTH);
+		}
+		return jPanel2;
+	}
+
+	private JPanel getJPanel5() {
+		if (jPanel5 == null) {
+			jPanel5 = new JPanel();
+			FlowLayout jPanel5Layout = new FlowLayout();
+			jPanel5Layout.setAlignment(FlowLayout.LEFT);
+			jPanel5.setLayout(jPanel5Layout);
+			jPanel5.add(getJRefreshCodeButton());
+		}
+		return jPanel5;
+	}
+
+	private JButton getJRefreshCodeButton() {
+		if (jRefreshCodeButton == null) {
+			jRefreshCodeButton = new JButton();
+			jRefreshCodeButton.setText("Refresh");
+			jRefreshCodeButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jRefreshCodeButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jRefreshCodeButton;
+	}
+
+	private void jRefreshCodeButtonActionPerformed(ActionEvent evt) {
+		if (jCodeTable != null) {
+			((CodeTableModel) jCodeTable.getModel()).fireTableDataChanged();
+		}
+	}
+
+	private void jTabbedPane3StateChanged(ChangeEvent evt) {
+		jRefreshCodeButtonActionPerformed(null);
+	}
+
+	private JPanel getJPanel8() {
+		if (jPanel8 == null) {
+			jPanel8 = new JPanel();
+			BorderLayout jPanel8Layout = new BorderLayout();
+			jPanel8.setLayout(jPanel8Layout);
+			jPanel8.setPreferredSize(new java.awt.Dimension(542, 467));
+			jPanel8.add(getSymbol(), BorderLayout.CENTER);
+			jPanel8.add(getJPanel9(), BorderLayout.NORTH);
+		}
+		return jPanel8;
+	}
+
+	private JPanel getJPanel9() {
+		if (jPanel9 == null) {
+			jPanel9 = new JPanel();
+			FlowLayout jPanel9Layout1 = new FlowLayout();
+			jPanel9Layout1.setAlignment(FlowLayout.LEFT);
+			jPanel9.setLayout(jPanel9Layout1);
+			jPanel9.add(getJRefreshSymbolButton());
+			jPanel9.add(getJSearchSymbolTextField());
+		}
+		return jPanel9;
+	}
+
+	private JButton getJRefreshSymbolButton() {
+		if (jRefreshSymbolButton == null) {
+			jRefreshSymbolButton = new JButton();
+			jRefreshSymbolButton.setText("Refresh");
+			jRefreshSymbolButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jRefreshSymbolButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jRefreshSymbolButton;
+	}
+
+	private JPanel getJPanel15() {
+		if (jPanel15 == null) {
+			jPanel15 = new JPanel();
+			BorderLayout jPanel15Layout = new BorderLayout();
+			jPanel15.setLayout(jPanel15Layout);
+			jPanel15.setPreferredSize(new java.awt.Dimension(542, 467));
+			jPanel15.add(getJScrollPane6(), BorderLayout.CENTER);
+			jPanel15.add(getJPanel16(), BorderLayout.NORTH);
+		}
+		return jPanel15;
+	}
+
+	private JPanel getJPanel16() {
+		if (jPanel16 == null) {
+			jPanel16 = new JPanel();
+			FlowLayout jPanel16Layout = new FlowLayout();
+			jPanel16Layout.setAlignment(FlowLayout.LEFT);
+			jPanel16.setLayout(jPanel16Layout);
+			jPanel16.add(getJRefreshFunctionButton());
+			jPanel16.add(getJSearchFunctionTextField());
+		}
+		return jPanel16;
+	}
+
+	private JButton getJRefreshFunctionButton() {
+		if (jRefreshFunctionButton == null) {
+			jRefreshFunctionButton = new JButton();
+			jRefreshFunctionButton.setText("Refresh");
+			jRefreshFunctionButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jRefreshFunctionButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jRefreshFunctionButton;
+	}
+
+	private JPanel getJPanel17() {
+		if (jPanel17 == null) {
+			jPanel17 = new JPanel();
+			BorderLayout jPanel17Layout = new BorderLayout();
+			jPanel17.setLayout(jPanel17Layout);
+			jPanel17.setPreferredSize(new java.awt.Dimension(542, 467));
+			jPanel17.add(getJScrollPane7(), BorderLayout.CENTER);
+			jPanel17.add(getJPanel18(), BorderLayout.NORTH);
+		}
+		return jPanel17;
+	}
+
+	private JPanel getJPanel18() {
+		if (jPanel18 == null) {
+			jPanel18 = new JPanel();
+			FlowLayout jPanel18Layout = new FlowLayout();
+			jPanel18Layout.setAlignment(FlowLayout.LEFT);
+			jPanel18.setLayout(jPanel18Layout);
+			jPanel18.add(getJRefreshArchiveFileButton());
+		}
+		return jPanel18;
+	}
+
+	private JButton getJRefreshArchiveFileButton() {
+		if (jRefreshArchiveFileButton == null) {
+			jRefreshArchiveFileButton = new JButton();
+			jRefreshArchiveFileButton.setText("Refresh");
+			jRefreshArchiveFileButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jRefreshArchiveFileButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jRefreshArchiveFileButton;
+	}
+
+	private void jRefreshSymbolButtonActionPerformed(ActionEvent evt) {
+		((SymbolTableModel) this.jSymbolTable.getModel()).reload();
+	}
+
+	private void jRefreshFunctionButtonActionPerformed(ActionEvent evt) {
+		((FunctionTableModel) this.jFunctionTable.getModel()).reload();
+	}
+
+	private void jRefreshArchiveFileButtonActionPerformed(ActionEvent evt) {
+		((ArchiveFileTableModel) this.jArchiveFileTable.getModel()).fireTableDataChanged();
+	}
+
+	private void jRefreshParsedFunctionButtonActionPerformed(ActionEvent evt) {
+		((ParsedFunctionTableModel) this.jParsedFunctionTable.getModel()).fireTableDataChanged();
+	}
+
+	private JTable getJParsedFunctionTable() {
+		if (jParsedFunctionTable == null) {
+			jParsedFunctionTable = new JTable();
+			jParsedFunctionTable.setModel(new ParsedFunctionTableModel());
+		}
+		return jParsedFunctionTable;
+	}
+
+	private JPanel getJPanel19() {
+		if (jPanel19 == null) {
+			jPanel19 = new JPanel();
+			BorderLayout jPanel19Layout = new BorderLayout();
+			jPanel19.setLayout(jPanel19Layout);
+			jPanel19.setPreferredSize(new java.awt.Dimension(542, 467));
+			jPanel19.add(getJScrollPane9(), BorderLayout.CENTER);
+			jPanel19.add(getJPanel20(), BorderLayout.NORTH);
+		}
+		return jPanel19;
+	}
+
+	private JPanel getJPanel20() {
+		if (jPanel20 == null) {
+			jPanel20 = new JPanel();
+			FlowLayout jPanel20Layout = new FlowLayout();
+			jPanel20Layout.setAlignment(FlowLayout.LEFT);
+			jPanel20.setLayout(jPanel20Layout);
+			jPanel20.add(getJRefreshParsedFunctionButton());
+		}
+		return jPanel20;
+	}
+
+	private JButton getJRefreshParsedFunctionButton() {
+		if (jRefreshParsedFunctionButton == null) {
+			jRefreshParsedFunctionButton = new JButton();
+			jRefreshParsedFunctionButton.setText("Refresh");
+			jRefreshParsedFunctionButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jRefreshParsedFunctionButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jRefreshParsedFunctionButton;
+	}
+
+	private JSearchTextField getJSearchSymbolTextField() {
+		if (jSearchSymbolTextField == null) {
+			jSearchSymbolTextField = new JSearchTextField();
+			jSearchSymbolTextField.setPreferredSize(new java.awt.Dimension(152, 25));
+			jSearchSymbolTextField.addKeyListener(new KeyAdapter() {
+				public void keyReleased(KeyEvent evt) {
+					jSearchSymbolTextFieldKeyReleased(evt);
+				}
+			});
+		}
+		return jSearchSymbolTextField;
+	}
+
+	private void jSearchSymbolTextFieldKeyReleased(KeyEvent evt) {
+		SymbolTableModel model = (SymbolTableModel) jSymbolTable.getModel();
+		model.setSearchPattern(jSearchSymbolTextField.getText());
+		model.fireTableDataChanged();
+	}
+
+	private JPanel getJPanel21() {
+		if (jPanel21 == null) {
+			jPanel21 = new JPanel();
+			BorderLayout jPanel21Layout = new BorderLayout();
+			jPanel21.setLayout(jPanel21Layout);
+			jPanel21.add(getJScrollPane10(), BorderLayout.CENTER);
+			jPanel21.add(getJPanel22(), BorderLayout.NORTH);
+		}
+		return jPanel21;
+	}
+
+	private JScrollPane getJScrollPane10() {
+		if (jScrollPane10 == null) {
+			jScrollPane10 = new JScrollPane();
+			jScrollPane10.setViewportView(getJDwarfTable());
+		}
+		return jScrollPane10;
+	}
+
+	private JTable getJDwarfTable() {
+		if (jDwarfTable == null) {
+			jDwarfTable = new JTable();
+			jDwarfTable.setModel(new DwarfTableModel());
+			jDwarfTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			jDwarfTable.getColumnModel().getColumn(0).setPreferredWidth(400);
+			jDwarfTable.getColumnModel().getColumn(2).setPreferredWidth(100);
+			jDwarfTable.getColumnModel().getColumn(3).setPreferredWidth(200);
+		}
+		return jDwarfTable;
+	}
+
+	private JPanel getJPanel22() {
+		if (jPanel22 == null) {
+			jPanel22 = new JPanel();
+			FlowLayout jPanel22Layout = new FlowLayout();
+			jPanel22Layout.setAlignment(FlowLayout.LEFT);
+			jPanel22.setLayout(jPanel22Layout);
+			jPanel22.add(getJRefreshDwarfTableButton());
+			jPanel22.add(getJSearchDwarfTextField());
+			jPanel22.add(getJDwarfComboBox());
+		}
+		return jPanel22;
+	}
+
+	private JButton getJRefreshDwarfTableButton() {
+		if (jRefreshDwarfTableButton == null) {
+			jRefreshDwarfTableButton = new JButton();
+			jRefreshDwarfTableButton.setText("Refresh");
+			jRefreshDwarfTableButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jRefreshDwarfTableButtonActionPerformed(evt);
+				}
+			});
+		}
+		return jRefreshDwarfTableButton;
+	}
+
+	private void jRefreshDwarfTableButtonActionPerformed(ActionEvent evt) {
+		((DwarfTableModel) jDwarfTable.getModel()).fireTableDataChanged();
+		for (File file : MapStructure.dwarfLines.keySet()) {
+			jDwarfComboBox.addItem(file);
+		}
+	}
+
+	private JComboBox getJDwarfComboBox() {
+		if (jDwarfComboBox == null) {
+			jDwarfComboBox = new JComboBox();
+			jDwarfComboBox.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jDwarfComboBoxActionPerformed(evt);
+				}
+			});
+		}
+		return jDwarfComboBox;
+	}
+
+	private void jDwarfComboBoxActionPerformed(ActionEvent evt) {
+		DwarfTableModel model = (DwarfTableModel) jDwarfTable.getModel();
+		model.archiveFile = (File) jDwarfComboBox.getSelectedItem();
+		model.setSearchPattern(null);
+	}
+
+	private JCheckBox getJExactMatchCheckBox() {
+		if (jExactMatchCheckBox == null) {
+			jExactMatchCheckBox = new JCheckBox();
+			jExactMatchCheckBox.setText("exact");
+			jExactMatchCheckBox.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jExactMatchCheckBoxActionPerformed(evt);
+				}
+			});
+		}
+		return jExactMatchCheckBox;
+	}
+
+	private void jExactMatchCheckBoxActionPerformed(ActionEvent evt) {
+		jSearchProjectTextFieldKeyReleased(null);
+	}
+
+	private JTextField getJSearchDwarfTextField() {
+		if (jSearchDwarfTextField == null) {
+			jSearchDwarfTextField = new JSearchTextField();
+			jSearchDwarfTextField.setPreferredSize(new java.awt.Dimension(149, 22));
+			jSearchDwarfTextField.addKeyListener(new KeyAdapter() {
+				public void keyReleased(KeyEvent evt) {
+					jSearchDwarfTextFieldKeyReleased(evt);
+				}
+			});
+		}
+		return jSearchDwarfTextField;
+	}
+
+	private void jSearchDwarfTextFieldKeyReleased(KeyEvent evt) {
+		DwarfTableModel model = (DwarfTableModel) jDwarfTable.getModel();
+		model.setSearchPattern(jSearchDwarfTextField.getText());
+	}
+
+	private JSearchTextField getJSearchFunctionTextField() {
+		if (jSearchFunctionTextField == null) {
+			jSearchFunctionTextField = new JSearchTextField();
+			jSearchFunctionTextField.setPreferredSize(new java.awt.Dimension(152, 25));
+			jSearchFunctionTextField.addKeyListener(new KeyAdapter() {
+				public void keyReleased(KeyEvent evt) {
+					jSearchFunctionTextFieldKeyReleased(evt);
+				}
+			});
+		}
+		return jSearchFunctionTextField;
+	}
+
+	private void jSearchFunctionTextFieldKeyReleased(KeyEvent evt) {
+		FunctionTableModel model = (FunctionTableModel) jFunctionTable.getModel();
+		model.setSearchPattern(jSearchFunctionTextField.getText());
+	}
+
+	private JScrollPane getJScrollPane11() {
+		if (jScrollPane11 == null) {
+			jScrollPane11 = new JScrollPane();
+			jScrollPane11.setViewportView(getJAllFunctionsTable());
+		}
+		return jScrollPane11;
+	}
+
+	private JTable getJAllFunctionsTable() {
+		if (jAllFunctionsTable == null) {
+			jAllFunctionsTable = new JTable();
+			jAllFunctionsTable.setModel(new AllFunctionsTableModel());
+			jAllFunctionsTable.addMouseListener(new MouseAdapter() {
+				public void mouseClicked(MouseEvent evt) {
+					jAllFunctionsTableMouseClicked(evt);
+				}
+			});
+		}
+		return jAllFunctionsTable;
+	}
+
+	private JToolBar getJToolBar1() {
+		if (jToolBar1 == null) {
+			jToolBar1 = new JToolBar();
+			jToolBar1.add(getJSearchAllFunctionsTextField());
+			jToolBar1.add(getJAllFunctionsExactCheckBox());
+		}
+		return jToolBar1;
+	}
+
+	private JSearchTextField getJSearchAllFunctionsTextField() {
+		if (jSearchAllFunctionsTextField == null) {
+			jSearchAllFunctionsTextField = new JSearchTextField();
+			jSearchAllFunctionsTextField.setText("");
+			jSearchAllFunctionsTextField.addKeyListener(new KeyAdapter() {
+				public void keyReleased(KeyEvent evt) {
+					jSearchAllFunctionsTextFieldKeyReleased(evt);
+				}
+			});
+		}
+		return jSearchAllFunctionsTextField;
+	}
+
+	private JCheckBox getJAllFunctionsExactCheckBox() {
+		if (jAllFunctionsExactCheckBox == null) {
+			jAllFunctionsExactCheckBox = new JCheckBox();
+			jAllFunctionsExactCheckBox.setText("exact");
+			jAllFunctionsExactCheckBox.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					jAllFunctionsExactCheckBoxActionPerformed(evt);
+				}
+			});
+		}
+		return jAllFunctionsExactCheckBox;
+	}
+
+	private void jSearchAllFunctionsTextFieldKeyReleased(KeyEvent evt) {
+		if (jSearchAllFunctionsTextField.getText() != null) {
+			AllFunctionsTableModel model = (AllFunctionsTableModel) jAllFunctionsTable.getModel();
+			model.setSearchPattern(jSearchAllFunctionsTextField.getText(), jAllFunctionsExactCheckBox.isSelected());
+		}
+	}
+
+	private void jAllFunctionsExactCheckBoxActionPerformed(ActionEvent evt) {
+		jSearchAllFunctionsTextFieldKeyReleased(null);
+	}
+
+	private void jTabbedPane1StateChanged(ChangeEvent evt) {
+		JTabbedPane pane = (JTabbedPane) evt.getSource();
+
+		// Get current tab
+		int sel = pane.getSelectedIndex();
+
+		if (sel == 1) {
+			AllFunctionsTableModel model = (AllFunctionsTableModel) jAllFunctionsTable.getModel();
+			model.reload();
+		}
+	}
+
+	private void jAllFunctionsTableMouseClicked(MouseEvent evt) {
+		if (evt.getClickCount() == 2) {
+			String str = (String) jAllFunctionsTable.getValueAt(jAllFunctionsTable.getSelectedRow(), 0);
+			if (str != null && str.contains("0x")) {
+				long address = CommonLib.string2decimal("0x" + str.split("0x")[1]);
+
+				jInstructionComboBox.setSelectedItem("0x" + Long.toHexString(address));
+				jMainTabbedPane.setSelectedIndex(0);
+			}
+		}
 	}
 }

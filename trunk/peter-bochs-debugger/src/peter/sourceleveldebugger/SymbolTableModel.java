@@ -6,32 +6,38 @@ import javax.swing.table.AbstractTableModel;
 
 import peter.MyLanguage;
 
-public class MapDataTableModel extends AbstractTableModel {
-	private String[] columnNames = { MyLanguage.getString("Object"), MyLanguage.getString("Segment"), MyLanguage.getString("Memory Offset"), MyLanguage.getString("Length"),
-			MyLanguage.getString("Function or Object") };
+public class SymbolTableModel extends AbstractTableModel {
+	private String[] columnNames = { MyLanguage.getString("File"), MyLanguage.getString("Archive member"), MyLanguage.getString("Segment"), MyLanguage.getString("Memory offset"),
+			MyLanguage.getString("Length"), MyLanguage.getString("Function name or object name") };
 
 	public Vector<Symbol> symbols;
 
 	private String searchPattern;
 
-	public MapDataTableModel() {
+	public SymbolTableModel() {
 		symbols = (Vector<Symbol>) MapStructure.symbols.clone();
 	}
 
 	public Object getValueAt(int row, int column) {
 		try {
-			switch (column) {
-			case 0:
-				return symbols.get(row).file.getName();
-			case 1:
-				return symbols.get(row).segment;
-			case 2:
-				return "0x" + Long.toHexString(symbols.get(row).memoryOffset);
-			case 3:
-				return (symbols.get(row).length != -1) ? symbols.get(row).length : MapStructure.findFunctionByFunctionName(symbols.get(row).functionNameOrObjectName).size;
-			case 4:
-				return symbols.get(row).functionNameOrObjectName;
-			default:
+			if (symbols != null) {
+				switch (column) {
+				case 0:
+					return symbols.get(row).file.getAbsolutePath();
+				case 1:
+					return symbols.get(row).archiveMember;
+				case 2:
+					return symbols.get(row).segment;
+				case 3:
+					return "0x" + Long.toHexString(symbols.get(row).memoryOffset);
+				case 4:
+					return symbols.get(row).length;
+				case 5:
+					return symbols.get(row).functionNameOrObjectName;
+				default:
+					return "";
+				}
+			} else {
 				return "";
 			}
 		} catch (Exception ex) {
@@ -49,9 +55,12 @@ public class MapDataTableModel extends AbstractTableModel {
 		} else {
 			int rowCount = 0;
 			for (int x = 0; x < symbols.size(); x++) {
-				if (symbols.get(x).file.getName().contains(searchPattern) || symbols.get(x).segment.contains(searchPattern)
-						|| String.valueOf(symbols.get(x).memoryOffset).contains(searchPattern) || String.valueOf(symbols.get(x).length).contains(searchPattern)
-						|| symbols.get(x).functionNameOrObjectName.contains(searchPattern)) {
+				if (symbols.get(x).file.getName().toLowerCase().contains(searchPattern.toLowerCase())
+						|| symbols.get(x).archiveMember.toLowerCase().contains(searchPattern.toLowerCase())
+						|| symbols.get(x).segment.toLowerCase().contains(searchPattern.toLowerCase())
+						|| String.valueOf(symbols.get(x).memoryOffset).toLowerCase().contains(searchPattern.toLowerCase())
+						|| String.valueOf(symbols.get(x).length).toLowerCase().contains(searchPattern.toLowerCase())
+						|| symbols.get(x).functionNameOrObjectName.toLowerCase().contains(searchPattern.toLowerCase())) {
 					rowCount++;
 				}
 			}
@@ -71,16 +80,13 @@ public class MapDataTableModel extends AbstractTableModel {
 		return String.class;
 	}
 
-	public String getSearchPattern() {
-		return searchPattern;
-	}
-
 	public void setSearchPattern(String searchPattern) {
 		if (searchPattern != null && !searchPattern.equals("")) {
 			symbols.clear();
 
 			for (int x = 0; x < MapStructure.symbols.size(); x++) {
 				if (MapStructure.symbols.get(x).file.getName().toLowerCase().contains(searchPattern.toLowerCase())
+						|| MapStructure.symbols.get(x).archiveMember.toLowerCase().contains(searchPattern.toLowerCase())
 						|| MapStructure.symbols.get(x).segment.toLowerCase().contains(searchPattern.toLowerCase())
 						|| String.valueOf(MapStructure.symbols.get(x).memoryOffset).toLowerCase().contains(searchPattern.toLowerCase())
 						|| String.valueOf(MapStructure.symbols.get(x).length).toLowerCase().contains(searchPattern.toLowerCase())
@@ -88,18 +94,22 @@ public class MapDataTableModel extends AbstractTableModel {
 
 					Symbol symbol = new Symbol();
 					symbol.file = MapStructure.symbols.get(x).file;
+					symbol.archiveMember = MapStructure.symbols.get(x).archiveMember;
 					symbol.segment = MapStructure.symbols.get(x).segment;
 					symbol.memoryOffset = MapStructure.symbols.get(x).memoryOffset;
 					symbol.length = MapStructure.symbols.get(x).length;
 					symbol.functionNameOrObjectName = MapStructure.symbols.get(x).functionNameOrObjectName;
-
 					symbols.add(symbol);
 				}
 			}
 		} else {
 			symbols = (Vector<Symbol>) MapStructure.symbols.clone();
 		}
-		this.fireTableDataChanged();
+		fireTableDataChanged();
+	}
+
+	public void reload() {
+		setSearchPattern(searchPattern);
 	}
 
 }

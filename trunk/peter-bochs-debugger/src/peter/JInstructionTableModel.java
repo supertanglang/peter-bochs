@@ -20,27 +20,30 @@ public class JInstructionTableModel extends AbstractTableModel {
 
 	public Object getValueAt(int row, int column) {
 		try {
-			if (column == 0) {
-				long address = CommonLib.string2decimal("0x" + data.get(row)[1]);
-				if (address == eip) {
-					return "here";
-				} else if (breakpoint.containsKey(address)) {
-					if (breakpoint.get(address)) {
-						return "O";
-					} else {
-						return "X";
-					}
-				} else {
-					return "";
-				}
+			if (data.get(row)[1].equals("cCode")) {
+				return data.get(row)[column];
 			} else {
-				if (column == 1) {
+				long address = CommonLib.string2decimal("0x" + data.get(row)[1].split(":")[0]);
+				if (column == 0) {
+					if (address == eip) {
+						return "here";
+					} else if (breakpoint.containsKey(address)) {
+						if (breakpoint.get(address)) {
+							return "O";
+						} else {
+							return "X";
+						}
+					} else {
+						return "";
+					}
+				} else if (column == 1) {
 					return "0x" + data.get(row)[column];
 				} else {
 					return data.get(row)[column];
 				}
 			}
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			return "";
 		}
 	}
@@ -105,5 +108,9 @@ public class JInstructionTableModel extends AbstractTableModel {
 
 	public int getRowCount() {
 		return data.size();
+	}
+
+	public String getMemoryAddress(int row) {
+		return getValueAt(row, 1).toString().split(":")[0];
 	}
 }

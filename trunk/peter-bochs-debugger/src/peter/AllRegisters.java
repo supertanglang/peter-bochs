@@ -43,6 +43,7 @@ public class AllRegisters {
 	public static Vector<Long> tr = new Vector<Long>();
 
 	public static Vector<String> instructions = new Vector<String>();
+	public static Vector<String> cCode = new Vector<String>();
 
 	public static Vector<String> st0 = new Vector<String>();
 	public static Vector<String> st1 = new Vector<String>();
@@ -110,6 +111,7 @@ public class AllRegisters {
 		tr.clear();
 
 		instructions.clear();
+		cCode.clear();
 
 		st0.clear();
 		st1.clear();
