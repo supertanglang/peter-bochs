@@ -23,6 +23,8 @@ Step 4), Right click the source code window, click "set physical breakpoint", th
 
 [http://peter-bochs.googlecode.com/files/sourceLevelDebug5.png]
 
+Step 5) After the breakpoint is catched, you can see peter-bochs disassemble the assembly code correctly.
+
 [http://peter-bochs.googlecode.com/files/sourceLevelDebug6.png]
 
 [http://peter-bochs.googlecode.com/files/sourceLevelDebug7.png]
