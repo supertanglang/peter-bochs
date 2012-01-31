@@ -19,6 +19,8 @@ Step 3) Just expand the node, your will see all the functions, in my kernel, the
 
 [http://peter-bochs.googlecode.com/files/sourceLevelDebug4.png]
 
+Step 4), Right click the source code window, click "set physical breakpoint", then run the bochs, you should able to catch the breakpoint.
+
 [http://peter-bochs.googlecode.com/files/sourceLevelDebug5.png]
 
 [http://peter-bochs.googlecode.com/files/sourceLevelDebug6.png]
