@@ -11,8 +11,11 @@ Step 1) start peter-bochs, click on the "C/C++" button, circle-ed in the followi
 
 [http://peter-bochs.googlecode.com/files/sourceLevelDebug2.png]
 
-Step 2) After waiting for a few seconds, peter-bochs should successfully parsed your kernel.map file and show you the project tree (LHS in the following figure). The project tree contains all the library and object file that construct in your kernel. Just expand the node, your will see all the functions, in my kernel, the kernel.o file contains detectVesa, dumpXML functions, just click on the function name, it will disassemble that function in the RHS screen.
+Step 2) After waiting for a few seconds, peter-bochs should successfully parsed your kernel.map file and show you the project tree (LHS in the following figure). The project tree contains all the library and object file that construct in your kernel. 
+
 [http://peter-bochs.googlecode.com/files/sourceLevelDebug3.png]
+
+Step 3) Just expand the node, your will see all the functions, in my kernel, the kernel.o file contains detectVesa, dumpXML functions, just click on the function name, it will disassemble that function in the RHS screen.
 
 [http://peter-bochs.googlecode.com/files/sourceLevelDebug4.png]
 
