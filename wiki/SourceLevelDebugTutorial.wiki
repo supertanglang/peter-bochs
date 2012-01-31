@@ -6,7 +6,7 @@ peter-bochs supports c/c++ source level debug, most operating system debugger in
 
 The following steps show you how to load your kernel map file and start step over the code.
 
-Step 1) start peter-bochs, click on the "C
+Step 1) start peter-bochs, click on the "C/C++" button, circle-ed in the following figure. 
 [http://peter-bochs.googlecode.com/files/sourceLevelDebug1.png]
 
 [http://peter-bochs.googlecode.com/files/sourceLevelDebug2.png]
