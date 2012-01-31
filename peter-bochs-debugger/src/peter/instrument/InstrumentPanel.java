@@ -2650,7 +2650,7 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 		HashSet<Long> c = new HashSet<Long>();
 		for (int x = 0; x < address.length; x++) {
 			try {
-				c.add(CommonLib.hex2decimal(address[x]));
+				c.add(CommonLib.string2decimal(address[x]));
 			} catch (Exception ex) {
 
 			}

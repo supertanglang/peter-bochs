@@ -66,9 +66,9 @@ public class JHexTableModel extends AbstractTableModel {
 	}
 
 	public void setValueAt(Object newVal, int row, int column) {
-		long address = CommonLib.hex2decimal(this.getValueAt(row, 0).toString()) + (column - 1);
-		Application.sendCommand("setpmem " + address + " 1 " + CommonLib.hex2decimal(newVal.toString()));
-		qw[(int) (address - currentAddress)] = (int) (long) CommonLib.hex2decimal(newVal.toString());
+		long address = CommonLib.string2decimal(this.getValueAt(row, 0).toString()) + (column - 1);
+		Application.sendCommand("setpmem " + address + " 1 " + CommonLib.string2decimal(newVal.toString()));
+		qw[(int) (address - currentAddress)] = (int) (long) CommonLib.string2decimal(newVal.toString());
 	}
 
 	public int getColumnCount() {

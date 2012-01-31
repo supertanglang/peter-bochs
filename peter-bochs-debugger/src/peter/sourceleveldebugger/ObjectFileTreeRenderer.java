@@ -21,6 +21,7 @@ public class ObjectFileTreeRenderer extends JPanel implements TreeCellRenderer {
 	ImageIcon objectIcon = new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/image.png"));
 	ImageIcon objectsIcon = new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/images.png"));
 	ImageIcon libraryIcon = new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/book.png"));
+	ImageIcon functionIcon = new ImageIcon(getClass().getClassLoader().getResource("icons/famfam_icons/page_white_cplusplus.png"));
 
 	JLabel nameLabel = new JLabel();
 	JLabel sizeLabel = new JLabel();
@@ -30,26 +31,22 @@ public class ObjectFileTreeRenderer extends JPanel implements TreeCellRenderer {
 		add(nameLabel, BorderLayout.CENTER);
 		add(sizeLabel, BorderLayout.EAST);
 		sizeLabel.setForeground(Color.LIGHT_GRAY);
-		this.setPreferredSize(new Dimension(170, 1));
 	}
 
 	public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
 		try {
-			ObjectFileTreeNode node = (ObjectFileTreeNode) value;
-			nameLabel.setText(node.toString());
-			if (node.file != null) {
-				sizeLabel.setText(CommonLib.convertFilesize(node.file.length()));
-			} else {
-				sizeLabel.setText("");
-			}
-			if (selected) {
-				this.setBackground(UIManager.getColor("Tree.selectionBackground"));
-				this.setBorder(new LineBorder(UIManager.getColor("Tree.selectionBorderColor"), 1));
-			} else {
-				this.setBackground(UIManager.getColor("Tree.background"));
-				this.setBorder(new LineBorder(UIManager.getColor("Tree.background"), 1));
-			}
-			if (node.file == null) {
+			if (value instanceof ObjectFileTreeNode) {
+				ObjectFileTreeNode node = (ObjectFileTreeNode) value;
+				nameLabel.setIcon(objectIcon);
+				nameLabel.setText(node.toString());
+				sizeLabel.setText("  " + CommonLib.convertFilesize(node.file.length()));
+			} else if (value instanceof ArchiveFileTreeNode) {
+				ArchiveFileTreeNode node = (ArchiveFileTreeNode) value;
+				nameLabel.setIcon(archiveIcon);
+				nameLabel.setText(node.toString());
+				sizeLabel.setText("  " + CommonLib.convertFilesize(node.file.length()));
+			} else if (value instanceof TextTreeNode) {
+				TextTreeNode node = (TextTreeNode) value;
 				if (node.name.toLowerCase().endsWith(".map")) {
 					nameLabel.setIcon(rootIcon);
 				} else if (node.name.toLowerCase().startsWith("archive")) {
@@ -59,12 +56,28 @@ public class ObjectFileTreeRenderer extends JPanel implements TreeCellRenderer {
 				} else {
 					nameLabel.setIcon(null);
 				}
-			} else {
-				if (node.file.getName().toLowerCase().endsWith(".a")) {
-					nameLabel.setIcon(libraryIcon);
-				} else if (node.file.getName().toLowerCase().endsWith(".o")) {
-					nameLabel.setIcon(objectIcon);
+				nameLabel.setText(node.toString());
+				sizeLabel.setText(null);
+			} else if (value instanceof FunctionTreeNode) {
+				FunctionTreeNode node = (FunctionTreeNode) value;
+				nameLabel.setIcon(functionIcon);
+				nameLabel.setText(node.toString());
+				Symbol symbol = MapStructure.findSymbolByFilenameOrObjectName(node.toString());
+				if (symbol != null) {
+					sizeLabel.setText("0x" + Long.toHexString(symbol.memoryOffset));
 				}
+			} else {
+				nameLabel.setIcon(null);
+				nameLabel.setText(null);
+				sizeLabel.setText(null);
+			}
+
+			if (selected) {
+				this.setBackground(UIManager.getColor("Tree.selectionBackground"));
+				this.setBorder(new LineBorder(UIManager.getColor("Tree.selectionBorderColor"), 1));
+			} else {
+				this.setBackground(UIManager.getColor("Tree.background"));
+				this.setBorder(new LineBorder(UIManager.getColor("Tree.background"), 1));
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -74,9 +87,11 @@ public class ObjectFileTreeRenderer extends JPanel implements TreeCellRenderer {
 
 	@Override
 	public Dimension getPreferredSize() {
-		Dimension d_check = nameLabel.getPreferredSize();
-		Dimension d_label = sizeLabel.getPreferredSize();
-		return new Dimension(30 + d_check.width + d_label.width, (d_check.height < d_label.height ? d_label.height : d_check.height));
+		Dimension nameLabelDimension = nameLabel.getPreferredSize();
+		Dimension sizeLabelDimension = sizeLabel.getPreferredSize();
+
+		return new Dimension(20 + nameLabelDimension.width + sizeLabelDimension.width, nameLabelDimension.height < sizeLabelDimension.height ? sizeLabelDimension.height
+				: nameLabelDimension.height);
 	}
 
 }

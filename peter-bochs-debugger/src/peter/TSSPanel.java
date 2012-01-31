@@ -620,7 +620,7 @@ public class TSSPanel extends JPanel {
 						try {
 							int bytes[] = new int[4];
 							for (int x = 0; x < 4; x++) {
-								bytes[x] = CommonLib.hex2decimal(b[x + z * 4].substring(2).trim()).intValue();
+								bytes[x] = CommonLib.string2decimal(b[x + z * 4].substring(2).trim()).intValue();
 							}
 							long value = CommonLib.getInt(bytes, 0);
 							// "No.", "PT base", "AVL", "G",
@@ -675,7 +675,7 @@ public class TSSPanel extends JPanel {
 			String realEndAddressStr;
 			String realStartAddressStr;
 			String baseAddress = pageTableAddress;
-			long realStartAddress = CommonLib.hex2decimal(baseAddress);
+			long realStartAddress = CommonLib.string2decimal(baseAddress);
 
 			realStartAddressStr = String.format("%08x", realStartAddress);
 			long realEndAddress = realStartAddress + totalByte3 * 8;
@@ -695,7 +695,7 @@ public class TSSPanel extends JPanel {
 					try {
 						int bytes[] = new int[4];
 						for (int x = 0; x < 4; x++) {
-							bytes[x] = CommonLib.hex2decimal(b[x + z * 4].substring(2).trim()).intValue();
+							bytes[x] = CommonLib.string2decimal(b[x + z * 4].substring(2).trim()).intValue();
 						}
 						long value = CommonLib.getInt(bytes, 0);
 						// "No.", "PT base", "AVL", "G",

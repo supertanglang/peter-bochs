@@ -141,7 +141,7 @@ public class SearchMemoryDialog extends javax.swing.JDialog {
 				for (int y = 0; y < lines.length; y++) {
 					String[] b = lines[y].replaceFirst("^.*:", "").split("\t");
 					for (int x = 1; x < b.length && x < 200; x++) {
-						bytes[offset] = CommonLib.hex2decimal(b[x].substring(2).trim()).byteValue();
+						bytes[offset] = CommonLib.string2decimal(b[x].substring(2).trim()).byteValue();
 						offset++;
 					}
 				}

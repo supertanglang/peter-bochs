@@ -7,8 +7,8 @@ import javax.swing.table.DefaultTableModel;
 public class HistoryTableModel extends DefaultTableModel {
 	String view = "reg";
 	String pattern;
-	String regColumn[] = { "No.", "Time", "Ptime", "instruction", "eax", "ebx", "ecx", "edx", "esi", "edi", "ebp", "esp", "cs", "eip", "ds", "es", "fs", "gs", "ss", "cr0", "cr2",
-			"cr3", "cr4" };
+	String regColumn[] = { "No.", "Time", "Ptime", "cs", "eip", "instruction", "c", "eax", "ebx", "ecx", "edx", "esi", "edi", "ebp", "esp", "ds", "es", "fs", "gs", "ss", "cr0",
+			"cr2", "cr3", "cr4" };
 	String fpuColumn[] = { "No.", "st0", "st1", "st2", "st3", "st4", "st5", "st6", "st7", "status", "control", "tag", "operand", "fip", "fcs", "fdp", "fds" };
 
 	public void setView(String view) {
@@ -117,44 +117,46 @@ public class HistoryTableModel extends DefaultTableModel {
 				case 2:
 					return AllRegisters.ptime.get(row);
 				case 3:
-					return AllRegisters.instructions.get(row);
-				case 4:
-					return Long.toHexString(AllRegisters.eax.get(row));
-				case 5:
-					return Long.toHexString(AllRegisters.ebx.get(row));
-				case 6:
-					return Long.toHexString(AllRegisters.ecx.get(row));
-				case 7:
-					return Long.toHexString(AllRegisters.edx.get(row));
-				case 8:
-					return Long.toHexString(AllRegisters.esi.get(row));
-				case 9:
-					return Long.toHexString(AllRegisters.edi.get(row));
-				case 10:
-					return Long.toHexString(AllRegisters.ebp.get(row));
-				case 11:
-					return Long.toHexString(AllRegisters.esp.get(row));
-				case 12:
 					return Long.toHexString(AllRegisters.cs.get(row));
-				case 13:
+				case 4:
 					return Long.toHexString(AllRegisters.eip.get(row));
+				case 5:
+					return AllRegisters.instructions.get(row);
+				case 6:
+					return AllRegisters.cCode.get(row);
+				case 7:
+					return Long.toHexString(AllRegisters.eax.get(row));
+				case 8:
+					return Long.toHexString(AllRegisters.ebx.get(row));
+				case 9:
+					return Long.toHexString(AllRegisters.ecx.get(row));
+				case 10:
+					return Long.toHexString(AllRegisters.edx.get(row));
+				case 11:
+					return Long.toHexString(AllRegisters.esi.get(row));
+				case 12:
+					return Long.toHexString(AllRegisters.edi.get(row));
+				case 13:
+					return Long.toHexString(AllRegisters.ebp.get(row));
 				case 14:
-					return Long.toHexString(AllRegisters.ds.get(row));
+					return Long.toHexString(AllRegisters.esp.get(row));
 				case 15:
-					return Long.toHexString(AllRegisters.es.get(row));
+					return Long.toHexString(AllRegisters.ds.get(row));
 				case 16:
-					return Long.toHexString(AllRegisters.fs.get(row));
+					return Long.toHexString(AllRegisters.es.get(row));
 				case 17:
-					return Long.toHexString(AllRegisters.gs.get(row));
+					return Long.toHexString(AllRegisters.fs.get(row));
 				case 18:
-					return Long.toHexString(AllRegisters.ss.get(row));
+					return Long.toHexString(AllRegisters.gs.get(row));
 				case 19:
-					return Long.toHexString(AllRegisters.cr0.get(row));
+					return Long.toHexString(AllRegisters.ss.get(row));
 				case 20:
-					return Long.toHexString(AllRegisters.cr2.get(row));
+					return Long.toHexString(AllRegisters.cr0.get(row));
 				case 21:
-					return Long.toHexString(AllRegisters.cr3.get(row));
+					return Long.toHexString(AllRegisters.cr2.get(row));
 				case 22:
+					return Long.toHexString(AllRegisters.cr3.get(row));
+				case 23:
 					return Long.toHexString(AllRegisters.cr4.get(row));
 				default:
 					return "";

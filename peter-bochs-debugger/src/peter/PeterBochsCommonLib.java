@@ -24,11 +24,13 @@ import javax.swing.JOptionPane;
 import javax.swing.table.TableModel;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -38,6 +40,7 @@ import com.petersoft.advancedswing.jprogressbardialog.JProgressBarDialog;
 
 public class PeterBochsCommonLib {
 	private final static int max_row_limit_in_xls = 65535;
+	private final static short rowHeight = 250;
 
 	public PeterBochsCommonLib() {
 	}
@@ -108,14 +111,16 @@ public class PeterBochsCommonLib {
 	public static void exportRegisterHistory(Workbook wb, JProgressBarDialog d) {
 		CreationHelper createHelper = wb.getCreationHelper();
 		Sheet sheet = wb.createSheet("Registers");
+		sheet.setColumnWidth(5, 30000);
+		sheet.setColumnWidth(6, 30000);
 
 		// Create a row and put some cells in it. Rows are 0 based.
-		String columnNames[] = { "row no.", "time", "ptime", "instruction", "cs", "eip", "ds", "es", "fs", "gs", "ss", "eflags", "eax", "ebx", "ecx", "edx", "esi", "edi", "ebp",
-				"esp", "cr0", "cr2", "cr3", "cr4", "gdtr", "ldtr", "idtr", "tr" };
-		Vector data[] = { AllRegisters.time, AllRegisters.ptime, AllRegisters.instructions, AllRegisters.cs, AllRegisters.eip, AllRegisters.ds, AllRegisters.es, AllRegisters.fs,
-				AllRegisters.gs, AllRegisters.ss, AllRegisters.eflags, AllRegisters.eax, AllRegisters.ebx, AllRegisters.ecx, AllRegisters.edx, AllRegisters.esi, AllRegisters.edi,
-				AllRegisters.ebp, AllRegisters.esp, AllRegisters.cr0, AllRegisters.cr2, AllRegisters.cr3, AllRegisters.cr4, AllRegisters.gdtr, AllRegisters.ldtr,
-				AllRegisters.idtr, AllRegisters.tr };
+		String columnNames[] = { "row no.", "time", "ptime", "cs", "eip", "instruction", "c code", "ds", "es", "fs", "gs", "ss", "eflags", "eax", "ebx", "ecx", "edx", "esi",
+				"edi", "ebp", "esp", "cr0", "cr2", "cr3", "cr4", "gdtr", "ldtr", "idtr", "tr" };
+		Vector data[] = { AllRegisters.time, AllRegisters.ptime, AllRegisters.cs, AllRegisters.eip, AllRegisters.instructions, AllRegisters.cCode, AllRegisters.ds,
+				AllRegisters.es, AllRegisters.fs, AllRegisters.gs, AllRegisters.ss, AllRegisters.eflags, AllRegisters.eax, AllRegisters.ebx, AllRegisters.ecx, AllRegisters.edx,
+				AllRegisters.esi, AllRegisters.edi, AllRegisters.ebp, AllRegisters.esp, AllRegisters.cr0, AllRegisters.cr2, AllRegisters.cr3, AllRegisters.cr4, AllRegisters.gdtr,
+				AllRegisters.ldtr, AllRegisters.idtr, AllRegisters.tr };
 		Row row = sheet.createRow(0);
 
 		Cell cell;
@@ -138,24 +143,36 @@ public class PeterBochsCommonLib {
 		cellStyleNormal.setDataFormat(createHelper.createDataFormat().getFormat("yy/m/d h:mm:ss"));
 		cellStyleHighlight.setDataFormat(createHelper.createDataFormat().getFormat("yy/m/d h:mm:ss"));
 
-		cellStyleHighlight.setFillBackgroundColor(HSSFColor.LIME.index);
-		cellStyleHighlight.setFillPattern(CellStyle.ALIGN_FILL);
+		//		cellStyleHighlight.setFillBackgroundColor(HSSFColor.LIME.index);
+		//		cellStyleHighlight.setFillPattern(CellStyle.ALIGN_FILL);
+
+		//		cellStyleHighlight.setAlignment(CellStyle.ALIGN_CENTER);
+		cellStyleHighlight.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+		cellStyleHighlight.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+		//		cellStyleHighlight.setBorderBottom(CellStyle.BORDER_THIN);
+		//		cellStyleHighlight.setBorderLeft(CellStyle.BORDER_THIN);
+		//		cellStyleHighlight.setBorderRight(CellStyle.BORDER_THIN);
+		//		cellStyleHighlight.setBorderTop(CellStyle.BORDER_THIN);
 
 		// data
 		for (int rowY = 0; rowY < AllRegisters.time.size() && rowY < max_row_limit_in_xls; rowY++) {
 			d.jProgressBar.setString("General register worksheet, exporting row: " + rowY);
 			row = sheet.createRow(rowY + 1);
 			cell = row.createCell(0);
-			cell.setCellValue(rowY + 1);
-
+			cell.setCellValue("'" + (rowY + 1));
 			if (rowY % 2 == 0) {
-				cell.setCellStyle(style);
+				cell.setCellStyle(cellStyleHighlight);
+			} else {
+				cell.setCellStyle(cellStyleNormal);
 			}
 
+			int max = 1;
 			for (int rowX = 0; rowX < data.length; rowX++) {
 				cell = row.createCell(rowX + 1);
 				if (rowY % 2 == 0) {
-					cell.setCellStyle(style);
+					cell.setCellStyle(cellStyleHighlight);
+				} else {
+					cell.setCellStyle(cellStyleNormal);
 				}
 				Object obj = data[rowX].get(rowY);
 				if (obj != null) {
@@ -163,17 +180,15 @@ public class PeterBochsCommonLib {
 						cell.setCellValue("0x" + Long.toHexString((Long) obj));
 					} else if (obj.getClass() == Date.class) {
 						cell.setCellValue(obj.toString().trim());
-
-						if (rowY % 2 == 0) {
-							cell.setCellStyle(cellStyleHighlight);
-						} else {
-							cell.setCellStyle(cellStyleNormal);
-						}
 					} else {
-						cell.setCellValue(obj.toString());
+						cell.setCellValue(obj.toString().trim());
+					}
+					if (obj.toString().trim().split("\n").length > max) {
+						max = obj.toString().trim().split("\n").length;
 					}
 				}
 			}
+			row.setHeight((short) (rowHeight * max));
 		}
 		//		if (AllRegisters.time.size() < 20000) {
 		//			for (int x = 0; x < columnNames.length; x++) {
@@ -195,26 +210,30 @@ public class PeterBochsCommonLib {
 			d.jProgressBar.setString("FPU worksheet, creating column : " + columnNames[x]);
 		}
 
-		for (int x = 0; x < AllRegisters.time.size() && x < max_row_limit_in_xls; x++) {
-			d.jProgressBar.setString("General register worksheet, exporting row: " + x);
-			row = sheet.createRow(x + 1);
+		for (int rowY = 0; rowY < AllRegisters.time.size() && rowY < max_row_limit_in_xls; rowY++) {
+			d.jProgressBar.setString("General register worksheet, exporting row: " + rowY);
+			row = sheet.createRow(rowY + 1);
 			cell = row.createCell(0);
-			cell.setCellValue(x + 1);
+			if (rowY % 2 == 0) {
+				cell.setCellStyle(cellStyleHighlight);
+			} else {
+				cell.setCellStyle(cellStyleNormal);
+			}
+			cell.setCellValue("'" + (rowY + 1));
 
 			for (int y = 0; y < data.length; y++) {
 				cell = row.createCell(y + 1);
-				Object obj = data[y].get(x);
+				if (rowY % 2 == 0) {
+					cell.setCellStyle(cellStyleHighlight);
+				} else {
+					cell.setCellStyle(cellStyleNormal);
+				}
+				Object obj = data[y].get(rowY);
 				if (obj != null) {
 					if (obj.getClass() == Long.class) {
 						cell.setCellValue("0x" + Long.toHexString((Long) obj));
 					} else if (obj.getClass() == Date.class) {
 						cell.setCellValue(obj.toString().trim());
-
-						if (x % 2 == 0) {
-							cell.setCellStyle(cellStyleHighlight);
-						} else {
-							cell.setCellStyle(cellStyleNormal);
-						}
 					} else {
 						cell.setCellValue(obj.toString());
 					}
