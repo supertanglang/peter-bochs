@@ -23,10 +23,14 @@ Step 4), Right click the source code window, click "set physical breakpoint", th
 
 [http://peter-bochs.googlecode.com/files/sourceLevelDebug5.png]
 
-Step 5) After the breakpoint is catched, you can see peter-bochs disassemble the assembly code correctly.
+Step 5) After the breakpoint is catched, you can see peter-bochs disassemble the assembly code correctly (see below).
 
 [http://peter-bochs.googlecode.com/files/sourceLevelDebug6.png]
 
+Step 6) you are free the disassemble any function in the library too, just click on the tree node in project tree.
+
 [http://peter-bochs.googlecode.com/files/sourceLevelDebug7.png]
+
+Step 7) In the "Fucntions" window, it will show all the functions that will loaded to memory. You can double click on any function with a memory address, and then peter-bochs will just disassemble it correctly (see below).
 
 [http://peter-bochs.googlecode.com/files/sourceLevelDebug8.png]
