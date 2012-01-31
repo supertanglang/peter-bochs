@@ -2,7 +2,11 @@
 
 = Introduction =
 
+peter-bochs supports c/c++ source level debug, most operating system debugger in the beginning stage is very hard to support source level debug feature, because their kernel may not in ELF format. I believe most people start writing simple kernel in flat binary format. To support source level debug in peter-bochs, just generate a map file for your kernel (eg: $(LD) -Tyour_linker_script --print-map > kernel.map)
 
+The following steps show you how to load your kernel map file and start step over the code.
+
+Step 1) start peter-bochs, click on the "C
 [http://peter-bochs.googlecode.com/files/sourceLevelDebug1.png]
 
 [http://peter-bochs.googlecode.com/files/sourceLevelDebug2.png]
