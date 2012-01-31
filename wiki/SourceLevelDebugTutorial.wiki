@@ -15,7 +15,7 @@ Step 2) After waiting for a few seconds, peter-bochs should successfully parsed 
 
 [http://peter-bochs.googlecode.com/files/sourceLevelDebug3.png]
 
-Step 3) Just expand the node, your will see all the functions, in my kernel, the kernel.o file contains detectVesa, dumpXML functions, just click on the function name, it will disassemble that function in the RHS screen.
+Step 3) Just expand the node, your will see all the functions, in my kernel, the kernel.o file contains detectVesa, dumpXML functions, just click on the function name, it will disassemble that function in the RHS screen. You may ask why all bytes are zero in the RHS screen, it is because bochs stopped at BIOS 0xfffffff0 now. That mean your kernel haven't loaded to the memory yet.
 
 [http://peter-bochs.googlecode.com/files/sourceLevelDebug4.png]
 
