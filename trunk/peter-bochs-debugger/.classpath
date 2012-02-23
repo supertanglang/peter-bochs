@@ -4,7 +4,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/PetersoftJavaStyle2"/>
 	<classpathentry kind="lib" path="lib/forms-1.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/TableLayout.jar"/>
-	<classpathentry kind="lib" path="lib/commons-lang-2.4.jar"/>
 	<classpathentry kind="lib" path="lib/commons-betwixt-0.8.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar"/>
@@ -23,6 +22,7 @@
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.14/lib/jfreechart-1.0.14.jar"/>
 	<classpathentry kind="lib" path="lib/poi-3.8-beta5-20111217.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang3-3.1.jar" sourcepath="/root/Downloads/commons-lang3-3.1-src.zip"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/javax.wsdl_1.6.2.v201012040545.jar"/>
 	<classpathentry kind="lib" path="lib/saaj.jar"/>

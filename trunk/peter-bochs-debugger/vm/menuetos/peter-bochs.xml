@@ -3,20 +3,23 @@
     <breakpoint/>
     <currentLanguage>en_US</currentLanguage>
     <customZone>false</customZone>
-    <divX>555</divX>
-    <divY>384</divY>
+    <divX>597</divX>
+    <divY>336</divY>
     <fontFamily>Dialog</fontFamily>
     <fontsize>12</fontsize>
     <gdt/>
-    <height>795</height>
+    <height>699</height>
     <hitZone>false</hitZone>
     <idt/>
     <interruptProfiling>false</interruptProfiling>
     <jmpProfiling>false</jmpProfiling>
     <lastElfHistoryOpenDir>C:\peter2\projects\peter-bochs-debugger\vm\menuetos\.</lastElfHistoryOpenDir>
     <lastElfHistoryOpenDir2>C:\peter2\projects\peter-bochs-debugger\vm\menuetos\.</lastElfHistoryOpenDir2>
+    <lastMapOpenDir>C:\</lastMapOpenDir>
     <ldt/>
-    <loadBreakpointAtStartup>false</loadBreakpointAtStartup>
+    <loadBreakpointAtStartup>true</loadBreakpointAtStartup>
+    <loadSystemMapAtStartup>false</loadSystemMapAtStartup>
+    <logToPetersoftServer>false</logToPetersoftServer>
     <memoryCombo/>
     <memoryEnd/>
     <memoryProfiling>false</memoryProfiling>
@@ -27,6 +30,8 @@
     <profileMemoryToAddress/>
     <profilingUpdateGraph>false</profilingUpdateGraph>
     <register/>
+    <sbAddress/>
+    <sbaAddress/>
     <tss/>
     <updateAfterBochsCommand>false</updateAfterBochsCommand>
     <updateAfterBochsCommand_addressTranslate>false</updateAfterBochsCommand_addressTranslate>
@@ -47,7 +52,7 @@
     <updateFastStepCommand_ldt>false</updateFastStepCommand_ldt>
     <updateFastStepCommand_memory>true</updateFastStepCommand_memory>
     <updateFastStepCommand_register>true</updateFastStepCommand_register>
-    <width>1162</width>
-    <x>146</x>
-    <y>36</y>
+    <width>1185</width>
+    <x>202</x>
+    <y>95</y>
   </Setting>
