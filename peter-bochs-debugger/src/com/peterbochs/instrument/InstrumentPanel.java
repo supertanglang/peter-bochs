@@ -126,9 +126,9 @@ import com.peterbochs.MyLanguage;
 import com.peterbochs.RegisterPanel;
 import com.peterbochs.Setting;
 import com.peterbochs.TSSPanel;
-import com.petersoft.CommonLib;
-import com.petersoft.advancedswing.combo_color_renderer.ComboBoxRenderer;
-import com.petersoft.advancedswing.searchtextfield.JSearchTextField;
+import com.peterswing.CommonLib;
+import com.peterswing.advancedswing.combo_color_renderer.ComboBoxRenderer;
+import com.peterswing.advancedswing.searchtextfield.JSearchTextField;
 
 /**
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI

@@ -26,7 +26,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
-import com.petersoft.advancedswing.searchtextfield.JSearchTextField;
+import com.peterswing.advancedswing.searchtextfield.JSearchTextField;
 
 /**
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI

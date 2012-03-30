@@ -7,7 +7,7 @@ import java.util.Vector;
 
 import javax.swing.table.AbstractTableModel;
 
-import com.petersoft.CommonLib;
+import com.peterswing.CommonLib;
 
 public class JSourceCodeTableModel extends AbstractTableModel {
 	private String currentFile;

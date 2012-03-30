@@ -30,8 +30,8 @@ import javax.swing.JTextField;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
-import com.petersoft.CommonLib;
-import com.petersoft.advancedswing.jprogressbardialog.JProgressBarDialog;
+import com.peterswing.CommonLib;
+import com.peterswing.advancedswing.jprogressbardialog.JProgressBarDialog;
 
 /**
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI

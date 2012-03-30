@@ -13,7 +13,7 @@ import javax.swing.JTextArea;
 
 
 import com.peterbochs.Global;
-import com.petersoft.CommonLib;
+import com.peterswing.CommonLib;
 
 public class MemorySocketServer implements Runnable {
 	int port;

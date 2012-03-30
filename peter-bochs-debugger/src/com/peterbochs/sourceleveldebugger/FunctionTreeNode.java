@@ -7,7 +7,7 @@ import java.util.Vector;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 
-import com.petersoft.CommonLib;
+import com.peterswing.CommonLib;
 
 public class FunctionTreeNode implements MyMutableTreeNode {
 	Function function;

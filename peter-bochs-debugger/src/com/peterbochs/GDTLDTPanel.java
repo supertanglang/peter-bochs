@@ -14,7 +14,7 @@ import javax.swing.table.TableModel;
 
 import com.peterbochs.architecture.DescriptorParser;
 
-import com.petersoft.CommonLib;
+import com.peterswing.CommonLib;
 
 /**
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI

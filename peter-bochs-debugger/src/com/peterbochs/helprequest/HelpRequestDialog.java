@@ -26,7 +26,7 @@ import org.apache.axis.encoding.XMLType;
 
 import com.peterbochs.Application;
 import com.peterbochs.CommandReceiver;
-import com.petersoft.advancedswing.enhancedtextarea.EnhancedTextArea;
+import com.peterswing.advancedswing.enhancedtextarea.EnhancedTextArea;
 
 /**
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI

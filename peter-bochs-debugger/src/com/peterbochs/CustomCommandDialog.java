@@ -215,7 +215,7 @@ public class CustomCommandDialog extends javax.swing.JDialog {
 				.addContainerGap());
 		{
 			this.setSize(301, 281);
-			com.petersoft.CommonLib.centerDialog(this);
+			com.peterswing.CommonLib.centerDialog(this);
 		}
 	}
 

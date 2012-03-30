@@ -13,7 +13,7 @@ import javax.swing.JOptionPane;
 
 
 import com.peterbochs.Global;
-import com.petersoft.CommonLib;
+import com.peterswing.CommonLib;
 
 public class InterruptSocketServer implements Runnable {
 	private int port;

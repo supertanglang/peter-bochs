@@ -1,12 +1,12 @@
 #Fat Jar Configuration File
-#Thu Aug 20 02:48:17 GMT+08:00 2009
+#Wed Feb 29 19:43:04 HKT 2012
 onejar.license.required=true
 manifest.classpath=
 manifest.removesigners=true
 onejar.checkbox=false
 jarname=peter-bochs-debugger.jar
 manifest.mergeall=true
-manifest.mainclass=peter.Application
+manifest.mainclass=com.peterbochs.Application
 manifest.file=<createnew>
 jarname.isextern=false
 onejar.expand=

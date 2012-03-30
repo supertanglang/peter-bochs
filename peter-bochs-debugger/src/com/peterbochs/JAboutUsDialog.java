@@ -7,7 +7,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
-import com.petersoft.CommonLib;
+import com.peterswing.CommonLib;
 
 /**
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
@@ -23,19 +23,6 @@ public class JAboutUsDialog extends javax.swing.JDialog {
 	private JTextArea jTextArea1;
 	private JLabel jLabel1;
 	private JScrollPane jScrollPane1;
-
-	/**
-	 * Auto-generated main method to display this JDialog
-	 */
-	public static void main(String[] args) {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				JFrame frame = new JFrame();
-				JAboutUsDialog inst = new JAboutUsDialog(frame);
-				inst.setVisible(true);
-			}
-		});
-	}
 
 	public JAboutUsDialog(JFrame frame) {
 		super(frame);

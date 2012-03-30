@@ -9,7 +9,7 @@ import java.util.Vector;
 import org.apache.commons.io.FileUtils;
 
 import com.peterbochs.PeterBochsCommonLib;
-import com.petersoft.CommonLib;
+import com.peterswing.CommonLib;
 
 public class ElfUtil {
 

@@ -7,7 +7,7 @@ import java.util.Vector;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 
-import com.petersoft.CommonLib;
+import com.peterswing.CommonLib;
 
 public class ObjectFileTreeNode implements MyMutableTreeNode {
 	File file;

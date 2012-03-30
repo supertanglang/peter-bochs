@@ -13,7 +13,7 @@ import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 import javax.swing.tree.TreeCellRenderer;
 
-import com.petersoft.CommonLib;
+import com.peterswing.CommonLib;
 
 public class ObjectFileTreeRenderer extends JPanel implements TreeCellRenderer {
 	ImageIcon rootIcon = new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/script.png"));

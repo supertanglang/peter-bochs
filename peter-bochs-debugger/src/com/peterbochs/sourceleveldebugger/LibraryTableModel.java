@@ -7,7 +7,7 @@ import javax.swing.table.AbstractTableModel;
 
 
 import com.peterbochs.MyLanguage;
-import com.petersoft.CommonLib;
+import com.peterswing.CommonLib;
 
 public class LibraryTableModel extends AbstractTableModel {
 	private String[] columnNames = { MyLanguage.getString("Library") + "/" + MyLanguage.getString("Object"), MyLanguage.getString("Size"), MyLanguage.getString("Path") };
