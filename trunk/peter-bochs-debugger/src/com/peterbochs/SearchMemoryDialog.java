@@ -13,7 +13,7 @@ import javax.swing.JProgressBar;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
-import com.petersoft.CommonLib;
+import com.peterswing.CommonLib;
 
 /**
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI

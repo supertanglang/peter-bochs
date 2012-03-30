@@ -11,7 +11,7 @@ import javax.swing.table.TableCellRenderer;
 
 import com.peterbochs.sourceleveldebugger.Line.CodeType;
 
-import com.petersoft.CommonLib;
+import com.peterswing.CommonLib;
 
 public class RawSourceTableCellRenderer extends JLabel implements TableCellRenderer {
 	Color darkGreen = new Color(0, 88, 0);

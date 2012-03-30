@@ -7,7 +7,7 @@ import org.jfree.data.xy.XYZDataset;
 import com.peterbochs.instrument.Data;
 import com.peterbochs.instrument.InstrumentPanel;
 
-import com.petersoft.CommonLib;
+import com.peterswing.CommonLib;
 
 public class MyXYToolTipGenerator implements XYToolTipGenerator {
 	@Override

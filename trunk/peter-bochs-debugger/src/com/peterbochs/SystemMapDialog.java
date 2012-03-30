@@ -12,7 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
-import com.petersoft.CommonLib;
+import com.peterswing.CommonLib;
 
 /**
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI

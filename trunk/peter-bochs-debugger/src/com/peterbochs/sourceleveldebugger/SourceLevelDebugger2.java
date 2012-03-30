@@ -58,17 +58,17 @@ import com.peterbochs.Global;
 import com.peterbochs.JInstructionTableCellRenderer;
 import com.peterbochs.MyLanguage;
 import com.peterbochs.PeterBochsCommonLib;
-import com.petersoft.CommonLib;
+import com.peterswing.CommonLib;
 import com.peterbochs.Setting;
-import com.petersoft.CommonLib;
-import com.petersoft.advancedswing.enhancedtextarea.EnhancedTextArea;
-import com.petersoft.advancedswing.jmaximizabletabbedpane.JMaximizableTabbedPane;
-import com.petersoft.advancedswing.jmaximizabletabbedpane.JMaximizableTabbedPane_BasePanel;
-import com.petersoft.advancedswing.jprogressbardialog.JProgressBarDialog;
-import com.petersoft.advancedswing.jprogressbardialog.JProgressBarDialogEventListener;
-import com.petersoft.advancedswing.pager.PagerEvent;
-import com.petersoft.advancedswing.pager.PagerEventListener;
-import com.petersoft.advancedswing.searchtextfield.JSearchTextField;
+import com.peterswing.CommonLib;
+import com.peterswing.advancedswing.enhancedtextarea.EnhancedTextArea;
+import com.peterswing.advancedswing.jmaximizabletabbedpane.JMaximizableTabbedPane;
+import com.peterswing.advancedswing.jmaximizabletabbedpane.JMaximizableTabbedPane_BasePanel;
+import com.peterswing.advancedswing.jprogressbardialog.JProgressBarDialog;
+import com.peterswing.advancedswing.jprogressbardialog.JProgressBarDialogEventListener;
+import com.peterswing.advancedswing.pager.PagerEvent;
+import com.peterswing.advancedswing.pager.PagerEventListener;
+import com.peterswing.advancedswing.searchtextfield.JSearchTextField;
 
 /**
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
@@ -419,6 +419,7 @@ public class SourceLevelDebugger2 extends JMaximizableTabbedPane_BasePanel imple
 									jTabbedPane2.addTab("Variable", null, getJVariablePanel(), null);
 									jTabbedPane2.addTab("Thread", null, getJThreadPanel(), null);
 								}
+								jTabbedPane2.setVisible(false);
 							}
 						}
 					}
@@ -495,7 +496,7 @@ public class SourceLevelDebugger2 extends JMaximizableTabbedPane_BasePanel imple
 			file = new File(mapFile.getParent() + File.separator + path);
 		}
 		if (file.exists()) {
-			TreePath p = com.petersoft.CommonLib.findTreeNode((TreeNode) jFileTree.getModel().getRoot(), file.getName(), new TreePath(jFileTree.getModel().getRoot()));
+			TreePath p = com.peterswing.CommonLib.findTreeNode((TreeNode) jFileTree.getModel().getRoot(), file.getName(), new TreePath(jFileTree.getModel().getRoot()));
 			jFileTree.setSelectionPath(p);
 			handleProjectTreeClick(p);
 		} else {
@@ -789,7 +790,7 @@ public class SourceLevelDebugger2 extends JMaximizableTabbedPane_BasePanel imple
 						application.jWhereIsHereMenuItem.setEnabled(true);
 						application.jSourceLevelDebuggerButtonActionPerformed(null);
 						// jMainTabbedPane.setSelectedIndex(1);
-						com.petersoft.CommonLib.expandAll(jFileTree, true);
+						com.peterswing.CommonLib.expandAll(jFileTree, true);
 						collapseAllFunction(jFileTree);
 
 						jErrorLabel.setVisible(false);

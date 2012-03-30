@@ -35,8 +35,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
-import com.petersoft.CommonLib;
-import com.petersoft.advancedswing.jprogressbardialog.JProgressBarDialog;
+import com.peterswing.CommonLib;
+import com.peterswing.advancedswing.jprogressbardialog.JProgressBarDialog;
 
 public class PeterBochsCommonLib {
 	private final static int max_row_limit_in_xls = 65535;

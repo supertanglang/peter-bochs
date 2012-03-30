@@ -123,16 +123,15 @@ import com.peterbochs.sourceleveldebugger.MapStructure;
 import com.peterbochs.sourceleveldebugger.SourceLevelDebugger2;
 import com.peterbochs.sourceleveldebugger.Symbol;
 import com.peterbochs.webservice.WebServiceUtil;
-
-import com.petersoft.CommonLib;
-import com.petersoft.advancedswing.diskpanel.DiskPanel;
-import com.petersoft.advancedswing.enhancedtextarea.EnhancedTextArea;
-import com.petersoft.advancedswing.jdropdownbutton.JDropDownButton;
-import com.petersoft.advancedswing.jmaximizabletabbedpane.JMaximizableTabbedPane;
-import com.petersoft.advancedswing.jmaximizabletabbedpane.JMaximizableTabbedPane_BasePanel;
-import com.petersoft.advancedswing.jprogressbardialog.JProgressBarDialog;
-import com.petersoft.advancedswing.jvmdialog.JVMInfoDialog;
-import com.petersoft.advancedswing.searchtextfield.JSearchTextField;
+import com.peterswing.CommonLib;
+import com.peterswing.advancedswing.diskpanel.DiskPanel;
+import com.peterswing.advancedswing.enhancedtextarea.EnhancedTextArea;
+import com.peterswing.advancedswing.jdropdownbutton.JDropDownButton;
+import com.peterswing.advancedswing.jmaximizabletabbedpane.JMaximizableTabbedPane;
+import com.peterswing.advancedswing.jmaximizabletabbedpane.JMaximizableTabbedPane_BasePanel;
+import com.peterswing.advancedswing.jprogressbardialog.JProgressBarDialog;
+import com.peterswing.advancedswing.jvmdialog.JVMInfoDialog;
+import com.peterswing.advancedswing.searchtextfield.JSearchTextField;
 
 /**
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
@@ -502,12 +501,13 @@ public class Application extends javax.swing.JFrame {
 		}
 
 		if (args.length == 0) {
-			System.out.println("Wrong number of argument");
-			System.out.println("In Linux : java -jar peter-bochs-debugger.jar bochs -f bochxrc.bxrc");
-			System.out.println("In windows : java -jar peter-bochs-debugger.jar c:\\program files\\bochs2.4.3\\bochsdbg.exe -q -f bochxrc.bxrc");
-			System.out
-					.println("!!! if using peter-bochs in windows, you need to pass the full path of bochs exe and -q to the parameter. (!!! relative path of bochs exe will not work)");
-			System.out.println("!!! to use \"experimental feature\", please add \"-debug\" to the parameter list");
+			String errorMessage = "Wrong number of argument\n\n";
+			errorMessage += "\nIn Linux/Mac : java -jar peter-bochs-debugger.jar bochs -f bochxrc.bxrc";
+			errorMessage += "\nIn windows : java -jar peter-bochs-debugger.jar c:\\program files\\bochs2.4.3\\bochsdbg.exe -q -f bochxrc.bxrc";
+			errorMessage += "\n!!! if using peter-bochs in windows, you need to pass the full path of bochs exe and -q to the parameter. (!!! relative path of bochs exe will not work)";
+			errorMessage += "\n!!! to use \"experimental feature\", please add \"-debug\" to the parameter list";
+			System.out.println(errorMessage);
+			JOptionPane.showMessageDialog(null, errorMessage);
 			return;
 		} else {
 			if (args[0].equals("-version") || args[0].equals("-v")) {
@@ -522,11 +522,22 @@ public class Application extends javax.swing.JFrame {
 			}
 		}
 
-		String OS = System.getProperty("os.name").toLowerCase();
-		if (OS.indexOf("windows") > -1) {
+		String osName = System.getProperty("os.name").toLowerCase();
+		if (osName.indexOf("windows") > -1) {
 			isLinux = false;
 		} else {
 			isLinux = true;
+		}
+		if (System.getProperty("mrj.version") != null) {
+			com.apple.eawt.Application macApp = com.apple.eawt.Application.getApplication();
+			//
+			// System.setProperty("dock:name", "Your Application Name");
+			macApp.setDockIconImage(new ImageIcon(Application.class.getClassLoader().getResource("com/peterbochs/icons/peter.png")).getImage());
+			// java.awt.PopupMenu menu = new java.awt.PopupMenu();
+			// menu.add(new MenuItem("test"));
+			// macApp.setDockMenu(menu);
+
+			macApp.addApplicationListener(new MacAboutBoxHandler());
 		}
 
 		if (ArrayUtils.contains(args, "-debug")) {
@@ -640,6 +651,7 @@ public class Application extends javax.swing.JFrame {
 			public void run() {
 				Application inst = new Application();
 				Application.instance = inst;
+
 				new Thread("preventSetVisibleHang thread") {
 					public void run() {
 						try {
@@ -4493,8 +4505,8 @@ public class Application extends javax.swing.JFrame {
 					jPanel10 = new JPanel();
 					BorderLayout jPanel10Layout = new BorderLayout();
 					jPanel10.setLayout(jPanel10Layout);
-					jTabbedPane1.addTab(MyLanguage.getString("Instruction"), new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/text_padding_top.png")),
-							jPanel10, null);
+					jTabbedPane1.addTab(MyLanguage.getString("Instruction"),
+							new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/text_padding_top.png")), jPanel10, null);
 					jPanel10.setPreferredSize(new java.awt.Dimension(604, 452));
 					{
 						jInstructionControlPanel = new JPanel();
@@ -4552,7 +4564,8 @@ public class Application extends javax.swing.JFrame {
 				}
 				{
 					jPanel4 = new JPanel();
-					jTabbedPane1.addTab(MyLanguage.getString("Breakpoint"), new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/cancel.png")), jPanel4, null);
+					jTabbedPane1.addTab(MyLanguage.getString("Breakpoint"), new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/cancel.png")),
+							jPanel4, null);
 					BorderLayout jPanel4Layout = new BorderLayout();
 					jPanel4.setLayout(jPanel4Layout);
 					{
@@ -4654,13 +4667,14 @@ public class Application extends javax.swing.JFrame {
 				}
 				{
 					jPanel1 = new JPanel();
-					jTabbedPane1.addTab(MyLanguage.getString("Bochs"), new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/application_xp_terminal.png")),
-							jPanel1, null);
-					jTabbedPane1.addTab("ELF", new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/linux.png")), getJELFBreakpointPanel(), null);
+					jTabbedPane1.addTab(MyLanguage.getString("Bochs"),
+							new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/application_xp_terminal.png")), jPanel1, null);
+					jTabbedPane1.addTab("ELF", new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/linux.png")), getJELFBreakpointPanel(),
+							null);
 					DiskPanel diskPanel = getDiskPanel();
 					if (diskPanel.getFile() != null) {
-						jTabbedPane1.addTab(diskPanel.getFile().getName(), new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/package.png")), diskPanel,
-								null);
+						jTabbedPane1.addTab(diskPanel.getFile().getName(), new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/package.png")),
+								diskPanel, null);
 					}
 					BorderLayout jPanel1Layout = new BorderLayout();
 					jPanel1.setLayout(jPanel1Layout);
@@ -4713,7 +4727,8 @@ public class Application extends javax.swing.JFrame {
 					jPanel8 = new JPanel();
 					BorderLayout jPanel8Layout = new BorderLayout();
 					jPanel8.setLayout(jPanel8Layout);
-					jTabbedPane3.addTab(MyLanguage.getString("Memory"), new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/memory.png")), jPanel8, null);
+					jTabbedPane3.addTab(MyLanguage.getString("Memory"), new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/memory.png")),
+							jPanel8, null);
 					{
 						jScrollPane2 = new JScrollPane();
 						jPanel8.add(jScrollPane2, BorderLayout.CENTER);
@@ -4848,7 +4863,8 @@ public class Application extends javax.swing.JFrame {
 				}
 				{
 					jPanel5 = new JPanel();
-					jTabbedPane3.addTab(MyLanguage.getString("GDT"), new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/gdt.png")), jPanel5, null);
+					jTabbedPane3.addTab(MyLanguage.getString("GDT"), new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/gdt.png")), jPanel5,
+							null);
 					BorderLayout jPanel5Layout = new BorderLayout();
 					jPanel5.setLayout(jPanel5Layout);
 					{
@@ -4876,7 +4892,8 @@ public class Application extends javax.swing.JFrame {
 					jPanel6 = new JPanel();
 					BorderLayout jPanel6Layout = new BorderLayout();
 					jPanel6.setLayout(jPanel6Layout);
-					jTabbedPane3.addTab(MyLanguage.getString("IDT"), new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/idt.png")), jPanel6, null);
+					jTabbedPane3.addTab(MyLanguage.getString("IDT"), new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/idt.png")), jPanel6,
+							null);
 					{
 						jScrollPane10 = new JScrollPane();
 						jPanel6.add(jScrollPane10, BorderLayout.CENTER);
@@ -4901,10 +4918,12 @@ public class Application extends javax.swing.JFrame {
 					jPanel7 = new JPanel();
 					BorderLayout jPanel7Layout = new BorderLayout();
 					jPanel7.setLayout(jPanel7Layout);
-					jTabbedPane3.addTab(MyLanguage.getString("LDT"), new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/ldt.png")), jPanel7, null);
-					jTabbedPane3.addTab(MyLanguage.getString("Search_memory"), new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/memory.png")),
-							getJPanel17(), null);
-					jTabbedPane3.addTab("bochsout.txt", new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/script.png")), getJPanel31(), null);
+					jTabbedPane3.addTab(MyLanguage.getString("LDT"), new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/ldt.png")), jPanel7,
+							null);
+					jTabbedPane3.addTab(MyLanguage.getString("Search_memory"), new ImageIcon(getClass().getClassLoader()
+							.getResource("com/peterbochs/icons/famfam_icons/memory.png")), getJPanel17(), null);
+					jTabbedPane3
+							.addTab("bochsout.txt", new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/script.png")), getJPanel31(), null);
 					{
 						jScrollPane11 = new JScrollPane();
 						jPanel7.add(jScrollPane11, BorderLayout.CENTER);
@@ -4947,8 +4966,8 @@ public class Application extends javax.swing.JFrame {
 			jSplitPane2.add(jTabbedPane2, JSplitPane.BOTTOM);
 			{
 				jScrollPane1 = new JScrollPane();
-				jTabbedPane2.addTab(MyLanguage.getString("Register"), new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/text_kerning.png")), jScrollPane1,
-						null);
+				jTabbedPane2.addTab(MyLanguage.getString("Register"), new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/text_kerning.png")),
+						jScrollPane1, null);
 				{
 					jRegisterPanel1 = new RegisterPanel(this);
 					jScrollPane1.setViewportView(jRegisterPanel1);
@@ -4956,8 +4975,8 @@ public class Application extends javax.swing.JFrame {
 			}
 			{
 				jPanel3 = new JPanel();
-				jTabbedPane2
-						.addTab(MyLanguage.getString("History"), new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/book_addresses.png")), jPanel3, null);
+				jTabbedPane2.addTab(MyLanguage.getString("History"),
+						new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/book_addresses.png")), jPanel3, null);
 				BorderLayout jPanel3Layout = new BorderLayout();
 				jPanel3.setLayout(jPanel3Layout);
 				{
@@ -4969,20 +4988,21 @@ public class Application extends javax.swing.JFrame {
 			}
 			{
 				jPanel11 = new JPanel();
-				jTabbedPane2.addTab(MyLanguage.getString("Paging"), new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/page_copy.png")), jPanel11, null);
-				jTabbedPane2.addTab(MyLanguage.getString("Address_translate"), new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/page_go.png")),
-						getJAddressTranslatePanel(), null);
-				jTabbedPane2.addTab("Page table graph (experimental)", new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/page_lightning.png")),
-						getJPageTableGraphPanel(), null);
+				jTabbedPane2.addTab(MyLanguage.getString("Paging"), new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/page_copy.png")),
+						jPanel11, null);
+				jTabbedPane2.addTab(MyLanguage.getString("Address_translate"),
+						new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/page_go.png")), getJAddressTranslatePanel(), null);
+				jTabbedPane2.addTab("Page table graph (experimental)", new ImageIcon(getClass().getClassLoader()
+						.getResource("com/peterbochs/icons/famfam_icons/page_lightning.png")), getJPageTableGraphPanel(), null);
 				if (!Global.debug) {
 					jTabbedPane2.removeTabAt(jTabbedPane2.getTabCount() - 1);
 				}
-				jTabbedPane2.addTab(MyLanguage.getString("Table_translate"), new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/page_refresh.png")),
-						getJTableTranslateScrollPane(), null);
+				jTabbedPane2.addTab(MyLanguage.getString("Table_translate"),
+						new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/page_refresh.png")), getJTableTranslateScrollPane(), null);
 				jTabbedPane2.addTab(MyLanguage.getString("ELF_dump"), new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/linux.png")),
 						getJELFDumpScrollPane(), null);
-				jTabbedPane2
-						.addTab("OS debug informations", new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/bug.png")), getJOSDebugStandardPanel(), null);
+				jTabbedPane2.addTab("OS debug informations", new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/bug.png")),
+						getJOSDebugStandardPanel(), null);
 				BorderLayout jPanel11Layout = new BorderLayout();
 				jPanel11.setLayout(jPanel11Layout);
 				jPanel11.add(getJSplitPane3(), BorderLayout.CENTER);
