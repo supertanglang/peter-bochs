@@ -495,7 +495,7 @@ public class Application extends javax.swing.JFrame {
 	public static void main(String[] args) {
 		WebServiceUtil.log("peter-bochs", "start", null, null, null);
 		try {
-			UIManager.setLookAndFeel("com.petersoft.white.PetersoftWhiteLookAndFeel");
+			UIManager.setLookAndFeel("com.peterswing.white.PeterSwingWhiteLookAndFeel");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -684,23 +684,6 @@ public class Application extends javax.swing.JFrame {
 
 		if (Global.debug) {
 			System.out.println(new Date());
-		}
-
-		try {
-			language = Utf8ResourceBundle.getBundle("language_" + Setting.getInstance().getCurrentLanguage());
-
-			if (!isLinux) {
-				if (!new File("PauseBochs.exe").exists() || !new File("StopBochs.exe").exists()) {
-					JOptionPane.showMessageDialog(null, MyLanguage.getString("PauseBochsExe"), MyLanguage.getString("Error"), JOptionPane.ERROR_MESSAGE);
-					System.exit(-1);
-				}
-				if (!new File("ndisasm.exe").exists()) {
-					JOptionPane.showMessageDialog(null, MyLanguage.getString("NdisasmExe"), MyLanguage.getString("Error"), JOptionPane.ERROR_MESSAGE);
-					System.exit(-1);
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 
 		if (Global.debug) {
@@ -984,6 +967,23 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void initGUI() {
+		try {
+			language = Utf8ResourceBundle.getBundle("language_" + Setting.getInstance().getCurrentLanguage());
+
+			if (!isLinux) {
+				if (!new File("PauseBochs.exe").exists() || !new File("StopBochs.exe").exists()) {
+					JOptionPane.showMessageDialog(null, MyLanguage.getString("PauseBochsExe"), MyLanguage.getString("Error"), JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				if (!new File("ndisasm.exe").exists()) {
+					JOptionPane.showMessageDialog(null, MyLanguage.getString("NdisasmExe"), MyLanguage.getString("Error"), JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		try {
 			{
 				this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -3237,6 +3237,9 @@ public class Application extends javax.swing.JFrame {
 		if (evt.getClickCount() == 2) {
 			jStatusProgressBar.setValue(0);
 			String pageTableAddress = jPageDirectoryTable.getValueAt(jPageDirectoryTable.getSelectedRow(), 1).toString();
+			if (!CommonLib.isNumber(pageTableAddress)) {
+				return;
+			}
 
 			// commandReceiver.setCommandNoOfLine(512);
 			sendCommand("xp /4096bx " + pageTableAddress);
@@ -7844,10 +7847,8 @@ public class Application extends javax.swing.JFrame {
 			jRunningLabel2 = new JLabel();
 			URL url = getClass().getClassLoader().getResource("com/peterbochs/images/ajax-loader_red.gif");
 			if (Setting.getInstance().getCurrentLanguage().equals("zh_TW")) {
-				jRunningLabel2
-						.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\""
-								+ url
-								+ "\" /><br><br><a style=\"color: #000000;  text-decoration:none\" href=\"http://www.kingofcoders.com\">操作系统开发社区 www.kingofcoders.com</a></center></html>");
+				jRunningLabel2.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\"" + url
+						+ "\" /><br><br><a style=\"color: #000000;  text-decoration:none\" href=\"http://www.kingofcoders.com\">操作系统开发社区 www.kingofcoders.com</a></center></html>");
 			} else if (Setting.getInstance().getCurrentLanguage().equals("zh_CN")) {
 				jRunningLabel2
 						.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\""
