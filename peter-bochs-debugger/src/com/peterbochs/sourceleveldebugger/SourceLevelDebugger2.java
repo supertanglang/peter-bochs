@@ -52,7 +52,6 @@ import javax.swing.tree.TreePath;
 
 import org.apache.commons.io.FileUtils;
 
-
 import com.peterbochs.Application;
 import com.peterbochs.Global;
 import com.peterbochs.JInstructionTableCellRenderer;
@@ -251,7 +250,8 @@ public class SourceLevelDebugger2 extends JMaximizableTabbedPane_BasePanel imple
 										{
 											jInstructionUpTenButton = new JButton();
 											jInstructionControlPanel.add(jInstructionUpTenButton);
-											jInstructionUpTenButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/arrow_up10.png")));
+											jInstructionUpTenButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource(
+													"com/peterbochs/icons/famfam_icons/arrow_up10.png")));
 											jInstructionUpTenButton.addActionListener(new ActionListener() {
 												public void actionPerformed(ActionEvent evt) {
 													jInstructionUpTenButtonActionPerformed(evt);
@@ -271,7 +271,8 @@ public class SourceLevelDebugger2 extends JMaximizableTabbedPane_BasePanel imple
 										{
 											jInstructionDownButton = new JButton();
 											jInstructionControlPanel.add(jInstructionDownButton);
-											jInstructionDownButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/arrow_down.png")));
+											jInstructionDownButton.setIcon(new ImageIcon(getClass().getClassLoader()
+													.getResource("com/peterbochs/icons/famfam_icons/arrow_down.png")));
 											jInstructionDownButton.addActionListener(new ActionListener() {
 												public void actionPerformed(ActionEvent evt) {
 													jInstructionDownButtonActionPerformed(evt);
@@ -782,7 +783,7 @@ public class SourceLevelDebugger2 extends JMaximizableTabbedPane_BasePanel imple
 						d.jProgressBar.setString("init project tree");
 						initProjectTree();
 						d.jProgressBar.setString("init memory map");
-//						initMemoryMap();
+						initMemoryMap();
 						d.jProgressBar.setString("load dwarf line");
 						loadDwarfLine(d);
 
@@ -834,6 +835,7 @@ public class SourceLevelDebugger2 extends JMaximizableTabbedPane_BasePanel imple
 				d.jProgressBar.setString("dwarfdump -l " + file.getAbsolutePath() + " " + x + "/" + (lines.length - 1));
 				lines[x] = lines[x].replaceAll("\\[", "").replaceAll("\\]", "");
 				String words[] = lines[x].split("[ \\t]+");
+				System.out.println(words.length + ">>>" + lines[x]);
 				if (lines[x].contains("archive member")) {
 					archiveMember = lines[x].replace("archive member", "").trim();
 				} else if (words.length >= 4) {
