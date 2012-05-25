@@ -216,7 +216,7 @@ public class Application extends javax.swing.JFrame {
 	private JPanel jStatusPanel;
 	private JButton jUpdateBochsButton;
 	private JLabel jStatusLabel;
-	private JButton jDisassembleButton;
+	private JButton jDisassembleCurrentIPButton;
 	private JComboBox jInstructionComboBox;
 	private JPanel jInstructionControlPanel;
 	private JPanel jPanel10;
@@ -436,7 +436,7 @@ public class Application extends javax.swing.JFrame {
 	private JLabel jLabel5;
 	private JTextField jSearchMemoryTextField;
 	private JLabel jLabel4;
-	private JButton jButton14;
+	private JButton jDisassembleButton;
 	public static ResourceBundle language;
 	private JButton jRefreshAddressTranslateTableButton;
 
@@ -619,9 +619,12 @@ public class Application extends javax.swing.JFrame {
 			e.printStackTrace();
 		}
 
-		if (ArrayUtils.contains(args, "-loadBreakpoint") || ArrayUtils.contains(args, "-loadbreakpoint")) {
+		if (ArrayUtils.contains(args, "-loadBreakpoint")) {
 			Setting.getInstance().setLoadBreakpointAtStartup(true);
 			args = (String[]) ArrayUtils.removeElement(args, "-loadBreakpoint");
+		} else if (ArrayUtils.contains(args, "-loadbreakpoint")) {
+			Setting.getInstance().setLoadBreakpointAtStartup(true);
+			args = (String[]) ArrayUtils.removeElement(args, "-loadbreakpoint");
 		}
 
 		for (int x = 0; x < args.length; x++) {
@@ -2576,8 +2579,7 @@ public class Application extends javax.swing.JFrame {
 			commandReceiver.clearBuffer();
 			commandReceiver.shouldShow = false;
 			sendCommand(command);
-			Thread.currentThread();
-			// Thread.sleep(200);
+			//			 Thread.sleep(200);
 			// commandReceiver.waitUntilHaveLine(40);
 			commandReceiver.waitUntilHaveLine(30);
 			// commandReceiver.setCommandNoOfLine(15);
@@ -3349,11 +3351,11 @@ public class Application extends javax.swing.JFrame {
 		}
 	}
 
-	private void jDisassembleButtonActionPerformed(ActionEvent evt) {
-		jDisassembleButton.setEnabled(false);
+	private void jDisassembleCurrentIPButtonActionPerformed(ActionEvent evt) {
+		jDisassembleCurrentIPButton.setEnabled(false);
 		this.updateInstruction(null);
 		updateBreakpointTableColor();
-		jDisassembleButton.setEnabled(true);
+		jDisassembleCurrentIPButton.setEnabled(true);
 	}
 
 	private void jAddBreakpointButtonActionPerformed(ActionEvent evt) {
@@ -4427,29 +4429,29 @@ public class Application extends javax.swing.JFrame {
 		}
 	}
 
-	private JButton getJButton14() {
-		if (jButton14 == null) {
-			jButton14 = new JButton();
-			jButton14.setText(MyLanguage.getString("Disassemble"));
-			jButton14.addActionListener(new ActionListener() {
+	private JButton getJDisassembleButton() {
+		if (jDisassembleButton == null) {
+			jDisassembleButton = new JButton();
+			jDisassembleButton.setText(MyLanguage.getString("Disassemble"));
+			jDisassembleButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
-					jButton14ActionPerformed(evt);
+					jDisassembleButtonActionPerformed(evt);
 				}
 			});
 		}
-		return jButton14;
+		return jDisassembleButton;
 	}
 
-	private void jButton14ActionPerformed(ActionEvent evt) {
+	private void jDisassembleButtonActionPerformed(ActionEvent evt) {
 		this.addInstructionComboBox(this.jInstructionComboBox.getSelectedItem().toString());
-		jDisassembleButton.setEnabled(false);
+		jDisassembleCurrentIPButton.setEnabled(false);
 		try {
 			updateInstruction(CommonLib.convertFilesize(this.jInstructionComboBox.getSelectedItem().toString()));
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 		updateBreakpointTableColor();
-		jDisassembleButton.setEnabled(true);
+		jDisassembleCurrentIPButton.setEnabled(true);
 	}
 
 	private JButton getJButton15() {
@@ -4518,7 +4520,7 @@ public class Application extends javax.swing.JFrame {
 							ComboBoxModel jInstructionComboBoxModel = new DefaultComboBoxModel(new String[] {});
 							jInstructionComboBox = new JComboBox();
 							jInstructionControlPanel.add(jInstructionComboBox);
-							jInstructionControlPanel.add(getJButton14());
+							jInstructionControlPanel.add(getJDisassembleButton());
 							jInstructionComboBox.setModel(jInstructionComboBoxModel);
 							jInstructionComboBox.setEditable(true);
 							jInstructionComboBox.addActionListener(new ActionListener() {
@@ -4528,17 +4530,17 @@ public class Application extends javax.swing.JFrame {
 							});
 						}
 						{
-							jDisassembleButton = new JButton();
-							jInstructionControlPanel.add(jDisassembleButton);
+							jDisassembleCurrentIPButton = new JButton();
+							jInstructionControlPanel.add(jDisassembleCurrentIPButton);
 							jInstructionControlPanel.add(getJInstructionUpTenButton());
 							jInstructionControlPanel.add(getJInstructionUpButton());
 							jInstructionControlPanel.add(getJButton22());
 							jInstructionControlPanel.add(getJButton3());
 							jInstructionControlPanel.add(getJButton12());
-							jDisassembleButton.setText(MyLanguage.getString("Disassemble") + " cs:eip");
-							jDisassembleButton.addActionListener(new ActionListener() {
+							jDisassembleCurrentIPButton.setText(MyLanguage.getString("Disassemble") + " cs:eip");
+							jDisassembleCurrentIPButton.addActionListener(new ActionListener() {
 								public void actionPerformed(ActionEvent evt) {
-									jDisassembleButtonActionPerformed(evt);
+									jDisassembleCurrentIPButtonActionPerformed(evt);
 								}
 							});
 						}
@@ -5621,7 +5623,7 @@ public class Application extends javax.swing.JFrame {
 
 	private void jDisassemble32MenuItemActionPerformed(ActionEvent evt) {
 		this.jInstructionComboBox.setSelectedItem(currentMemoryWindowsAddress + jHexTable1.getSelectedRow() * 8 + jHexTable1.getSelectedColumn() - 1);
-		jButton14ActionPerformed(null);
+		jDisassembleButtonActionPerformed(null);
 		jTabbedPane1.setSelectedIndex(0);
 	}
 
@@ -6815,7 +6817,7 @@ public class Application extends javax.swing.JFrame {
 
 	private void jMenuItem7ActionPerformed(ActionEvent evt) {
 		this.jInstructionComboBox.setSelectedItem(this.jBreakpointTable.getValueAt(this.jBreakpointTable.getSelectedRow(), 2));
-		jButton14ActionPerformed(null);
+		jDisassembleButtonActionPerformed(null);
 		jTabbedPane1.setSelectedIndex(0);
 	}
 
@@ -7847,8 +7849,10 @@ public class Application extends javax.swing.JFrame {
 			jRunningLabel2 = new JLabel();
 			URL url = getClass().getClassLoader().getResource("com/peterbochs/images/ajax-loader_red.gif");
 			if (Setting.getInstance().getCurrentLanguage().equals("zh_TW")) {
-				jRunningLabel2.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\"" + url
-						+ "\" /><br><br><a style=\"color: #000000;  text-decoration:none\" href=\"http://www.kingofcoders.com\">操作系统开发社区 www.kingofcoders.com</a></center></html>");
+				jRunningLabel2
+						.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\""
+								+ url
+								+ "\" /><br><br><a style=\"color: #000000;  text-decoration:none\" href=\"http://www.kingofcoders.com\">操作系统开发社区 www.kingofcoders.com</a></center></html>");
 			} else if (Setting.getInstance().getCurrentLanguage().equals("zh_CN")) {
 				jRunningLabel2
 						.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\""
@@ -7953,7 +7957,7 @@ public class Application extends javax.swing.JFrame {
 	}
 
 	private void jInstructionComboBoxActionPerformed(ActionEvent evt) {
-		jButton14ActionPerformed(evt);
+		jDisassembleButtonActionPerformed(evt);
 	}
 
 	private JButton getJNextMemoryPageButton() {

@@ -14,18 +14,17 @@ import javax.swing.SwingUtilities;
 public class CommandReceiver implements Runnable {
 	Application application;
 	private final InputStream is;
-	private String commandResult;
 	// private int threadID = 0;
 	public boolean shouldShow;
 
-	int timeoutSecond = 2;
+	int timeoutSecond = 50;
 
 	boolean readCommandFinish;
 	Vector<String> lines = new Vector<String>();
 
 	public void clearBuffer() {
 		synchronized (lines) {
-			lines.removeAllElements();
+			lines.clear();
 		}
 	}
 
@@ -55,7 +54,6 @@ public class CommandReceiver implements Runnable {
 
 	public String getCommandResultUntilEnd() {
 		long startTime = new Date().getTime();
-		commandResult = "";
 
 		String str = "";
 
@@ -78,7 +76,6 @@ public class CommandReceiver implements Runnable {
 
 	public String getCommandResultUntilHaveLines(int noOfLine) {
 		long startTime = new Date().getTime();
-		commandResult = "";
 
 		String str = "";
 
@@ -103,7 +100,6 @@ public class CommandReceiver implements Runnable {
 
 	public String getCommandResult(String pattern) {
 		long startTime = new Date().getTime();
-		commandResult = "";
 
 		String str = "";
 
@@ -130,7 +126,6 @@ public class CommandReceiver implements Runnable {
 
 	public String getCommandResult(String startPattern, String endPattern) {
 		long startTime = new Date().getTime();
-		commandResult = "";
 
 		String str = "";
 		boolean startCapture = false;
@@ -196,8 +191,9 @@ public class CommandReceiver implements Runnable {
 					});
 				}
 				synchronized (lines) {
-					// System.out.println(">>" + line);
-					lines.add(line);
+					if (!line.matches(".*<bochs:[0-9]+>.*")) {
+						lines.add(line);
+					}
 				}
 			}
 		} catch (IOException e) {
