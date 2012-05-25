@@ -835,7 +835,7 @@ public class SourceLevelDebugger2 extends JMaximizableTabbedPane_BasePanel imple
 				d.jProgressBar.setString("dwarfdump -l " + file.getAbsolutePath() + " " + x + "/" + (lines.length - 1));
 				lines[x] = lines[x].replaceAll("\\[", "").replaceAll("\\]", "");
 				String words[] = lines[x].split("[ \\t]+");
-				System.out.println(words.length + ">>>" + lines[x]);
+				System.out.println(">>>>>>>>>>>>>>>>>>>> " +"dwarfdump -l " + file.getAbsolutePath());
 				if (lines[x].contains("archive member")) {
 					archiveMember = lines[x].replace("archive member", "").trim();
 				} else if (words.length >= 4) {
@@ -1894,5 +1894,16 @@ public class SourceLevelDebugger2 extends JMaximizableTabbedPane_BasePanel imple
 			jErrorLabel.setOpaque(true);
 		}
 		return jErrorLabel;
+	}
+
+	private void jMainTabbedPaneStateChanged(ChangeEvent evt) {
+		if (jMainTabbedPane.getTitleAt(jMainTabbedPane.getSelectedIndex()).equals(MyLanguage.getString("Structure"))) {
+			jRefreshSymbolButtonActionPerformed(null);
+			jRefreshFunctionButtonActionPerformed(null);
+			jRefreshArchiveFileButtonActionPerformed(null);
+			jRefreshCodeButtonActionPerformed(null);
+			jRefreshParsedFunctionButtonActionPerformed(null);
+			jRefreshDwarfTableButtonActionPerformed(null);
+		}
 	}
 }

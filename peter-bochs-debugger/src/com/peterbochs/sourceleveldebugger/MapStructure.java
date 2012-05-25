@@ -1,12 +1,9 @@
 package com.peterbochs.sourceleveldebugger;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.TreeSet;
 import java.util.Vector;
 
@@ -17,7 +14,7 @@ public class MapStructure {
 	public static Vector<Symbol> symbols = new Vector<Symbol>();
 	public static Hashtable<String, Vector<DisassembledCode>> disassembledCodes = new Hashtable<String, Vector<DisassembledCode>>();
 	public static Hashtable<File, Vector<DwarfLine>> dwarfLines = new Hashtable<File, Vector<DwarfLine>>();
-	public static List<DwarfLine> allDwarfLines = new ArrayList<DwarfLine>();
+	public static Vector<DwarfLine> allDwarfLines = new Vector<DwarfLine>();
 	public static Vector<String> parsedFunctions = new Vector<String>();
 
 	public static void updateAllDwarfLines() {
