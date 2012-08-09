@@ -1,6 +1,7 @@
 package com.peterbochs;
 
 import java.awt.BorderLayout;
+import java.math.BigInteger;
 import java.util.LinkedHashMap;
 
 import javax.swing.JLabel;
@@ -13,7 +14,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import com.peterbochs.architecture.DescriptorParser;
-
 import com.peterswing.CommonLib;
 
 /**
@@ -38,13 +38,13 @@ public class GDTLDTPanel extends JPanel {
 	private int b[] = new int[8];
 	private long value;
 	private long bit[] = new long[64];
-	private Application application;
+	private PeterBochsDebugger peterBochsDebugger;
 	private int type;
-	private long gdtAddress;
+	private BigInteger gdtAddress;
 	private JScrollPane jScrollPane2;
 
-	public GDTLDTPanel(Application application, int type, long gdtAddress, int gdtNo) {
-		this.application = application;
+	public GDTLDTPanel(PeterBochsDebugger peterBochsDebugger, int type, BigInteger gdtAddress, int gdtNo) {
+		this.peterBochsDebugger = peterBochsDebugger;
 		this.type = type;
 		this.gdtAddress = gdtAddress;
 		this.gdtNo = gdtNo;
@@ -107,21 +107,21 @@ public class GDTLDTPanel extends JPanel {
 					}
 				}
 			}
-			// Application.commandReceiver.setCommandNoOfLine(2);
+			// PeterBochsDebugger.commandReceiver.setCommandNoOfLine(2);
 			String result;
 			if (type == 0) {
-				Application.sendCommand("info gdt " + gdtNo);
+				PeterBochsDebugger.sendCommand("info gdt " + gdtNo);
 				String gdtNoHex = String.format("0x%02x", gdtNo);
-				result = Application.commandReceiver.getCommandResult("GDT[" + gdtNoHex + "]");
+				result = PeterBochsDebugger.commandReceiver.getCommandResult("GDT[" + gdtNoHex + "]");
 			} else {
-				Application.sendCommand("info ldt " + gdtNo);
+				PeterBochsDebugger.sendCommand("info ldt " + gdtNo);
 				String gdtNoHex = String.format("0x%02x", gdtNo);
-				result = Application.commandReceiver.getCommandResult("LDT[" + gdtNoHex + "]");
+				result = PeterBochsDebugger.commandReceiver.getCommandResult("LDT[" + gdtNoHex + "]");
 			}
 
-			Application.commandReceiver.clearBuffer();
-			Application.sendCommand("x /8bx " + String.format("0x%08x", gdtAddress + (gdtNo * 8)));
-			result = Application.commandReceiver.getCommandResult(String.format("%08x", gdtAddress + (gdtNo * 8)));
+			PeterBochsDebugger.commandReceiver.clearBuffer();
+			PeterBochsDebugger.sendCommand("x /8bx " + "0x" + gdtAddress.add(BigInteger.valueOf(gdtNo * 8)).toString(16));
+			result = PeterBochsDebugger.commandReceiver.getCommandResult(String.format("%08x", gdtAddress.add(BigInteger.valueOf(gdtNo * 8))));
 			String lines[] = result.split("\n");
 
 			String byteStr[] = lines[0].replaceFirst("^.*>:\t", "").split("\t");
@@ -158,7 +158,7 @@ public class GDTLDTPanel extends JPanel {
 				jTypeLabel.setText("Type : TSS descriptor, value=0x" + Long.toHexString(value));
 				this.removeAll();
 				this.setLayout(new BorderLayout());
-				this.add(new TSSPanel(application, type, gdtAddress, gdtNo), BorderLayout.CENTER);
+				this.add(new TSSPanel(peterBochsDebugger, type, gdtAddress, gdtNo), BorderLayout.CENTER);
 			}
 			// end parse descriptor
 		} catch (Exception e) {
@@ -244,7 +244,7 @@ public class GDTLDTPanel extends JPanel {
 			if (limit > 1000) {
 				limit = 1000;
 			}
-			int bytes[] = Application.getLinearMemory(base, (int) (limit + 1));
+			int bytes[] = PeterBochsDebugger.getLinearMemory(base, (int) (limit + 1));
 
 			for (int x = 0; x < limit; x += 8) {
 				long value = CommonLib.getLong(bytes, x);

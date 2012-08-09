@@ -19,14 +19,23 @@
 	<classpathentry kind="lib" path="lib/jzy3d/org.jzy3d-0.8.4.jar"/>
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.14/lib/jcommon-1.0.17.jar"/>
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.14/lib/jfreechart-1.0.14.jar"/>
-	<classpathentry kind="lib" path="lib/poi-3.8-beta5-20111217.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.1.jar" sourcepath="/root/Downloads/commons-lang3-3.1-src.zip"/>
 	<classpathentry kind="lib" path="lib/apple/ui.jar"/>
+	<classpathentry kind="lib" path="lib/javax.mail_1.4.0.v201005080615.jar"/>
+	<classpathentry kind="lib" path="lib/poi/poi-3.8-20120326.jar"/>
+	<classpathentry kind="lib" path="lib/poi/poi-excelant-3.8-20120326.jar"/>
+	<classpathentry kind="lib" path="lib/poi/poi-ooxml-3.8-20120326.jar"/>
+	<classpathentry kind="lib" path="lib/poi/poi-ooxml-schemas-3.8-20120326.jar"/>
+	<classpathentry kind="lib" path="lib/poi/poi-scratchpad-3.8-20120326.jar"/>
+	<classpathentry kind="lib" path="lib/poi/dom4j-1.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/poi/stax-api-1.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/poi/xmlbeans-2.3.0.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/javax.wsdl_1.6.2.v201012040545.jar"/>
 	<classpathentry kind="lib" path="lib/saaj.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/peter-dwarf"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Peter-swing"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JavaFX"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

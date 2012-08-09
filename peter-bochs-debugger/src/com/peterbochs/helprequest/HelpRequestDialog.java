@@ -23,9 +23,8 @@ import org.apache.axis.client.Call;
 import org.apache.axis.client.Service;
 import org.apache.axis.encoding.XMLType;
 
-
-import com.peterbochs.Application;
 import com.peterbochs.CommandReceiver;
+import com.peterbochs.PeterBochsDebugger;
 import com.peterswing.advancedswing.enhancedtextarea.EnhancedTextArea;
 
 /**
@@ -188,7 +187,7 @@ public class HelpRequestDialog extends javax.swing.JDialog {
 					"print-stack 40", "info tab", "info break" };
 			String result = "";
 			for (String c : commands) {
-				Application.sendCommand(c);
+				PeterBochsDebugger.sendCommand(c);
 				result += "\n\n" + c + "\n\n" + commandReceiver.getCommandResultUntilEnd();
 			}
 			jInfoTextArea.setText(result);

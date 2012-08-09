@@ -18,7 +18,6 @@ import javax.swing.LayoutStyle;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
-import javax.swing.WindowConstants;
 
 /**
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI

@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.math.BigInteger;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,9 +25,6 @@ import javax.swing.JOptionPane;
 import javax.swing.table.TableModel;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
@@ -34,12 +32,14 @@ import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.peterswing.CommonLib;
 import com.peterswing.advancedswing.jprogressbardialog.JProgressBarDialog;
 
 public class PeterBochsCommonLib {
-	private final static int max_row_limit_in_xls = 65535;
+	private final static int max_row_limit_in_xls = 1000000;
 	private final static short rowHeight = 250;
 
 	public PeterBochsCommonLib() {
@@ -95,7 +95,7 @@ public class PeterBochsCommonLib {
 	}
 
 	public static void exportRegisterHistory(File file, JProgressBarDialog d) {
-		Workbook wb = new HSSFWorkbook();
+		XSSFWorkbook wb = new XSSFWorkbook();
 		exportRegisterHistory(wb, d);
 		// Write the output to a file
 		FileOutputStream fileOut;
@@ -108,7 +108,7 @@ public class PeterBochsCommonLib {
 		}
 	}
 
-	public static void exportRegisterHistory(Workbook wb, JProgressBarDialog d) {
+	public static void exportRegisterHistory(XSSFWorkbook wb, JProgressBarDialog d) {
 		CreationHelper createHelper = wb.getCreationHelper();
 		Sheet sheet = wb.createSheet("Registers");
 		sheet.setColumnWidth(5, 30000);
@@ -130,11 +130,13 @@ public class PeterBochsCommonLib {
 			d.jProgressBar.setString("General register worksheet, creating column : " + columnNames[x]);
 		}
 
-		CellStyle style = wb.createCellStyle();
-		style.setFillBackgroundColor(HSSFColor.LIME.index);
+		//		CellStyle style = wb.createCellStyle();
+		//		style.setFillBackgroundColor(XSSFColor.LIME.index);
 
 		if (AllRegisters.time.size() > max_row_limit_in_xls) {
 			JOptionPane.showMessageDialog(null, "Will export " + max_row_limit_in_xls + " row only, this is the xls limit");
+		} else if (AllRegisters.time.size() > 100000) {
+			JOptionPane.showMessageDialog(null, "You are exporting too many rows, make sure you have tuned the -Xmx4g setting");
 		}
 
 		CellStyle cellStyleNormal = wb.createCellStyle();
@@ -143,16 +145,36 @@ public class PeterBochsCommonLib {
 		cellStyleNormal.setDataFormat(createHelper.createDataFormat().getFormat("yy/m/d h:mm:ss"));
 		cellStyleHighlight.setDataFormat(createHelper.createDataFormat().getFormat("yy/m/d h:mm:ss"));
 
-		//		cellStyleHighlight.setFillBackgroundColor(HSSFColor.LIME.index);
+		cellStyleNormal.setWrapText(true);
+		cellStyleHighlight.setWrapText(true);
+
+		//		cellStyleHighlight.setFillBackgroundColor(XSSFColor.LIME.index);
 		//		cellStyleHighlight.setFillPattern(CellStyle.ALIGN_FILL);
 
 		//		cellStyleHighlight.setAlignment(CellStyle.ALIGN_CENTER);
-		cellStyleHighlight.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
-		cellStyleHighlight.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
-		//		cellStyleHighlight.setBorderBottom(CellStyle.BORDER_THIN);
-		//		cellStyleHighlight.setBorderLeft(CellStyle.BORDER_THIN);
-		//		cellStyleHighlight.setBorderRight(CellStyle.BORDER_THIN);
-		//		cellStyleHighlight.setBorderTop(CellStyle.BORDER_THIN);
+		//		XSSFPalette palette = wb.getCustomPalette();
+		//		palette.setColorAtIndex((short) 9, (byte) (0xff & 245), (byte) (0xff & 245), (byte) (0xff & 245));
+
+		cellStyleHighlight.setBorderBottom(CellStyle.BORDER_THIN);
+		cellStyleHighlight.setBorderLeft(CellStyle.BORDER_THIN);
+		cellStyleHighlight.setBorderRight(CellStyle.BORDER_THIN);
+		cellStyleHighlight.setBorderTop(CellStyle.BORDER_THIN);
+		cellStyleHighlight.setBottomBorderColor(IndexedColors.GREY_40_PERCENT.getIndex());
+		cellStyleHighlight.setLeftBorderColor(IndexedColors.GREY_40_PERCENT.getIndex());
+		cellStyleHighlight.setRightBorderColor(IndexedColors.GREY_40_PERCENT.getIndex());
+		cellStyleHighlight.setTopBorderColor(IndexedColors.GREY_40_PERCENT.getIndex());
+
+		cellStyleNormal.setBorderBottom(CellStyle.BORDER_THIN);
+		cellStyleNormal.setBorderLeft(CellStyle.BORDER_THIN);
+		cellStyleNormal.setBorderRight(CellStyle.BORDER_THIN);
+		cellStyleNormal.setBorderTop(CellStyle.BORDER_THIN);
+		cellStyleNormal.setBottomBorderColor(IndexedColors.GREY_40_PERCENT.getIndex());
+		cellStyleNormal.setLeftBorderColor(IndexedColors.GREY_40_PERCENT.getIndex());
+		cellStyleNormal.setRightBorderColor(IndexedColors.GREY_40_PERCENT.getIndex());
+		cellStyleNormal.setTopBorderColor(IndexedColors.GREY_40_PERCENT.getIndex());
+
+		cellStyleHighlight.setFillForegroundColor((short) 9);
+		cellStyleHighlight.setFillPattern(XSSFCellStyle.SOLID_FOREGROUND);
 
 		// data
 		for (int rowY = 0; rowY < AllRegisters.time.size() && rowY < max_row_limit_in_xls; rowY++) {
@@ -249,7 +271,7 @@ public class PeterBochsCommonLib {
 	}
 
 	public static void exportTableModelToExcel(File file, TableModel model, String sheetName) {
-		Workbook wb = new HSSFWorkbook();// Write the output to a file
+		Workbook wb = new XSSFWorkbook();// Write the output to a file
 		exportTableModelToExcel(file, model, sheetName, wb);
 		FileOutputStream fileOut;
 		try {
@@ -262,7 +284,7 @@ public class PeterBochsCommonLib {
 	}
 
 	public static void exportTableModelToExcel(File file, int bytes[], String sheetName, long startAddress) {
-		Workbook wb = new HSSFWorkbook();// Write the output to a file
+		Workbook wb = new XSSFWorkbook();// Write the output to a file
 		exportTableModelToExcel(file, bytes, sheetName, wb, startAddress);
 		FileOutputStream fileOut;
 		try {
@@ -275,7 +297,7 @@ public class PeterBochsCommonLib {
 	}
 
 	public static void exportTableModelToExcel(File file, TableModel model1, TableModel model2, String sheetName) {
-		Workbook wb = new HSSFWorkbook();// Write the output to a file
+		Workbook wb = new XSSFWorkbook();// Write the output to a file
 		exportTableModelToExcel(file, model1, model2, sheetName, wb);
 		FileOutputStream fileOut;
 		try {
@@ -374,59 +396,59 @@ public class PeterBochsCommonLib {
 		}
 	}
 
-	public static long getPhysicalAddress(long cr3, long linearAddress) {
-		long pdNo = CommonLib.getValue(linearAddress, 22, 31);
-		long ptNo = CommonLib.getValue(linearAddress, 12, 21);
-		long offset = CommonLib.getValue(linearAddress, 0, 11);
+	public static BigInteger getPhysicalAddress(BigInteger cr3, BigInteger linearAddress) {
+		BigInteger pdNo = CommonLib.getBigInteger(linearAddress, 22, 31);
+		BigInteger ptNo = CommonLib.getBigInteger(linearAddress, 12, 21);
+		BigInteger offset = CommonLib.getBigInteger(linearAddress, 0, 11);
 		System.out.println("pd=" + pdNo);
 		System.out.println("pt=" + ptNo);
 
-		long pdAddr = cr3 + pdNo;
-		System.out.println("pdAddr=" + Long.toHexString(pdAddr));
-		Application.commandReceiver.clearBuffer();
-		Application.sendCommand("xp /8bx " + pdAddr);
-		String result = Application.commandReceiver.getCommandResult(String.format("%08x", pdAddr));
+		BigInteger pdAddr = cr3.add(pdNo);
+		System.out.println("pdAddr=" + pdAddr.toString(16));
+		PeterBochsDebugger.commandReceiver.clearBuffer();
+		PeterBochsDebugger.sendCommand("xp /8bx " + pdAddr);
+		String result = PeterBochsDebugger.commandReceiver.getCommandResult(String.format("%08x", pdAddr));
 		int bytes[] = new int[8];
 		String[] b = result.replaceFirst("^.*:", "").split("\t");
 		for (int y = 1; y <= 8; y++) {
 			bytes[y - 1] = CommonLib.string2decimal(b[y]).intValue();
 		}
-		Long pde = CommonLib.getValue(CommonLib.getLong(bytes, 0), 12, 31) << 12;
-		System.out.println("pde=" + Long.toHexString(pde));
+		BigInteger pde = CommonLib.getBigInteger(CommonLib.getLong(bytes, 0), 12, 31).shiftLeft(12);
+		System.out.println("pde=" + pde.toString(16));
 
-		long ptAddr = pde << 10 + ptNo;
-		System.out.println("ptAddr=" + Long.toHexString(ptAddr));
-		Application.commandReceiver.clearBuffer();
-		Application.sendCommand("xp /8bx " + ptAddr);
-		result = Application.commandReceiver.getCommandResult(String.format("%08x", ptAddr));
+		BigInteger ptAddr = pde.shiftLeft(10).add(ptNo);
+		System.out.println("ptAddr=" + ptAddr.toString(16));
+		PeterBochsDebugger.commandReceiver.clearBuffer();
+		PeterBochsDebugger.sendCommand("xp /8bx " + ptAddr);
+		result = PeterBochsDebugger.commandReceiver.getCommandResult(String.format("%08x", ptAddr));
 		bytes = new int[8];
 		b = result.replaceFirst("^.*:", "").split("\t");
 		for (int y = 1; y <= 8; y++) {
-			bytes[y - 1] = (byte) (long) CommonLib.string2decimal(b[y]);
+			bytes[y - 1] = CommonLib.string2decimal(b[y]).byteValue();
 		}
-		Long pageAddr = CommonLib.getValue(CommonLib.getLong(bytes, 0), 12, 31) << 12;
-		System.out.println("pageAddr=" + Long.toHexString(pageAddr));
+		BigInteger pageAddr = CommonLib.getBigInteger(CommonLib.getLong(bytes, 0), 12, 31).shiftLeft(12);
+		System.out.println("pageAddr=" + pageAddr.toString(16));
 
-		return pageAddr + offset;
+		return pageAddr.add(offset);
 	}
 
-	public static long getLongFromBochs(long address) {
-		Application.commandReceiver.clearBuffer();
-		Application.sendCommand("xp /8bx " + address);
-		String result = Application.commandReceiver.getCommandResult(String.format("%08x", address));
+	public static long getLongFromBochs(BigInteger address) {
+		PeterBochsDebugger.commandReceiver.clearBuffer();
+		PeterBochsDebugger.sendCommand("xp /8bx " + address);
+		String result = PeterBochsDebugger.commandReceiver.getCommandResult(String.format("%08x", address));
 		int bytes[] = new int[8];
 		String[] b = result.replaceFirst("^.*:", "").split("\t");
 		for (int y = 1; y <= 8; y++) {
-			bytes[y - 1] = (byte) (long) CommonLib.string2decimal(b[y]);
+			bytes[y - 1] = CommonLib.string2decimal(b[y]).byteValue();
 		}
 		return CommonLib.getLong(bytes, 0);
 	}
 
-	public static int[] getMemoryFromBochs(long address, int totalByte) {
+	public static int[] getMemoryFromBochs(BigInteger address, int totalByte) {
 		int bytes[] = new int[totalByte];
 
-		Application.commandReceiver.clearBuffer();
-		Application.sendCommand("xp /" + totalByte + "bx " + address);
+		PeterBochsDebugger.commandReceiver.clearBuffer();
+		PeterBochsDebugger.sendCommand("xp /" + totalByte + "bx " + address);
 
 		if (totalByte > 0) {
 			float totalByte2 = totalByte - 1;
@@ -434,13 +456,13 @@ public class PeterBochsCommonLib {
 			int totalByte3 = (int) Math.floor(totalByte2);
 			String realEndAddressStr;
 			String realStartAddressStr;
-			long realStartAddress = address;
+			BigInteger realStartAddress = address;
 			realStartAddressStr = String.format("%08x", realStartAddress);
-			long realEndAddress = realStartAddress + totalByte3 * 8;
+			BigInteger realEndAddress = realStartAddress.add(BigInteger.valueOf(totalByte3 * 8));
 			realEndAddressStr = String.format("%08x", realEndAddress);
 			// System.out.println(realStartAddressStr);
 			// System.out.println(realEndAddressStr);
-			String result = Application.commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr);
+			String result = PeterBochsDebugger.commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr);
 			// System.out.println(result);
 			if (result != null) {
 				String[] lines = result.split("\n");

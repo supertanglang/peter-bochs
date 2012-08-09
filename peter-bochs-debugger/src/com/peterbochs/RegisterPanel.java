@@ -2,7 +2,6 @@ package com.peterbochs;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,7 +29,6 @@ import javax.swing.JTextField;
 
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
-import com.peterswing.CommonLib;
 import com.peterswing.advancedswing.jprogressbardialog.JProgressBarDialog;
 
 /**
@@ -57,7 +55,7 @@ public class RegisterPanel extends javax.swing.JPanel {
 	public JTextField jCSTextField;
 	public JTextField jGSTextField;
 	public JTextField jSSTextField;
-	public JTextField jEIPTextField;
+	public JTextField eipTextField;
 	public JTextField jCR0TextField;
 	public JTextField jDR7TextField;
 	public JTextField jDR6TextField;
@@ -168,7 +166,7 @@ public class RegisterPanel extends javax.swing.JPanel {
 	public JTextField jECXTextField;
 	public JTextField jEBXTextField;
 	private JLabel jEBXLabel;
-	Application application;
+	PeterBochsDebugger peterBochsDebugger;
 	BorderLayout thisLayout = new BorderLayout();
 	FormLayout jPanel2Layout = new FormLayout(
 			"max(p;15dlu), 24dlu, max(p;15dlu), 72dlu, 5dlu, max(p;15dlu), 67dlu, 5dlu, max(p;15dlu), 68dlu, 5dlu, 28dlu, 5dlu, max(p;15dlu), 72dlu, 5dlu, 83dlu",
@@ -183,9 +181,9 @@ public class RegisterPanel extends javax.swing.JPanel {
 		initGUI();
 	}
 
-	public RegisterPanel(Application application) {
+	public RegisterPanel(PeterBochsDebugger peterBochsDebugger) {
 		super();
-		this.application = application;
+		this.peterBochsDebugger = peterBochsDebugger;
 		initGUI();
 		// ToolTipManager.sharedInstance().setInitialDelay(0);
 	}
@@ -326,9 +324,9 @@ public class RegisterPanel extends javax.swing.JPanel {
 					});
 				}
 				{
-					jEIPTextField = new JTextField();
-					jPanel99.add(jEIPTextField, new CellConstraints("3, 2, 2, 1, default, default"));
-					jEIPTextField.addKeyListener(new KeyAdapter() {
+					eipTextField = new JTextField();
+					jPanel99.add(eipTextField, new CellConstraints("3, 2, 2, 1, default, default"));
+					eipTextField.addKeyListener(new KeyAdapter() {
 						public void keyTyped(KeyEvent evt) {
 							jEIPTextFieldKeyTyped(evt);
 						}
@@ -1083,7 +1081,7 @@ public class RegisterPanel extends javax.swing.JPanel {
 
 	private void jButton1ActionPerformed(ActionEvent evt) {
 		final JFileChooser fc = new JFileChooser();
-		int returnVal = fc.showSaveDialog(application);
+		int returnVal = fc.showSaveDialog(peterBochsDebugger);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
 			if (!PeterBochsCommonLib.saveImage(this.getParent(), file)) {
@@ -1094,7 +1092,7 @@ public class RegisterPanel extends javax.swing.JPanel {
 
 	private void jExportExcelButtonActionPerformed(ActionEvent evt) {
 		JFileChooser fc = new JFileChooser();
-		int returnVal = fc.showSaveDialog(application);
+		int returnVal = fc.showSaveDialog(peterBochsDebugger);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
 			if (!file.getName().endsWith(".xls")) {
@@ -1106,7 +1104,7 @@ public class RegisterPanel extends javax.swing.JPanel {
 					return;
 				}
 			}
-			final JProgressBarDialog d = new JProgressBarDialog(application, "Exporting to XLS", true);
+			final JProgressBarDialog d = new JProgressBarDialog(peterBochsDebugger, "Exporting to XLS", true);
 			d.jProgressBar.setIndeterminate(true);
 			d.jProgressBar.setStringPainted(true);
 
@@ -1127,123 +1125,123 @@ public class RegisterPanel extends javax.swing.JPanel {
 	}
 
 	private void jCSLabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jCSTextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jCSTextField.getText());
 	}
 
 	private void jEIPLabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jEIPTextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.eipTextField.getText());
 	}
 
 	private void jDSLabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jDSTextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jDSTextField.getText());
 	}
 
 	private void jESLabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jESTextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jESTextField.getText());
 	}
 
 	private void jFSLabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jFSTextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jFSTextField.getText());
 	}
 
 	private void jGSLabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jGSTextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jGSTextField.getText());
 	}
 
 	private void jSSLabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jSSTextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jSSTextField.getText());
 	}
 
 	private void jEFlagsLabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jEFLAGSTextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jEFLAGSTextField.getText());
 	}
 
 	private void jEAXLabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jEAXTextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jEAXTextField.getText());
 	}
 
 	private void jEBXLabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jEBXTextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jEBXTextField.getText());
 	}
 
 	private void jECXLabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jECXTextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jECXTextField.getText());
 	}
 
 	private void jEDXLabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jEDXTextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jEDXTextField.getText());
 	}
 
 	private void jESILabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jESITextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jESITextField.getText());
 	}
 
 	private void jEDILabel6MouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jEDITextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jEDITextField.getText());
 	}
 
 	private void jEBPLabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jEBPTextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jEBPTextField.getText());
 	}
 
 	private void jESPLabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jESPTextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jESPTextField.getText());
 	}
 
 	private void jGDTRLabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jGDTRTextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jGDTRTextField.getText());
 	}
 
 	private void jLDTRLabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jLDTRTextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jLDTRTextField.getText());
 	}
 
 	private void jIDTRLabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jIDTRTextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jIDTRTextField.getText());
 	}
 
 	private void jTRLabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jTRTextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jTRTextField.getText());
 	}
 
 	private void jCR0LabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jCR0TextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jCR0TextField.getText());
 	}
 
 	private void jCR2LabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jCR2TextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jCR2TextField.getText());
 	}
 
 	private void jCR3LabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jCR3TextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jCR3TextField.getText());
 	}
 
 	private void jCR4LabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jCR4TextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jCR4TextField.getText());
 	}
 
 	private void jDR0LabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jDR0TextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jDR0TextField.getText());
 	}
 
 	private void jDR1LabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jDR1TextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jDR1TextField.getText());
 	}
 
 	private void jDR2LabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jDR2TextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jDR2TextField.getText());
 	}
 
 	private void jDR3LabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jDR3TextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jDR3TextField.getText());
 	}
 
 	private void jDR6LabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jDR6TextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jDR6TextField.getText());
 	}
 
 	private void jDR7LabelMouseClicked(MouseEvent evt) {
-		application.jMemoryAddressComboBox.setSelectedItem(this.jDR7TextField.getText());
+		peterBochsDebugger.jMemoryAddressComboBox.setSelectedItem(this.jDR7TextField.getText());
 	}
 
 	private void textFieldKeyTyped(KeyEvent evt) {
@@ -1262,118 +1260,118 @@ public class RegisterPanel extends javax.swing.JPanel {
 	}
 
 	private void jCSTextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set cs=" + jCSTextField.getText());
+		PeterBochsDebugger.sendCommand("set cs=" + jCSTextField.getText());
 	}
 
 	private void jEIPTextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set eip=" + jEIPTextField.getText());
+		PeterBochsDebugger.sendCommand("set eip=" + eipTextField.getText());
 	}
 
 	private void jDSTextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set ds=" + jDSTextField.getText());
+		PeterBochsDebugger.sendCommand("set ds=" + jDSTextField.getText());
 	}
 
 	private void jESTextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set es=" + jESTextField.getText());
+		PeterBochsDebugger.sendCommand("set es=" + jESTextField.getText());
 	}
 
 	private void jFSTextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set fs=" + jFSTextField.getText());
+		PeterBochsDebugger.sendCommand("set fs=" + jFSTextField.getText());
 	}
 
 	private void jGSTextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set gs=" + jGSTextField.getText());
+		PeterBochsDebugger.sendCommand("set gs=" + jGSTextField.getText());
 	}
 
 	private void jSSTextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set ss=" + jSSTextField.getText());
+		PeterBochsDebugger.sendCommand("set ss=" + jSSTextField.getText());
 	}
 
 	private void jEAXTextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set eax=" + jEAXTextField.getText());
+		PeterBochsDebugger.sendCommand("set eax=" + jEAXTextField.getText());
 	}
 
 	private void jEBXTextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set ebx=" + jEBXTextField.getText());
+		PeterBochsDebugger.sendCommand("set ebx=" + jEBXTextField.getText());
 	}
 
 	private void jECXTextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set ecx=" + jECXTextField.getText());
+		PeterBochsDebugger.sendCommand("set ecx=" + jECXTextField.getText());
 	}
 
 	private void jEDXTextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set edx=" + jEDXTextField.getText());
+		PeterBochsDebugger.sendCommand("set edx=" + jEDXTextField.getText());
 	}
 
 	private void jESITextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set esi=" + jESITextField.getText());
+		PeterBochsDebugger.sendCommand("set esi=" + jESITextField.getText());
 	}
 
 	private void jEDITextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set edi=" + jEDITextField.getText());
+		PeterBochsDebugger.sendCommand("set edi=" + jEDITextField.getText());
 	}
 
 	private void jEBPTextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set ebp=" + jEBPTextField.getText());
+		PeterBochsDebugger.sendCommand("set ebp=" + jEBPTextField.getText());
 	}
 
 	private void jESPTextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set esp=" + jESPTextField.getText());
+		PeterBochsDebugger.sendCommand("set esp=" + jESPTextField.getText());
 	}
 
 	private void jCR0TextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set cr0=" + jCR0TextField.getText());
+		PeterBochsDebugger.sendCommand("set cr0=" + jCR0TextField.getText());
 	}
 
 	private void jCR2TextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set cr2=" + jCR2TextField.getText());
+		PeterBochsDebugger.sendCommand("set cr2=" + jCR2TextField.getText());
 	}
 
 	private void jCR3TextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set cr3=" + jCR3TextField.getText());
+		PeterBochsDebugger.sendCommand("set cr3=" + jCR3TextField.getText());
 	}
 
 	private void jCR4TextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set cr4=" + jCR4TextField.getText());
+		PeterBochsDebugger.sendCommand("set cr4=" + jCR4TextField.getText());
 	}
 
 	private void jGDTRTextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set gdtr=" + jGDTRTextField.getText());
+		PeterBochsDebugger.sendCommand("set gdtr=" + jGDTRTextField.getText());
 	}
 
 	private void jLDTRTextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set ldtr=" + jLDTRTextField.getText());
+		PeterBochsDebugger.sendCommand("set ldtr=" + jLDTRTextField.getText());
 	}
 
 	private void jIDTRTextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set idtr=" + jIDTRTextField.getText());
+		PeterBochsDebugger.sendCommand("set idtr=" + jIDTRTextField.getText());
 	}
 
 	private void jTRTextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set tr=" + jTRTextField.getText());
+		PeterBochsDebugger.sendCommand("set tr=" + jTRTextField.getText());
 	}
 
 	private void jDR0TextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set dr0=" + jDR0TextField.getText());
+		PeterBochsDebugger.sendCommand("set dr0=" + jDR0TextField.getText());
 	}
 
 	private void jDR1TextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set dr1=" + jDR1TextField.getText());
+		PeterBochsDebugger.sendCommand("set dr1=" + jDR1TextField.getText());
 	}
 
 	private void jDR2TextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set dr2=" + jDR2TextField.getText());
+		PeterBochsDebugger.sendCommand("set dr2=" + jDR2TextField.getText());
 	}
 
 	private void jDR3TextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set dr3=" + jDR3TextField.getText());
+		PeterBochsDebugger.sendCommand("set dr3=" + jDR3TextField.getText());
 	}
 
 	private void jDR6TextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set dr6=" + jDR6TextField.getText());
+		PeterBochsDebugger.sendCommand("set dr6=" + jDR6TextField.getText());
 	}
 
 	private void jDR7TextFieldKeyTyped(KeyEvent evt) {
-		Application.sendCommand("set dr7=" + jDR7TextField.getText());
+		PeterBochsDebugger.sendCommand("set dr7=" + jDR7TextField.getText());
 	}
 }

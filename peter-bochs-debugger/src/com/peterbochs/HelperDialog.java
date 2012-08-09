@@ -2,6 +2,8 @@ package com.peterbochs;
 
 import info.clearthought.layout.TableLayout;
 
+import java.math.BigInteger;
+
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
@@ -22,13 +24,13 @@ import com.peterswing.CommonLib;
  * ANY CORPORATE OR COMMERCIAL PURPOSE.
  */
 public class HelperDialog extends javax.swing.JDialog {
-	long address;
+	BigInteger address;
 	private JTable jTable1;
 	private JScrollPane jScrollPane1;
 	private JLabel jBytesLabel;
 	String type;
 
-	public HelperDialog(JFrame frame, long address, String type) {
+	public HelperDialog(JFrame frame, BigInteger address, String type) {
 		super(frame);
 		this.address = address;
 		this.type = type;
@@ -38,7 +40,7 @@ public class HelperDialog extends javax.swing.JDialog {
 
 	private void initData() {
 		long bytes = PeterBochsCommonLib.getLongFromBochs(address);
-		jBytesLabel.setText("0x" + Long.toHexString(address) + " : 0x" + Long.toHexString(bytes));
+		jBytesLabel.setText("0x" + address.toString(16) + " : 0x" + Long.toHexString(bytes));
 
 		DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
 		if (type.equals("GDT")) {
@@ -149,8 +151,8 @@ public class HelperDialog extends javax.swing.JDialog {
 				model.addRow(new String[] { "V", String.valueOf(bit[40]) });
 
 				// TSS
-				// Application.commandReceiver.setCommandNoOfLine(2);
-				Application.sendCommand("x /" + limit + "bx " + base);
+				// PeterBochsDebugger.commandReceiver.setCommandNoOfLine(2);
+				PeterBochsDebugger.sendCommand("x /" + limit + "bx " + base);
 
 				float totalByte2 = limit - 1;
 				totalByte2 = totalByte2 / 8;
@@ -167,7 +169,7 @@ public class HelperDialog extends javax.swing.JDialog {
 				int realEndAddress = realStartAddress + totalByte3 * 8;
 				realEndAddressStr = String.format("%08x", realEndAddress);
 
-				String result2 = Application.commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr);
+				String result2 = PeterBochsDebugger.commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr);
 				String[] lines2 = result2.split("\n");
 
 				byte tssByte[] = new byte[(int) limit];
@@ -323,7 +325,7 @@ public class HelperDialog extends javax.swing.JDialog {
 			thisLayout.setHGap(5);
 			thisLayout.setVGap(5);
 			getContentPane().setLayout(thisLayout);
-			this.setTitle("Helper, address : 0x" + Long.toHexString(address));
+			this.setTitle("Helper, address : 0x" + address.toString(16));
 			{
 				jBytesLabel = new JLabel();
 				getContentPane().add(jBytesLabel, "0, 0, 1, 0");
@@ -344,5 +346,4 @@ public class HelperDialog extends javax.swing.JDialog {
 			e.printStackTrace();
 		}
 	}
-
 }

@@ -12,9 +12,8 @@ import java.util.Vector;
 
 import javax.swing.JOptionPane;
 
-import com.peterbochs.instrument.callgraph.JmpData;
-
 import com.peterbochs.Global;
+import com.peterbochs.instrument.callgraph.JmpData;
 import com.peterswing.CommonLib;
 
 public class JmpSocketServer implements Runnable {

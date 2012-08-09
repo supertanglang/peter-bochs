@@ -1,5 +1,6 @@
 package com.peterbochs;
 
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.Vector;
 
@@ -7,40 +8,40 @@ public class AllRegisters {
 	public static Vector<Date> time = new Vector<Date>();
 	public static Vector<String> ptime = new Vector<String>();
 
-	public static Vector<Long> eax = new Vector<Long>();
-	public static Vector<Long> ebx = new Vector<Long>();
-	public static Vector<Long> ecx = new Vector<Long>();
-	public static Vector<Long> edx = new Vector<Long>();
-	public static Vector<Long> esi = new Vector<Long>();
-	public static Vector<Long> edi = new Vector<Long>();
-	public static Vector<Long> ebp = new Vector<Long>();
-	public static Vector<Long> esp = new Vector<Long>();
+	public static Vector<BigInteger> eax = new Vector<BigInteger>();
+	public static Vector<BigInteger> ebx = new Vector<BigInteger>();
+	public static Vector<BigInteger> ecx = new Vector<BigInteger>();
+	public static Vector<BigInteger> edx = new Vector<BigInteger>();
+	public static Vector<BigInteger> esi = new Vector<BigInteger>();
+	public static Vector<BigInteger> edi = new Vector<BigInteger>();
+	public static Vector<BigInteger> ebp = new Vector<BigInteger>();
+	public static Vector<BigInteger> esp = new Vector<BigInteger>();
 
-	public static Vector<Long> cs = new Vector<Long>();
-	public static Vector<Long> eip = new Vector<Long>();
-	public static Vector<Long> ds = new Vector<Long>();
-	public static Vector<Long> es = new Vector<Long>();
-	public static Vector<Long> fs = new Vector<Long>();
-	public static Vector<Long> gs = new Vector<Long>();
-	public static Vector<Long> ss = new Vector<Long>();
+	public static Vector<BigInteger> cs = new Vector<BigInteger>();
+	public static Vector<BigInteger> eip = new Vector<BigInteger>();
+	public static Vector<BigInteger> ds = new Vector<BigInteger>();
+	public static Vector<BigInteger> es = new Vector<BigInteger>();
+	public static Vector<BigInteger> fs = new Vector<BigInteger>();
+	public static Vector<BigInteger> gs = new Vector<BigInteger>();
+	public static Vector<BigInteger> ss = new Vector<BigInteger>();
 	public static Vector<String> eflags = new Vector<String>();
 
-	public static Vector<Long> cr0 = new Vector<Long>();
-	public static Vector<Long> cr2 = new Vector<Long>();
-	public static Vector<Long> cr3 = new Vector<Long>();
-	public static Vector<Long> cr4 = new Vector<Long>();
+	public static Vector<BigInteger> cr0 = new Vector<BigInteger>();
+	public static Vector<BigInteger> cr2 = new Vector<BigInteger>();
+	public static Vector<BigInteger> cr3 = new Vector<BigInteger>();
+	public static Vector<BigInteger> cr4 = new Vector<BigInteger>();
 
-	public static Vector<Vector<Long>> stack = new Vector<Vector<Long>>();
+	public static Vector<Vector<BigInteger>> stack = new Vector<Vector<BigInteger>>();
 
-	public static Vector<Long> gdtr = new Vector<Long>();
-	public static Vector<Long> idtr = new Vector<Long>();
-	public static Vector<Long> ldtr = new Vector<Long>();
+	public static Vector<BigInteger> gdtr = new Vector<BigInteger>();
+	public static Vector<BigInteger> idtr = new Vector<BigInteger>();
+	public static Vector<BigInteger> ldtr = new Vector<BigInteger>();
 
-	public static Vector<Vector<Long>> gdt = new Vector<Vector<Long>>();
-	public static Vector<Vector<Long>> idt = new Vector<Vector<Long>>();
-	public static Vector<Vector<Long>> ldt = new Vector<Vector<Long>>();
+	public static Vector<Vector<BigInteger>> gdt = new Vector<Vector<BigInteger>>();
+	public static Vector<Vector<BigInteger>> idt = new Vector<Vector<BigInteger>>();
+	public static Vector<Vector<BigInteger>> ldt = new Vector<Vector<BigInteger>>();
 
-	public static Vector<Long> tr = new Vector<Long>();
+	public static Vector<BigInteger> tr = new Vector<BigInteger>();
 
 	public static Vector<String> instructions = new Vector<String>();
 	public static Vector<String> cCode = new Vector<String>();
