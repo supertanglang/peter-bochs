@@ -117,47 +117,47 @@ public class HistoryTableModel extends DefaultTableModel {
 				case 2:
 					return AllRegisters.ptime.get(row);
 				case 3:
-					return Long.toHexString(AllRegisters.cs.get(row));
+					return AllRegisters.cs.get(row).toString(16);
 				case 4:
-					return Long.toHexString(AllRegisters.eip.get(row));
+					return AllRegisters.eip.get(row).toString(16);
 				case 5:
 					return AllRegisters.instructions.get(row);
 				case 6:
 					return AllRegisters.cCode.get(row);
 				case 7:
-					return Long.toHexString(AllRegisters.eax.get(row));
+					return AllRegisters.eax.get(row).toString(16);
 				case 8:
-					return Long.toHexString(AllRegisters.ebx.get(row));
+					return AllRegisters.ebx.get(row).toString(16);
 				case 9:
-					return Long.toHexString(AllRegisters.ecx.get(row));
+					return AllRegisters.ecx.get(row).toString(16);
 				case 10:
-					return Long.toHexString(AllRegisters.edx.get(row));
+					return AllRegisters.edx.get(row).toString(16);
 				case 11:
-					return Long.toHexString(AllRegisters.esi.get(row));
+					return AllRegisters.esi.get(row).toString(16);
 				case 12:
-					return Long.toHexString(AllRegisters.edi.get(row));
+					return AllRegisters.edi.get(row).toString(16);
 				case 13:
-					return Long.toHexString(AllRegisters.ebp.get(row));
+					return AllRegisters.ebp.get(row).toString(16);
 				case 14:
-					return Long.toHexString(AllRegisters.esp.get(row));
+					return AllRegisters.esp.get(row).toString(16);
 				case 15:
-					return Long.toHexString(AllRegisters.ds.get(row));
+					return AllRegisters.ds.get(row).toString(16);
 				case 16:
-					return Long.toHexString(AllRegisters.es.get(row));
+					return AllRegisters.es.get(row).toString(16);
 				case 17:
-					return Long.toHexString(AllRegisters.fs.get(row));
+					return AllRegisters.fs.get(row).toString(16);
 				case 18:
-					return Long.toHexString(AllRegisters.gs.get(row));
+					return AllRegisters.gs.get(row).toString(16);
 				case 19:
-					return Long.toHexString(AllRegisters.ss.get(row));
+					return AllRegisters.ss.get(row).toString(16);
 				case 20:
-					return Long.toHexString(AllRegisters.cr0.get(row));
+					return AllRegisters.cr0.get(row).toString(16);
 				case 21:
-					return Long.toHexString(AllRegisters.cr2.get(row));
+					return AllRegisters.cr2.get(row).toString(16);
 				case 22:
-					return Long.toHexString(AllRegisters.cr3.get(row));
+					return AllRegisters.cr3.get(row).toString(16);
 				case 23:
-					return Long.toHexString(AllRegisters.cr4.get(row));
+					return AllRegisters.cr4.get(row).toString(16);
 				default:
 					return "";
 				}
@@ -168,37 +168,37 @@ public class HistoryTableModel extends DefaultTableModel {
 				case 1:
 					return new SimpleDateFormat("hh:mm:ss S").format(AllRegisters.time.get(row));
 				case 2:
-					return Long.toHexString(AllRegisters.gdtr.get(row));
+					return AllRegisters.gdtr.get(row).toString(16);
 				case 3:
-					return Long.toHexString(AllRegisters.ldtr.get(row));
+					return AllRegisters.ldtr.get(row).toString(16);
 				case 4:
-					return Long.toHexString(AllRegisters.idtr.get(row));
+					return AllRegisters.idtr.get(row).toString(16);
 				case 5:
-					return Long.toHexString(AllRegisters.tr.get(row));
+					return AllRegisters.tr.get(row).toString(16);
 				case 6:
 					return AllRegisters.eflags.get(row);
 				case 7:
-					return Long.toHexString(AllRegisters.stack.get(row).get(0));
+					return AllRegisters.stack.get(row).get(0).toString(16);
 				case 8:
-					return Long.toHexString(AllRegisters.stack.get(row).get(1));
+					return AllRegisters.stack.get(row).get(1).toString(16);
 				case 9:
-					return Long.toHexString(AllRegisters.stack.get(row).get(2));
+					return AllRegisters.stack.get(row).get(2).toString(16);
 				case 10:
-					return Long.toHexString(AllRegisters.stack.get(row).get(3));
+					return AllRegisters.stack.get(row).get(3).toString(16);
 				case 11:
-					return Long.toHexString(AllRegisters.stack.get(row).get(4));
+					return AllRegisters.stack.get(row).get(4).toString(16);
 				case 12:
-					return Long.toHexString(AllRegisters.stack.get(row).get(5));
+					return AllRegisters.stack.get(row).get(5).toString(16);
 				case 13:
-					return Long.toHexString(AllRegisters.stack.get(row).get(6));
+					return AllRegisters.stack.get(row).get(6).toString(16);
 				case 14:
-					return Long.toHexString(AllRegisters.stack.get(row).get(7));
+					return AllRegisters.stack.get(row).get(7).toString(16);
 				case 15:
-					return Long.toHexString(AllRegisters.stack.get(row).get(8));
+					return AllRegisters.stack.get(row).get(8).toString(16);
 				case 16:
-					return Long.toHexString(AllRegisters.stack.get(row).get(9));
+					return AllRegisters.stack.get(row).get(9).toString(16);
 				default:
-					return Long.toHexString(AllRegisters.stack.get(row).get(10));
+					return AllRegisters.stack.get(row).get(10).toString(16);
 				}
 			} else if (view.equals("fpu")) {
 				switch (column) {

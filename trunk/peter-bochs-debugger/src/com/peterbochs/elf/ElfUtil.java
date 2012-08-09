@@ -469,7 +469,7 @@ public class ElfUtil {
 				hdrptr += 4;
 				int offset_size;
 				int initial_length_size;
-				if (li_length == CommonLib.string2decimal("0xffffffff")) {
+				if (li_length == CommonLib.string2long("0xffffffff")) {
 					li_length = CommonLib.getLong(bytes, (int) hdrptr);
 					hdrptr += 8;
 					offset_size = 8;

@@ -121,8 +121,8 @@ public class SearchMemoryDialog extends javax.swing.JDialog {
 			int totalByte = 200;
 			for (long addr = from; addr <= to; addr += (totalByte - patternByte.length + 1)) {
 				jAddressLabel.setText("0x" + Long.toHexString(addr));
-				Application.commandReceiver.clearBuffer();
-				Application.sendCommand("xp /" + totalByte + "bx " + addr);
+				PeterBochsDebugger.commandReceiver.clearBuffer();
+				PeterBochsDebugger.sendCommand("xp /" + totalByte + "bx " + addr);
 				float totalByte2 = totalByte - 1;
 				totalByte2 = totalByte2 / 8;
 				int totalByte3 = (int) Math.floor(totalByte2);
@@ -133,7 +133,7 @@ public class SearchMemoryDialog extends javax.swing.JDialog {
 				long realEndAddress = realStartAddress + totalByte3 * 8;
 				realEndAddressStr = String.format("%08x", realEndAddress);
 
-				String result = Application.commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr);
+				String result = PeterBochsDebugger.commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr);
 				String[] lines = result.split("\n");
 				byte bytes[] = new byte[totalByte];
 				int offset = 0;
@@ -174,7 +174,7 @@ public class SearchMemoryDialog extends javax.swing.JDialog {
 		shouldStop = true;
 		while (t.isAlive()) {
 		}
-		Application.commandReceiver.clearBuffer();
+		PeterBochsDebugger.commandReceiver.clearBuffer();
 		setVisible(false);
 	}
 }

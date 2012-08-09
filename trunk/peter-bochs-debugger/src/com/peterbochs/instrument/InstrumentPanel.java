@@ -21,6 +21,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -96,14 +97,6 @@ import org.jzy3d.plot3d.primitives.AbstractDrawable;
 import org.jzy3d.plot3d.primitives.Shape;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
 
-import com.peterbochs.instrument.callgraph.CallGraphConfigTableCellEditor;
-import com.peterbochs.instrument.callgraph.CallGraphConfigTableCellRenderer;
-import com.peterbochs.instrument.callgraph.CallGraphConfigTableModel;
-import com.peterbochs.instrument.callgraph.CallGraphRawTableModel;
-import com.peterbochs.instrument.callgraph.JmpData;
-import com.peterbochs.instrument.jfreechart.MyXYBlockRenderer;
-import com.peterbochs.instrument.jfreechart.MyXYToolTipGenerator;
-
 import com.mxgraph.canvas.mxICanvas;
 import com.mxgraph.io.mxCodec;
 import com.mxgraph.layout.mxCircleLayout;
@@ -126,6 +119,13 @@ import com.peterbochs.MyLanguage;
 import com.peterbochs.RegisterPanel;
 import com.peterbochs.Setting;
 import com.peterbochs.TSSPanel;
+import com.peterbochs.instrument.callgraph.CallGraphConfigTableCellEditor;
+import com.peterbochs.instrument.callgraph.CallGraphConfigTableCellRenderer;
+import com.peterbochs.instrument.callgraph.CallGraphConfigTableModel;
+import com.peterbochs.instrument.callgraph.CallGraphRawTableModel;
+import com.peterbochs.instrument.callgraph.JmpData;
+import com.peterbochs.instrument.jfreechart.MyXYBlockRenderer;
+import com.peterbochs.instrument.jfreechart.MyXYToolTipGenerator;
 import com.peterswing.CommonLib;
 import com.peterswing.advancedswing.combo_color_renderer.ComboBoxRenderer;
 import com.peterswing.advancedswing.searchtextfield.JSearchTextField;
@@ -2163,7 +2163,7 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 	}
 
 	private void jTrackUnitComboBoxActionPerformed(ActionEvent evt) {
-		graphComponent.addressPerPixel = CommonLib.string2decimal(jTrackUnitComboBox.getSelectedItem().toString());
+		graphComponent.addressPerPixel = CommonLib.string2decimal(jTrackUnitComboBox.getSelectedItem().toString()).floatValue();
 		addCells(graph.getDefaultParent());
 		graphComponent.repaint();
 	}
@@ -2233,7 +2233,7 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			jPanel7 = new JPanel();
 			BorderLayout jPanel7Layout = new BorderLayout();
 			jPanel7.setLayout(jPanel7Layout);
-			jPanel7.add(new TSSPanel(null, 0, 0, 0), BorderLayout.CENTER);
+			jPanel7.add(new TSSPanel(null, 0, BigInteger.valueOf(0), 0), BorderLayout.CENTER);
 		}
 		return jPanel7;
 	}
@@ -2647,7 +2647,7 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 
 	private void loadInformation(boolean sort, String str) {
 		String address[] = str.split(":");
-		HashSet<Long> c = new HashSet<Long>();
+		HashSet<BigInteger> c = new HashSet<BigInteger>();
 		for (int x = 0; x < address.length; x++) {
 			try {
 				c.add(CommonLib.string2decimal(address[x]));
@@ -2655,11 +2655,11 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 
 			}
 		}
-		Vector<Long> v = new Vector<Long>();
+		Vector<BigInteger> v = new Vector<BigInteger>();
 
-		Iterator<Long> it = c.iterator();
+		Iterator<BigInteger> it = c.iterator();
 		while (it.hasNext()) {
-			Long element = it.next();
+			BigInteger element = it.next();
 			v.add(element);
 		}
 
@@ -2667,10 +2667,10 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 			Collections.sort(v);
 		}
 		jTextArea1.setText("");
-		Iterator<Long> it2 = v.iterator();
+		Iterator<BigInteger> it2 = v.iterator();
 		while (it2.hasNext()) {
-			Long element = it2.next();
-			jTextArea1.setText(jTextArea1.getText() + "\n0x" + Long.toHexString(element));
+			BigInteger element = it2.next();
+			jTextArea1.setText(jTextArea1.getText() + "\n0x" + element.toString(16));
 		}
 	}
 

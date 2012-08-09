@@ -7,20 +7,27 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JEditorPane;
 import javax.swing.SwingUtilities;
 
 public class CommandReceiver implements Runnable {
-	Application application;
+	PeterBochsDebugger peterBochsDebugger;
 	private final InputStream is;
 	// private int threadID = 0;
 	public boolean shouldShow;
 
-	int timeoutSecond = 50;
+	int timeoutSecond = 5;
 
 	boolean readCommandFinish;
 	Vector<String> lines = new Vector<String>();
+
+	public CommandReceiver(InputStream is, PeterBochsDebugger peterBochsDebugger) {
+		this.is = is;
+		this.peterBochsDebugger = peterBochsDebugger;
+	}
 
 	public void clearBuffer() {
 		synchronized (lines) {
@@ -133,8 +140,7 @@ public class CommandReceiver implements Runnable {
 		while (true) {
 			synchronized (lines) {
 				if (lines.size() > 0) {
-					// System.out.println("line size=" + lines.size() + ">" +
-					// lines.get(0));
+					//					System.out.println("line size=" + lines.size() + ">" + lines.get(0));
 					if (startCapture) {
 						if (lines.get(0).contains((endPattern))) {
 							str += lines.get(0) + "\n";
@@ -171,16 +177,11 @@ public class CommandReceiver implements Runnable {
 		}
 	}
 
-	public CommandReceiver(InputStream is, Application application) {
-		this.is = is;
-		this.application = application;
-	}
-
 	public void run() {
 		try {
 			final BufferedReader br = new BufferedReader(new InputStreamReader(is), 1024);
 			String line;
-			final JEditorPane bochsEditorPane = application.getjBochsEditorPane();
+			final JEditorPane bochsEditorPane = peterBochsDebugger.getjBochsEditorPane();
 			while ((line = br.readLine()) != null) {
 				if (shouldShow) {
 					bochsEditorPane.setText(bochsEditorPane.getText() + "\n" + line);
@@ -191,7 +192,12 @@ public class CommandReceiver implements Runnable {
 					});
 				}
 				synchronized (lines) {
-					if (!line.matches(".*<bochs:[0-9]+>.*")) {
+					Matcher matcher = Pattern.compile("^.*<bochs[^>]*.*" + Global.lastCommand).matcher(line);
+					if (matcher.matches()) {
+						continue;
+					}
+					line = line.replaceAll("^<bochs[^>]* ", "");
+					if (!line.equals("")) {
 						lines.add(line);
 					}
 				}
@@ -202,7 +208,17 @@ public class CommandReceiver implements Runnable {
 	}
 
 	public void waitUntilHaveLine(int i) {
-		while (lines.size() < i)
-			;
+		long startTime = new Date().getTime();
+
+		while (lines.size() < i) {
+//			try {
+//				Thread.currentThread().sleep(20);
+//			} catch (InterruptedException e) {
+//			}
+			long diff = new Date().getTime() - startTime;
+			if (diff / 1000 >= timeoutSecond) {
+				return;
+			}
+		}
 	}
 }

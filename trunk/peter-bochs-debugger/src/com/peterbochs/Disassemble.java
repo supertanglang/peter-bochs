@@ -5,19 +5,21 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.math.BigInteger;
 
 import org.apache.commons.io.FileUtils;
 
+import com.peterbochs.PeterBochsDebugger.OSType;
 import com.peterswing.CommonLib;
 
 public class Disassemble {
-	public static String disassemble(long address, int bits) {
+	public static String disassemble(BigInteger address, int bits) {
 		try {
 			int bytes[] = PeterBochsCommonLib.getMemoryFromBochs(address, 100);
 			FileUtils.writeByteArrayToFile(new File("temp"), CommonLib.intArrayToByteArray(bytes));
 
 			ProcessBuilder pb;
-			if (Application.isLinux) {
+			if (PeterBochsDebugger.os == OSType.mac || PeterBochsDebugger.os == OSType.linux) {
 				pb = new ProcessBuilder("ndisasm", "-b " + bits, "temp");
 			} else {
 				pb = new ProcessBuilder("ndisasm.exe", "-b " + bits, "temp");

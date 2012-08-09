@@ -1,6 +1,7 @@
 package com.peterbochs;
 
 import java.awt.BorderLayout;
+import java.math.BigInteger;
 import java.util.LinkedHashMap;
 
 import javax.swing.JLabel;
@@ -13,7 +14,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import com.peterbochs.architecture.DescriptorParser;
-
 import com.peterswing.CommonLib;
 
 /**
@@ -38,12 +38,12 @@ public class IDTDescriptorPanel extends JPanel {
 	private int b[] = new int[8];
 	private long value;
 	private long bit[] = new long[64];
-	private Application application;
-	private long idtAddress;
+	private PeterBochsDebugger peterBochsDebugger;
+	private BigInteger idtAddress;
 	private JScrollPane jScrollPane2;
 
-	public IDTDescriptorPanel(Application application, long idtAddress, int idtNo) {
-		this.application = application;
+	public IDTDescriptorPanel(PeterBochsDebugger peterBochsDebugger, BigInteger idtAddress, int idtNo) {
+		this.peterBochsDebugger = peterBochsDebugger;
 		this.idtAddress = idtAddress;
 		this.idtNo = idtNo;
 
@@ -105,16 +105,16 @@ public class IDTDescriptorPanel extends JPanel {
 					}
 				}
 			}
-			// Application.commandReceiver.setCommandNoOfLine(2);
+			// PeterBochsDebugger.commandReceiver.setCommandNoOfLine(2);
 			String result;
-			//			Application.sendCommand("info idt " + idtNo);
+			//			PeterBochsDebugger.sendCommand("info idt " + idtNo);
 			//			String idtNoHex = String.format("0x%02x", idtNo);
-			//			result = Application.commandReceiver.getCommandResult("IDT[" + idtNoHex + "]");
+			//			result = PeterBochsDebugger.commandReceiver.getCommandResult("IDT[" + idtNoHex + "]");
 
-			Application.commandReceiver.clearBuffer();
-			Application.sendCommand("x /8bx " + String.format("0x%08x", idtAddress + (idtNo * 8)));
-			result = Application.commandReceiver.getCommandResult(String.format("%08x", idtAddress + (idtNo * 8)));
-			System.out.println("idtNo=" + idtNo + " , idtAddress+" + idtAddress + " , " + (idtAddress + (idtNo * 8)));
+			PeterBochsDebugger.commandReceiver.clearBuffer();
+			PeterBochsDebugger.sendCommand("x /8bx " + String.format("0x%08x", idtAddress.add(BigInteger.valueOf(idtNo * 8))));
+			result = PeterBochsDebugger.commandReceiver.getCommandResult(String.format("%08x", idtAddress.add(BigInteger.valueOf(idtNo * 8))));
+			System.out.println("idtNo=" + idtNo + " , idtAddress+" + idtAddress + " , " + (idtAddress.add (BigInteger.valueOf(idtNo * 8))));
 			System.out.println(result);
 			String lines[] = result.split("\n");
 
@@ -152,7 +152,7 @@ public class IDTDescriptorPanel extends JPanel {
 				jTypeLabel.setText("Type : TSS descriptor, value=0x" + Long.toHexString(value));
 				this.removeAll();
 				this.setLayout(new BorderLayout());
-				this.add(new TSSPanel(application, 2, idtAddress, idtNo), BorderLayout.CENTER);
+				this.add(new TSSPanel(peterBochsDebugger, 2, idtAddress, idtNo), BorderLayout.CENTER);
 			}
 			// end parse descriptor
 		} catch (Exception e) {
@@ -218,7 +218,7 @@ public class IDTDescriptorPanel extends JPanel {
 			if (limit > 1000) {
 				limit = 1000;
 			}
-			int bytes[] = Application.getLinearMemory(base, (int) (limit + 1));
+			int bytes[] = PeterBochsDebugger.getLinearMemory(base, (int) (limit + 1));
 
 			for (int x = 0; x < limit; x += 8) {
 				long value = CommonLib.getLong(bytes, x);

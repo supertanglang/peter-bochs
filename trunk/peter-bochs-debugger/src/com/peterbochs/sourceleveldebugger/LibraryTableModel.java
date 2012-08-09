@@ -5,7 +5,6 @@ import java.util.HashSet;
 
 import javax.swing.table.AbstractTableModel;
 
-
 import com.peterbochs.MyLanguage;
 import com.peterswing.CommonLib;
 
