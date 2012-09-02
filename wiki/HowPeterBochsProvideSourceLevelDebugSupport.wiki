@@ -9,13 +9,14 @@ In last year, i started to provide c/c++ source level support for Peter-bochs de
 
 2) in my first idea, even i loaded everything from the map file, i still need to read out all the debug information from dwarf, i was totally look down the dwarf format. I thought dwarf+map file is everything, but i was wrong. ELF header+dwarf is king, they can provide me all information i need for source level debug support.
 
-So now, peter-bochs design is:
+= peter-bochs current design is:=
 
-1) 
+1) specific your ELF kernel in command line, e.g.:
 
-= Details =
+-loadelf=/path_to_your/kernel
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+the -loadelf option support loading multiple file with specific memory offset, if you want to load multiple files, do this:
+
+-loadelf=/path_to_your/kernel=0x100,/path_to_your/libpeter.a=0x200
+
+!!! 0x100 is not the absolute memory location, peter-bochs will read out the VirtAddr from the ELF program header in your kernel, then add 0x100 to it. type "readelf -l your_kernel", you will know what loading address ELF has specified.
