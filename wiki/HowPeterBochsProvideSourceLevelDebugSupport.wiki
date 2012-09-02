@@ -1,0 +1,16 @@
+#summary How Peter-Bochs provide source level debug support
+
+= Introduction =
+
+In last year, i started to provide c/c++ source level support for Peter-bochs debugger. My first idea is to load a map file, generate by gcc --print-map option. But this idea has many weak points:
+
+1) in mac, linux, cygwin, all their gcc provide different format the the map file, hard to support all of them
+2) even i loaded the map file, i still need to read out all the debug information from dwarf, i was totally look down
+
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
