@@ -23,3 +23,5 @@ the -loadelf option support loading multiple file with specific memory offset, i
 !!! 0x100 is not the absolute memory location, peter-bochs will read out the VirtAddr from the ELF program header in your kernel, then add 0x100 to it. type "readelf -l your_kernel", you will know what loading address ELF has specified.
 
 2) peter-bochs will call [https://code.google.com/p/peter-dwarf/ peter-dwarf] library to read our all dwarf information
+
+[https://fbcdn-sphotos-b-a.akamaihd.net/hphotos-ak-ash4/474351_10151174511680208_252314106_o.jpg]
