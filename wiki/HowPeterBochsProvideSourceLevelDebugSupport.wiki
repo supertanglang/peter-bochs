@@ -1,6 +1,7 @@
 #summary How Peter-Bochs provides source level debug support
 
-= Introduction =
+= How Peter-Bochs provides source level debug support  ='
+== Introduction ==
 
 In last year, i started to provide c/c++ source level support for Peter-bochs debugger. My first idea is to load a map file, generate by gcc --print-map option. But this idea has many weak points:
 
@@ -9,7 +10,7 @@ In last year, i started to provide c/c++ source level support for Peter-bochs de
 
 2) in my first idea, even i loaded everything from the map file, i still need to read out all the debug information from dwarf, i was totally look down the dwarf format. I thought dwarf+map file is everything, but i was wrong. ELF header+dwarf is king, they can provide me all information i need for source level debug support.
 
-= peter-bochs current design is:=
+== peter-bochs current design ==
 
 1) specific your ELF kernel in command line, e.g.:
 
