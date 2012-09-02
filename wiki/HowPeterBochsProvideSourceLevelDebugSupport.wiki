@@ -24,6 +24,77 @@ the -loadelf option support loading multiple file with specific memory offset, i
 
 2) peter-bochs will call [https://code.google.com/p/peter-dwarf/ peter-dwarf] library to read our all dwarf information
 
-[https://fbcdn-sphotos-b-a.akamaihd.net/hphotos-ak-ash4/474351_10151174511680208_252314106_o.jpg]
+[http://peter-bochs.googlecode.com/files/peter-bochs-loading-dwarf-elf.png]
 
 [http://peter-bochs.googlecode.com/files/disasm%20libc.png]
+
+3) if your kernel are composed with many piece, such as your own kernel code, your standard libc or some other library, make sure you put all debug information from different object file into *one* single dwarf section, take a look my linker script below:
+
+{{{
+
+ENTRY(start_peter)
+SECTIONS
+{
+	PROVIDE(_GLOBAL_OFFSET_TABLE_ = 0x2000000);
+	
+	. = 0x1600000;
+.rel.dyn :
+{
+*(.rel.init)
+*(.rel.text .rel.text.* .rel.gnu.linkonce.t.*)
+*(.rel.fini)
+*(.rel.rodata .rel.rodata.* .rel.gnu.linkonce.r.*)
+*(.rel.data.rel.ro* .rel.gnu.linkonce.d.rel.ro.*)
+*(.rel.data .rel.data.* .rel.gnu.linkonce.d.*)
+*(.rel.tdata .rel.tdata.* .rel.gnu.linkonce.td.*)
+*(.rel.tbss .rel.tbss.* .rel.gnu.linkonce.tb.*)
+*(.rel.ctors)
+*(.rel.dtors)
+*(.rel.got)
+*(.rel.bss .rel.bss.* .rel.gnu.linkonce.b.*)
+}
+
+	.kernel : { kernel.o(.text) }
+	.pshell : { ../app/pshell/pshell.o(.text) }
+	
+	.libpeter : { ../library/libpeter/libpeter.a(*) }
+	.libc : { libc.a(.text) }
+	.libc_peter : { libc_peter.a(.text) }
+
+
+
+  /* DWARF debug sections.
+     Symbols in the DWARF debugging sections are relative to the beginning
+     of the section so we begin them at 0.  */
+  /* DWARF 1 */
+  .debug          0 : { *(.debug) }
+  .line           0 : { *(.line) }
+  /* GNU DWARF 1 extensions */
+  .debug_srcinfo  0 : { *(.debug_srcinfo) }
+  .debug_sfnames  0 : { *(.debug_sfnames) }
+  /* DWARF 1.1 and DWARF 2 */
+  .debug_aranges  0 : { *(.debug_aranges) }
+  .debug_pubnames 0 : { *(.debug_pubnames) }
+  /* DWARF 2 */
+  .debug_info     0 : { *(.debug_info .gnu.linkonce.wi.*) }
+  .debug_abbrev   0 : { *(.debug_abbrev) }
+  .debug_line     0 : { *(.debug_line) }
+  .debug_frame    0 : { *(.debug_frame) }
+  .debug_str      0 : { *(.debug_str) }
+  .debug_loc      0 : { *(.debug_loc) }
+  .debug_macinfo  0 : { *(.debug_macinfo) }
+  /* SGI/MIPS DWARF 2 extensions */
+  .debug_weaknames 0 : { *(.debug_weaknames) }
+  .debug_funcnames 0 : { *(.debug_funcnames) }
+  .debug_typenames 0 : { *(.debug_typenames) }
+  .debug_varnames  0 : { *(.debug_varnames) }
+
+
+/*.everyThingLeft : { *(*) }*/
+
+	PROVIDE(end = .);
+	. += 5000;
+	
+	INCLUDE ../global_linker_script.ls
+}
+}}}
