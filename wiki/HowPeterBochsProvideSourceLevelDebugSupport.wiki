@@ -1,6 +1,6 @@
 #summary How Peter-Bochs provides source level debug support
 
-*!!! I haven't release this feature in last release, it is under stree test, i will release it in oct*
+*!!! I haven't release this feature in last release, it is under stress test, i will release it in oct*
 
 = How Peter-Bochs provides c/c++ source level debug support  =
 == Introduction ==
