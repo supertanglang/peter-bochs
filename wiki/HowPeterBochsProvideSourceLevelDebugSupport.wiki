@@ -1,6 +1,6 @@
 #summary How Peter-Bochs provides source level debug support
 
-= How Peter-Bochs provides source level debug support  =
+= How Peter-Bochs provides c/c++ source level debug support  =
 == Introduction ==
 
 In last year, i started to provide c/c++ source level support for Peter-bochs debugger. My first idea is to load a map file, generate by gcc --print-map option. But this idea has many weak points:
