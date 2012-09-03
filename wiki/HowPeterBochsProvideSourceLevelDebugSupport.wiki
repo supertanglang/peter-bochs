@@ -30,7 +30,7 @@ the -loadelf option support loading multiple file with specific memory offset, i
 
 [http://peter-bochs.googlecode.com/files/disasm%20libc.png]
 
-3) if your kernel are composed with many piece, such as your own kernel code, your standard libc or some other library, make sure you put all debug information from different object file into *one* single dwarf section, take a look my linker script below:
+3) if your kernel are composed with many pieces, such as your own kernel code, your standard libc or some other libraries, make sure you put all debug information from different object file into *one* single dwarf section, take a look my linker script below:
 
 {{{
 
