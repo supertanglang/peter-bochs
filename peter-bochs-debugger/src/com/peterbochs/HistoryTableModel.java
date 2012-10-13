@@ -7,7 +7,7 @@ import javax.swing.table.DefaultTableModel;
 public class HistoryTableModel extends DefaultTableModel {
 	String view = "reg";
 	String pattern;
-	String regColumn[] = { "No.", "Time", "Ptime", "cs", "eip", "instruction", "c", "eax", "ebx", "ecx", "edx", "esi", "edi", "ebp", "esp", "ds", "es", "fs", "gs", "ss", "cr0",
+	String regColumn[] = { "No.", "Time", "Ptime", "cs", "eip", "instruction", "c/c++", "eax", "ebx", "ecx", "edx", "esi", "edi", "ebp", "esp", "ds", "es", "fs", "gs", "ss", "cr0",
 			"cr2", "cr3", "cr4" };
 	String fpuColumn[] = { "No.", "st0", "st1", "st2", "st3", "st4", "st5", "st6", "st7", "status", "control", "tag", "operand", "fip", "fcs", "fdp", "fds" };
 

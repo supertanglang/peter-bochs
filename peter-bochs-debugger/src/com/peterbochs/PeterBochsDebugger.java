@@ -237,6 +237,8 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 	private JPanel jPanel22;
 	private JPanel jPanel24;
 	private JToolBar jPanel26;
+	private JButton nextOverButton;
+	private JButton nextButton;
 	private JMenuItem jLicenseMenuItem;
 	private JMenuItem jStepOverNTimesMenuItem;
 	private JMenuItem jStepOver100MenuItem;
@@ -260,12 +262,12 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 	private JButton jClearRunningTextAreaButton;
 	private JButton jClearHistoryTableButton;
 	private ButtonGroup buttonGroup4;
-	public JMenuItem jWhereIsHereMenuItem;
-	private JMenuItem jLoadSystemMapMenuItem;
+	public JMenuItem clearInstructionTableMenuItem;
+	private JMenuItem jLoadElfMenuItem;
 	private JMenu jSystemMenu;
 	private JToggleButton jSourceLevelDebuggerToggleButton;
 	private SourceLevelDebugger3 sourceLevelDebugger;
-	public JMenuItem jShowInSourceCodeMenuItem;
+	public JMenuItem jDisasmHereMenuItem;
 	private JSeparator jSeparator3;
 	private JRadioButton jMMXRadioButton;
 	private JRadioButton jFPURadioButton;
@@ -480,7 +482,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 	public String currentPanel = "jMaximizableTabbedPane_BasePanel1";
 
 	private ButtonGroup buttonGroup2 = new ButtonGroup();
-	private JMenuItem loadSystemsMapMenuItem = new JMenuItem("Load system.map");
+	private JMenuItem loadElfMenuItem = new JMenuItem("Load ELF");
 	private String latestVersionURL;
 	private boolean saveToRunDotTxt;
 	private boolean processPauseBoch;
@@ -635,19 +637,19 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 
 		for (int x = 0; x < args.length; x++) {
 			if (args[x].toLowerCase().startsWith("-osdebug")) {
-				Global.osDebug = CommonLib.convertFilesize(args[x].replaceAll("-.*=", ""));
+				Global.osDebug = CommonLib.string2long(args[x].replaceAll("-.*=", ""));
 				args = (String[]) ArrayUtils.removeElement(args, args[x]);
 				x = -1;
 			} else if (args[x].toLowerCase().startsWith("-profilingmemoryport")) {
-				Global.profilingMemoryPort = (int) CommonLib.convertFilesize(args[x].replaceAll("-.*=", ""));
+				Global.profilingMemoryPort = (int) CommonLib.string2long(args[x].replaceAll("-.*=", ""));
 				args = (String[]) ArrayUtils.removeElement(args, args[x]);
 				x = -1;
 			} else if (args[x].toLowerCase().startsWith("-profilingjmpport")) {
-				Global.profilingJmpPort = (int) CommonLib.convertFilesize(args[x].replaceAll("-.*=", ""));
+				Global.profilingJmpPort = (int) CommonLib.string2long(args[x].replaceAll("-.*=", ""));
 				args = (String[]) ArrayUtils.removeElement(args, args[x]);
 				x = -1;
 			} else if (args[x].toLowerCase().startsWith("-loadelf")) {
-				Global.elfPath = args[x].replaceAll("-.*=", "");
+				Global.elfPaths = args[x].replaceAll("-loadelf=", "").split(",");
 				Setting.getInstance().setLoadSystemMapAtStartup(true);
 				args = (String[]) ArrayUtils.removeElement(args, args[x]);
 				x = -1;
@@ -948,7 +950,6 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 							customCommandQueue.remove(0);
 
 							commandReceiver.clearBuffer();
-							System.out.println("command=" + command);
 							if (command.equals("s")) {
 								sendCommand("s");
 								updateBochsStatus(true);
@@ -1087,6 +1088,19 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 					stepBochsButton.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent evt) {
 							stepBochsButtonActionPerformed(evt);
+						}
+					});
+				}
+				{
+					nextButton = new JButton();
+					nextButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/step.png")));
+					nextButton.setText(MyLanguage.getString("Nexti"));
+					nextButton.setToolTipText("c/c++ level step-in");
+					jToolBar1.add(nextButton);
+					jToolBar1.add(getNextOverButton());
+					nextButton.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent evt) {
+							nextButtonActionPerformed(evt);
 						}
 					});
 				}
@@ -1463,7 +1477,6 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 	public static void sendCommand(String command) {
 		try {
 			command = command.toLowerCase().trim();
-
 			commandReceiver.clearBuffer();
 			Global.lastCommand = command;
 			commandOutputStream.write(command + "\n");
@@ -1491,11 +1504,11 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		new AboutUsDialog(this).setVisible(true);
 	}
 
-	MyThread untilThread;
+	StepThread untilThread;
 
 	private void stepBochsButtonActionPerformed(ActionEvent evt) {
 		if (stepBochsButton.getEventSource() != null) {
-			untilThread = new MyThread(stepBochsButton.getEventSource());
+			untilThread = new StepThread(stepBochsButton.getEventSource());
 			if (stepBochsButton.getEventSource() == jStepNMenuItem) {
 				String s = JOptionPane.showInputDialog(this, "Please input the instruction count?");
 				if (s == null) {
@@ -1507,13 +1520,11 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 				if (s == null) {
 					return;
 				}
-				untilThread.ipDelta = CommonLib.convertFilesize(s);
+				untilThread.ipDelta = CommonLib.string2long(s);
 			}
 
-			// if (currentPanel.equals("jMaximizableTabbedPane_BasePanel1")) {
 			CardLayout cl = (CardLayout) (jMainPanel.getLayout());
 			cl.show(jMainPanel, "Running Label 2");
-			// }
 			new Thread(untilThread, "Step until thread").start();
 		} else {
 			sendCommand("s");
@@ -1522,14 +1533,14 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		}
 	}
 
-	class MyThread implements Runnable {
+	class StepThread implements Runnable {
 		Object eventSource;
 		public boolean shouldStop;
 		public int instructionCount;
 		public long ipDelta;
 		int noOfLine = 1;
 
-		public MyThread(Object eventSource) {
+		public StepThread(Object eventSource) {
 			this.eventSource = eventSource;
 		}
 
@@ -1545,8 +1556,8 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 					result = re;
 				}
 			}
-			updatePTime();
-			updateRegister();
+			updatePTime(false);
+			updateRegister(false);
 			updateHistoryTable(re);
 			if (saveToRunDotTxt) {
 				try {
@@ -1718,7 +1729,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 							sendCommand("s");
 
 							String re = commandReceiver.getCommandResult("(").toLowerCase();
-							long ip = CommonLib.convertFilesize(re.replaceAll("\\].*$", "").replaceAll("^.*\\[", ""));
+							long ip = CommonLib.string2long(re.replaceAll("\\].*$", "").replaceAll("^.*\\[", ""));
 
 							if (saveToRunDotTxt || !jDisableAutoUpdateCheckBox.isSelected()) {
 								if (re.endsWith("\n")) {
@@ -1730,7 +1741,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 									result = re;
 								}
 							}
-							updateRegister();
+							updateRegister(true);
 							updateHistoryTable(re);
 
 							if (saveToRunDotTxt) {
@@ -1788,7 +1799,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 											+ Math.round(1 / secondDiff) + " instructions executed per second");
 								}
 							}
-							updateRegister();
+							updateRegister(true);
 						} while (notMatch && !shouldStop);
 						updateBochsStatus(true);
 					}
@@ -1865,13 +1876,13 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 				if (Global.debug) {
 					System.out.println("update ptime");
 				}
-				updatePTime();
+				updatePTime(true);
 
 				d.jProgressBar.setString("updateRegister");
 				if (Global.debug) {
 					System.out.println("updateRegister");
 				}
-				updateRegister();
+				updateRegister(true);
 
 				d.jProgressBar.setString("updateEFlag");
 				if (Global.debug) {
@@ -1889,7 +1900,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 				if (Global.debug) {
 					System.out.println("updateInstruction");
 				}
-				updateInstruction(null, false);
+				updateInstruction(null);
 
 				d.jProgressBar.setString("updateGDT");
 				if (Global.debug) {
@@ -1977,12 +1988,15 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 													// once
 				}
 				if (systemMapLoadedOnce == false && Setting.getInstance().loadSystemMapAtStartup) {
-					if (Global.elfPath != null) {
-						sourceLevelDebugger.loadELF(new File(Global.elfPath));
+					if (Global.elfPaths != null) {
+						sourceLevelDebugger.loadELF(Global.elfPaths);
 						systemMapLoadedOnce = true; // since we only have to
 													// load once
 					}
 				}
+
+				jumpToRowInstructionTable(getRealEIP());
+
 				d.jProgressBar.setString("updateBochsStatus end");
 				d.setVisible(false);
 
@@ -2007,9 +2021,11 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		}
 	}
 
-	protected void updatePTime() {
+	protected void updatePTime(boolean updateGUI) {
 		try {
-			jStatusLabel.setText("Updating ptime");
+			if (updateGUI) {
+				jStatusLabel.setText("Updating ptime");
+			}
 			commandReceiver.shouldShow = false;
 			sendCommand("ptime");
 			String result = commandReceiver.getCommandResultUntilEnd();
@@ -2054,7 +2070,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 					if (Global.debug) {
 						System.out.println("updateRegister");
 					}
-					updateRegister();
+					updateRegister(true);
 					if (Global.debug) {
 						System.out.println("updateEFlag");
 					}
@@ -2072,7 +2088,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 					if (Global.debug) {
 						System.out.println("updateInstruction");
 					}
-					updateInstruction(null, false);
+					updateInstruction(null);
 				}
 
 				if (Setting.getInstance().isUpdateAfterBochsCommand_gdt()) {
@@ -2157,7 +2173,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		for (int x = 0; x < jBreakpointTable.getRowCount(); x++) {
 			String value = jBreakpointTable.getValueAt(x, 0).toString();
 			InstructionTableModel model = (InstructionTableModel) instructionTable.getModel();
-			if (CommonLib.string2decimal(model.getMemoryAddress(0)) == CommonLib.string2decimal(jBreakpointTable.getValueAt(x, 2).toString())) {
+			if (CommonLib.string2decimal(model.getMemoryAddress(0)).equals(CommonLib.string2decimal(jBreakpointTable.getValueAt(x, 2).toString()))) {
 				int hit = Integer.parseInt(jBreakpointTable.getValueAt(x, 3).toString());
 				jBreakpointTable.setValueAt("-" + value, x, 0);
 				jBreakpointTable.setValueAt(hit + 1, x, 3);
@@ -2301,6 +2317,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		}
 		stepBochsButton.setEnabled(b);
 		jStepOverDropDownButton.setEnabled(b);
+		nextButton.setEnabled(b);
 		fastStepBochsButton.setEnabled(b);
 		jUpdateBochsButton.setEnabled(b);
 		jButton13.setEnabled(b);
@@ -2552,14 +2569,13 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		}
 	}
 
-	public void updateInstruction(BigInteger address, boolean append) {
-		updateInstructionUsingBochs(address, append);
+	public void updateInstruction(BigInteger address) {
+		updateInstructionUsingBochs(address);
 
 		if (!registerPanel.eipTextField.getText().equals("")) {
 			((SourceCodeTableModel) elfTable.getModel()).updateBreakpoint(getRealEIP());
 			((InstructionTableModel) instructionTable.getModel()).updateBreakpoint(getRealEIP());
 		}
-
 	}
 
 	@SuppressWarnings("unused")
@@ -2591,7 +2607,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		}
 	}
 
-	private void updateInstructionUsingBochs(BigInteger address, boolean append) {
+	private void updateInstructionUsingBochs(BigInteger address) {
 		try {
 			final int maximumLine = 400;
 			String command;
@@ -2604,7 +2620,6 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 			} else {
 				command = "disasm " + address + " " + address.add(BigInteger.valueOf(0x400));
 			}
-			System.out.println(command);
 			commandReceiver.clearBuffer();
 			commandReceiver.shouldShow = false;
 			sendCommand(command);
@@ -2613,9 +2628,6 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 			String lines[] = result.split("\n");
 			if (lines.length > 0) {
 				InstructionTableModel model = (InstructionTableModel) instructionTable.getModel();
-				// if (!append) {
-				// model.clearData();
-				// }
 				jStatusProgressBar.setMaximum(lines.length - 1);
 				for (int x = 0; x < lines.length && x < maximumLine; x++) {
 					jStatusProgressBar.setValue(x);
@@ -2627,26 +2639,18 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 						// load cCode
 						String pcStr = strs[0].trim();
 						BigInteger pc = CommonLib.string2decimal("0x" + pcStr);
-						String s[] = getCCode(pc);
-						String lineNo[] = getCCodeFilenameAndLineNo(pc);
+						if (pc == null) {
+							continue;
+						}
+						String s[] = getCCode(pc, false);
+						String lineNo[] = getCCode(pc, true);
 						if (s != null && lineNo != null) {
 							for (int index = 0; index < s.length; index++) {
-								model.addRow(new String[] { "", "cCode:" + lineNo[index], s[index], "" });
+								model.addRow(new String[] { "", "cCode : 0x" + pc.toString(16) + " : " + lineNo[index], s[index], "" });
 							}
 						}
 						// end load cCode
-
-						// model.addRow(new String[] { "", strs[0].trim() + " "
-						// + strs[1].trim().replaceAll("\\( *\\)", ""),
-						// lines[x].substring(secondColon +
-						// 1).trim().split(";")[0].trim(),
-						// lines[x].split(";")[1] });
-						// Symbol symbol =
-						// MapStructure.findSymbolByMemoryOffset(pc);
-						// if (symbol != null) {
-						// pcStr += ":" + symbol.archiveMember;
-						// }
-						model.addRow(new String[] { "", pcStr, lines[x].substring(secondColon + 1).trim().split(";")[0].trim(), lines[x].split(";")[1] });
+						model.addRow(new String[] { "", "0x" + pc.toString(16), lines[x].substring(secondColon + 1).trim().split(";")[0].trim(), lines[x].split(";")[1] });
 					} catch (Exception ex) {
 						ex.printStackTrace();
 					}
@@ -2654,33 +2658,76 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 
 				model.removeNonOrderInstruction();
 				model.fireTableDataChanged();
-				int eIPRow = model.findEIPRowNo(getRealEIP());
-				instructionTable.scrollRectToVisible(instructionTable.getCellRect(eIPRow + 10, 1, true));
-				sourceLevelDebugger.instructionTable.scrollRectToVisible(instructionTable.getCellRect(eIPRow + 10, 1, true));
-				instructionTable.scrollRectToVisible(instructionTable.getCellRect(eIPRow, 1, true));
-				sourceLevelDebugger.instructionTable.scrollRectToVisible(instructionTable.getCellRect(eIPRow, 1, true));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	private String[] getCCode(BigInteger pc) {
+	public void jumpToRowInstructionTable(BigInteger eip) {
+		InstructionTableModel model = (InstructionTableModel) instructionTable.getModel();
+		int eIPRow = model.findEIPRowNo(eip);
+		instructionTable.scrollRectToVisible(instructionTable.getCellRect(eIPRow + 10, 1, true));
+		sourceLevelDebugger.instructionTable.scrollRectToVisible(instructionTable.getCellRect(eIPRow + 10, 1, true));
+		instructionTable.scrollRectToVisible(instructionTable.getCellRect(eIPRow, 1, true));
+		sourceLevelDebugger.instructionTable.scrollRectToVisible(instructionTable.getCellRect(eIPRow, 1, true));
+	}
+
+	private String getASMCode(BigInteger pc) {
+		for (int x = 0; x < instructionTable.getRowCount(); x++) {
+			String col1 = instructionTable.getValueAt(x, 1).toString();
+			if (col1.startsWith("cCode")) {
+				continue;
+			}
+			BigInteger address = CommonLib.string2decimal(col1.toString());
+			if (pc.equals(address)) {
+				return instructionTable.getValueAt(x, 2).toString();
+			}
+		}
+		return null;
+	}
+
+	private String[] getCCode(BigInteger pc, boolean getFile) {
 		for (Dwarf dwarf : sourceLevelDebugger.peterDwarfPanel.dwarfs) {
 			try {
+				//				if (pc.equals(BigInteger.valueOf(0x1600000))) {
+				//					System.out.println("test");
+				//				}
+				//				if (pc.equals(BigInteger.valueOf(0x160000c))) {
+				//					System.out.println("test");
+				//				}
+				//				if (pc.equals(BigInteger.valueOf(0x160000f))) {
+				//					System.out.println("test");
+				//				}
+				if (pc.equals(BigInteger.valueOf(0x1600943))) {
+					System.out.println("test");
+				}
 				DwarfLine startLine = null;
 				DwarfLine endLine = null;
 				DwarfDebugLineHeader startHeader = null;
 				boolean toggle = false;
+
 				outerloop: for (DwarfDebugLineHeader header : dwarf.headers) {
+					//					Vector<DwarfLine> norepeatedline = new Vector<DwarfLine>();
+					//					DwarfLine lastLine = null;
+					//					for (DwarfLine line : header.lines) {
+					//						if (lastLine != null && lastLine.address == line.address) {
+					//							norepeatedline.remove(norepeatedline.size() - 1);
+					//							norepeatedline.add(line);
+					//						} else {
+					//							norepeatedline.add(line);
+					//						}
+					//						lastLine = line;
+					//					}
+
 					for (DwarfLine line : header.lines) {
-						if (!toggle && line.address == pc) {
+						if (!toggle && line.address.equals(pc)) {
 							startLine = line;
 							startHeader = header;
 							toggle = true;
 							continue;
 						}
-						if (toggle) {
+						if (toggle && !line.address.equals(startLine.address) && line.line_num != startLine.line_num) {
 							endLine = line;
 							break outerloop;
 						}
@@ -2705,71 +2752,19 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 				} else {
 					endLineNo = endLine.line_num - 1;
 				}
-				if (endLineNo - startLine.line_num < 0) {
-					endLineNo = startLine.line_num;
-				}
+				//				if (endLineNo - startLine.line_num < 0) {
+				//					endLineNo = startLine.line_num;
+				//				}
+
+				//				System.out.println(pc.toString(16) + ", " + startLine.line_num + ", " + endLineNo);
 				String s[] = new String[endLineNo - startLine.line_num + 1];
-				for (int z = startLine.line_num - 1, index = 0; z < endLineNo; z++, index++) {
-					String cCode = sourceLines.get(z);
-					s[index] = cCode;
-				}
-				return s;
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-		}
-		return null;
-	}
-
-	private String[] getCCodeFilenameAndLineNo(BigInteger pc) {
-		for (Dwarf dwarf : sourceLevelDebugger.peterDwarfPanel.dwarfs) {
-			try {
-				DwarfLine startLine = null;
-				DwarfLine endLine = null;
-				DwarfDebugLineHeader startHeader = null;
-				boolean toggle = false;
-
-				outerloop: for (DwarfDebugLineHeader header : dwarf.headers) {
-					for (DwarfLine line : header.lines) {
-						if (!toggle && line.address == pc) {
-							startLine = line;
-							startHeader = header;
-							toggle = true;
-							continue;
-						}
-						if (toggle) {
-							endLine = line;
-							break outerloop;
-						}
+				for (int z = startLine.line_num - 1, index = 0; z < endLineNo && z < sourceLines.size(); z++, index++) {
+					if (getFile) {
+						s[index] = startHeader.filenames.get((int) startLine.file_num).file.getName() + " : " + (z + 1);
+					} else {
+						String cCode = sourceLines.get(z);
+						s[index] = cCode;
 					}
-				}
-				if (startHeader == null) {
-					continue;
-				}
-				DwarfHeaderFilename dwarfHeaderFilename = startHeader.filenames.get((int) startLine.file_num);
-				if (dwarfHeaderFilename == null) {
-					continue;
-				}
-				File file = dwarfHeaderFilename.file;
-				List<String> sourceLines = CacheStructure.fileCaches.get(file);
-				if (sourceLines == null) {
-					sourceLines = FileUtils.readLines(file);
-					CacheStructure.fileCaches.put(file, sourceLines);
-				}
-
-				int endLineNo = 0;
-				if (endLine == null) {
-					endLineNo = sourceLines.size() - startLine.line_num;
-				} else {
-					endLineNo = endLine.line_num - 1;
-				}
-				if (endLineNo - startLine.line_num < 0) {
-					endLineNo = startLine.line_num;
-				}
-				String s[] = new String[endLineNo - startLine.line_num + 1];
-				for (int z = startLine.line_num - 1, index = 0; z < endLineNo; z++, index++) {
-					// String cCode = sourceLines.get(z);
-					s[index] = startHeader.filenames.get((int) startLine.file_num).file.getName() + " : " + (z + 1);
 				}
 				return s;
 			} catch (Exception ex) {
@@ -2780,7 +2775,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 	}
 
 	private String getCCodeStr(BigInteger pc) {
-		String s[] = getCCode(pc);
+		String s[] = getCCode(pc, false);
 		if (s == null) {
 			return "";
 		} else {
@@ -2849,22 +2844,28 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 			String limitStr = String.format("0x%02x", limit);
 
 			String result = commandReceiver.getCommandResult("IDT[0x00]", "IDT[" + limitStr + "]");
-			String lines[] = result.split("\n");
+
 			IDTTableModel model = (IDTTableModel) jIDTTable.getModel();
 			model.clear();
-			jStatusProgressBar.setMaximum(lines.length - 1);
-			for (int x = 0; x < lines.length; x++) {
-				jStatusLabel.setText("Updating IDT " + x);
-				jStatusProgressBar.setValue(x);
-				try {
-					Vector<String> v = new Vector<String>();
-					v.add(lines[x].replaceFirst("^.*\\[", "").replaceFirst("].*$", ""));
-					v.add(lines[x].replaceFirst("^.*]=", ""));
-					model.addValue(v);
-				} catch (Exception ex) {
+			if (result == null) {
+				((IDTTableModel) jIDTTable.getModel()).fireTableDataChanged();
+				return;
+			} else {
+				String lines[] = result.split("\n");
+				jStatusProgressBar.setMaximum(lines.length - 1);
+				for (int x = 0; x < lines.length; x++) {
+					jStatusLabel.setText("Updating IDT " + x);
+					jStatusProgressBar.setValue(x);
+					try {
+						Vector<String> v = new Vector<String>();
+						v.add(lines[x].replaceFirst("^.*\\[", "").replaceFirst("].*$", ""));
+						v.add(lines[x].replaceFirst("^.*]=", ""));
+						model.addValue(v);
+					} catch (Exception ex) {
+					}
 				}
+				((IDTTableModel) jIDTTable.getModel()).fireTableDataChanged();
 			}
-			((IDTTableModel) jIDTTable.getModel()).fireTableDataChanged();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -2898,7 +2899,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 	}
 
 	private void changeText(JTextField jTextField, String value) {
-		Long l = CommonLib.convertFilesize(value);
+		Long l = CommonLib.string2long(value);
 		String newValue = "0x" + Long.toHexString(l);
 		if (jTextField.getText().equals(newValue)) {
 			jTextField.setForeground(Color.black);
@@ -2917,47 +2918,56 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		jTextField.setText(value);
 	}
 
-	private void updateRegister() {
+	private void updateRegister(boolean updateGUI) {
 		try {
-			jStatusLabel.setText("Updating general registers");
+			if (updateGUI) {
+				jStatusLabel.setText("Updating general registers");
+			}
 			commandReceiver.shouldShow = false;
 			sendCommand("r");
 			String result = commandReceiver.getCommandResult("ax:", "eflags");
 			result = result.replaceAll("r", "\nr");
 			String lines[] = result.split("\n");
-			jStatusProgressBar.setMaximum(lines.length - 1);
-			int x = 0;
-			for (String line : lines) {
-				jStatusProgressBar.setValue(x++);
-				if (line.matches(".*.ax:.*")) {
-					changeText(this.registerPanel.jEAXTextField, line.replaceAll(":", "").replaceAll("^.*ax", "").split(" ")[1].replaceAll("_", ""));
+			if (updateGUI) {
+				if (updateGUI) {
+					jStatusProgressBar.setMaximum(lines.length - 1);
 				}
-				if (line.matches(".*.bx:.*")) {
-					changeText(this.registerPanel.jEBXTextField, line.replaceAll(":", "").replaceAll("^.*bx", "").split(" ")[1].replaceAll("_", ""));
-				}
-				if (line.matches(".*.cx:.*")) {
-					changeText(this.registerPanel.jECXTextField, line.replaceAll(":", "").replaceAll("^.*cx", "").split(" ")[1].replaceAll("_", ""));
-				}
-				if (line.matches(".*.dx:.*")) {
-					changeText(this.registerPanel.jEDXTextField, line.replaceAll(":", "").replaceAll("^.*dx", "").split(" ")[1].replaceAll("_", ""));
-				}
-				if (line.matches(".*.si:.*")) {
-					changeText(this.registerPanel.jESITextField, line.replaceAll(":", "").replaceAll("^.*si", "").split(" ")[1].replaceAll("_", ""));
-				}
-				if (line.matches(".*.di:.*")) {
-					changeText(this.registerPanel.jEDITextField, line.replaceAll(":", "").replaceAll("^.*di", "").split(" ")[1].replaceAll("_", ""));
-				}
-				if (line.matches(".*.bp:.*")) {
-					changeText(this.registerPanel.jEBPTextField, line.replaceAll(":", "").replaceAll("^.*bp", "").split(" ")[1].replaceAll("_", ""));
-				}
-				if (line.matches(".*.sp:.*")) {
-					changeText(this.registerPanel.jESPTextField, line.replaceAll(":", "").replaceAll("^.*sp", "").split(" ")[1].replaceAll("_", ""));
-				}
-				if (line.matches(".*.ip:.*")) {
-					changeText(this.registerPanel.eipTextField, line.replaceAll(":", "").replaceAll("^.*ip", "").split(" ")[1].replaceAll("_", ""));
-				}
-				if (line.matches(".*eflags .*")) {
-					changeText(this.registerPanel.jEFLAGSTextField, line.replaceAll(":", "").replaceAll("^.*eflags", "").split(" ")[1].replaceAll("_", ""));
+
+				int x = 0;
+				for (String line : lines) {
+					if (updateGUI) {
+						jStatusProgressBar.setValue(x++);
+					}
+					if (line.matches(".*.ax:.*")) {
+						changeText(this.registerPanel.jEAXTextField, line.replaceAll(":", "").replaceAll("^.*ax", "").split(" ")[1].replaceAll("_", ""));
+					}
+					if (line.matches(".*.bx:.*")) {
+						changeText(this.registerPanel.jEBXTextField, line.replaceAll(":", "").replaceAll("^.*bx", "").split(" ")[1].replaceAll("_", ""));
+					}
+					if (line.matches(".*.cx:.*")) {
+						changeText(this.registerPanel.jECXTextField, line.replaceAll(":", "").replaceAll("^.*cx", "").split(" ")[1].replaceAll("_", ""));
+					}
+					if (line.matches(".*.dx:.*")) {
+						changeText(this.registerPanel.jEDXTextField, line.replaceAll(":", "").replaceAll("^.*dx", "").split(" ")[1].replaceAll("_", ""));
+					}
+					if (line.matches(".*.si:.*")) {
+						changeText(this.registerPanel.jESITextField, line.replaceAll(":", "").replaceAll("^.*si", "").split(" ")[1].replaceAll("_", ""));
+					}
+					if (line.matches(".*.di:.*")) {
+						changeText(this.registerPanel.jEDITextField, line.replaceAll(":", "").replaceAll("^.*di", "").split(" ")[1].replaceAll("_", ""));
+					}
+					if (line.matches(".*.bp:.*")) {
+						changeText(this.registerPanel.jEBPTextField, line.replaceAll(":", "").replaceAll("^.*bp", "").split(" ")[1].replaceAll("_", ""));
+					}
+					if (line.matches(".*.sp:.*")) {
+						changeText(this.registerPanel.jESPTextField, line.replaceAll(":", "").replaceAll("^.*sp", "").split(" ")[1].replaceAll("_", ""));
+					}
+					if (line.matches(".*.ip:.*")) {
+						changeText(this.registerPanel.eipTextField, line.replaceAll(":", "").replaceAll("^.*ip", "").split(" ")[1].replaceAll("_", ""));
+					}
+					if (line.matches(".*eflags .*")) {
+						changeText(this.registerPanel.jEFLAGSTextField, line.replaceAll(":", "").replaceAll("^.*eflags", "").split(" ")[1].replaceAll("_", ""));
+					}
 				}
 			}
 		} catch (Exception ex) {
@@ -2967,7 +2977,9 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		if (version.contains("2.4.1")) {
 			try {
 				// sregs
-				jStatusLabel.setText("Updating segment registers");
+				if (updateGUI) {
+					jStatusLabel.setText("Updating segment registers");
+				}
 				// System.out.println("want sreg");
 				commandReceiver.clearBuffer();
 				sendCommand("sreg");
@@ -2976,11 +2988,15 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 				String[] lines = result.split("\n");
 
 				int x = 0;
-				jStatusProgressBar.setMaximum(lines.length - 1);
+				if (updateGUI) {
+					jStatusProgressBar.setMaximum(lines.length - 1);
+				}
 
 				for (String line : lines) {
 					line = line.replaceFirst("<.*>", "");
-					jStatusProgressBar.setValue(x++);
+					if (updateGUI) {
+						jStatusProgressBar.setValue(x++);
+					}
 					String str[] = line.split(" ");
 
 					if (line.matches(".*cs:.*")) {
@@ -3015,7 +3031,9 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		} else {
 			try {
 				// sregs
-				jStatusLabel.setText("Updating segment registers");
+				if (updateGUI) {
+					jStatusLabel.setText("Updating segment registers");
+				}
 				// System.out.println("want sreg");
 				commandReceiver.clearBuffer();
 				sendCommand("sreg");
@@ -3024,11 +3042,15 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 				String[] lines = result.split("\n");
 
 				int x = 0;
-				jStatusProgressBar.setMaximum(lines.length - 1);
+				if (updateGUI) {
+					jStatusProgressBar.setMaximum(lines.length - 1);
+				}
 
 				for (String line : lines) {
 					line = line.replaceFirst("<.*>", "");
-					jStatusProgressBar.setValue(x++);
+					if (updateGUI) {
+						jStatusProgressBar.setValue(x++);
+					}
 					String str[] = line.split(" ");
 
 					if (line.matches(".*cs:.*")) {
@@ -3064,7 +3086,9 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 
 		try {
 			// cregs
-			jStatusLabel.setText("Updating control registers");
+			if (updateGUI) {
+				jStatusLabel.setText("Updating control registers");
+			}
 			// commandReceiver.setCommandNoOfLine(Integer.parseInt(bochsCommandLength.get(0).get("cregs").toString()));
 			commandReceiver.clearBuffer();
 			sendCommand("creg");
@@ -3072,15 +3096,19 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 			String[] lines = result.split("\n");
 
 			int x = 0;
-			jStatusProgressBar.setMaximum(lines.length - 1);
+			if (updateGUI) {
+				jStatusProgressBar.setMaximum(lines.length - 1);
+			}
 
 			for (String line : lines) {
-				jStatusProgressBar.setValue(x++);
+				if (updateGUI) {
+					jStatusProgressBar.setValue(x++);
+				}
 				if (line.matches(".*CR0=.*")) {
 					line = line.replaceFirst("^.*CR0", "CR0");
 					changeText(this.registerPanel.jCR0TextField, line.split(" ")[0].split("=")[1].replace(":", ""));
 
-					if (CommonLib.getBit(CommonLib.convertFilesize(registerPanel.jCR0TextField.getText()), 0) == 1) {
+					if (CommonLib.getBit(CommonLib.string2long(registerPanel.jCR0TextField.getText()), 0) == 1) {
 						jCPUModeLabel.setText(MyLanguage.getString("Protected_mode") + "     ");
 					} else {
 						jCPUModeLabel.setText(MyLanguage.getString("Real_mode") + "     ");
@@ -3111,17 +3139,23 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 			if (version.contains("2.4.1")) {
 			} else {
 				// dregs
-				jStatusLabel.setText("Updating debug registers");
+				if (updateGUI) {
+					jStatusLabel.setText("Updating debug registers");
+				}
 				// commandReceiver.setCommandNoOfLine(Integer.parseInt(bochsCommandLength.get(0).get("cregs").toString()));
 				sendCommand("dreg");
 				String result = commandReceiver.getCommandResult("DR0", "DR7");
 				String[] lines = result.split("\n");
 
 				int x = 0;
-				jStatusProgressBar.setMaximum(lines.length - 1);
+				if (updateGUI) {
+					jStatusProgressBar.setMaximum(lines.length - 1);
+				}
 
 				for (String line : lines) {
-					jStatusProgressBar.setValue(x++);
+					if (updateGUI) {
+						jStatusProgressBar.setValue(x++);
+					}
 					if (line.matches(".*DR0=0x.*")) {
 						changeText(this.registerPanel.jDR0TextField, line.split("=")[1].split(":")[0]);
 					} else if (line.matches(".*DR1=0x.*")) {
@@ -3143,17 +3177,23 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 
 		try {
 			// fpu
-			jStatusLabel.setText("Updating FPU registers");
+			if (updateGUI) {
+				jStatusLabel.setText("Updating FPU registers");
+			}
 			commandReceiver.clearBuffer();
 			sendCommand("fpu");
 			String result = commandReceiver.getCommandResult("status", "FP7");
 			String[] lines = result.split("\n");
 
 			int x = 0;
-			jStatusProgressBar.setMaximum(lines.length - 1);
+			if (updateGUI) {
+				jStatusProgressBar.setMaximum(lines.length - 1);
+			}
 
 			for (String line : lines) {
-				jStatusProgressBar.setValue(x++);
+				if (updateGUI) {
+					jStatusProgressBar.setValue(x++);
+				}
 				String ss[] = line.split(":");
 				if (line.matches(".*ST0.*")) {
 					changeTextStr(this.registerPanel.jST0TextField, line.split(" ")[10]);
@@ -3196,17 +3236,23 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 
 		try {
 			// mmx
-			jStatusLabel.setText("Updating MMX registers");
+			if (updateGUI) {
+				jStatusLabel.setText("Updating MMX registers");
+			}
 			commandReceiver.clearBuffer();
 			sendCommand("mmx");
 			String result = commandReceiver.getCommandResult("MM[0]", "MM[7]");
 			String[] lines = result.split("\n");
 
 			int x = 0;
-			jStatusProgressBar.setMaximum(lines.length - 1);
+			if (updateGUI) {
+				jStatusProgressBar.setMaximum(lines.length - 1);
+			}
 
 			for (String line : lines) {
-				jStatusProgressBar.setValue(x++);
+				if (updateGUI) {
+					jStatusProgressBar.setValue(x++);
+				}
 				String ss[] = line.split(":");
 				if (line.matches(".*MM\\[0\\].*")) {
 					changeTextStr(this.registerPanel.jMMX0TextField, ss[1].trim());
@@ -3238,9 +3284,9 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 				currentMemoryWindowsAddress = CommonLib.string2decimal(this.jMemoryAddressComboBox.getSelectedItem().toString());
 				jStatusLabel.setText("Updating memory");
 				int totalByte = 200;
-				int bytes[] = getMemory(CommonLib.convertFilesize(this.jMemoryAddressComboBox.getSelectedItem().toString()), totalByte, isPhysicalAddress);
+				int bytes[] = getMemory(CommonLib.string2long(this.jMemoryAddressComboBox.getSelectedItem().toString()), totalByte, isPhysicalAddress);
 				jStatusLabel.setText("");
-				jHexTable1.getModel().setCurrentAddress(CommonLib.convertFilesize(this.jMemoryAddressComboBox.getSelectedItem().toString()));
+				jHexTable1.getModel().setCurrentAddress(CommonLib.string2long(this.jMemoryAddressComboBox.getSelectedItem().toString()));
 				jHexTable1.getModel().set(bytes);
 				jHexTable1.getModel().fireTableDataChanged();
 			}
@@ -3436,7 +3482,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		disassembleCurrentIPButton.setEnabled(false);
 		//		InstructionTableModel model = (InstructionTableModel) instructionTable.getModel();
 		//		model.clearData();
-		this.updateInstruction(null, false);
+		updateInstruction(null);
 		updateBreakpointTableColor();
 		disassembleCurrentIPButton.setEnabled(true);
 	}
@@ -3482,13 +3528,13 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 	}
 
 	private void jLoadBreakpointButtonActionPerformed(ActionEvent evt) {
-		if (jLoadBreakpointButton.getEventSource() == loadSystemsMapMenuItem) {
+		if (jLoadBreakpointButton.getEventSource() == loadElfMenuItem) {
 			JFileChooser fc = new JFileChooser(new File("."));
 			int returnVal = fc.showOpenDialog(this);
 
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
-				new SystemMapDialog(this, file).setVisible(true);
+				sourceLevelDebugger.loadELF(file, null, 0);
 			}
 		} else {
 			jLoadBreakpointButton.setEnabled(false);
@@ -3544,7 +3590,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		updateBreakpoint();
 		updateBreakpointTableColor();
 		jDisableBreakpointButton.setEnabled(true);
-		this.updateInstruction(null, false);
+		updateInstruction(null);
 	}
 
 	private void jEnableBreakpointButtonActionPerformed(ActionEvent evt) {
@@ -3556,7 +3602,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		updateBreakpoint();
 		updateBreakpointTableColor();
 		jEnableBreakpointButton.setEnabled(true);
-		this.updateInstruction(null, false);
+		updateInstruction(null);
 	}
 
 	private void jBochsCommandTextFieldKeyPressed(KeyEvent evt) {
@@ -4134,7 +4180,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 
 	private void jButton5ActionPerformed(ActionEvent evt) {
 		SaveMemoryToXLSDialog d = new SaveMemoryToXLSDialog(this);
-		long currentMemoryAddress = CommonLib.convertFilesize(jMemoryAddressComboBox.getSelectedItem().toString());
+		long currentMemoryAddress = CommonLib.string2long(jMemoryAddressComboBox.getSelectedItem().toString());
 		d.jFromTextField.setText("0x" + Long.toHexString(currentMemoryAddress));
 		d.jToTextField.setText("0x" + Long.toHexString(currentMemoryAddress + 64 * 1024));
 		d.setVisible(true);
@@ -4285,7 +4331,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 	}
 
 	private void jButton10ActionPerformed(ActionEvent evt) {
-		System.out.println("jButton10.actionPerformed, event=" + evt);
+		System.out.println("not implement");
 	}
 
 	private JButton getJButton11() {
@@ -4503,11 +4549,11 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		try {
 			if (this.jSearchMemoryToComboBox.getSelectedItem().toString().trim().startsWith("+")) {
 				this.jSearchMemoryToComboBox.setSelectedItem("0x"
-						+ Long.toHexString(CommonLib.convertFilesize(this.jSearchMemoryFromComboBox.getSelectedItem().toString())
-								+ CommonLib.convertFilesize(this.jSearchMemoryToComboBox.getSelectedItem().toString().substring(1))));
+						+ Long.toHexString(CommonLib.string2long(this.jSearchMemoryFromComboBox.getSelectedItem().toString())
+								+ CommonLib.string2long(this.jSearchMemoryToComboBox.getSelectedItem().toString().substring(1))));
 			}
-			new SearchMemoryDialog(this, this.jSearchMemoryTable, this.jSearchMemoryTextField.getText(), CommonLib.convertFilesize(this.jSearchMemoryFromComboBox.getSelectedItem()
-					.toString()), CommonLib.convertFilesize(this.jSearchMemoryToComboBox.getSelectedItem().toString())).setVisible(true);
+			new SearchMemoryDialog(this, this.jSearchMemoryTable, this.jSearchMemoryTextField.getText(), CommonLib.string2long(this.jSearchMemoryFromComboBox.getSelectedItem()
+					.toString()), CommonLib.string2long(this.jSearchMemoryToComboBox.getSelectedItem().toString())).setVisible(true);
 		} catch (Exception ex) {
 
 		}
@@ -4532,7 +4578,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		try {
 			InstructionTableModel model = (InstructionTableModel) instructionTable.getModel();
 			model.clearData();
-			updateInstruction(CommonLib.string2decimal(this.jInstructionComboBox.getSelectedItem().toString()), false);
+			updateInstruction(CommonLib.string2decimal(this.jInstructionComboBox.getSelectedItem().toString()));
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -4637,6 +4683,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 						{
 							instructionTable = new JTable();
 							instructionTableScrollPane.setViewportView(instructionTable);
+							instructionTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 							instructionTable.setModel(new InstructionTableModel());
 							instructionTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
 							instructionTable.getTableHeader().setReorderingAllowed(false);
@@ -4747,7 +4794,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 							jPanel12.add(getJSBButton());
 							jPanel12.add(getJSBAButton());
 							jLoadBreakpointButton.setText(MyLanguage.getString("Load"));
-							jLoadBreakpointButton.add(loadSystemsMapMenuItem);
+							jLoadBreakpointButton.add(loadElfMenuItem);
 							jLoadBreakpointButton.addActionListener(new ActionListener() {
 								public void actionPerformed(ActionEvent evt) {
 									jLoadBreakpointButtonActionPerformed(evt);
@@ -5113,12 +5160,12 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 						jRunningLabel
 								.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\""
 										+ url
-										+ "\" /><br><br><a style=\"color: #ffffff;  text-decoration:none\" href=\"http://www.kingofcoders.com\">˛˝∫ÂáΩ©˛˝©˛˝©˛˝www.kingofcoders.com</a></center></html>");
+										+ "\" /><br><br><a style=\"color: #ffffff;  text-decoration:none\" href=\"http://www.kingofcoders.com\">ÔøΩÔøΩÂáΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩwww.kingofcoders.com</a></center></html>");
 					} else if (Setting.getInstance().getCurrentLanguage().equals("zh_CN")) {
 						jRunningLabel
 								.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\""
 										+ url
-										+ "\" /><br><br><img src=\"http://www.kingofcoders.com/images/KOC_logo2.jpg\" /><br><a style=\"color: #ffffff;  text-decoration:none\" href=\"http://www.kingofcoders.com\">˛˝ª˛˝â˛˝ç˛˝ç˛˝çwww.kingofcoders.com</a></center></html>");
+										+ "\" /><br><br><img src=\"http://www.kingofcoders.com/images/KOC_logo2.jpg\" /><br><a style=\"color: #ffffff;  text-decoration:none\" href=\"http://www.kingofcoders.com\">ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩwww.kingofcoders.com</a></center></html>");
 					} else {
 						jRunningLabel.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\"" + url + "\" /></center></html>");
 					}
@@ -5453,7 +5500,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		} else if (jSearchAddressRadioButton2.isSelected()) {
 			// for (int x = 0; x < model.getRowCount(); x++) {
 			// if (model.searchType.get(x).equals(2) &&
-			// model.searchAddress.get(x).equals(CommonLib.convertFilesize(this.jAddressTextField.getText())))
+			// model.searchAddress.get(x).equals(CommonLib.string2long(this.jAddressTextField.getText())))
 			// {
 			// return;
 			// }
@@ -5491,7 +5538,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 			model.fireTableDataChanged();
 		} else if (jSearchAddressRadioButton3.isSelected()) {
 			for (int x = 0; x < model.getRowCount(); x++) {
-				if (model.searchType.get(x).equals(3) && model.searchAddress.get(x).equals(CommonLib.convertFilesize(this.jAddressTextField.getText()))) {
+				if (model.searchType.get(x).equals(3) && model.searchAddress.get(x).equals(CommonLib.string2long(this.jAddressTextField.getText()))) {
 					return;
 				}
 			}
@@ -5543,7 +5590,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 				int bytes[] = new int[8];
 				String[] b = result.replaceFirst("^.*:", "").split("\t");
 				for (int y = 1; y <= 8; y++) {
-					bytes[y - 1] = (int) CommonLib.convertFilesize(b[y]);
+					bytes[y - 1] = (int) CommonLib.string2long(b[y]);
 				}
 
 				Long gdtDescriptor = CommonLib.getLong(bytes, 0);
@@ -5935,10 +5982,10 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		}
 	}
 
-	private BigInteger getRealEIP() {
+	public BigInteger getRealEIP() {
 		try {
 			BigInteger eip;
-			if (CommonLib.getBit(CommonLib.convertFilesize(registerPanel.jCR0TextField.getText()), 0) == 1) {
+			if (CommonLib.getBit(CommonLib.string2long(registerPanel.jCR0TextField.getText()), 0) == 1) {
 				eip = CommonLib.string2decimal(registerPanel.eipTextField.getText());
 			} else {
 				eip = CommonLib.string2decimal(registerPanel.jCSTextField.getText()).multiply(BigInteger.valueOf(16))
@@ -6646,7 +6693,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 
 						for (int x = 1; x < b.length && offset < totalByte; x++) {
 							// System.out.println(offset + "==" + x);
-							bytes[offset] = (int) CommonLib.convertFilesize(b[x]);
+							bytes[offset] = (int) CommonLib.string2long(b[x]);
 							offset++;
 						}
 					}
@@ -6750,8 +6797,8 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 			jInstructionPanelPopupMenu.add(getJSetPhysicalBreakpointMenuItem());
 			jInstructionPanelPopupMenu.add(getJSetLinearBreakpointMenuItem());
 			jInstructionPanelPopupMenu.add(getJSeparator3());
-			jInstructionPanelPopupMenu.add(getJShowInSourceCodeMenuItem());
-			jInstructionPanelPopupMenu.add(getJWhereIsHereMenuItem());
+			jInstructionPanelPopupMenu.add(getJDisasmHereMenuItem());
+			jInstructionPanelPopupMenu.add(getClearInstructionTableMenuItem());
 		}
 		return jInstructionPanelPopupMenu;
 	}
@@ -6831,8 +6878,8 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 			InstructionTableModel model = (InstructionTableModel) sourceLevelDebugger.instructionTable.getModel();
 			PeterBochsDebugger.sendCommand("pb " + model.getMemoryAddress(sourceLevelDebugger.instructionTable.getSelectedRow()));
 		}
-		this.updateBreakpoint();
-		this.updateInstruction(null, false);
+		updateBreakpoint();
+		updateInstruction(null);
 	}
 
 	private void jSetLinearBreakpointMenuItemActionPerformed(ActionEvent evt) {
@@ -6841,8 +6888,8 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		} else if (this.jSourceLevelDebuggerToggleButton.isSelected()) {
 			PeterBochsDebugger.sendCommand("lb " + this.sourceLevelDebugger.instructionTable.getValueAt(this.sourceLevelDebugger.instructionTable.getSelectedRow(), 1));
 		}
-		this.updateBreakpoint();
-		this.updateInstruction(null, false);
+		updateBreakpoint();
+		updateInstruction(null);
 	}
 
 	private void jBreakpointTableMouseClicked(MouseEvent evt) {
@@ -7012,8 +7059,8 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 			} while (!CommonLib.isNumber(firstAddress));
 			firstAddress = CommonLib.string2decimal(firstAddress).subtract(BigInteger.valueOf(1)).toString(16);
 
-			this.jInstructionComboBox.setSelectedItem("0x" + firstAddress);
-			updateInstruction(CommonLib.string2decimal("0x" + firstAddress), false);
+			jInstructionComboBox.setSelectedItem("0x" + firstAddress);
+			updateInstruction(CommonLib.string2decimal("0x" + firstAddress));
 			updateBreakpointTableColor();
 		}
 	}
@@ -7029,8 +7076,8 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 					}
 				}
 
-				this.jInstructionComboBox.setSelectedItem(firstAddress);
-				updateInstruction(CommonLib.string2decimal(firstAddress), false);
+				jInstructionComboBox.setSelectedItem(firstAddress);
+				updateInstruction(CommonLib.string2decimal(firstAddress));
 				updateBreakpointTableColor();
 			}
 		} catch (Exception ex) {
@@ -7061,7 +7108,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		firstAddress = CommonLib.string2decimal(firstAddress).subtract(BigInteger.valueOf(16)).toString(16);
 
 		this.jInstructionComboBox.setSelectedItem("0x" + firstAddress);
-		updateInstruction(CommonLib.string2decimal("0x" + firstAddress), false);
+		updateInstruction(CommonLib.string2decimal("0x" + firstAddress));
 		updateBreakpointTableColor();
 	}
 
@@ -7143,7 +7190,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 						if (Global.debug) {
 							System.out.println("updateRegister");
 						}
-						updateRegister();
+						updateRegister(true);
 						if (Global.debug) {
 							System.out.println("updateEFlags");
 						}
@@ -7161,7 +7208,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 						if (Global.debug) {
 							System.out.println("updateInstruction");
 						}
-						updateInstruction(null, false);
+						updateInstruction(null);
 					}
 
 					if (Setting.getInstance().updateFastStepCommand_breakpoint) {
@@ -7946,12 +7993,12 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 				jRunningLabel2
 						.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\""
 								+ url
-								+ "\" /><br><br><a style=\"color: #000000;  text-decoration:none\" href=\"http://www.kingofcoders.com\">©˛˝Êª¢˛˝çË˛˝È§å˛˝çÊ˛˝©˛˝©˛˝˛˝∑Ê˛˝Ë∫˛˝www.kingofcoders.com</a></center></html>");
+								+ "\" /><br><br><a style=\"color: #000000;  text-decoration:none\" href=\"http://www.kingofcoders.com\">ÔøΩÔøΩÔøΩÊª¢ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÈ§åÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩwww.kingofcoders.com</a></center></html>");
 			} else if (Setting.getInstance().getCurrentLanguage().equals("zh_CN")) {
 				jRunningLabel2
 						.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\""
 								+ url
-								+ "\" /><br><br><img src=\"http://www.kingofcoders.com/images/KOC_logo2.jpg\" /><br><a style=\"color: #000000;  text-decoration:none\" href=\"http://www.kingofcoders.com\">©˛˝È≠Ç‚ñΩ˛˝ôË˛˝˛˝≠˛˝çÓ˛˝˛˝≠˛˝ç‚à¥˛˝˛˝www.kingofcoders.com</a></center></html>");
+								+ "\" /><br><br><img src=\"http://www.kingofcoders.com/images/KOC_logo2.jpg\" /><br><a style=\"color: #000000;  text-decoration:none\" href=\"http://www.kingofcoders.com\">ÔøΩÔøΩÔøΩÈ≠Ç‚ñΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ‚à¥ÔøΩÔøΩÔøΩÔøΩwww.kingofcoders.com</a></center></html>");
 			} else {
 				jRunningLabel2.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\"" + url + "\" /></center></html>");
 			}
@@ -8082,7 +8129,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 
 	private void jPreviousMemoryButtonActionPerformed(ActionEvent evt) {
 		try {
-			long address = CommonLib.convertFilesize(jMemoryAddressComboBox.getSelectedItem().toString());
+			long address = CommonLib.string2long(jMemoryAddressComboBox.getSelectedItem().toString());
 			if (address >= 0xc8) {
 				jMemoryAddressComboBox.setSelectedItem("0x" + Long.toHexString(address - 0xc8));
 			} else {
@@ -8098,7 +8145,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 
 	private void jNextMemoryPageButtonActionPerformed(ActionEvent evt) {
 		try {
-			long address = CommonLib.convertFilesize(jMemoryAddressComboBox.getSelectedItem().toString());
+			long address = CommonLib.string2long(jMemoryAddressComboBox.getSelectedItem().toString());
 			jMemoryAddressComboBox.setSelectedItem("0x" + Long.toHexString(address + 0xc8));
 			jGOMemoryButtonActionPerformed(null);
 		} catch (Exception ex) {
@@ -8169,22 +8216,38 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		return jSeparator3;
 	}
 
-	private JMenuItem getJShowInSourceCodeMenuItem() {
-		if (jShowInSourceCodeMenuItem == null) {
-			jShowInSourceCodeMenuItem = new JMenuItem();
-			jShowInSourceCodeMenuItem.setText("Show in source code");
-			jShowInSourceCodeMenuItem.setEnabled(false);
-			jShowInSourceCodeMenuItem.addActionListener(new ActionListener() {
+	private JMenuItem getJDisasmHereMenuItem() {
+		if (jDisasmHereMenuItem == null) {
+			jDisasmHereMenuItem = new JMenuItem();
+			jDisasmHereMenuItem.setText("Disasm from here");
+			jDisasmHereMenuItem.setEnabled(false);
+			jDisasmHereMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
-					jShowInSourceCodeMenuItemActionPerformed(evt);
+					jDisasmHereMenuItemActionPerformed(evt);
 				}
 			});
 		}
-		return jShowInSourceCodeMenuItem;
+		return jDisasmHereMenuItem;
 	}
 
-	private void jShowInSourceCodeMenuItemActionPerformed(ActionEvent evt) {
-		System.out.println("jShowInSourceCodeMenuItem.actionPerformed, event=" + evt);
+	private void jDisasmHereMenuItemActionPerformed(ActionEvent evt) {
+		String str;
+		if (Global.clickedWhichInstructionPanel == 0) {
+			str = (String) instructionTable.getValueAt(instructionTable.getSelectedRow(), 1);
+		} else {
+			str = (String) sourceLevelDebugger.instructionTable.getValueAt(sourceLevelDebugger.instructionTable.getSelectedRow(), 1);
+		}
+
+		BigInteger address;
+		if (str.startsWith("cCode")) {
+			long l = CommonLib.string2long(str.split(":")[1]);
+			address = BigInteger.valueOf(l);
+		} else {
+			long l = CommonLib.string2long(str.split(":")[0]);
+			address = BigInteger.valueOf(l);
+		}
+
+		updateInstruction(address);
 	}
 
 	private SourceLevelDebugger3 getSourceLevelDebugger() {
@@ -8236,50 +8299,45 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 	}
 
 	private JMenuItem getJLoadSystemMapMenuItem() {
-		if (jLoadSystemMapMenuItem == null) {
-			jLoadSystemMapMenuItem = new JMenuItem();
-			jLoadSystemMapMenuItem.setText(MyLanguage.getString("Load_System_Map"));
-			jLoadSystemMapMenuItem.addActionListener(new ActionListener() {
+		if (jLoadElfMenuItem == null) {
+			jLoadElfMenuItem = new JMenuItem();
+			jLoadElfMenuItem.setText(MyLanguage.getString("Load_Elf"));
+			jLoadElfMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
-					jLoadSystemMapMenuItemActionPerformed(evt);
+					jLoadElfMenuItemActionPerformed(evt);
 				}
 			});
 		}
-		return jLoadSystemMapMenuItem;
+		return jLoadElfMenuItem;
 	}
 
-	private void jLoadSystemMapMenuItemActionPerformed(ActionEvent evt) {
-		this.sourceLevelDebugger.jLoadMapButtonActionPerformed(null);
+	private void jLoadElfMenuItemActionPerformed(ActionEvent evt) {
+		JFileChooser fc = new JFileChooser(new File("."));
+		int returnVal = fc.showOpenDialog(this);
+
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File file = fc.getSelectedFile();
+			sourceLevelDebugger.loadELF(file, null, 0);
+		}
 	}
 
-	private JMenuItem getJWhereIsHereMenuItem() {
-		if (jWhereIsHereMenuItem == null) {
-			jWhereIsHereMenuItem = new JMenuItem();
-			jWhereIsHereMenuItem.setText("Where is here?");
-			jWhereIsHereMenuItem.setEnabled(false);
-			jWhereIsHereMenuItem.addActionListener(new ActionListener() {
+	private JMenuItem getClearInstructionTableMenuItem() {
+		if (clearInstructionTableMenuItem == null) {
+			clearInstructionTableMenuItem = new JMenuItem();
+			clearInstructionTableMenuItem.setText("Clear");
+			clearInstructionTableMenuItem.setEnabled(false);
+			clearInstructionTableMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
-					jWhereIsHereMenuItemActionPerformed(evt);
+					clearInstructionTableMenuItemActionPerformed(evt);
 				}
 			});
 		}
-		return jWhereIsHereMenuItem;
+		return clearInstructionTableMenuItem;
 	}
 
-	private void jWhereIsHereMenuItemActionPerformed(ActionEvent evt) {
-		jSourceLevelDebuggerToggleButtonActionPerformed(null);
-		// sourceLevelDebugger.jMainTabbedPane.setSelectedIndex(1);
-
-		/*
-		 * if (Global.clickedWhichInstructionPanel == 0) {
-		 * sourceLevelDebugger.showWhere(CommonLib.string2decimal((String)
-		 * jInstructionTable.getValueAt(jInstructionTable.getSelectedRow(),
-		 * 1))); } else {
-		 * sourceLevelDebugger.showWhere(CommonLib.string2decimal((String)
-		 * sourceLevelDebugger
-		 * .jAssemblyTable.getValueAt(sourceLevelDebugger.jAssemblyTable
-		 * .getSelectedRow(), 1))); }
-		 */
+	private void clearInstructionTableMenuItemActionPerformed(ActionEvent evt) {
+		InstructionTableModel model = (InstructionTableModel) instructionTable.getModel();
+		model.clearData();
 	}
 
 	private ButtonGroup getButtonGroup4() {
@@ -8694,7 +8752,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 
 	private void jStepOverDropDownButtonActionPerformed(ActionEvent evt) {
 		if (jStepOverDropDownButton.getEventSource() != null) {
-			untilThread = new MyThread(jStepOverDropDownButton.getEventSource());
+			untilThread = new StepThread(jStepOverDropDownButton.getEventSource());
 			if (jStepOverDropDownButton.getEventSource() == jStepOverNTimesMenuItem) {
 				String s = JOptionPane.showInputDialog("Please input the instruction count?");
 				if (s == null) {
@@ -8755,5 +8813,104 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 
 	private void jLicenseMenuItemActionPerformed(ActionEvent evt) {
 		new LicenseDialog(this).setVisible(true);
+	}
+
+	private void nextButtonActionPerformed(ActionEvent evt) {
+		BigInteger currentIP = CommonLib.string2decimal(registerPanel.eipTextField.getText());
+		String nextCCode = null;
+		boolean bingo = false;
+		BigInteger addr = null;
+		for (int x = 0; x < instructionTable.getRowCount() - 1; x++) {
+			String addressColumn = (String) instructionTable.getValueAt(x, 1);
+			if (addressColumn.startsWith("cCode")) {
+				addr = CommonLib.string2decimal(addressColumn.split(":")[1]);
+			} else {
+				addr = CommonLib.string2decimal(addressColumn);
+			}
+			if (bingo && addressColumn.startsWith("cCode") && !addr.equals(currentIP)) {
+				nextCCode = addressColumn;
+				break;
+			}
+			if (addr != null && addr.equals(currentIP)) {
+				bingo = true;
+			}
+		}
+
+		if (addr != null) {
+			nexti(addr, "s");
+		}
+	}
+
+	private void nexti(BigInteger addr, String command) {
+		//		System.out.println("going to " + addr.toString(16));
+		BigInteger currentEIP = getRealEIP();
+		for (int x = 0; x < Global.MAX_NEXTI_INSTRUCTION_COUNT; x++) {
+			String asmCode = getASMCode(currentEIP);
+			sendCommand(command);
+			updateRegister(true);
+			waitUpdateFinish();
+			currentEIP = getRealEIP();
+			if (currentEIP.equals(addr)) {
+				break;
+			}
+
+			if (asmCode != null && asmCode.contains("call")) {
+				System.out.println("bingo la " + asmCode);
+				break;
+			}
+		}
+
+		//		updateBochsStatus(true);
+
+		updateRegister(true);
+		updateEFlags();
+		updateMemory(true);
+		updateInstruction(null);
+		updateBreakpoint();
+		updateBreakpointTableColor();
+		updateHistoryTable();
+		waitUpdateFinish();
+		jumpToRowInstructionTable(getRealEIP());
+	}
+
+	private JButton getNextOverButton() {
+		if (nextOverButton == null) {
+			nextOverButton = new JButton();
+			nextOverButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/step.png")));
+			nextOverButton.setText("NextO");
+			nextOverButton.setToolTipText("c/c++ level step-over");
+			nextOverButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					nextOverButtonActionPerformed(evt);
+				}
+			});
+		}
+		return nextOverButton;
+	}
+
+	private void nextOverButtonActionPerformed(ActionEvent evt) {
+		BigInteger currentIP = CommonLib.string2decimal(registerPanel.eipTextField.getText());
+		String nextCCode = null;
+		boolean bingo = false;
+		BigInteger addr = null;
+		for (int x = 0; x < instructionTable.getRowCount() - 1; x++) {
+			String addressColumn = (String) instructionTable.getValueAt(x, 1);
+			if (addressColumn.startsWith("cCode")) {
+				addr = CommonLib.string2decimal(addressColumn.split(":")[1]);
+			} else {
+				addr = CommonLib.string2decimal(addressColumn);
+			}
+			if (bingo && addressColumn.startsWith("cCode") && !addr.equals(currentIP)) {
+				nextCCode = addressColumn;
+				break;
+			}
+			if (addr != null && addr.equals(currentIP)) {
+				bingo = true;
+			}
+		}
+
+		if (addr != null) {
+			nexti(addr, "next");
+		}
 	}
 }
