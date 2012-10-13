@@ -14,7 +14,7 @@ public class InstructionTableModel extends AbstractTableModel {
 	private HashMap<BigInteger, Boolean> breakpoint = new HashMap<BigInteger, Boolean>();
 	private Vector<String[]> data = new Vector<String[]>();
 	private BigInteger eip;
-	public boolean showSourceLevel = true;
+	public boolean showAsmLevel = true;
 
 	public Vector<String[]> getData() {
 		return data;
@@ -22,14 +22,24 @@ public class InstructionTableModel extends AbstractTableModel {
 
 	public Object getValueAt(int row, int column) {
 		try {
-			int z = 0;
-			if (showSourceLevel) {
-				z = row;
+			if (showAsmLevel) {
+				if (column == 0) {
+					if (data.get(row)[1].startsWith("cCode")) {
+						BigInteger address = CommonLib.string2decimal(data.get(row)[1].split(":")[1]);
+						return getColumn0(address);
+					} else {
+						BigInteger address = CommonLib.string2decimal(data.get(row)[1]);
+						return getColumn0(address);
+					}
+				} else {
+					return data.get(row)[column];
+				}
 			} else {
+				int z = 0;
 				int temp = -1;
 				for (int x = 0; x < data.size(); x++) {
 					String str[] = data.get(x);
-					if (!str[1].startsWith("cCode")) {
+					if (str[1].startsWith("cCode")) {
 						temp++;
 					}
 					if (temp == row) {
@@ -37,40 +47,38 @@ public class InstructionTableModel extends AbstractTableModel {
 						break;
 					}
 				}
-			}
-			if (data.get(z)[1].contains("cCode")) {
-				return data.get(z)[column];
-			} else {
-				BigInteger address = CommonLib.string2decimal("0x" + data.get(z)[1].split(":")[0]);
+				System.out.println("row=" + row + ", z=" + z + ", code=" + data.get(z)[0] + "," + data.get(z)[1]);
 				if (column == 0) {
-					System.out.println(address.toString(16) + "====" + eip.toString(16));
-					if (address.equals(eip)) {
-						System.out.println("here ar");
-
-						return "here";
-					} else if (breakpoint.containsKey(address)) {
-						if (breakpoint.get(address)) {
-							return "O";
-						} else {
-							return "X";
-						}
-					} else {
-						return "";
-					}
-				} else if (column == 1) {
-					return "0x" + data.get(z)[column];
+					BigInteger address = CommonLib.string2decimal(data.get(z)[1].split(":")[1]);
+					return getColumn0(address);
 				} else {
 					return data.get(z)[column];
 				}
 			}
-
 		} catch (Exception ex) {
+			return "";
+		}
+	}
+
+	public String getColumn0(BigInteger address) {
+		if (address.equals(eip) && breakpoint.containsKey(address) && breakpoint.get(address)) {
+			return "hereO";
+		} else if (address.equals(eip)) {
+			return "here";
+		} else if (breakpoint.containsKey(address)) {
+			if (breakpoint.get(address)) {
+				return "O";
+			} else {
+				return "X";
+			}
+		} else {
 			return "";
 		}
 	}
 
 	public void clearData() {
 		data.clear();
+		this.fireTableDataChanged();
 	}
 
 	public void addRow(String[] array) {
@@ -80,12 +88,12 @@ public class InstructionTableModel extends AbstractTableModel {
 			String arr[] = data.get(x);
 			if (arr[1].equals(array[1])) {
 				exist = true;
-				arr[1] = array[1];
 				break;
 			}
 		}
 		if (!exist) {
 			data.add(array);
+			this.fireTableDataChanged();
 		}
 	}
 
@@ -138,48 +146,64 @@ public class InstructionTableModel extends AbstractTableModel {
 	}
 
 	public int getRowCount() {
-		if (showSourceLevel) {
+		if (showAsmLevel) {
 			return data.size();
 		} else {
 			int total = 0;
 			for (int x = 0; x < data.size(); x++) {
 				String str[] = data.get(x);
-				if (!str[1].startsWith("cCode")) {
+				if (str[1].startsWith("cCode")) {
 					total++;
 				}
 			}
+			//			System.out.println("total=" + total + ", data.size()=" + data.size());
 			return total;
 		}
 	}
 
 	public String getMemoryAddress(int row) {
-		return getValueAt(row, 1).toString().split(":")[0];
+		String str = getValueAt(row, 1).toString();
+		if (str.startsWith("cCode")) {
+			return str.split(":")[1];
+		} else {
+			return str.split(":")[0];
+		}
 	}
 
 	public void removeNonOrderInstruction() {
 		if (data.size() == 0) {
 			return;
 		}
-		long lastAddress = Long.parseLong(data.get(data.size() - 1)[1], 16);
-		for (int x = data.size() - 2; x >= 0; x--) {
-			try {
-				if (Long.parseLong(data.get(x)[1], 16) > lastAddress) {
+		try {
+			long lastAddress = CommonLib.string2long(data.get(data.size() - 1)[1]);
+			for (int x = data.size() - 2; x >= 0; x--) {
+				if (data.get(x)[1].contains("cCode")) {
+					continue;
+				}
+				if (CommonLib.string2long(data.get(x)[1]) > lastAddress) {
 					data.remove(x);
 				} else {
-					lastAddress = Long.parseLong(data.get(x)[1], 16);
+					lastAddress = CommonLib.string2long(data.get(x)[1]);
 				}
-			} catch (Exception ex) {
 			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 	}
 
 	public int findEIPRowNo(BigInteger realEIP) {
 		for (int x = 0; x < data.size(); x++) {
-			try {
-				if (CommonLib.string2decimal("0x" + data.get(x)[1]) == realEIP) {
-					return x;
-				}
-			} catch (Exception ex) {
+			String str = data.get(x)[1];
+			BigInteger b;
+			if (str.startsWith("cCode")) {
+				long l = CommonLib.string2long(str.split(":")[1]);
+				b = BigInteger.valueOf(l);
+			} else {
+				long l = CommonLib.string2long(str);
+				b = BigInteger.valueOf(l);
+			}
+			if (b.equals(realEIP)) {
+				return x;
 			}
 		}
 		return 0;

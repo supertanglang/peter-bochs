@@ -1498,7 +1498,8 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 					c.drawVertex(state, label);
 				} else {
 					// draw edge, at least
-					super.drawState(canvas, state, label);
+//					super.drawState(canvas, state, label);
+					super.drawState(canvas, state, true);
 				}
 			}
 

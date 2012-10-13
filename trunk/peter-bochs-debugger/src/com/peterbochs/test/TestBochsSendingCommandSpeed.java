@@ -2,9 +2,9 @@ package com.peterbochs.test;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.util.Date;
 import java.util.Vector;
@@ -32,12 +32,17 @@ public class TestBochsSendingCommandSpeed extends JFrame {
 	private JLabel jLabel1;
 	Vector<String> lines = new Vector<String>();
 	BufferedWriter commandOutputStream;
-	InputStream is;
+	BufferedInputStream is;
 	private JButton jSButton;
+	String commands[] = { "ptime", "r", "sreg", "creg", "dreg", "fpu", "mmx", "info eflags", "xp /200bx 0", "info break", "info gdt 0 100", "info idt 0 200", "info ldt 0 200",
+			"xp /4096bx 0", "print-stack 40", "info tab", "disasm" };
+
+	//	String commands[] = { "ptime", "r", "sreg", "creg", "dreg", "fpu", "mmx", "info eflags", "info break", "disasm" };
 
 	public static void main(String[] args) {
 		TestBochsSendingCommandSpeed frame = new TestBochsSendingCommandSpeed();
 		frame.setLocationRelativeTo(null);
+		frame.setAlwaysOnTop(true);
 		frame.setVisible(true);
 	}
 
@@ -105,24 +110,14 @@ public class TestBochsSendingCommandSpeed extends JFrame {
 					long lastTime = new Date().getTime();
 					int lastCount = 1;
 					int speed = 0;
+
 					for (int x = 0; x < 1000000; x++) {
 						sendCommand("s");
-						byte[] buffer = new byte[1024];
-						len = is.read(buffer);
 
-						sendCommand("r");
-						len = is.read(buffer);
-						
-						sendCommand("ptime");
-						len = is.read(buffer);
-						
-						sendCommand("sreg");
-						len = is.read(buffer);
-						
-						sendCommand("info eflags");
-						len = is.read(buffer);
-						
-						
+						for (int z = 0; z < commands.length; z++) {
+							//							System.out.println(commands[z]);
+							sendCommand(commands[z]);
+						}
 
 						jLabel1.setText("Step " + x + " / " + 1000000 + ", speed : " + speed + " steps/second");
 						if (new Date().getTime() - lastTime >= 1000) {
@@ -137,17 +132,31 @@ public class TestBochsSendingCommandSpeed extends JFrame {
 				}
 			}
 		}.start();
+
+		new Thread() {
+			public void run() {
+				while (true) {
+					try {
+						byte[] buffer = new byte[1024];
+						int len = is.read(buffer);
+						//						System.out.println(new String(buffer));
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
+				}
+			}
+		}.start();
 	}
 
 	private void jButton1ActionPerformed(ActionEvent evt) {
 		try {
 			Process p;
-			String[] arguments = { "..\\bochsdbg.exe", "-q", "-f", "bochsrc.bxrc" };
+			String[] arguments = { "/Users/peter/install/bin/bochs", "-q", "-f", "bochsrc.bxrc" };
 			ProcessBuilder pb = new ProcessBuilder(arguments);
 
 			pb.redirectErrorStream(true);
 			p = pb.start();
-			is = p.getInputStream();
+			is = new BufferedInputStream(p.getInputStream(), 1000000);
 			commandOutputStream = new BufferedWriter(new OutputStreamWriter(p.getOutputStream()));
 		} catch (Exception ex) {
 			ex.printStackTrace();

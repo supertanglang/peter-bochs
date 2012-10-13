@@ -12,14 +12,17 @@ import javax.swing.table.TableCellRenderer;
 import com.peterbochs.syntaxhighlight.Keywords;
 
 public class InstructionTableCellRenderer extends JLabel implements TableCellRenderer {
-	// private HashMap<Long, Boolean> breakpoint = new HashMap<Long, Boolean>();
-	ImageIcon breakpointHereIcon = new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/arrow_right_red.png"));
+	ImageIcon hereIcon = new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/arrow_right_red.png"));
+	ImageIcon hereWithBreakpointIcon = new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/icons/famfam_icons/arrow_right_red_breakpoint.png"));
 	ImageIcon breakpointIcon = new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/images/breakpoint/breakpoint.png"));
 	ImageIcon breakpointDisableIcon = new ImageIcon(getClass().getClassLoader().getResource("com/peterbochs/images/breakpoint/breakpointDisable.png"));
 	Color darkGreen = new Color(0, 100, 0);
+	Color darkBlue = new Color(0, 0, 100);
+	Color alterRow = new Color(0xf8f8f8);
 
 	public InstructionTableCellRenderer() {
 		this.setOpaque(true);
+		this.setHorizontalAlignment(SwingConstants.LEFT);
 	}
 
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -30,49 +33,45 @@ public class InstructionTableCellRenderer extends JLabel implements TableCellRen
 				if (row % 2 == 0) {
 					this.setBackground(Color.white);
 				} else {
-					this.setBackground(new Color(0xf4f4f4));
+					this.setBackground(alterRow);
 				}
 			}
-
-			if (table.getValueAt(row, 1).toString().contains("cCode")) {
+			if (column == 0) {
+				if (value.toString().equals("hereO")) {
+					this.setIcon(hereWithBreakpointIcon);
+				} else if (value.toString().equals("here")) {
+					this.setIcon(hereIcon);
+				} else if (value.toString().equals("O")) {
+					this.setIcon(breakpointIcon);
+				} else if (value.toString().equals("X")) {
+					this.setIcon(breakpointDisableIcon);
+				} else {
+					this.setIcon(null);
+				}
+				this.setText(null);
+				return this;
+			}
+			if (table.getValueAt(row, 1).toString().startsWith("cCode")) {
 				if (column == 1) {
-					String str = ((String) table.getValueAt(row, 1)).replaceAll("cCode:", "");
+					String str = ((String) table.getValueAt(row, 1)).replaceAll("cCode : ", "");
 					this.setText(String.format("%40s", str));
 					this.setForeground(darkGreen);
+					this.setIcon(null);
 				} else {
 					String code = ((String) value);
 					if (code != null) {
 						code = code.replaceAll("\\t", "    ");
-						//					for (String keyword : Keywords.cKeywords) {
-						//						code = code.replaceAll(keyword, "<font color=red>$0</font>");
-						//					}
-						//					for (String keyword : Keywords.cppKeywords) {
-						//						code = code.replaceAll(keyword, "<font color=red>$0</font>");
-						//					}
-						//					code = code.replaceAll(Keywords.asmKeywords, "<font color=red>$0</font>");
-						//					this.setText("<html>" + code + "</html>");
 						this.setText(code);
 					}
-					this.setForeground(Color.blue);
+					this.setForeground(darkBlue);
+					this.setIcon(null);
 				}
-				this.setIcon(null);
 			} else {
 				this.setForeground(Color.black);
-				if (column == 0) {
-					if (value.toString().equals("here")) {
-						this.setIcon(breakpointHereIcon);
-					} else if (value.toString().equals("O")) {
-						this.setIcon(breakpointIcon);
-					} else if (value.toString().equals("X")) {
-						this.setIcon(breakpointDisableIcon);
-					} else {
-						this.setIcon(null);
-					}
-					this.setText(null);
-				} else if (column == 2) {
+				if (column == 2) {
 					String asmCode = (String) value;
 					asmCode = asmCode.replaceAll(Keywords.asmKeywords.toLowerCase(), "<font color=red>$0&nbsp;</font>");
-					this.setText("<html>&nbsp;&nbsp;&nbsp;&nbsp;" + asmCode + "</html>");
+					this.setText("<html>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + asmCode + "</html>");
 					this.setIcon(null);
 				} else {
 					String s = (String) value;
@@ -88,11 +87,6 @@ public class InstructionTableCellRenderer extends JLabel implements TableCellRen
 					}
 					this.setIcon(null);
 				}
-			}
-			if (column == 1) {
-				this.setHorizontalAlignment(SwingConstants.LEFT);
-			} else {
-				this.setHorizontalAlignment(SwingConstants.LEFT);
 			}
 		} catch (Exception ex) {
 
