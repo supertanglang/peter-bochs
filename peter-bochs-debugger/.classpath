@@ -3,11 +3,10 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="lib/forms-1.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/TableLayout.jar"/>
-	<classpathentry kind="lib" path="lib/commons-betwixt-0.8.jar"/>
+	<classpathentry kind="lib" path="lib/commons-betwixt-0.8.jar" sourcepath="/Users/peter/Desktop/commons-betwixt-0.8-src"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections-3.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-beanutils-1.8.2.jar"/>
-	<classpathentry kind="lib" path="lib/commons-digester-2.0.jar"/>
 	<classpathentry kind="lib" path="lib/jzy3d/opencsv-2.1.jar"/>
 	<classpathentry kind="lib" path="lib/axis-1_4/lib/commons-discovery-0.2.jar"/>
 	<classpathentry kind="lib" path="lib/axis-1_4/lib/wsdl4j-1.5.1.jar"/>
@@ -31,6 +30,7 @@
 	<classpathentry kind="lib" path="lib/poi/xmlbeans-2.3.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.4.jar"/>
 	<classpathentry kind="lib" path="lib/jgraphx.jar"/>
+	<classpathentry kind="lib" path="lib/commons-digester-2.0.jar" sourcepath="/Users/peter/.m2/repository/commons-digester/commons-digester/2.0/commons-digester-2.0-sources.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/javax.wsdl_1.6.2.v201012040545.jar"/>
 	<classpathentry kind="lib" path="lib/saaj.jar"/>

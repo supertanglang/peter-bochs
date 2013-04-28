@@ -133,7 +133,7 @@ public class SearchMemoryDialog extends javax.swing.JDialog {
 				long realEndAddress = realStartAddress + totalByte3 * 8;
 				realEndAddressStr = String.format("%08x", realEndAddress);
 
-				String result = PeterBochsDebugger.commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr);
+				String result = PeterBochsDebugger.commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr, null);
 				String[] lines = result.split("\n");
 				byte bytes[] = new byte[totalByte];
 				int offset = 0;

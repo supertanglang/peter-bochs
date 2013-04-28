@@ -122,7 +122,6 @@ import com.peterbochs.sourceleveldebugger.SourceLevelDebugger3;
 import com.peterbochs.webservice.WebServiceUtil;
 import com.peterdwarf.dwarf.Dwarf;
 import com.peterdwarf.dwarf.DwarfDebugLineHeader;
-import com.peterdwarf.dwarf.DwarfHeaderFilename;
 import com.peterdwarf.dwarf.DwarfLine;
 import com.peterswing.CommonLib;
 import com.peterswing.advancedswing.diskpanel.DiskPanel;
@@ -188,7 +187,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 	public JComboBox jMemoryAddressComboBox;
 	private JButton jDeleteBreakpointButton;
 	private JPanel jPanel12;
-	private JTable jBreakpointTable;
+	private JTable breakpointTable;
 	private JButton jDisableBreakpointButton;
 	private JButton jEnableBreakpointButton;
 	private JButton jSaveBreakpointButton;
@@ -237,6 +236,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 	private JPanel jPanel22;
 	private JPanel jPanel24;
 	private JToolBar jPanel26;
+	private JMenuItem disasmFromEIPMinus100MenuItem;
 	private JButton nextOverButton;
 	private JButton nextButton;
 	private JMenuItem jLicenseMenuItem;
@@ -1958,9 +1958,9 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 					updateOSDebugInfo();
 				}
 
-				d.jProgressBar.setString("jInstrumentPanel.updateChart");
+				d.jProgressBar.setString("update instrument chart");
 				if (Global.debug) {
-					System.out.println("jInstrumentPanel.updateChart");
+					System.out.println("update instrument chart");
 				}
 				jInstrumentPanel.updateChart();
 
@@ -2170,16 +2170,17 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 	}
 
 	public void updateBreakpointTableColor() {
-		for (int x = 0; x < jBreakpointTable.getRowCount(); x++) {
-			String value = jBreakpointTable.getValueAt(x, 0).toString();
+		for (int x = 0; x < breakpointTable.getRowCount(); x++) {
+			String value = breakpointTable.getValueAt(x, 0).toString();
 			InstructionTableModel model = (InstructionTableModel) instructionTable.getModel();
-			if (CommonLib.string2decimal(model.getMemoryAddress(0)).equals(CommonLib.string2decimal(jBreakpointTable.getValueAt(x, 2).toString()))) {
-				int hit = Integer.parseInt(jBreakpointTable.getValueAt(x, 3).toString());
-				jBreakpointTable.setValueAt("-" + value, x, 0);
-				jBreakpointTable.setValueAt(hit + 1, x, 3);
+			BigInteger currentIP = CommonLib.string2decimal(registerPanel.eipTextField.getText());
+			if (currentIP.equals(CommonLib.string2decimal(breakpointTable.getValueAt(x, 2).toString()))) {
+				int hit = Integer.parseInt(breakpointTable.getValueAt(x, 3).toString());
+				breakpointTable.setValueAt("-" + value, x, 0);
+				breakpointTable.setValueAt(hit + 1, x, 3);
 			} else {
 				if (value.startsWith("-")) {
-					jBreakpointTable.setValueAt(value.substring(1), x, 0);
+					breakpointTable.setValueAt(value.substring(1), x, 0);
 				}
 			}
 		}
@@ -2353,7 +2354,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 			realStartAddressStr = realStartAddress.toString(16);
 			BigInteger realEndAddress = realStartAddress.add(BigInteger.valueOf(totalByte3 * 8));
 			realEndAddressStr = String.format("%08x", realEndAddress);
-			String result = commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr);
+			String result = commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr, null);
 			if (result != null) {
 				String[] lines = result.split("\n");
 				DefaultTableModel model = (DefaultTableModel) jPageDirectoryTable.getModel();
@@ -2705,7 +2706,6 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 				DwarfLine startLine = null;
 				DwarfLine endLine = null;
 				DwarfDebugLineHeader startHeader = null;
-				boolean toggle = false;
 
 				outerloop: for (DwarfDebugLineHeader header : dwarf.headers) {
 					//					Vector<DwarfLine> norepeatedline = new Vector<DwarfLine>();
@@ -2720,9 +2720,13 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 					//						lastLine = line;
 					//					}
 
+					boolean toggle = false;
 					for (DwarfLine line : header.lines) {
 						if (!toggle && line.address.equals(pc)) {
 							startLine = line;
+							if (startLine == null) {
+								System.out.println("NULL AR");
+							}
 							startHeader = header;
 							toggle = true;
 							continue;
@@ -2802,7 +2806,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 			sendCommand("info gdt 0 " + limit);
 			String limitStr = String.format("0x%02x", limit);
 
-			String result = commandReceiver.getCommandResult("GDT[0x00]", "GDT[" + limitStr + "]");
+			String result = commandReceiver.getCommandResult("GDT[0x00]", "GDT[" + limitStr + "]", null);
 			if (result != null) {
 				String lines[] = result.split("\n");
 				GDTTableModel model = (GDTTableModel) jGDTTable.getModel();
@@ -2843,7 +2847,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 
 			String limitStr = String.format("0x%02x", limit);
 
-			String result = commandReceiver.getCommandResult("IDT[0x00]", "IDT[" + limitStr + "]");
+			String result = commandReceiver.getCommandResult("IDT[0x00]", "IDT[" + limitStr + "]", "limit=0)");
 
 			IDTTableModel model = (IDTTableModel) jIDTTable.getModel();
 			model.clear();
@@ -2925,7 +2929,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 			}
 			commandReceiver.shouldShow = false;
 			sendCommand("r");
-			String result = commandReceiver.getCommandResult("ax:", "eflags");
+			String result = commandReceiver.getCommandResult("ax:", "eflags", null);
 			result = result.replaceAll("r", "\nr");
 			String lines[] = result.split("\n");
 			if (updateGUI) {
@@ -2983,7 +2987,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 				// System.out.println("want sreg");
 				commandReceiver.clearBuffer();
 				sendCommand("sreg");
-				String result = commandReceiver.getCommandResult("s:", "idtr:");
+				String result = commandReceiver.getCommandResult("s:", "idtr:", null);
 				// System.out.println(result);
 				String[] lines = result.split("\n");
 
@@ -3037,7 +3041,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 				// System.out.println("want sreg");
 				commandReceiver.clearBuffer();
 				sendCommand("sreg");
-				String result = commandReceiver.getCommandResult("s:", "idtr:");
+				String result = commandReceiver.getCommandResult("s:", "idtr:", null);
 				// System.out.println(result);
 				String[] lines = result.split("\n");
 
@@ -3092,7 +3096,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 			// commandReceiver.setCommandNoOfLine(Integer.parseInt(bochsCommandLength.get(0).get("cregs").toString()));
 			commandReceiver.clearBuffer();
 			sendCommand("creg");
-			String result = commandReceiver.getCommandResult("CR0", "CR4");
+			String result = commandReceiver.getCommandResult("CR0", "CR4", null);
 			String[] lines = result.split("\n");
 
 			int x = 0;
@@ -3144,7 +3148,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 				}
 				// commandReceiver.setCommandNoOfLine(Integer.parseInt(bochsCommandLength.get(0).get("cregs").toString()));
 				sendCommand("dreg");
-				String result = commandReceiver.getCommandResult("DR0", "DR7");
+				String result = commandReceiver.getCommandResult("DR0", "DR7", null);
 				String[] lines = result.split("\n");
 
 				int x = 0;
@@ -3182,7 +3186,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 			}
 			commandReceiver.clearBuffer();
 			sendCommand("fpu");
-			String result = commandReceiver.getCommandResult("status", "FP7");
+			String result = commandReceiver.getCommandResult("status", "FP7", null);
 			String[] lines = result.split("\n");
 
 			int x = 0;
@@ -3241,7 +3245,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 			}
 			commandReceiver.clearBuffer();
 			sendCommand("mmx");
-			String result = commandReceiver.getCommandResult("MM[0]", "MM[7]");
+			String result = commandReceiver.getCommandResult("MM[0]", "MM[7]", null);
 			String[] lines = result.split("\n");
 
 			int x = 0;
@@ -3386,7 +3390,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 			BigInteger realEndAddress = realStartAddress.add(BigInteger.valueOf(totalByte3 * 8));
 			realEndAddressStr = String.format("%08x", realEndAddress);
 
-			String result = commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr);
+			String result = commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr, null);
 			String[] lines = result.split("\n");
 			PageTableTableModel model = (PageTableTableModel) jPageTableTable.getModel();
 			while (model.getRowCount() > 0) {
@@ -3455,7 +3459,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 			Thread.currentThread();
 			String result = commandReceiver.getCommandResultUntilEnd();
 			String[] lines = result.split("\n");
-			DefaultTableModel model = (DefaultTableModel) jBreakpointTable.getModel();
+			DefaultTableModel model = (DefaultTableModel) breakpointTable.getModel();
 			while (model.getRowCount() > 0) {
 				model.removeRow(0);
 			}
@@ -3514,13 +3518,13 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		LinkedList<Breakpoint> v = Setting.getInstance().getBreakpoint();
 		v.clear();
 
-		for (int x = 0; x < this.jBreakpointTable.getRowCount(); x++) {
+		for (int x = 0; x < this.breakpointTable.getRowCount(); x++) {
 			Breakpoint h = new Breakpoint();
 			h.setNo(x);
-			h.setType(this.jBreakpointTable.getValueAt(x, 0).toString());
-			h.setEnable(this.jBreakpointTable.getValueAt(x, 1).toString());
-			h.setAddress(this.jBreakpointTable.getValueAt(x, 2).toString());
-			h.setHit(Integer.parseInt(this.jBreakpointTable.getValueAt(x, 3).toString()));
+			h.setType(this.breakpointTable.getValueAt(x, 0).toString());
+			h.setEnable(this.breakpointTable.getValueAt(x, 1).toString());
+			h.setAddress(this.breakpointTable.getValueAt(x, 2).toString());
+			h.setHit(Integer.parseInt(this.breakpointTable.getValueAt(x, 3).toString()));
 			v.add(h);
 		}
 		Setting.getInstance().save();
@@ -3542,8 +3546,8 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 			try {
 				for (int x = 0; x < vector.size(); x++) {
 					boolean match = false;
-					for (int y = 0; y < this.jBreakpointTable.getRowCount(); y++) {
-						if (vector.get(x).getAddress().trim().equals(jBreakpointTable.getValueAt(y, 2).toString().trim())) {
+					for (int y = 0; y < this.breakpointTable.getRowCount(); y++) {
+						if (vector.get(x).getAddress().trim().equals(breakpointTable.getValueAt(y, 2).toString().trim())) {
 							match = true;
 							break;
 						}
@@ -3572,9 +3576,9 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 
 	private void jDeleteBreakpointButtonActionPerformed(ActionEvent evt) {
 		jDeleteBreakpointButton.setEnabled(false);
-		int rows[] = jBreakpointTable.getSelectedRows();
+		int rows[] = breakpointTable.getSelectedRows();
 		for (int x = 0; x < rows.length; x++) {
-			sendCommand("del " + jBreakpointTable.getValueAt(rows[x], 0).toString().replaceAll("^-*", "").trim().split(" ")[0]);
+			sendCommand("del " + breakpointTable.getValueAt(rows[x], 0).toString().replaceAll("^-*", "").trim().split(" ")[0]);
 		}
 		updateBreakpoint();
 		updateBreakpointTableColor();
@@ -3583,9 +3587,9 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 
 	private void jDisableBreakpointButtonActionPerformed(ActionEvent evt) {
 		jDisableBreakpointButton.setEnabled(false);
-		int rows[] = jBreakpointTable.getSelectedRows();
+		int rows[] = breakpointTable.getSelectedRows();
 		for (int x = 0; x < rows.length; x++) {
-			sendCommand("bpd " + jBreakpointTable.getValueAt(rows[x], 0).toString().replaceAll("^-*", "").trim().split(" ")[0]);
+			sendCommand("bpd " + breakpointTable.getValueAt(rows[x], 0).toString().replaceAll("^-*", "").trim().split(" ")[0]);
 		}
 		updateBreakpoint();
 		updateBreakpointTableColor();
@@ -3595,9 +3599,9 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 
 	private void jEnableBreakpointButtonActionPerformed(ActionEvent evt) {
 		jEnableBreakpointButton.setEnabled(false);
-		int rows[] = jBreakpointTable.getSelectedRows();
+		int rows[] = breakpointTable.getSelectedRows();
 		for (int x = 0; x < rows.length; x++) {
-			sendCommand("bpe " + jBreakpointTable.getValueAt(rows[x], 0).toString().replaceAll("^-*", "").trim().split(" ")[0]);
+			sendCommand("bpe " + breakpointTable.getValueAt(rows[x], 0).toString().replaceAll("^-*", "").trim().split(" ")[0]);
 		}
 		updateBreakpoint();
 		updateBreakpointTableColor();
@@ -4694,7 +4698,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 							instructionTable.setDefaultRenderer(String.class, new InstructionTableCellRenderer());
 							instructionTable.addMouseListener(new MouseAdapter() {
 								public void mouseClicked(MouseEvent evt) {
-									jInstructionTableMouseClicked(evt);
+									instructionTableMouseClicked(evt);
 								}
 							});
 						}
@@ -4710,19 +4714,19 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 						jScrollPane9 = new JScrollPane();
 						jPanel4.add(jScrollPane9, BorderLayout.CENTER);
 						{
-							jBreakpointTable = new JTable();
-							jBreakpointTable.getTableHeader().setReorderingAllowed(false);
-							jScrollPane9.setViewportView(jBreakpointTable);
-							jBreakpointTable.setModel(jBreakpointTableModel);
-							jBreakpointTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
-							jBreakpointTable.getColumnModel().getColumn(0).setCellRenderer(new BreakpointTableCellRenderer());
-							jBreakpointTable.addMouseListener(new MouseAdapter() {
+							breakpointTable = new JTable();
+							breakpointTable.getTableHeader().setReorderingAllowed(false);
+							jScrollPane9.setViewportView(breakpointTable);
+							breakpointTable.setModel(jBreakpointTableModel);
+							breakpointTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+							breakpointTable.getColumnModel().getColumn(0).setCellRenderer(new BreakpointTableCellRenderer());
+							breakpointTable.addMouseListener(new MouseAdapter() {
 								public void mouseClicked(MouseEvent evt) {
-									jBreakpointTableMouseClicked(evt);
+									breakpointTableMouseClicked(evt);
 								}
 							});
-							jBreakpointTable.getColumnModel().getColumn(2).setPreferredWidth(100);
-							jBreakpointTable.getColumnModel().getColumn(3).setPreferredWidth(20);
+							breakpointTable.getColumnModel().getColumn(2).setPreferredWidth(100);
+							breakpointTable.getColumnModel().getColumn(3).setPreferredWidth(20);
 						}
 					}
 					{
@@ -5160,12 +5164,12 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 						jRunningLabel
 								.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\""
 										+ url
-										+ "\" /><br><br><a style=\"color: #ffffff;  text-decoration:none\" href=\"http://www.kingofcoders.com\">��函���������www.kingofcoders.com</a></center></html>");
+										+ "\" /><br><br><a style=\"color: #ffffff;  text-decoration:none\" href=\"http://www.kingofcoders.com\">������������������������������������www.kingofcoders.com</a></center></html>");
 					} else if (Setting.getInstance().getCurrentLanguage().equals("zh_CN")) {
 						jRunningLabel
 								.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\""
 										+ url
-										+ "\" /><br><br><img src=\"http://www.kingofcoders.com/images/KOC_logo2.jpg\" /><br><a style=\"color: #ffffff;  text-decoration:none\" href=\"http://www.kingofcoders.com\">��������������www.kingofcoders.com</a></center></html>");
+										+ "\" /><br><br><img src=\"http://www.kingofcoders.com/images/KOC_logo2.jpg\" /><br><a style=\"color: #ffffff;  text-decoration:none\" href=\"http://www.kingofcoders.com\">������������������������������������������www.kingofcoders.com</a></center></html>");
 					} else {
 						jRunningLabel.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\"" + url + "\" /></center></html>");
 					}
@@ -6001,10 +6005,10 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		SourceCodeTableModel model = (SourceCodeTableModel) elfTable.getModel();
 		BigInteger address = model.getDebugLineInfo().get(model.getCurrentFile()).get(this.elfTable.getSelectedRow());
 
-		for (int x = 0; x < jBreakpointTable.getRowCount(); x++) {
-			BigInteger addr = CommonLib.string2decimal(jBreakpointTable.getValueAt(x, 2).toString());
+		for (int x = 0; x < breakpointTable.getRowCount(); x++) {
+			BigInteger addr = CommonLib.string2decimal(breakpointTable.getValueAt(x, 2).toString());
 			if (addr == address) {
-				String breakpointNo = jBreakpointTable.getValueAt(x, 0).toString().trim().split(" ")[0];
+				String breakpointNo = breakpointTable.getValueAt(x, 0).toString().trim().split(" ")[0];
 				sendCommand("bpe " + breakpointNo);
 
 				model.updateBreakpoint(getRealEIP());
@@ -6018,10 +6022,10 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		SourceCodeTableModel model = (SourceCodeTableModel) elfTable.getModel();
 		BigInteger address = model.getDebugLineInfo().get(model.getCurrentFile()).get(this.elfTable.getSelectedRow());
 
-		for (int x = 0; x < jBreakpointTable.getRowCount(); x++) {
-			BigInteger addr = CommonLib.string2decimal(jBreakpointTable.getValueAt(x, 2).toString());
+		for (int x = 0; x < breakpointTable.getRowCount(); x++) {
+			BigInteger addr = CommonLib.string2decimal(breakpointTable.getValueAt(x, 2).toString());
 			if (addr == address) {
-				String breakpointNo = jBreakpointTable.getValueAt(x, 0).toString().trim().split(" ")[0];
+				String breakpointNo = breakpointTable.getValueAt(x, 0).toString().trim().split(" ")[0];
 				sendCommand("bpd " + breakpointNo);
 
 				model.updateBreakpoint(getRealEIP());
@@ -6682,7 +6686,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 				realStartAddressStr = String.format("%08x", realStartAddress);
 				long realEndAddress = realStartAddress + totalByte3 * 8;
 				realEndAddressStr = String.format("%08x", realEndAddress);
-				String result = commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr);
+				String result = commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr, null);
 				if (result != null) {
 					String[] lines = result.split("\n");
 					int offset = 0;
@@ -6798,6 +6802,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 			jInstructionPanelPopupMenu.add(getJSetLinearBreakpointMenuItem());
 			jInstructionPanelPopupMenu.add(getJSeparator3());
 			jInstructionPanelPopupMenu.add(getJDisasmHereMenuItem());
+			jInstructionPanelPopupMenu.add(getDisasmFromEIPMinus100MenuItem());
 			jInstructionPanelPopupMenu.add(getClearInstructionTableMenuItem());
 		}
 		return jInstructionPanelPopupMenu;
@@ -6846,7 +6851,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		return jSetLinearBreakpointMenuItem;
 	}
 
-	public void jInstructionTableMouseClicked(MouseEvent evt) {
+	public void instructionTableMouseClicked(MouseEvent evt) {
 		if (SwingUtilities.isRightMouseButton(evt)) {
 			JTable jTable = (JTable) evt.getSource();
 
@@ -6892,15 +6897,15 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		updateInstruction(null);
 	}
 
-	private void jBreakpointTableMouseClicked(MouseEvent evt) {
+	private void breakpointTableMouseClicked(MouseEvent evt) {
 		if (SwingUtilities.isRightMouseButton(evt)) {
 			// select
 			Point p = evt.getPoint();
-			int rowNumber = jBreakpointTable.rowAtPoint(p);
-			int columnNumber = jBreakpointTable.columnAtPoint(p);
-			ListSelectionModel model = jBreakpointTable.getSelectionModel();
+			int rowNumber = breakpointTable.rowAtPoint(p);
+			int columnNumber = breakpointTable.columnAtPoint(p);
+			ListSelectionModel model = breakpointTable.getSelectionModel();
 			model.setSelectionInterval(rowNumber, rowNumber);
-			jBreakpointTable.getColumnModel().getSelectionModel().setSelectionInterval(columnNumber, columnNumber);
+			breakpointTable.getColumnModel().getSelectionModel().setSelectionInterval(columnNumber, columnNumber);
 			// end select
 
 			getJBreakpointPopupMenu().show(evt.getComponent(), evt.getX(), evt.getY());
@@ -6943,8 +6948,8 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 	}
 
 	private void jMenuItem6ActionPerformed(ActionEvent evt) {
-		this.jMemoryAddressComboBox.setSelectedItem(this.jBreakpointTable.getValueAt(this.jBreakpointTable.getSelectedRow(), 2));
-		if (this.jBreakpointTable.getValueAt(this.jBreakpointTable.getSelectedRow(), 0).toString().contains("lb")) {
+		this.jMemoryAddressComboBox.setSelectedItem(this.breakpointTable.getValueAt(this.breakpointTable.getSelectedRow(), 2));
+		if (this.breakpointTable.getValueAt(this.breakpointTable.getSelectedRow(), 0).toString().contains("lb")) {
 			jGoLinearButtonActionPerformed(null);
 		} else {
 			jGOMemoryButtonActionPerformed(null);
@@ -6953,7 +6958,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 	}
 
 	private void jMenuItem7ActionPerformed(ActionEvent evt) {
-		this.jInstructionComboBox.setSelectedItem(this.jBreakpointTable.getValueAt(this.jBreakpointTable.getSelectedRow(), 2));
+		this.jInstructionComboBox.setSelectedItem(this.breakpointTable.getValueAt(this.breakpointTable.getSelectedRow(), 2));
 		disassembleButtonActionPerformed(null);
 		jTabbedPane1.setSelectedIndex(0);
 	}
@@ -7993,12 +7998,12 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 				jRunningLabel2
 						.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\""
 								+ url
-								+ "\" /><br><br><a style=\"color: #000000;  text-decoration:none\" href=\"http://www.kingofcoders.com\">���滢������餌��������������������www.kingofcoders.com</a></center></html>");
+								+ "\" /><br><br><a style=\"color: #000000;  text-decoration:none\" href=\"http://www.kingofcoders.com\">���������������������������������������������������������������������������������������������www.kingofcoders.com</a></center></html>");
 			} else if (Setting.getInstance().getCurrentLanguage().equals("zh_CN")) {
 				jRunningLabel2
 						.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\""
 								+ url
-								+ "\" /><br><br><img src=\"http://www.kingofcoders.com/images/KOC_logo2.jpg\" /><br><a style=\"color: #000000;  text-decoration:none\" href=\"http://www.kingofcoders.com\">���魂▽������������������∴����www.kingofcoders.com</a></center></html>");
+								+ "\" /><br><br><img src=\"http://www.kingofcoders.com/images/KOC_logo2.jpg\" /><br><a style=\"color: #000000;  text-decoration:none\" href=\"http://www.kingofcoders.com\">������������������������������������������������������������������������������������www.kingofcoders.com</a></center></html>");
 			} else {
 				jRunningLabel2.setText("<html><center>Bochs is running, click the pause button to pause it !!!<br><br><img src=\"" + url + "\" /></center></html>");
 			}
@@ -8912,5 +8917,38 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		if (addr != null) {
 			nexti(addr, "next");
 		}
+	}
+
+	private JMenuItem getDisasmFromEIPMinus100MenuItem() {
+		if (disasmFromEIPMinus100MenuItem == null) {
+			disasmFromEIPMinus100MenuItem = new JMenuItem();
+			disasmFromEIPMinus100MenuItem.setText("Disasm from EIP-100");
+			disasmFromEIPMinus100MenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					disasmFromEIPMinus100MenuItemActionPerformed(evt);
+				}
+			});
+		}
+		return disasmFromEIPMinus100MenuItem;
+	}
+
+	private void disasmFromEIPMinus100MenuItemActionPerformed(ActionEvent evt) {
+		String str;
+		if (Global.clickedWhichInstructionPanel == 0) {
+			str = (String) instructionTable.getValueAt(instructionTable.getSelectedRow(), 1);
+		} else {
+			str = (String) sourceLevelDebugger.instructionTable.getValueAt(sourceLevelDebugger.instructionTable.getSelectedRow(), 1);
+		}
+
+		BigInteger address;
+		if (str.startsWith("cCode")) {
+			long l = CommonLib.string2long(str.split(":")[1]);
+			address = BigInteger.valueOf(l);
+		} else {
+			long l = CommonLib.string2long(str.split(":")[0]);
+			address = BigInteger.valueOf(l);
+		}
+
+		updateInstruction(address.subtract(BigInteger.valueOf(0x100)));
 	}
 }

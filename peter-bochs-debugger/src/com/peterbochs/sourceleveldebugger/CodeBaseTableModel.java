@@ -78,9 +78,6 @@ public class CodeBaseTableModel extends AbstractTableModel {
 						}
 						String s[] = new String[endLineNo - line.line_num + 1];
 						for (int z = line.line_num - 1, index = 0; z < endLineNo && z < sourceLines.size(); z++, index++) {
-							if (z >= sourceLines.size()) {
-								System.out.println("ss");
-							}
 							String cCode = sourceLines.get(z);
 							s[index] = cCode;
 						}
