@@ -169,7 +169,7 @@ public class HelperDialog extends javax.swing.JDialog {
 				int realEndAddress = realStartAddress + totalByte3 * 8;
 				realEndAddressStr = String.format("%08x", realEndAddress);
 
-				String result2 = PeterBochsDebugger.commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr);
+				String result2 = PeterBochsDebugger.commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr, null);
 				String[] lines2 = result2.split("\n");
 
 				byte tssByte[] = new byte[(int) limit];

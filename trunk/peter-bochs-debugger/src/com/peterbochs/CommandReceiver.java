@@ -131,7 +131,7 @@ public class CommandReceiver implements Runnable {
 		}
 	}
 
-	public String getCommandResult(String startPattern, String endPattern) {
+	public String getCommandResult(String startPattern, String endPattern, String exitPattern) {
 		long startTime = new Date().getTime();
 
 		String str = "";
@@ -140,8 +140,11 @@ public class CommandReceiver implements Runnable {
 		while (true) {
 			synchronized (lines) {
 				if (lines.size() > 0) {
+					if (exitPattern != null && lines.get(0).contains(exitPattern)) {
+						return str;
+					}
 					if (startCapture) {
-						if (lines.get(0).contains((endPattern))) {
+						if (lines.get(0).contains(endPattern)) {
 							str += lines.get(0) + "\n";
 							lines.remove(0);
 							startCapture = false;
@@ -206,10 +209,10 @@ public class CommandReceiver implements Runnable {
 		long startTime = new Date().getTime();
 
 		while (lines.size() < i) {
-//			try {
-//				Thread.currentThread().sleep(20);
-//			} catch (InterruptedException e) {
-//			}
+			//			try {
+			//				Thread.currentThread().sleep(20);
+			//			} catch (InterruptedException e) {
+			//			}
 			long diff = new Date().getTime() - startTime;
 			if (diff / 1000 >= timeoutSecond) {
 				return;

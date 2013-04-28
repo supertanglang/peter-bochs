@@ -177,13 +177,16 @@ public class InstructionTableModel extends AbstractTableModel {
 		try {
 			long lastAddress = CommonLib.string2long(data.get(data.size() - 1)[1]);
 			for (int x = data.size() - 2; x >= 0; x--) {
+				long address;
 				if (data.get(x)[1].contains("cCode")) {
-					continue;
+					address = CommonLib.string2long(data.get(x)[1].split(":")[1]);
+				} else {
+					address = CommonLib.string2long(data.get(x)[1]);
 				}
-				if (CommonLib.string2long(data.get(x)[1]) > lastAddress) {
+				if (address > lastAddress) {
 					data.remove(x);
 				} else {
-					lastAddress = CommonLib.string2long(data.get(x)[1]);
+					lastAddress = address;
 				}
 			}
 		} catch (Exception ex) {

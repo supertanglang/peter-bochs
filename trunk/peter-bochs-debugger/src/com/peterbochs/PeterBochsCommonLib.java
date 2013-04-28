@@ -462,7 +462,7 @@ public class PeterBochsCommonLib {
 			realEndAddressStr = String.format("%08x", realEndAddress);
 			// System.out.println(realStartAddressStr);
 			// System.out.println(realEndAddressStr);
-			String result = PeterBochsDebugger.commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr);
+			String result = PeterBochsDebugger.commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr, null);
 			// System.out.println(result);
 			if (result != null) {
 				String[] lines = result.split("\n");

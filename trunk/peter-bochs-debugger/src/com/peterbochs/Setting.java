@@ -567,7 +567,7 @@ public class Setting {
 
 			// Betwixt just writes out the bean as a fragment
 			// So if we want well-formed xml, we need to add the prolog
-			outputWriter.write("<?xml version='1.0' ?>");
+			outputWriter.write("<?xml version='1.0' ?>\n");
 
 			// Create a BeanWriter which writes to our prepared stream
 			BeanWriter beanWriter = new BeanWriter(outputWriter);
@@ -581,10 +581,6 @@ public class Setting {
 			// If the base element is not passed in, Betwixt will guess
 			// But let's write example bean as base element 'person'
 			beanWriter.write("Setting", this);
-
-			// Write to System.out
-			// (We could have used the empty constructor for BeanWriter
-			// but this way is more instructive)
 
 			// Betwixt writes fragments not documents so does not automatically
 			// close
@@ -600,7 +596,9 @@ public class Setting {
 		try {
 			File file = new File("peter-bochs.xml");
 			if (!file.exists()) {
-				return new Setting();
+				Setting setting = new Setting();
+				setting.save();
+				return setting;
 			}
 
 			FileReader reader = new FileReader(file);
@@ -678,8 +676,9 @@ public class Setting {
 	}
 
 	public static void main(String args[]) {
-		// new Setting().save();
+		new Setting().save();
 		Setting setting = Setting.getInstance();
+		System.out.println(setting);
 	}
 
 	public LinkedHashSet<Long> getSbAddress() {

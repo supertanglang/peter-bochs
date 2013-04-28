@@ -487,7 +487,7 @@ public class TSSPanel extends JPanel {
 			jTable2.setPreferredSize(new Dimension(600, 600));
 			// PeterBochsDebugger.commandReceiver.setCommandNoOfLine(20);
 			PeterBochsDebugger.sendCommand("info ldt 0 20");
-			String result = PeterBochsDebugger.commandReceiver.getCommandResult("XX", "XX");
+			String result = PeterBochsDebugger.commandReceiver.getCommandResult("XX", "XX", null);
 			String lines[] = result.split("\n");
 			for (int x = 1; x < lines.length; x++) {
 				try {
@@ -538,7 +538,7 @@ public class TSSPanel extends JPanel {
 			long realEndAddress = realStartAddress + totalByte3 * 8;
 			realEndAddressStr = String.format("%08x", realEndAddress);
 
-			String result2 = PeterBochsDebugger.commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr);
+			String result2 = PeterBochsDebugger.commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr, null);
 			String[] lines2 = result2.split("\n");
 
 			int tssByte[] = new int[(int) limit];
@@ -604,7 +604,7 @@ public class TSSPanel extends JPanel {
 			realStartAddressStr = String.format("%08x", realStartAddress);
 			BigInteger realEndAddress = realStartAddress.add(BigInteger.valueOf(totalByte3 * 8));
 			realEndAddressStr = String.format("%08x", realEndAddress);
-			String result = PeterBochsDebugger.commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr);
+			String result = PeterBochsDebugger.commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr, null);
 			if (result != null) {
 				String[] lines = result.split("\n");
 				DefaultTableModel model = (DefaultTableModel) jPageDirectoryTable.getModel();
@@ -682,7 +682,7 @@ public class TSSPanel extends JPanel {
 			BigInteger realEndAddress = realStartAddress.add(BigInteger.valueOf(totalByte3 * 8));
 			realEndAddressStr = String.format("%08x", realEndAddress);
 
-			String result = PeterBochsDebugger.commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr);
+			String result = PeterBochsDebugger.commandReceiver.getCommandResult(realStartAddressStr, realEndAddressStr, null);
 			String[] lines = result.split("\n");
 			DefaultTableModel model = (DefaultTableModel) jPageTableTable.getModel();
 			while (model.getRowCount() > 0) {

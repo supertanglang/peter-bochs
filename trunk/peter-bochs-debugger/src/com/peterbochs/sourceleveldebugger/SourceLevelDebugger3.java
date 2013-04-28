@@ -538,7 +538,7 @@ public class SourceLevelDebugger3 extends JMaximizableTabbedPane_BasePanel imple
 	}
 
 	private void instructionTableMouseClicked(MouseEvent evt) {
-		peterBochsDebugger.jInstructionTableMouseClicked(evt);
+		peterBochsDebugger.instructionTableMouseClicked(evt);
 	}
 
 	public void loadELF(String elfPaths[]) {
@@ -549,7 +549,6 @@ public class SourceLevelDebugger3 extends JMaximizableTabbedPane_BasePanel imple
 		dialog.setSize(500, 100);
 		dialog.setLocationRelativeTo(peterBochsDebugger);
 		new Thread(new Runnable() {
-
 			@Override
 			public void run() {
 				dialog.setVisible(true);
@@ -931,7 +930,7 @@ public class SourceLevelDebugger3 extends JMaximizableTabbedPane_BasePanel imple
 			codeBaseTable.getColumnModel().getColumn(0).setPreferredWidth(100);
 			codeBaseTable.getColumnModel().getColumn(1).setPreferredWidth(100);
 			codeBaseTable.getColumnModel().getColumn(2).setPreferredWidth(400);
-			codeBaseTable.getColumnModel().getColumn(3).setPreferredWidth(400);
+			codeBaseTable.getColumnModel().getColumn(3).setPreferredWidth(1500);
 			codeBaseTable.addMouseListener(new MouseAdapter() {
 				public void mouseClicked(MouseEvent evt) {
 					codeBaseTableMouseClicked(evt);
