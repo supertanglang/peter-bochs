@@ -411,7 +411,7 @@ public class PeterBochsCommonLib {
 		int bytes[] = new int[8];
 		String[] b = result.replaceFirst("^.*:", "").split("\t");
 		for (int y = 1; y <= 8; y++) {
-			bytes[y - 1] = CommonLib.string2decimal(b[y]).intValue();
+			bytes[y - 1] = CommonLib.string2BigInteger(b[y]).intValue();
 		}
 		BigInteger pde = CommonLib.getBigInteger(CommonLib.getLong(bytes, 0), 12, 31).shiftLeft(12);
 		System.out.println("pde=" + pde.toString(16));
@@ -424,7 +424,7 @@ public class PeterBochsCommonLib {
 		bytes = new int[8];
 		b = result.replaceFirst("^.*:", "").split("\t");
 		for (int y = 1; y <= 8; y++) {
-			bytes[y - 1] = CommonLib.string2decimal(b[y]).byteValue();
+			bytes[y - 1] = CommonLib.string2BigInteger(b[y]).byteValue();
 		}
 		BigInteger pageAddr = CommonLib.getBigInteger(CommonLib.getLong(bytes, 0), 12, 31).shiftLeft(12);
 		System.out.println("pageAddr=" + pageAddr.toString(16));
@@ -439,7 +439,7 @@ public class PeterBochsCommonLib {
 		int bytes[] = new int[8];
 		String[] b = result.replaceFirst("^.*:", "").split("\t");
 		for (int y = 1; y <= 8; y++) {
-			bytes[y - 1] = CommonLib.string2decimal(b[y]).byteValue();
+			bytes[y - 1] = CommonLib.string2BigInteger(b[y]).byteValue();
 		}
 		return CommonLib.getLong(bytes, 0);
 	}

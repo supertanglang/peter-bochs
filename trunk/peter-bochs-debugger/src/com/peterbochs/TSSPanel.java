@@ -621,7 +621,7 @@ public class TSSPanel extends JPanel {
 						try {
 							int bytes[] = new int[4];
 							for (int x = 0; x < 4; x++) {
-								bytes[x] = CommonLib.string2decimal(b[x + z * 4].substring(2).trim()).intValue();
+								bytes[x] = CommonLib.string2BigInteger(b[x + z * 4].substring(2).trim()).intValue();
 							}
 							long value = CommonLib.getInt(bytes, 0);
 							// "No.", "PT base", "AVL", "G",
@@ -676,7 +676,7 @@ public class TSSPanel extends JPanel {
 			String realEndAddressStr;
 			String realStartAddressStr;
 			String baseAddress = pageTableAddress;
-			BigInteger realStartAddress = CommonLib.string2decimal(baseAddress);
+			BigInteger realStartAddress = CommonLib.string2BigInteger(baseAddress);
 
 			realStartAddressStr = String.format("%08x", realStartAddress);
 			BigInteger realEndAddress = realStartAddress.add(BigInteger.valueOf(totalByte3 * 8));
@@ -696,7 +696,7 @@ public class TSSPanel extends JPanel {
 					try {
 						int bytes[] = new int[4];
 						for (int x = 0; x < 4; x++) {
-							bytes[x] = CommonLib.string2decimal(b[x + z * 4].substring(2).trim()).intValue();
+							bytes[x] = CommonLib.string2BigInteger(b[x + z * 4].substring(2).trim()).intValue();
 						}
 						long value = CommonLib.getInt(bytes, 0);
 						// "No.", "PT base", "AVL", "G",
@@ -775,7 +775,7 @@ public class TSSPanel extends JPanel {
 				button.setBackground(table.getBackground());
 			}
 
-			cr3 = CommonLib.string2decimal(table.getValueAt(row, 2).toString());
+			cr3 = CommonLib.string2BigInteger(table.getValueAt(row, 2).toString());
 
 			button.setText((value == null) ? "" : value.toString());
 			isPushed = true;
@@ -810,8 +810,8 @@ public class TSSPanel extends JPanel {
 				JOptionPane.showMessageDialog(this, "Error, please input <segment selector>:<offset>\n\ne.g. : 0x10:0x12345678", "Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-			BigInteger segSelector = CommonLib.string2decimal(this.jAddressTextField.getText().split(":")[0]);
-			BigInteger address = CommonLib.string2decimal(this.jAddressTextField.getText().split(":")[1]);
+			BigInteger segSelector = CommonLib.string2BigInteger(this.jAddressTextField.getText().split(":")[0]);
+			BigInteger address = CommonLib.string2BigInteger(this.jAddressTextField.getText().split(":")[1]);
 
 			// for (int x = 0; x < model.getRowCount(); x++) {
 			// if (model.searchType.get(x).equals(1) &&
@@ -859,12 +859,12 @@ public class TSSPanel extends JPanel {
 		} else if (jSearchAddressRadioButton2.isSelected()) {
 			// for (int x = 0; x < model.getRowCount(); x++) {
 			// if (model.searchType.get(x).equals(2) &&
-			// model.searchAddress.get(x).equals(CommonLib.string2decimal(this.jAddressTextField.getText())))
+			// model.searchAddress.get(x).equals(CommonLib.string2BigInteger(this.jAddressTextField.getText())))
 			// {
 			// return;
 			// }
 			// }
-			BigInteger address = CommonLib.string2decimal(this.jAddressTextField.getText());
+			BigInteger address = CommonLib.string2BigInteger(this.jAddressTextField.getText());
 
 			model.searchType.add(2);
 			model.searchAddress.add(address);
@@ -896,11 +896,11 @@ public class TSSPanel extends JPanel {
 			model.fireTableDataChanged();
 		} else if (jSearchAddressRadioButton3.isSelected()) {
 			for (int x = 0; x < model.getRowCount(); x++) {
-				if (model.searchType.get(x).equals(3) && model.searchAddress.get(x).equals(CommonLib.string2decimal(this.jAddressTextField.getText()))) {
+				if (model.searchType.get(x).equals(3) && model.searchAddress.get(x).equals(CommonLib.string2BigInteger(this.jAddressTextField.getText()))) {
 					return;
 				}
 			}
-			BigInteger addr = CommonLib.string2decimal(this.jAddressTextField.getText());
+			BigInteger addr = CommonLib.string2BigInteger(this.jAddressTextField.getText());
 			model.searchType.add(3);
 			model.searchSegSelector.add(BigInteger.valueOf(0));
 			model.searchAddress.add(addr);
@@ -960,7 +960,7 @@ public class TSSPanel extends JPanel {
 				int bytes[] = new int[8];
 				String[] b = result.replaceFirst("^.*:", "").split("\t");
 				for (int y = 1; y <= 8; y++) {
-					bytes[y - 1] = CommonLib.string2decimal(b[y]).intValue();
+					bytes[y - 1] = CommonLib.string2BigInteger(b[y]).intValue();
 				}
 
 				Long gdtDescriptor = CommonLib.getLong(bytes, 0);

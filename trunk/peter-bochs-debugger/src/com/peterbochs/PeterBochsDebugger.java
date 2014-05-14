@@ -509,8 +509,8 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 
 		if (args.length == 0) {
 			String errorMessage = "Wrong number of argument\n\n";
-			errorMessage += "\nIn Linux/Mac : java -jar peter-bochs-debugger.jar bochs -f bochxrc.bxrc";
-			errorMessage += "\nIn windows : java -jar peter-bochs-debugger.jar c:\\program files\\bochs2.4.3\\bochsdbg.exe -q -f bochxrc.bxrc";
+			errorMessage += "\nIn Linux/Mac : java -jar peter-bochs-debugger.jar bochs -f bochsrc.bxrc";
+			errorMessage += "\nIn windows : java -jar peter-bochs-debugger.jar c:\\program files\\bochs2.4.3\\bochsdbg.exe -q -f bochsrc.bxrc";
 			errorMessage += "\n!!! if using peter-bochs in windows, you need to pass the full path of bochs exe and -q to the parameter. (!!! relative path of bochs exe will not work)";
 			errorMessage += "\n!!! to use \"experimental feature\", please add \"-debug\" to the parameter list";
 			System.out.println(errorMessage);
@@ -1924,7 +1924,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 				if (Global.debug) {
 					System.out.println("updatePageTable");
 				}
-				updatePageTable(CommonLib.string2decimal(registerPanel.jCR3TextField.getText()));
+				updatePageTable(CommonLib.string2BigInteger(registerPanel.jCR3TextField.getText()));
 
 				d.jProgressBar.setString("updateStack");
 				if (Global.debug) {
@@ -2116,7 +2116,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 					if (Global.debug) {
 						System.out.println("updatePageTable");
 					}
-					updatePageTable(CommonLib.string2decimal(registerPanel.jCR3TextField.getText()));
+					updatePageTable(CommonLib.string2BigInteger(registerPanel.jCR3TextField.getText()));
 				}
 
 				if (Setting.getInstance().isUpdateAfterBochsCommand_stack()) {
@@ -2173,8 +2173,8 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		for (int x = 0; x < breakpointTable.getRowCount(); x++) {
 			String value = breakpointTable.getValueAt(x, 0).toString();
 			InstructionTableModel model = (InstructionTableModel) instructionTable.getModel();
-			BigInteger currentIP = CommonLib.string2decimal(registerPanel.eipTextField.getText());
-			if (currentIP.equals(CommonLib.string2decimal(breakpointTable.getValueAt(x, 2).toString()))) {
+			BigInteger currentIP = CommonLib.string2BigInteger(registerPanel.eipTextField.getText());
+			if (currentIP.equals(CommonLib.string2BigInteger(breakpointTable.getValueAt(x, 2).toString()))) {
 				int hit = Integer.parseInt(breakpointTable.getValueAt(x, 3).toString());
 				breakpointTable.setValueAt("-" + value, x, 0);
 				breakpointTable.setValueAt(hit + 1, x, 3);
@@ -2194,41 +2194,41 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		try {
 			AllRegisters.time.add(new Date());
 			AllRegisters.ptime.add(registerPanel.jPTimeTextField.getText());
-			AllRegisters.eax.add(CommonLib.string2decimal(registerPanel.jEAXTextField.getText()));
-			AllRegisters.ebx.add(CommonLib.string2decimal(registerPanel.jEBXTextField.getText()));
-			AllRegisters.ecx.add(CommonLib.string2decimal(registerPanel.jECXTextField.getText()));
-			AllRegisters.edx.add(CommonLib.string2decimal(registerPanel.jEDXTextField.getText()));
-			AllRegisters.esi.add(CommonLib.string2decimal(registerPanel.jESITextField.getText()));
-			AllRegisters.edi.add(CommonLib.string2decimal(registerPanel.jEDITextField.getText()));
-			AllRegisters.ebp.add(CommonLib.string2decimal(registerPanel.jEBPTextField.getText()));
-			AllRegisters.esp.add(CommonLib.string2decimal(registerPanel.jESPTextField.getText()));
+			AllRegisters.eax.add(CommonLib.string2BigInteger(registerPanel.jEAXTextField.getText()));
+			AllRegisters.ebx.add(CommonLib.string2BigInteger(registerPanel.jEBXTextField.getText()));
+			AllRegisters.ecx.add(CommonLib.string2BigInteger(registerPanel.jECXTextField.getText()));
+			AllRegisters.edx.add(CommonLib.string2BigInteger(registerPanel.jEDXTextField.getText()));
+			AllRegisters.esi.add(CommonLib.string2BigInteger(registerPanel.jESITextField.getText()));
+			AllRegisters.edi.add(CommonLib.string2BigInteger(registerPanel.jEDITextField.getText()));
+			AllRegisters.ebp.add(CommonLib.string2BigInteger(registerPanel.jEBPTextField.getText()));
+			AllRegisters.esp.add(CommonLib.string2BigInteger(registerPanel.jESPTextField.getText()));
 
-			AllRegisters.cs.add(CommonLib.string2decimal(registerPanel.jCSTextField.getText()));
-			AllRegisters.eip.add(CommonLib.string2decimal(registerPanel.eipTextField.getText()));
-			AllRegisters.ds.add(CommonLib.string2decimal(registerPanel.jDSTextField.getText()));
-			AllRegisters.es.add(CommonLib.string2decimal(registerPanel.jESTextField.getText()));
-			AllRegisters.fs.add(CommonLib.string2decimal(registerPanel.jFSTextField.getText()));
-			AllRegisters.gs.add(CommonLib.string2decimal(registerPanel.jGSTextField.getText()));
-			AllRegisters.ss.add(CommonLib.string2decimal(registerPanel.jSSTextField.getText()));
+			AllRegisters.cs.add(CommonLib.string2BigInteger(registerPanel.jCSTextField.getText()));
+			AllRegisters.eip.add(CommonLib.string2BigInteger(registerPanel.eipTextField.getText()));
+			AllRegisters.ds.add(CommonLib.string2BigInteger(registerPanel.jDSTextField.getText()));
+			AllRegisters.es.add(CommonLib.string2BigInteger(registerPanel.jESTextField.getText()));
+			AllRegisters.fs.add(CommonLib.string2BigInteger(registerPanel.jFSTextField.getText()));
+			AllRegisters.gs.add(CommonLib.string2BigInteger(registerPanel.jGSTextField.getText()));
+			AllRegisters.ss.add(CommonLib.string2BigInteger(registerPanel.jSSTextField.getText()));
 			AllRegisters.eflags.add(registerPanel.jEFlagLabel.getText().trim() + registerPanel.jEFlagLabel2.getText().trim());
 
-			AllRegisters.cr0.add(CommonLib.string2decimal(registerPanel.jCR0TextField.getText()));
-			AllRegisters.cr2.add(CommonLib.string2decimal(registerPanel.jCR2TextField.getText()));
-			AllRegisters.cr3.add(CommonLib.string2decimal(registerPanel.jCR3TextField.getText()));
-			AllRegisters.cr4.add(CommonLib.string2decimal(registerPanel.jCR4TextField.getText()));
+			AllRegisters.cr0.add(CommonLib.string2BigInteger(registerPanel.jCR0TextField.getText()));
+			AllRegisters.cr2.add(CommonLib.string2BigInteger(registerPanel.jCR2TextField.getText()));
+			AllRegisters.cr3.add(CommonLib.string2BigInteger(registerPanel.jCR3TextField.getText()));
+			AllRegisters.cr4.add(CommonLib.string2BigInteger(registerPanel.jCR4TextField.getText()));
 
-			AllRegisters.gdtr.add(CommonLib.string2decimal(registerPanel.jGDTRTextField.getText()));
-			AllRegisters.idtr.add(CommonLib.string2decimal(registerPanel.jIDTRTextField.getText()));
-			AllRegisters.ldtr.add(CommonLib.string2decimal(registerPanel.jLDTRTextField.getText()));
+			AllRegisters.gdtr.add(CommonLib.string2BigInteger(registerPanel.jGDTRTextField.getText()));
+			AllRegisters.idtr.add(CommonLib.string2BigInteger(registerPanel.jIDTRTextField.getText()));
+			AllRegisters.ldtr.add(CommonLib.string2BigInteger(registerPanel.jLDTRTextField.getText()));
 
-			AllRegisters.tr.add(CommonLib.string2decimal(registerPanel.jTRTextField.getText()));
+			AllRegisters.tr.add(CommonLib.string2BigInteger(registerPanel.jTRTextField.getText()));
 
 			AllRegisters.instructions.add(instruction.trim());
-			AllRegisters.cCode.add(getCCodeStr(CommonLib.string2decimal(registerPanel.eipTextField.getText())));
+			AllRegisters.cCode.add(getCCodeStr(CommonLib.string2BigInteger(registerPanel.eipTextField.getText())));
 
 			Vector<BigInteger> stack = new Vector<BigInteger>();
 			for (int x = 0; x < registerPanel.jStackList.getModel().getSize(); x++) {
-				stack.add(CommonLib.string2decimal(registerPanel.jStackList.getModel().getElementAt(x).toString()));
+				stack.add(CommonLib.string2BigInteger(registerPanel.jStackList.getModel().getElementAt(x).toString()));
 			}
 			AllRegisters.stack.add(stack);
 
@@ -2371,7 +2371,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 						try {
 							int bytes[] = new int[4];
 							for (int x = 0; x < 4; x++) {
-								bytes[x] = CommonLib.string2decimal(b[x + z * 4].substring(2).trim()).intValue();
+								bytes[x] = CommonLib.string2BigInteger(b[x + z * 4].substring(2).trim()).intValue();
 							}
 							long value = CommonLib.getInt(bytes, 0);
 							// "No.", "PT base", "AVL", "G",
@@ -2450,7 +2450,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		 * float totalByte2 = 4096 - 1; totalByte2 = totalByte2 / 8; int
 		 * totalByte3 = (int) Math.floor(totalByte2); String realEndAddressStr;
 		 * String realStartAddressStr; String baseAddress = pageTableAddress;
-		 * long realStartAddress = CommonLib.string2decimal(baseAddress);
+		 * long realStartAddress = CommonLib.string2BigInteger(baseAddress);
 		 * 
 		 * realStartAddressStr = String.format("%08x", realStartAddress); long
 		 * realEndAddress = realStartAddress + totalByte3 * 8; realEndAddressStr
@@ -2466,7 +2466,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		 * 
 		 * for (int z = 0; z < 2; z++) { try { int bytes[] = new int[4]; for
 		 * (int x2 = 0; x2 < 4; x2++) { bytes[x2] =
-		 * CommonLib.string2decimal(b[x2 + z *
+		 * CommonLib.string2BigInteger(b[x2 + z *
 		 * 4].substring(2).trim()).intValue(); } long value =
 		 * CommonLib.getInt(bytes, 0);
 		 * 
@@ -2614,9 +2614,9 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 			String command;
 			jStatusLabel.setText("Updating instruction");
 			if (address == null) {
-				BigInteger cs = CommonLib.string2decimal(this.registerPanel.jCSTextField.getText());
-				BigInteger eip = CommonLib.string2decimal(this.registerPanel.eipTextField.getText());
-				eip = eip.and(CommonLib.string2decimal("0xffffffffffffffff"));
+				BigInteger cs = CommonLib.string2BigInteger(this.registerPanel.jCSTextField.getText());
+				BigInteger eip = CommonLib.string2BigInteger(this.registerPanel.eipTextField.getText());
+				eip = eip.and(CommonLib.string2BigInteger("0xffffffffffffffff"));
 				command = "disasm cs:0x" + eip.toString(16) + " 0x" + cs.toString(16) + ":0x" + eip.add(BigInteger.valueOf(0x400)).toString(16);
 			} else {
 				command = "disasm " + address + " " + address.add(BigInteger.valueOf(0x400));
@@ -2639,7 +2639,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 
 						// load cCode
 						String pcStr = strs[0].trim();
-						BigInteger pc = CommonLib.string2decimal("0x" + pcStr);
+						BigInteger pc = CommonLib.string2BigInteger("0x" + pcStr);
 						if (pc == null) {
 							continue;
 						}
@@ -2680,7 +2680,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 			if (col1.startsWith("cCode")) {
 				continue;
 			}
-			BigInteger address = CommonLib.string2decimal(col1.toString());
+			BigInteger address = CommonLib.string2BigInteger(col1.toString());
 			if (pc.equals(address)) {
 				return instructionTable.getValueAt(x, 2).toString();
 			}
@@ -3285,7 +3285,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		try {
 			if (this.jMemoryAddressComboBox.getSelectedItem() != null) {
 				commandReceiver.shouldShow = false;
-				currentMemoryWindowsAddress = CommonLib.string2decimal(this.jMemoryAddressComboBox.getSelectedItem().toString());
+				currentMemoryWindowsAddress = CommonLib.string2BigInteger(this.jMemoryAddressComboBox.getSelectedItem().toString());
 				jStatusLabel.setText("Updating memory");
 				int totalByte = 200;
 				int bytes[] = getMemory(CommonLib.string2long(this.jMemoryAddressComboBox.getSelectedItem().toString()), totalByte, isPhysicalAddress);
@@ -3329,7 +3329,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 				}
 			}
 			jTabbedPane2.addTabWithCloseButton("GDT " + String.format("0x%02x", jGDTTable.getSelectedRow() + 1), null,
-					new GDTLDTPanel(this, 0, CommonLib.string2decimal(this.registerPanel.jGDTRTextField.getText()), jGDTTable.getSelectedRow() + 1), null);
+					new GDTLDTPanel(this, 0, CommonLib.string2BigInteger(this.registerPanel.jGDTRTextField.getText()), jGDTTable.getSelectedRow() + 1), null);
 			jTabbedPane2.setSelectedIndex(jTabbedPane2.getTabCount() - 1);
 		}
 	}
@@ -3343,7 +3343,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 				}
 			}
 			JScrollPane temp = new JScrollPane();
-			temp.setViewportView(new GDTLDTPanel(this, 1, CommonLib.string2decimal(this.registerPanel.jLDTRTextField.getText()), jLDTTable.getSelectedRow() + 1));
+			temp.setViewportView(new GDTLDTPanel(this, 1, CommonLib.string2BigInteger(this.registerPanel.jLDTRTextField.getText()), jLDTTable.getSelectedRow() + 1));
 			jTabbedPane2.addTabWithCloseButton("LDT " + jLDTTable.getSelectedRow(), null, temp, null);
 			jTabbedPane2.setSelectedIndex(jTabbedPane2.getTabCount() - 1);
 		}
@@ -3384,7 +3384,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 			String realEndAddressStr;
 			String realStartAddressStr;
 			String baseAddress = pageTableAddress;
-			BigInteger realStartAddress = CommonLib.string2decimal(baseAddress);
+			BigInteger realStartAddress = CommonLib.string2BigInteger(baseAddress);
 
 			realStartAddressStr = String.format("%08x", realStartAddress);
 			BigInteger realEndAddress = realStartAddress.add(BigInteger.valueOf(totalByte3 * 8));
@@ -3405,7 +3405,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 					try {
 						int bytes[] = new int[4];
 						for (int x = 0; x < 4; x++) {
-							bytes[x] = CommonLib.string2decimal(b[x + z * 4].substring(2).trim()).intValue();
+							bytes[x] = CommonLib.string2BigInteger(b[x + z * 4].substring(2).trim()).intValue();
 						}
 						long value = CommonLib.getInt(bytes, 0);
 						// "No.", "PT base", "AVL", "G",
@@ -4582,7 +4582,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		try {
 			InstructionTableModel model = (InstructionTableModel) instructionTable.getModel();
 			model.clearData();
-			updateInstruction(CommonLib.string2decimal(this.jInstructionComboBox.getSelectedItem().toString()));
+			updateInstruction(CommonLib.string2BigInteger(this.jInstructionComboBox.getSelectedItem().toString()));
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -5453,8 +5453,8 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 				JOptionPane.showMessageDialog(this, "Error, please input <segment selector>:<offset>\n\ne.g. : 0x10:0x12345678", "Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-			BigInteger segSelector = CommonLib.string2decimal(this.jAddressTextField.getText().split(":")[0]);
-			BigInteger address = CommonLib.string2decimal(this.jAddressTextField.getText().split(":")[1]);
+			BigInteger segSelector = CommonLib.string2BigInteger(this.jAddressTextField.getText().split(":")[0]);
+			BigInteger address = CommonLib.string2BigInteger(this.jAddressTextField.getText().split(":")[1]);
 
 			// for (int x = 0; x < model.getRowCount(); x++) {
 			// if (model.searchType.get(x).equals(1) &&
@@ -5474,7 +5474,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 
 			// read GDT descriptor
 			int descriptor[] = PeterBochsCommonLib.getMemoryFromBochs(
-					CommonLib.string2decimal(this.registerPanel.jGDTRTextField.getText()).add(segNo.multiply(BigInteger.valueOf(8))), 8);
+					CommonLib.string2BigInteger(this.registerPanel.jGDTRTextField.getText()).add(segNo.multiply(BigInteger.valueOf(8))), 8);
 			BigInteger baseAddress = CommonLib.getBigInteger(descriptor[2], descriptor[3], descriptor[4], descriptor[7], 0, 0, 0, 0);
 			BigInteger linearAddress = baseAddress.add(address);
 			model.baseAddress.add(baseAddress);
@@ -5482,17 +5482,17 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 
 			BigInteger pdNo = CommonLib.getBigInteger(linearAddress, 31, 22);
 			model.pdNo.add(pdNo);
-			int pdeBytes[] = PeterBochsCommonLib.getMemoryFromBochs(CommonLib.string2decimal(this.registerPanel.jCR3TextField.getText()).add(pdNo.multiply(BigInteger.valueOf(4))),
-					4);
+			int pdeBytes[] = PeterBochsCommonLib.getMemoryFromBochs(
+					CommonLib.string2BigInteger(this.registerPanel.jCR3TextField.getText()).add(pdNo.multiply(BigInteger.valueOf(4))), 4);
 			BigInteger pde = CommonLib.getBigInteger(pdeBytes, 0);
 			model.pde.add(pde);
 
 			BigInteger ptNo = CommonLib.getBigInteger(linearAddress, 21, 12);
 			model.ptNo.add(ptNo);
-			BigInteger pageTableBaseAddress = pde.and(CommonLib.string2decimal("0xfffff000"));
+			BigInteger pageTableBaseAddress = pde.and(CommonLib.string2BigInteger("0xfffff000"));
 			int pteBytes[] = PeterBochsCommonLib.getMemoryFromBochs(pageTableBaseAddress.add(ptNo.multiply(BigInteger.valueOf(4))), 4);
 			BigInteger pte = CommonLib.getBigInteger(pteBytes, 0);
-			BigInteger pagePhysicalAddress = pte.and(CommonLib.string2decimal("0xfffff000"));
+			BigInteger pagePhysicalAddress = pte.and(CommonLib.string2BigInteger("0xfffff000"));
 			model.pte.add(pte);
 
 			BigInteger physicalAddress = pagePhysicalAddress.add(CommonLib.getBigInteger(linearAddress, 11, 0));
@@ -5509,7 +5509,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 			// return;
 			// }
 			// }
-			BigInteger address = CommonLib.string2decimal(this.jAddressTextField.getText());
+			BigInteger address = CommonLib.string2BigInteger(this.jAddressTextField.getText());
 
 			model.searchType.add(2);
 			model.searchAddress.add(address);
@@ -5521,17 +5521,17 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 
 			BigInteger pdNo = CommonLib.getBigInteger(linearAddress, 31, 22);
 			model.pdNo.add(pdNo);
-			int pdeBytes[] = PeterBochsCommonLib.getMemoryFromBochs(CommonLib.string2decimal(this.registerPanel.jCR3TextField.getText()).add(pdNo.multiply(BigInteger.valueOf(4))),
-					4);
+			int pdeBytes[] = PeterBochsCommonLib.getMemoryFromBochs(
+					CommonLib.string2BigInteger(this.registerPanel.jCR3TextField.getText()).add(pdNo.multiply(BigInteger.valueOf(4))), 4);
 			BigInteger pde = CommonLib.getBigInteger(pdeBytes, 0);
 			model.pde.add(pde);
 
 			BigInteger ptNo = CommonLib.getBigInteger(linearAddress, 21, 12);
 			model.ptNo.add(ptNo);
-			BigInteger pageTableBaseAddress = pde.and(CommonLib.string2decimal("0xfffff000"));
+			BigInteger pageTableBaseAddress = pde.and(CommonLib.string2BigInteger("0xfffff000"));
 			int pteBytes[] = PeterBochsCommonLib.getMemoryFromBochs(pageTableBaseAddress.add(ptNo.multiply(BigInteger.valueOf(4))), 4);
 			BigInteger pte = CommonLib.getBigInteger(pteBytes, 0);
-			BigInteger pagePhysicalAddress = pte.and(CommonLib.string2decimal("0xfffff000"));
+			BigInteger pagePhysicalAddress = pte.and(CommonLib.string2BigInteger("0xfffff000"));
 			model.pte.add(pte);
 
 			BigInteger physicalAddress = pagePhysicalAddress.add(CommonLib.getBigInteger(linearAddress, 11, 0));
@@ -5546,7 +5546,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 					return;
 				}
 			}
-			BigInteger addr = CommonLib.string2decimal(this.jAddressTextField.getText());
+			BigInteger addr = CommonLib.string2BigInteger(this.jAddressTextField.getText());
 			model.searchType.add(3);
 			model.searchSegSelector.add(BigInteger.ZERO);
 			model.searchAddress.add(addr);
@@ -5584,8 +5584,8 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 				model.segNo.set(x, model.searchSegSelector.get(x).shiftRight(3));
 				model.virtualAddress.set(x, model.searchAddress.get(x));
 
-				BigInteger gdtBase = PeterBochsCommonLib.getPhysicalAddress(CommonLib.string2decimal(this.registerPanel.jCR3TextField.getText()),
-						CommonLib.string2decimal(this.registerPanel.jGDTRTextField.getText()));
+				BigInteger gdtBase = PeterBochsCommonLib.getPhysicalAddress(CommonLib.string2BigInteger(this.registerPanel.jCR3TextField.getText()),
+						CommonLib.string2BigInteger(this.registerPanel.jGDTRTextField.getText()));
 				commandReceiver.clearBuffer();
 				gdtBase = gdtBase.add(model.segNo.get(x).multiply(BigInteger.valueOf(8)));
 				sendCommand("xp /8bx " + gdtBase);
@@ -5990,10 +5990,10 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		try {
 			BigInteger eip;
 			if (CommonLib.getBit(CommonLib.string2long(registerPanel.jCR0TextField.getText()), 0) == 1) {
-				eip = CommonLib.string2decimal(registerPanel.eipTextField.getText());
+				eip = CommonLib.string2BigInteger(registerPanel.eipTextField.getText());
 			} else {
-				eip = CommonLib.string2decimal(registerPanel.jCSTextField.getText()).multiply(BigInteger.valueOf(16))
-						.add(CommonLib.string2decimal(registerPanel.eipTextField.getText()));
+				eip = CommonLib.string2BigInteger(registerPanel.jCSTextField.getText()).multiply(BigInteger.valueOf(16))
+						.add(CommonLib.string2BigInteger(registerPanel.eipTextField.getText()));
 			}
 			return eip;
 		} catch (Exception ex) {
@@ -6006,7 +6006,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		BigInteger address = model.getDebugLineInfo().get(model.getCurrentFile()).get(this.elfTable.getSelectedRow());
 
 		for (int x = 0; x < breakpointTable.getRowCount(); x++) {
-			BigInteger addr = CommonLib.string2decimal(breakpointTable.getValueAt(x, 2).toString());
+			BigInteger addr = CommonLib.string2BigInteger(breakpointTable.getValueAt(x, 2).toString());
 			if (addr == address) {
 				String breakpointNo = breakpointTable.getValueAt(x, 0).toString().trim().split(" ")[0];
 				sendCommand("bpe " + breakpointNo);
@@ -6023,7 +6023,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		BigInteger address = model.getDebugLineInfo().get(model.getCurrentFile()).get(this.elfTable.getSelectedRow());
 
 		for (int x = 0; x < breakpointTable.getRowCount(); x++) {
-			BigInteger addr = CommonLib.string2decimal(breakpointTable.getValueAt(x, 2).toString());
+			BigInteger addr = CommonLib.string2BigInteger(breakpointTable.getValueAt(x, 2).toString());
 			if (addr == address) {
 				String breakpointNo = breakpointTable.getValueAt(x, 0).toString().trim().split(" ")[0];
 				sendCommand("bpd " + breakpointNo);
@@ -6567,11 +6567,11 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 	}
 
 	private void jDumpCR3ButtonActionPerformed(ActionEvent evt) {
-		updatePageTable(CommonLib.string2decimal(registerPanel.jCR3TextField.getText()));
+		updatePageTable(CommonLib.string2BigInteger(registerPanel.jCR3TextField.getText()));
 	}
 
 	private void jDumpPageTableAtAddressButtonActionPerformed(ActionEvent evt) {
-		updatePageTable(CommonLib.string2decimal(jDumpPageDirectoryAddressTextField.getText()));
+		updatePageTable(CommonLib.string2BigInteger(jDumpPageDirectoryAddressTextField.getText()));
 	}
 
 	private JButton getJButton21x() {
@@ -7062,10 +7062,10 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 				firstAddress = PeterBochsDebugger.instructionTable.getValueAt(x, 1).toString().replaceAll("^-*", "").split(":")[0];
 				x++;
 			} while (!CommonLib.isNumber(firstAddress));
-			firstAddress = CommonLib.string2decimal(firstAddress).subtract(BigInteger.valueOf(1)).toString(16);
+			firstAddress = CommonLib.string2BigInteger(firstAddress).subtract(BigInteger.valueOf(1)).toString(16);
 
 			jInstructionComboBox.setSelectedItem("0x" + firstAddress);
-			updateInstruction(CommonLib.string2decimal("0x" + firstAddress));
+			updateInstruction(CommonLib.string2BigInteger("0x" + firstAddress));
 			updateBreakpointTableColor();
 		}
 	}
@@ -7082,7 +7082,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 				}
 
 				jInstructionComboBox.setSelectedItem(firstAddress);
-				updateInstruction(CommonLib.string2decimal(firstAddress));
+				updateInstruction(CommonLib.string2BigInteger(firstAddress));
 				updateBreakpointTableColor();
 			}
 		} catch (Exception ex) {
@@ -7110,10 +7110,10 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 			firstAddress = PeterBochsDebugger.instructionTable.getValueAt(x, 1).toString().replaceAll("^-*", "").split(":")[0];
 			x++;
 		} while (!CommonLib.isNumber(firstAddress));
-		firstAddress = CommonLib.string2decimal(firstAddress).subtract(BigInteger.valueOf(16)).toString(16);
+		firstAddress = CommonLib.string2BigInteger(firstAddress).subtract(BigInteger.valueOf(16)).toString(16);
 
 		this.jInstructionComboBox.setSelectedItem("0x" + firstAddress);
-		updateInstruction(CommonLib.string2decimal("0x" + firstAddress));
+		updateInstruction(CommonLib.string2BigInteger("0x" + firstAddress));
 		updateBreakpointTableColor();
 	}
 
@@ -7160,7 +7160,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 				}
 			}
 			jTabbedPane2.addTabWithCloseButton("IDT " + String.format("0x%02x", jIDTTable.getSelectedRow()), null,
-					new IDTDescriptorPanel(this, CommonLib.string2decimal(this.registerPanel.jIDTRTextField.getText()), jIDTTable.getSelectedRow()), null);
+					new IDTDescriptorPanel(this, CommonLib.string2BigInteger(this.registerPanel.jIDTRTextField.getText()), jIDTTable.getSelectedRow()), null);
 			jTabbedPane2.setSelectedIndex(jTabbedPane2.getTabCount() - 1);
 		}
 	}
@@ -7796,7 +7796,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 	private EnhancedTextArea getOsLogPanel1() {
 		if (osLogPanel1 == null) {
 			osLogPanel1 = new EnhancedTextArea();
-			osLogPanel1.addTrailListener(new File("os.log"));
+			osLogPanel1.addTrailListener(new File("."), new File("os.log"));
 		}
 		return osLogPanel1;
 	}
@@ -8821,16 +8821,16 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 	}
 
 	private void nextButtonActionPerformed(ActionEvent evt) {
-		BigInteger currentIP = CommonLib.string2decimal(registerPanel.eipTextField.getText());
+		BigInteger currentIP = CommonLib.string2BigInteger(registerPanel.eipTextField.getText());
 		String nextCCode = null;
 		boolean bingo = false;
 		BigInteger addr = null;
 		for (int x = 0; x < instructionTable.getRowCount() - 1; x++) {
 			String addressColumn = (String) instructionTable.getValueAt(x, 1);
 			if (addressColumn.startsWith("cCode")) {
-				addr = CommonLib.string2decimal(addressColumn.split(":")[1]);
+				addr = CommonLib.string2BigInteger(addressColumn.split(":")[1]);
 			} else {
-				addr = CommonLib.string2decimal(addressColumn);
+				addr = CommonLib.string2BigInteger(addressColumn);
 			}
 			if (bingo && addressColumn.startsWith("cCode") && !addr.equals(currentIP)) {
 				nextCCode = addressColumn;
@@ -8894,16 +8894,16 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 	}
 
 	private void nextOverButtonActionPerformed(ActionEvent evt) {
-		BigInteger currentIP = CommonLib.string2decimal(registerPanel.eipTextField.getText());
+		BigInteger currentIP = CommonLib.string2BigInteger(registerPanel.eipTextField.getText());
 		String nextCCode = null;
 		boolean bingo = false;
 		BigInteger addr = null;
 		for (int x = 0; x < instructionTable.getRowCount() - 1; x++) {
 			String addressColumn = (String) instructionTable.getValueAt(x, 1);
 			if (addressColumn.startsWith("cCode")) {
-				addr = CommonLib.string2decimal(addressColumn.split(":")[1]);
+				addr = CommonLib.string2BigInteger(addressColumn.split(":")[1]);
 			} else {
-				addr = CommonLib.string2decimal(addressColumn);
+				addr = CommonLib.string2BigInteger(addressColumn);
 			}
 			if (bingo && addressColumn.startsWith("cCode") && !addr.equals(currentIP)) {
 				nextCCode = addressColumn;

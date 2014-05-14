@@ -35,7 +35,6 @@
 	<classpathentry kind="lib" path="lib/javax.wsdl_1.6.2.v201012040545.jar"/>
 	<classpathentry kind="lib" path="lib/saaj.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/peter-dwarf"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Peter-swing"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JavaFX"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/peter-swing"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

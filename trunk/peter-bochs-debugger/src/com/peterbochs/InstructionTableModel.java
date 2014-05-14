@@ -25,10 +25,10 @@ public class InstructionTableModel extends AbstractTableModel {
 			if (showAsmLevel) {
 				if (column == 0) {
 					if (data.get(row)[1].startsWith("cCode")) {
-						BigInteger address = CommonLib.string2decimal(data.get(row)[1].split(":")[1]);
+						BigInteger address = CommonLib.string2BigInteger(data.get(row)[1].split(":")[1]);
 						return getColumn0(address);
 					} else {
-						BigInteger address = CommonLib.string2decimal(data.get(row)[1]);
+						BigInteger address = CommonLib.string2BigInteger(data.get(row)[1]);
 						return getColumn0(address);
 					}
 				} else {
@@ -49,7 +49,7 @@ public class InstructionTableModel extends AbstractTableModel {
 				}
 				System.out.println("row=" + row + ", z=" + z + ", code=" + data.get(z)[0] + "," + data.get(z)[1]);
 				if (column == 0) {
-					BigInteger address = CommonLib.string2decimal(data.get(z)[1].split(":")[1]);
+					BigInteger address = CommonLib.string2BigInteger(data.get(z)[1].split(":")[1]);
 					return getColumn0(address);
 				} else {
 					return data.get(z)[column];
@@ -128,9 +128,9 @@ public class InstructionTableModel extends AbstractTableModel {
 						strs.remove(1);
 
 						if (strs.get(1).contains("y")) {
-							breakpoint.put(CommonLib.string2decimal(strs.get(2)), true);
+							breakpoint.put(CommonLib.string2BigInteger(strs.get(2)), true);
 						} else {
-							breakpoint.put(CommonLib.string2decimal(strs.get(2)), false);
+							breakpoint.put(CommonLib.string2BigInteger(strs.get(2)), false);
 						}
 					}
 				}
