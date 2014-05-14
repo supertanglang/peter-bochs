@@ -1,4 +1,5 @@
-<?xml version='1.0' ?>  <Setting>
+<?xml version='1.0' ?>
+  <Setting>
     <bochsCommandHistory/>
     <breakpoint/>
     <currentLanguage>en_US</currentLanguage>
@@ -13,20 +14,27 @@
     <idt/>
     <interruptProfiling>false</interruptProfiling>
     <jmpProfiling>false</jmpProfiling>
-    <lastElfHistoryOpenDir>/root/workspace/peter-bochs-debugger/.</lastElfHistoryOpenDir>
-    <lastElfHistoryOpenDir2>/root/workspace/peter-bochs-debugger/.</lastElfHistoryOpenDir2>
+    <lastElfHistoryOpenDir>/Users/peter/Desktop/workspace/peter-bochs-debugger/.</lastElfHistoryOpenDir>
+    <lastElfHistoryOpenDir2>/Users/peter/Desktop/workspace/peter-bochs-debugger/.</lastElfHistoryOpenDir2>
+    <lastMapOpenDir>/Users/peter/Desktop/workspace/peter-bochs-debugger/.</lastMapOpenDir>
     <ldt/>
     <loadBreakpointAtStartup>false</loadBreakpointAtStartup>
+    <loadSystemMapAtStartup>false</loadSystemMapAtStartup>
+    <logToPetersoftServer>false</logToPetersoftServer>
     <memoryCombo/>
     <memoryEnd/>
     <memoryProfiling>false</memoryProfiling>
     <memoryStart/>
     <osDebugSplitPane_DividerLocation>150</osDebugSplitPane_DividerLocation>
+    <path_dwarfdump/>
+    <path_objdump/>
     <physicalAddress/>
     <profileMemoryFromAddress/>
     <profileMemoryToAddress/>
     <profilingUpdateGraph>false</profilingUpdateGraph>
     <register/>
+    <sbAddress/>
+    <sbaAddress/>
     <tss/>
     <updateAfterBochsCommand>false</updateAfterBochsCommand>
     <updateAfterBochsCommand_addressTranslate>false</updateAfterBochsCommand_addressTranslate>
@@ -42,6 +50,7 @@
     <updateAfterBochsCommand_stack>false</updateAfterBochsCommand_stack>
     <updateFastStepCommand_breakpoint>false</updateFastStepCommand_breakpoint>
     <updateFastStepCommand_gdt>false</updateFastStepCommand_gdt>
+    <updateFastStepCommand_history>false</updateFastStepCommand_history>
     <updateFastStepCommand_idt>false</updateFastStepCommand_idt>
     <updateFastStepCommand_instruction>true</updateFastStepCommand_instruction>
     <updateFastStepCommand_ldt>false</updateFastStepCommand_ldt>

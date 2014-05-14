@@ -97,7 +97,7 @@ public class SourceCodeTableModel extends AbstractTableModel {
 			String arr[] = linesArr[x].split("===");
 			String filename = arr[0].trim();
 			String line = arr[1].trim();
-			BigInteger address = CommonLib.string2decimal("0x" + arr[2].trim());
+			BigInteger address = CommonLib.string2BigInteger("0x" + arr[2].trim());
 			if (debugLineInfo.get(filename) == null) {
 				HashMap<BigInteger, BigInteger> h = new HashMap<BigInteger, BigInteger>();
 				h.put(new BigInteger(line), address);
@@ -128,9 +128,9 @@ public class SourceCodeTableModel extends AbstractTableModel {
 						strs.remove(1);
 
 						if (strs.get(1).contains("y")) {
-							breakpoint.put(CommonLib.string2decimal(strs.get(2)), true);
+							breakpoint.put(CommonLib.string2BigInteger(strs.get(2)), true);
 						} else {
-							breakpoint.put(CommonLib.string2decimal(strs.get(2)), false);
+							breakpoint.put(CommonLib.string2BigInteger(strs.get(2)), false);
 						}
 					}
 				}

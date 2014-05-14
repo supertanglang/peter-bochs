@@ -2164,13 +2164,13 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 	}
 
 	private void jTrackUnitComboBoxActionPerformed(ActionEvent evt) {
-		graphComponent.addressPerPixel = CommonLib.string2decimal(jTrackUnitComboBox.getSelectedItem().toString()).floatValue();
+		graphComponent.addressPerPixel = CommonLib.string2BigInteger(jTrackUnitComboBox.getSelectedItem().toString()).floatValue();
 		addCells(graph.getDefaultParent());
 		graphComponent.repaint();
 	}
 
 	private void jTrackDistanceComboBoxActionPerformed(ActionEvent evt) {
-		graphComponent.pixelPerMarker = CommonLib.string2decimal(jTrackDistanceComboBox.getSelectedItem().toString()).intValue();
+		graphComponent.pixelPerMarker = CommonLib.string2BigInteger(jTrackDistanceComboBox.getSelectedItem().toString()).intValue();
 		addCells(graph.getDefaultParent());
 		graphComponent.repaint();
 	}
@@ -2651,7 +2651,7 @@ public class InstrumentPanel extends JPanel implements ChartChangeListener, Char
 		HashSet<BigInteger> c = new HashSet<BigInteger>();
 		for (int x = 0; x < address.length; x++) {
 			try {
-				c.add(CommonLib.string2decimal(address[x]));
+				c.add(CommonLib.string2BigInteger(address[x]));
 			} catch (Exception ex) {
 
 			}

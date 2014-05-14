@@ -479,7 +479,7 @@ public class SourceLevelDebugger3 extends JMaximizableTabbedPane_BasePanel imple
 		this.addInstructionComboBox(this.jInstructionComboBox.getSelectedItem().toString());
 		disassembleCSEIPButton.setEnabled(false);
 		try {
-			peterBochsDebugger.updateInstruction(CommonLib.string2decimal(this.jInstructionComboBox.getSelectedItem().toString()));
+			peterBochsDebugger.updateInstruction(CommonLib.string2BigInteger(this.jInstructionComboBox.getSelectedItem().toString()));
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
