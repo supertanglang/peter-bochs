@@ -1,45 +1,17 @@
-<?xml version='1.0' ?>
-  <Setting>
-    <bochsCommandHistory>
-      <bochsCommandHistory>r</bochsCommandHistory>
-      <bochsCommandHistory>print-stack 40</bochsCommandHistory>
-      <bochsCommandHistory>xp /4096bx</bochsCommandHistory>
-    </bochsCommandHistory>
+<?xml version='1.0' ?>  <Setting>
+    <bochsCommandHistory/>
     <breakpoint/>
     <currentLanguage>en_US</currentLanguage>
-    <customZone>false</customZone>
-    <divX>617</divX>
-    <divY>442</divY>
+    <divX>554</divX>
+    <divY>339</divY>
     <fontFamily>Dialog</fontFamily>
     <fontsize>12</fontsize>
-    <gdt/>
-    <height>919</height>
-    <hitZone>false</hitZone>
-    <idt/>
-    <interruptProfiling>false</interruptProfiling>
-    <jmpProfiling>false</jmpProfiling>
-    <lastElfHistoryOpenDir>C:\peter2\projects\peter-bochs-debugger\vm\menuetos\.</lastElfHistoryOpenDir>
-    <lastElfHistoryOpenDir2>C:\peter2\projects\peter-bochs-debugger\vm\menuetos\.</lastElfHistoryOpenDir2>
-    <lastMapOpenDir>C:\</lastMapOpenDir>
-    <ldt/>
-    <loadBreakpointAtStartup>true</loadBreakpointAtStartup>
-    <loadSystemMapAtStartup>false</loadSystemMapAtStartup>
-    <logToPetersoftServer>false</logToPetersoftServer>
+    <height>672</height>
+    <lastElfHistoryOpenDir>/root/workspace/peter-bochs-debugger/dlxlinux/.</lastElfHistoryOpenDir>
+    <lastElfHistoryOpenDir2>/root/workspace/peter-bochs-debugger/dlxlinux/.</lastElfHistoryOpenDir2>
+    <loadBreakpointAtStartup>false</loadBreakpointAtStartup>
     <memoryCombo/>
-    <memoryEnd/>
-    <memoryProfiling>false</memoryProfiling>
-    <memoryStart/>
     <osDebugSplitPane_DividerLocation>150</osDebugSplitPane_DividerLocation>
-    <path_dwarfdump/>
-    <path_objdump/>
-    <physicalAddress/>
-    <profileMemoryFromAddress/>
-    <profileMemoryToAddress/>
-    <profilingUpdateGraph>false</profilingUpdateGraph>
-    <register/>
-    <sbAddress/>
-    <sbaAddress/>
-    <tss/>
     <updateAfterBochsCommand>false</updateAfterBochsCommand>
     <updateAfterBochsCommand_addressTranslate>false</updateAfterBochsCommand_addressTranslate>
     <updateAfterBochsCommand_breakpoint>false</updateAfterBochsCommand_breakpoint>
@@ -54,13 +26,12 @@
     <updateAfterBochsCommand_stack>false</updateAfterBochsCommand_stack>
     <updateFastStepCommand_breakpoint>false</updateFastStepCommand_breakpoint>
     <updateFastStepCommand_gdt>false</updateFastStepCommand_gdt>
-    <updateFastStepCommand_history>false</updateFastStepCommand_history>
     <updateFastStepCommand_idt>false</updateFastStepCommand_idt>
     <updateFastStepCommand_instruction>true</updateFastStepCommand_instruction>
     <updateFastStepCommand_ldt>false</updateFastStepCommand_ldt>
     <updateFastStepCommand_memory>true</updateFastStepCommand_memory>
     <updateFastStepCommand_register>true</updateFastStepCommand_register>
-    <width>1492</width>
-    <x>306</x>
-    <y>34</y>
+    <width>1073</width>
+    <x>324</x>
+    <y>41</y>
   </Setting>

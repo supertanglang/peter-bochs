@@ -1,7 +1,7 @@
 package com.peterbochs;
 
 public class Global {
-	public static String version = "20130922";
+	public static String version = "20140703";
 	public static boolean debug = true;
 	public static long osDebug = -1;
 	public static String jmpLog = "jmp.log";
