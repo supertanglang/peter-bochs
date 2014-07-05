@@ -64,6 +64,8 @@ public class CommandReceiver implements Runnable {
 
 		String str = "";
 
+		int normalTimeout = 500;
+
 		while (true) {
 			synchronized (lines) {
 				if (lines.size() > 0) {
@@ -71,7 +73,10 @@ public class CommandReceiver implements Runnable {
 					lines.remove(0);
 					startTime = new Date().getTime();
 				} else {
-					return str;
+					long diff = new Date().getTime() - startTime;
+					if (diff >= normalTimeout) {
+						return str;
+					}
 				}
 				long diff = new Date().getTime() - startTime;
 				if (diff / 1000 >= timeoutSecond) {
@@ -179,7 +184,7 @@ public class CommandReceiver implements Runnable {
 		try {
 			final BufferedReader br = new BufferedReader(new InputStreamReader(is), 1024);
 			String line;
-			final JEditorPane bochsEditorPane = peterBochsDebugger.getjBochsEditorPane();
+			final JEditorPane bochsEditorPane = peterBochsDebugger.getBochsEditorPane();
 			while ((line = br.readLine()) != null) {
 				if (shouldShow) {
 					bochsEditorPane.setText(bochsEditorPane.getText() + "\n" + line);

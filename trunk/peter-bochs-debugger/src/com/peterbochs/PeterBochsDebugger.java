@@ -153,7 +153,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 	private JScrollPane jScrollPane2;
 	private JMaximizableTabbedPane jTabbedPane1;
 	private HexTable jHexTable1;
-	private JEditorPane jBochsEditorPane;
+	private JEditorPane bochsEditorPane;
 
 	public static CommandReceiver commandReceiver;
 
@@ -177,8 +177,8 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 	private JMenuItem pauseBochsMenuItem;
 	private JPanel jPanel3;
 	public JMaximizableTabbedPane jTabbedPane2;
-	private JButton jBochsCommandButton;
-	private JTextField jBochsCommandTextField;
+	private JButton bochsCommandButton;
+	private JTextField bochsCommandTextField;
 	private JPanel jPanel2;
 	private JPanel jPanel1;
 	public static JTable instructionTable;
@@ -1348,25 +1348,25 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		}.start();
 	}
 
-	private void jBochsCommandButtonActionPerformed(ActionEvent evt) {
+	private void bochsCommandButtonActionPerformed(ActionEvent evt) {
 		try {
-			if (jBochsCommandTextField.getText().trim().equals("clear")) {
-				this.jBochsEditorPane.setText("");
-			} else if (jBochsCommandTextField.getText().trim().equals("c")) {
+			if (bochsCommandTextField.getText().trim().equals("clear")) {
+				this.bochsEditorPane.setText("");
+			} else if (bochsCommandTextField.getText().trim().equals("c")) {
 				commandReceiver.shouldShow = false;
 				runBochs();
-			} else if (jBochsCommandTextField.getText().trim().equals("q")) {
+			} else if (bochsCommandTextField.getText().trim().equals("q")) {
 				stopBochs();
 			} else {
 				try {
-					Setting.getInstance().getBochsCommandHistory().add(jBochsCommandTextField.getText());
+					Setting.getInstance().getBochsCommandHistory().add(bochsCommandTextField.getText());
 					Setting.getInstance().save();
 				} catch (Exception ex2) {
 				}
 
 				commandReceiver.shouldShow = true;
 
-				sendCommand(this.jBochsCommandTextField.getText());
+				sendCommand(this.bochsCommandTextField.getText());
 				if (Setting.getInstance().isUpdateAfterBochsCommand()) {
 					updateBochsStatusForBochsCommand(true);
 				}
@@ -1377,10 +1377,10 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		}
 	}
 
-	private void jBochsCommandTextFieldKeyTyped(KeyEvent evt) {
+	private void bochsCommandTextFieldKeyTyped(KeyEvent evt) {
 		if (evt.getKeyChar() == '\n') {
-			jBochsCommandButtonActionPerformed(null);
-			jBochsCommandTextField.setText("");
+			bochsCommandButtonActionPerformed(null);
+			bochsCommandTextField.setText("");
 		}
 	}
 
@@ -1575,7 +1575,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 				}
 				if (jAutoUpdateEvery20LinesCheckBox.isSelected()) {
 					if (noOfLine >= 20) {
-						jBochsEditorPane.setText(jBochsEditorPane.getText() + result);
+						bochsEditorPane.setText(bochsEditorPane.getText() + result);
 						jTextArea1.newLogFileLine(result);
 						result = "";
 						noOfLine = 1;
@@ -1583,7 +1583,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 						noOfLine++;
 					}
 				} else {
-					jBochsEditorPane.setText(jBochsEditorPane.getText() + result);
+					bochsEditorPane.setText(bochsEditorPane.getText() + result);
 					jTextArea1.newLogFileLine(result);
 					result = "";
 				}
@@ -1642,7 +1642,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 							jStepCountLabel.setText("Step " + x + " / " + instructionCount + ", speed : " + speed + " steps/second");
 							sendCommand("s");
 							result = update(result, out);
-							jBochsEditorPane.setText("");
+							bochsEditorPane.setText("");
 
 							if (new Date().getTime() - lastTime >= 1000) {
 								speed = x - lastCount;
@@ -1662,7 +1662,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 							jStepCountLabel.setText("Step over " + x + " / " + instructionCount + ", speed : " + speed + " steps/second");
 							sendCommand("next");
 							result = update(result, out);
-							jBochsEditorPane.setText("");
+							bochsEditorPane.setText("");
 
 							if (new Date().getTime() - lastTime >= 1000) {
 								speed = x - lastCount;
@@ -1756,7 +1756,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 								}
 								if (jAutoUpdateEvery20LinesCheckBox.isSelected()) {
 									if (noOfLine >= 20) {
-										jBochsEditorPane.setText(jBochsEditorPane.getText() + result);
+										bochsEditorPane.setText(bochsEditorPane.getText() + result);
 										jTextArea1.newLogFileLine(result);
 										result = "";
 										noOfLine = 1;
@@ -1767,7 +1767,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 										noOfLine++;
 									}
 								} else {
-									jBochsEditorPane.setText(jBochsEditorPane.getText() + result);
+									bochsEditorPane.setText(bochsEditorPane.getText() + result);
 									jTextArea1.newLogFileLine(result);
 									result = "";
 
@@ -3610,19 +3610,19 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 	}
 
 	private void jBochsCommandTextFieldKeyPressed(KeyEvent evt) {
-		if (jBochsCommandTextField.getText().equals("")) {
+		if (bochsCommandTextField.getText().equals("")) {
 			commandHistoryIndex = 0;
 		}
 		HashSet<String> vector = Setting.getInstance().getBochsCommandHistory();
 		if (evt.getKeyCode() == 38) {
 			if (commandHistoryIndex < vector.size()) {
 				commandHistoryIndex++;
-				this.jBochsCommandTextField.setText(vector.toArray()[vector.size() - commandHistoryIndex].toString());
+				this.bochsCommandTextField.setText(vector.toArray()[vector.size() - commandHistoryIndex].toString());
 			}
 		} else if (evt.getKeyCode() == 40) {
 			if (commandHistoryIndex > 1) {
 				commandHistoryIndex--;
-				this.jBochsCommandTextField.setText(vector.toArray()[vector.size() - commandHistoryIndex].toString());
+				this.bochsCommandTextField.setText(vector.toArray()[vector.size() - commandHistoryIndex].toString());
 			}
 		}
 	}
@@ -4824,8 +4824,8 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 						jScrollPane4 = new JScrollPane();
 						jPanel1.add(jScrollPane4, BorderLayout.CENTER);
 						{
-							jBochsEditorPane = new JEditorPane();
-							jScrollPane4.setViewportView(jBochsEditorPane);
+							bochsEditorPane = new JEditorPane();
+							jScrollPane4.setViewportView(bochsEditorPane);
 						}
 					}
 					{
@@ -4836,26 +4836,26 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 						jPanel2.setLayout(jPanel2Layout);
 						jPanel1.add(jPanel2, BorderLayout.SOUTH);
 						{
-							jBochsCommandTextField = new JTextField();
-							jPanel2.add(jBochsCommandTextField, "0, 0, 1, 0");
-							jBochsCommandTextField.addKeyListener(new KeyAdapter() {
+							bochsCommandTextField = new JTextField();
+							jPanel2.add(bochsCommandTextField, "0, 0, 1, 0");
+							bochsCommandTextField.addKeyListener(new KeyAdapter() {
 								public void keyPressed(KeyEvent evt) {
 									jBochsCommandTextFieldKeyPressed(evt);
 								}
 
 								public void keyTyped(KeyEvent evt) {
-									jBochsCommandTextFieldKeyTyped(evt);
+									bochsCommandTextFieldKeyTyped(evt);
 								}
 							});
 						}
 						{
-							jBochsCommandButton = new JButton();
-							jPanel2.add(jBochsCommandButton, "2, 0");
+							bochsCommandButton = new JButton();
+							jPanel2.add(bochsCommandButton, "2, 0");
 							jPanel2.add(getJClearBochsButton(), "3, 0");
-							jBochsCommandButton.setText("Run");
-							jBochsCommandButton.addActionListener(new ActionListener() {
+							bochsCommandButton.setText("Run");
+							bochsCommandButton.addActionListener(new ActionListener() {
 								public void actionPerformed(ActionEvent evt) {
-									jBochsCommandButtonActionPerformed(evt);
+									bochsCommandButtonActionPerformed(evt);
 								}
 							});
 						}
@@ -6654,7 +6654,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 	}
 
 	private void jClearBochsButtonActionPerformed(ActionEvent evt) {
-		this.jBochsEditorPane.setText("");
+		this.bochsEditorPane.setText("");
 	}
 
 	public static int[] getPhysicalMemory(long address, int totalByte) {
@@ -7050,8 +7050,8 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		return jInstructionDownButton;
 	}
 
-	public JEditorPane getjBochsEditorPane() {
-		return jBochsEditorPane;
+	public JEditorPane getBochsEditorPane() {
+		return bochsEditorPane;
 	}
 
 	public void jInstructionUpButtonActionPerformed(ActionEvent evt) {
@@ -8210,7 +8210,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 		JTabbedPane pane = (JTabbedPane) evt.getSource();
 		int sel = pane.getSelectedIndex();
 		if (sel == 2) {
-			jBochsCommandTextField.requestFocus();
+			bochsCommandTextField.requestFocus();
 		}
 	}
 
@@ -8646,7 +8646,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 			// false);
 
 			new Thread(new BochsoutTimer()).start();
-			getBochsoutTextArea().jToolBar.add(getJButton4(), -1);
+			getBochsoutTextArea().toolBar.add(getJButton4(), -1);
 		}
 		return bochsoutTextArea;
 	}
@@ -8664,7 +8664,7 @@ public class PeterBochsDebugger extends javax.swing.JFrame {
 					long newLength = file.length();
 					if (originalLengeh != newLength) {
 						bochsoutTextArea.setText(tail2(file, 80));
-						bochsoutTextArea.jTextArea.setCaretPosition(bochsoutTextArea.jTextArea.getDocument().getLength());
+						bochsoutTextArea.textArea.setCaretPosition(bochsoutTextArea.textArea.getDocument().getLength());
 						originalLengeh = newLength;
 					}
 				} catch (Exception e1) {
